@@ -275,7 +275,7 @@ fn demo_url() -> Result<String, String> {
     #[cfg(target_arch = "wasm32")]
     {
         // Relative on purpose: resolves against the page origin (and subpath, e.g. the
-        // website's /showcase/web-dom/), keeping the request same-origin — no CORS.
+        // project-Pages /Day-Showcase/), keeping the request same-origin — no CORS.
         Ok("day-http-ok".into())
     }
     #[cfg(not(target_arch = "wasm32"))]

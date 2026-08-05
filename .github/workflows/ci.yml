@@ -30,3 +30,9 @@ jobs:
       locales: en fr ar zh-CN
       app-id: dev.daybrite.showcase
       deploy-web: true
+      # Tag builds sign and notarize the .dmg in a job that checks out nothing and runs only
+      # Apple's own tools — the Developer ID is never present where repository code runs. Needs a
+      # `release-signing` environment in THIS repository holding DAY_MACOS_CERT_P12,
+      # DAY_MACOS_CERT_PASSWORD, DAY_SIGN_MACOS_IDENTITY and the DAY_NOTARY_* trio; without it the
+      # .dmg ships dev-signed and everything else still works.
+      signing-environment: release-signing
