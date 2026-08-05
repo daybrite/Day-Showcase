@@ -1,0 +1,30 @@
+# Rust build products
+/target
+# Not committed, matching every other Day app repo: the day dependency floats on `main`, and a
+# lock resolved against a local checkout (`day patch`) records paths meaningless on any other
+# machine.
+Cargo.lock
+
+# day build outputs: per-target cargo dirs, staged assets, jniLibs, screenshots, dist artifacts,
+# and the gradle/xcodebuild/hvigor outputs under the platform scaffolds
+build/
+
+# Machine-local: `day patch --local <day-checkout>` writes this to build against a checkout
+# instead of the git dependency. CI has no such file and resolves git.
+/.cargo/config.toml
+
+# Gradle local state (the android scaffold is source; its caches are not)
+.gradle/
+local.properties
+
+# Xcode local state (DayApp.xcodeproj itself is hand-written source — do NOT ignore it)
+xcuserdata/
+DerivedData/
+# Xcode writes SwiftPM bookkeeping INSIDE the .xcodeproj the first time it resolves packages.
+# It is regenerated state, and project.xcworkspace cannot be relocated out of the project.
+**/*.xcodeproj/project.xcworkspace/
+
+# Logs
+*.log
+
+.DS_Store

@@ -1,0 +1,32 @@
+# Build, test, package and release the Day Showcase — the same reusable workflow every Day app
+# uses (daybrite/actions). The app's own pipeline; day's repository ALSO builds this app from a
+# checkout of it, to test the framework against the app it documents.
+name: ci
+
+on:
+  push:
+    branches: [main]
+    tags: ["v[0-9]+.[0-9]+.[0-9]+*"]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * *"
+
+permissions:
+  contents: write # release assets on tags
+  pages: write # deploy-web
+  id-token: write # deploy-pages OIDC
+
+jobs:
+  app:
+    uses: daybrite/actions/.github/workflows/build-day-app.yml@main
+    secrets: inherit
+    with:
+      targets: windows-xaml, macos-appkit, linux-gtk, linux-qt, ios-uikit, android-mdc, harmony-arkui, web-dom
+      day-version: main
+      scripts: dayscript/walkthrough.yaml
+      # The gallery's variant ids: one run per theme × locale, the same matrix day's own CI drives.
+      themes: light dark
+      locales: en fr ar zh-CN
+      app-id: dev.daybrite.showcase
+      deploy-web: true

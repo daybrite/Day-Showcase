@@ -1,21 +1,25 @@
 [package]
 name = "showcase"
 publish = false
-version.workspace = true
-edition.workspace = true
-rust-version.workspace = true
+version = "0.1.4"
+edition = "2024"
+rust-version = "1.89"
+license = "MPL-2.0"
+authors = ["Daybrite <hello@daybrite.dev>"]
+repository = "https://github.com/daybrite/Day-Showcase"
+homepage = "https://daybrite.dev"
 # Generate typed resource constants (`res::images::…`, `res::assets::…`, `res::fonts::…`) from
 # `resource/` on every build (§18.5) — dogfoods day-build; see build.rs and the `res` module in lib.rs.
 build = "build.rs"
 
 # Each backend line is JUST the `day/<backend>` toolkit. The Day CLI derives every standalone piece's
 # `<pkg>/<backend>` renderer feature from `[package.metadata.day.piece]` and unions it into the build
-# (Tier A.2) — so adding a piece is a plain `{ workspace = true }` dep below, with no per-backend
+# (Tier A.2) — so adding a piece is a plain git dependency below, with no per-backend
 # feature fan-out here. (Building with bare `cargo` still works: run through `day build` so the union
 # is applied, or add the piece features by hand.)
 [features]
 # Exactly one backend per binary (day/DESIGN.md §3.2). `default` picks the headless `mock` backend so
-# bare `cargo` / `cargo clippy --workspace` / rust-analyzer build out of the box; every real build goes
+# bare `cargo` / `cargo clippy` / rust-analyzer build out of the box; every real build goes
 # through `day build`, which passes `--no-default-features --features <backend>` (see day-cli), so the
 # mock default is stripped and never unifies with the selected backend.
 default = ["mock"]
@@ -39,46 +43,46 @@ crate-type = ["rlib"]
 
 [build-dependencies]
 # Resource-constant codegen (§18.5) — the same crate a scaffolded app's build.rs uses.
-day-build = { workspace = true }
+day-build = { git = "https://github.com/daybrite/day.git" }
 
 [dependencies]
-day = { workspace = true }
+day = { git = "https://github.com/daybrite/day.git" }
 # Consent-first crash reporting (docs/break.md) — the Crash Reporting page arms it and shows the
 # previous run's report. Optional in general; here it demonstrates the whole flow. Its consent UI
 # (`ui` feature, on by default) is built from ordinary pieces, so no per-backend wiring is needed.
-day-break = { workspace = true }
+day-break = { git = "https://github.com/daybrite/day.git" }
 # A HEADLESS capability crate (no UI Piece): app Rust code calls day_part_battery::status() directly.
-day-part-battery = { workspace = true }
-day-part-sensors = { workspace = true }
-day-part-permissions = { workspace = true }
-day-part-location = { workspace = true }
-day-part-clipboard = { workspace = true }
-day-part-network = { workspace = true }
-day-piece-combobox = { workspace = true }
+day-part-battery = { git = "https://github.com/daybrite/day.git" }
+day-part-sensors = { git = "https://github.com/daybrite/day.git" }
+day-part-permissions = { git = "https://github.com/daybrite/day.git" }
+day-part-location = { git = "https://github.com/daybrite/day.git" }
+day-part-clipboard = { git = "https://github.com/daybrite/day.git" }
+day-part-network = { git = "https://github.com/daybrite/day.git" }
+day-piece-combobox = { git = "https://github.com/daybrite/day.git" }
 # A COMPOSE piece (pure composition — no native code, no cargo features): a plain dep, available on
 # every backend for free. No per-backend feature wiring above, the composition-first payoff.
-day-piece-rating = { workspace = true }
-day-piece-pullrefresh = { workspace = true }
-day-piece-datetime = { workspace = true }
+day-piece-rating = { git = "https://github.com/daybrite/day.git" }
+day-piece-pullrefresh = { git = "https://github.com/daybrite/day.git" }
+day-piece-datetime = { git = "https://github.com/daybrite/day.git" }
 # Tweaks (docs/tweaks.md): packaged per-toolkit configuration of built-in pieces.
-day-tweak-button-bezel = { workspace = true }
-day-tweak-tooltip = { workspace = true }
-day-tweak-slider-tickmarks = { workspace = true }
-day-piece-webview = { workspace = true }
-day-piece-media = { workspace = true }
-day-part-haptics = { workspace = true }
+day-tweak-button-bezel = { git = "https://github.com/daybrite/day.git" }
+day-tweak-tooltip = { git = "https://github.com/daybrite/day.git" }
+day-tweak-slider-tickmarks = { git = "https://github.com/daybrite/day.git" }
+day-piece-webview = { git = "https://github.com/daybrite/day.git" }
+day-piece-media = { git = "https://github.com/daybrite/day.git" }
+day-part-haptics = { git = "https://github.com/daybrite/day.git" }
 # day-part-prefs is no longer a direct dependency: it arrives through the day facade as
 # `day::prefs` (docs/prefs.md).
-day-piece-settings = { workspace = true }
-day-part-deviceinfo = { workspace = true }
-day-part-http = { workspace = true }
-day-part-fs = { workspace = true }
-day-piece-activity = { workspace = true }
-day-piece-searchfield = { workspace = true }
-day-piece-map = { workspace = true }
+day-piece-settings = { git = "https://github.com/daybrite/day.git" }
+day-part-deviceinfo = { git = "https://github.com/daybrite/day.git" }
+day-part-http = { git = "https://github.com/daybrite/day.git" }
+day-part-fs = { git = "https://github.com/daybrite/day.git" }
+day-piece-activity = { git = "https://github.com/daybrite/day.git" }
+day-piece-searchfield = { git = "https://github.com/daybrite/day.git" }
+day-piece-map = { git = "https://github.com/daybrite/day.git" }
 # day-piece-lottie is iOS/Android only; the front-end compiles everywhere but the `lottie` page is
 # `#[cfg]`-gated to those targets. Its backend features are enabled only in `uikit`/`mdc`.
-day-piece-lottie = { workspace = true }
+day-piece-lottie = { git = "https://github.com/daybrite/day.git" }
 
 [[bin]]
 name = "showcase"
