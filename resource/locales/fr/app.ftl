@@ -682,3 +682,20 @@ haptics_song_celebration = Célébration
 haptics_song_levelup = Niveau supérieur
 haptics_song_heartbeat = Battement
 haptics_song_cascade = Cascade
+
+# — scripting (enregistreur dayscript) —
+nav_scripting = Scripts
+scripting_caption = Enregistrez vos appuis et votre navigation dans un dayscript rejouable. Appuyez sur Enregistrer, parcourez l'application et agissez, puis revenez et appuyez sur Arrêter. Modifiez le YAML pour l'ajuster, Lire pour le rejouer, Copier ou Exporter pour le conserver.
+scripting_record = Enregistrer
+scripting_stop = Arrêter
+scripting_play = Lire
+scripting_copy = Copier
+scripting_export = Exporter
+scripting_copied = Copié dans le presse-papiers
+scripting_delay_label = Délai entre les étapes
+scripting_delay_unit = s
+scripting_saved_label = Scripts enregistrés
+scripting_pick = Charger un script enregistré…
+scripting_save = Enregistrer
+scripting_name_hint = Mon script
+scripting_saved = Enregistré

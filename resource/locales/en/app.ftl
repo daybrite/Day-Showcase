@@ -683,3 +683,20 @@ haptics_song_celebration = Celebration
 haptics_song_levelup = Level up
 haptics_song_heartbeat = Heartbeat
 haptics_song_cascade = Cascade
+
+# — scripting (dayscript recorder) —
+nav_scripting = Scripting
+scripting_caption = Record your taps and navigation into a replayable dayscript. Hit Record, move around and act, then come back and Stop. Edit the YAML to tweak it, Play to replay it, and Copy or Export to keep it.
+scripting_record = Record
+scripting_stop = Stop
+scripting_play = Play
+scripting_copy = Copy
+scripting_export = Export
+scripting_copied = Copied to clipboard
+scripting_delay_label = Delay between steps
+scripting_delay_unit = sec
+scripting_saved_label = Saved scripts
+scripting_pick = Load a saved script…
+scripting_save = Save
+scripting_name_hint = My Script
+scripting_saved = Saved

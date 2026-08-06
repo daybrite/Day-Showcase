@@ -693,3 +693,20 @@ haptics_song_celebration = احتفال
 haptics_song_levelup = ترقية المستوى
 haptics_song_heartbeat = نبض القلب
 haptics_song_cascade = تتابع
+
+# — البرمجة النصية (مسجّل dayscript) —
+nav_scripting = البرمجة النصية
+scripting_caption = سجّل نقراتك وتنقّلك في سكربت dayscript قابل لإعادة التشغيل. اضغط «تسجيل»، وتنقّل في التطبيق ونفّذ إجراءاتك، ثم عُد واضغط «إيقاف». عدّل YAML لضبطه، و«تشغيل» لإعادة تشغيله، و«نسخ» أو «تصدير» للاحتفاظ به.
+scripting_record = تسجيل
+scripting_stop = إيقاف
+scripting_play = تشغيل
+scripting_copy = نسخ
+scripting_export = تصدير
+scripting_copied = تم النسخ إلى الحافظة
+scripting_delay_label = التأخير بين الخطوات
+scripting_delay_unit = ثانية
+scripting_saved_label = النصوص المحفوظة
+scripting_pick = تحميل نص برمجي محفوظ…
+scripting_save = حفظ
+scripting_name_hint = نصي البرمجي
+scripting_saved = تم الحفظ

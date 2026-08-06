@@ -100,6 +100,7 @@ day::routes! {
         Menus => "menus",
         System => "system",
         Services => "services",
+        Scripting => "scripting",
         Resources => "resources",
         Tweaks => "tweaks",
         CrashReporting => "crash",
@@ -126,6 +127,9 @@ pub fn root() -> AnyPiece {
     // Persisted theme/language overrides (docs/windows.md; the launch env wins — CI variant
     // loops with DAY_THEME/--locale stay deterministic).
     day_piece_settings::apply_startup("showcase.theme", "showcase.locale");
+    // Write the bundled sample dayscripts into the app container on launch (absent-only), so the
+    // Scripting page's dropdown demonstrates record/playback out of the box (pages/scripting.rs).
+    crate::pages::scripting::seed_sample_scripts();
     // The Preferences window (Settings…/⌘, on macOS; primary+`,` elsewhere; a fullscreen
     // cover on backends without windows) and File ▸ New Window / the macOS tab-bar "+"
     // (docs/windows.md). Registered before the menu so its items lower live.
@@ -277,6 +281,12 @@ fn destinations() -> Vec<Dest> {
             title: crate::res::str::nav_resources,
             icon: res::images::nav_resources,
             page: resources_page,
+        },
+        Dest {
+            section: Section::Scripting,
+            title: crate::res::str::nav_scripting,
+            icon: res::images::nav_scripting,
+            page: scripting_page,
         },
         Dest {
             section: Section::Stack,

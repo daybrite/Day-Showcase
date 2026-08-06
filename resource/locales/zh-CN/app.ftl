@@ -676,3 +676,20 @@ haptics_song_celebration = 庆祝
 haptics_song_levelup = 升级
 haptics_song_heartbeat = 心跳
 haptics_song_cascade = 级联
+
+# — 脚本录制（dayscript 录制器）—
+nav_scripting = 脚本录制
+scripting_caption = 将你的点击和导航录制为可回放的 dayscript。点击"录制"，在应用中操作，然后返回点击"停止"。编辑 YAML 进行微调，点击"播放"回放，点击"复制"或"导出"保存。
+scripting_record = 录制
+scripting_stop = 停止
+scripting_play = 播放
+scripting_copy = 复制
+scripting_export = 导出
+scripting_copied = 已复制到剪贴板
+scripting_delay_label = 步骤间延迟
+scripting_delay_unit = 秒
+scripting_saved_label = 已保存的脚本
+scripting_pick = 加载已保存的脚本…
+scripting_save = 保存
+scripting_name_hint = 我的脚本
+scripting_saved = 已保存
