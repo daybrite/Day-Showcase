@@ -1,0 +1,15 @@
+# Day Showcase website (https://showcase.daybrite.dev/) — built by the shared build-day-app
+# workflow from the daybrite/daysite template. Content (name, description, screenshots,
+# downloads) comes from Day.toml, store/, and the release pipeline; this file holds only what
+# is genuinely site-specific.
+
+# Custom domain: the deploy emits a CNAME for any non-github.io host, and the base path is "/".
+host = "https://showcase.daybrite.dev"
+locales = ["en", "fr", "ar", "zh-CN"]
+
+# The daybrite brand orange (the web-dom accent from daybrite.dev's palette).
+accent-color = "#ff9500"
+
+# The live build is the whole point of a showcase: hosted at /webapp/, preselected in the picker.
+webapp = "webapp"
+default-platform = "web"

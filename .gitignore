@@ -28,3 +28,8 @@ DerivedData/
 *.log
 
 .DS_Store
+
+# The website is generated from repo data; only site.toml and theme.css are source.
+website/.daysite/
+website/appindex.json
+website/gallery-manifest.json
