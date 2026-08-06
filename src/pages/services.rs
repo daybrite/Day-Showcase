@@ -1,12 +1,14 @@
 use day::prelude::*;
 use day_part_haptics::Haptic;
+use day_part_local_notify::{Channel, Importance, Notification, Trigger};
 
 use crate::widgets::page;
 
 /// Platform services (docs/http.md, docs/clipboard.md, docs/prefs.md, docs/haptics.md,
-/// docs/files.md): the headless "do something with the OS" parts, one grouped form section
-/// each — an HTTP fetch (first: it works on every target, including web-dom), clipboard
-/// round-trip, persisted preferences, haptic feedback, and the native file pickers.
+/// docs/files.md, docs/notify.md): the headless "do something with the OS" parts, one grouped
+/// form section each — an HTTP fetch (first: it works on every target, including web-dom),
+/// clipboard round-trip, persisted preferences, haptic feedback, local notifications, and the
+/// native file pickers.
 pub(crate) fn services_page() -> AnyPiece {
     page(
         crate::res::str::nav_services(),
@@ -17,6 +19,7 @@ pub(crate) fn services_page() -> AnyPiece {
             clipboard_section(),
             prefs_section(),
             haptics_section(),
+            notify_section(),
             files_section(),
             storage_section(),
         ))
@@ -202,6 +205,190 @@ fn haptics_section() -> impl Piece {
         ),
     ))
     .title(crate::res::str::nav_haptics())
+}
+
+/// Local notifications (docs/notify.md). The controls cover what the API actually varies —
+/// message, delay, importance, sound, badge, and the route a tap opens — and the capability lines
+/// are first, because the honest answer differs per platform: Apple and Android hand a scheduled
+/// notification to the OS, while Linux and the web run an in-process timer that dies with the app.
+///
+/// Importance is fixed when a channel is registered (Android's `NotificationChannel` is immutable
+/// after first use), so the page registers ONE CHANNEL PER LEVEL up front and the picker chooses
+/// between them rather than mutating one.
+fn notify_section() -> impl Piece {
+    let caps = day_part_local_notify::capabilities();
+    let levels = [
+        Importance::Low,
+        Importance::Default,
+        Importance::High,
+        Importance::Urgent,
+    ];
+
+    let title = Signal::new(crate::res::str::notify_title_default().format());
+    let body = Signal::new(crate::res::str::notify_body_default().format());
+    let delay_idx = Signal::new(0usize);
+    // High, not Default: Android only shows a heads-up banner from IMPORTANCE_HIGH up, and a
+    // notification that lands silently in the shade reads as "the button did nothing".
+    let level_idx = Signal::new(2usize);
+    let sound = Signal::new(true);
+    let badge = Signal::new(0.0f64);
+    let status = Signal::new(crate::res::str::notify_status_idle().format());
+    let granted = Signal::new(
+        day_part_permissions::status(day_part_permissions::Permission::Notifications)
+            == day_part_permissions::Status::Granted,
+    );
+
+    let supported = if caps.post {
+        crate::res::str::notify_caps_post()
+    } else {
+        crate::res::str::notify_caps_unsupported()
+    };
+    let scheduling = if caps.schedule_while_dead {
+        crate::res::str::notify_caps_schedule_os()
+    } else {
+        crate::res::str::notify_caps_schedule_process()
+    };
+
+    section((
+        label(supported).font(Font::Footnote).id("notify-supported"),
+        label(scheduling).font(Font::Footnote).id("notify-scheduling"),
+        labeled(
+            crate::res::str::notify_title_label(),
+            text_field(title)
+                .placeholder(crate::res::str::notify_title_placeholder())
+                .id("notify-title"),
+        ),
+        labeled(
+            crate::res::str::notify_body_label(),
+            text_field(body)
+                .placeholder(crate::res::str::notify_body_placeholder())
+                .id("notify-body"),
+        ),
+        labeled(
+            crate::res::str::notify_delay(),
+            picker(
+                vec![
+                    crate::res::str::notify_delay_now().format(),
+                    crate::res::str::notify_delay_5s().format(),
+                    crate::res::str::notify_delay_15s().format(),
+                    crate::res::str::notify_delay_60s().format(),
+                ],
+                delay_idx,
+            )
+            .id("notify-delay"),
+        ),
+        labeled(
+            crate::res::str::notify_importance(),
+            picker(
+                vec![
+                    crate::res::str::notify_importance_low().format(),
+                    crate::res::str::notify_importance_default().format(),
+                    crate::res::str::notify_importance_high().format(),
+                    crate::res::str::notify_importance_urgent().format(),
+                ],
+                level_idx,
+            )
+            .id("notify-importance"),
+        ),
+        labeled(
+            crate::res::str::notify_sound(),
+            toggle(sound).id("notify-sound"),
+        ),
+        // Badge is Apple-only among the wired backends. Day's Decorate trait has no `disabled`,
+        // so the control is omitted where it would do nothing rather than shown doing nothing.
+        when(
+            move || caps.badge,
+            move || {
+                labeled(
+                    crate::res::str::notify_badge(),
+                    slider(badge).range(0.0..=9.0).step(1.0).id("notify-badge"),
+                )
+            },
+        ),
+        // The consent line, ahead of the controls: on Apple an unauthorized post is accepted and
+        // then dropped by the system with no error, so without this the page would look broken.
+        row((
+            label(move || {
+                if granted.get() {
+                    crate::res::str::notify_perm_granted().format()
+                } else {
+                    crate::res::str::notify_perm_missing().format()
+                }
+            })
+            .font(Font::Footnote)
+            .id("notify-perm"),
+            button(crate::res::str::notify_perm_request())
+                .bordered()
+                .action(move || {
+                    // The callback can land on another thread, and Signal is !Send — a Setter is
+                    // the sanctioned cross-thread door (DESIGN §3.3).
+                    let set = granted.setter();
+                    day_part_permissions::request(
+                        day_part_permissions::Permission::Notifications,
+                        move |s| set.set(s == day_part_permissions::Status::Granted),
+                    );
+                })
+                .id("notify-perm-request"),
+        ))
+        .spacing(8.0),
+        row((
+            button(crate::res::str::notify_post())
+                .prominent()
+                .action(move || {
+                    let level = levels[level_idx.get().min(levels.len() - 1)];
+                    // Re-register on every post so the sound toggle takes effect; registration is
+                    // idempotent, and each level keeps its own channel id.
+                    let chan = format!("showcase-{}", level.as_str());
+                    Channel::new(chan.clone(), level)
+                        .sound(sound.get())
+                        .register();
+                    let secs = [0u64, 5, 15, 60][delay_idx.get().min(3)];
+                    let trigger = if secs == 0 {
+                        Trigger::Now
+                    } else {
+                        Trigger::In(std::time::Duration::from_secs(secs))
+                    };
+                    let mut n = Notification::new(title.get())
+                        .body(body.get())
+                        .channel(chan)
+                        .route("services")
+                        .trigger(trigger);
+                    let count = badge.get() as u32;
+                    if count > 0 {
+                        n = n.badge(count);
+                    }
+                    let msg = match n.post() {
+                        Ok(id) => {
+                            let head = if secs == 0 {
+                                crate::res::str::notify_status_posted()
+                            } else {
+                                crate::res::str::notify_status_scheduled()
+                            };
+                            format!("{} (#{})", head.format(), id.0)
+                        }
+                        Err(e) => format!(
+                            "{}: {e}",
+                            crate::res::str::notify_status_failed().format()
+                        ),
+                    };
+                    status.set(msg);
+                })
+                .id("notify-post"),
+            button(crate::res::str::notify_cancel())
+                .bordered()
+                .action(move || {
+                    day_part_local_notify::cancel_all();
+                    status.set(crate::res::str::notify_status_cancelled().format());
+                })
+                .id("notify-cancel"),
+        ))
+        .spacing(8.0),
+        labeled(
+            crate::res::str::notify_last(),
+            label(move || status.get()).id("notify-status"),
+        ),
+    ))
+    .title(crate::res::str::nav_notify())
 }
 
 fn files_section() -> impl Piece {

@@ -1,0 +1,9 @@
+name: notify-perm
+description: Request notification permission, then post — the flow a user follows by hand.
+flow:
+  - wait_for: { id: home-title }
+  - navigate: { route: services }
+  - wait_for: { id: notify-perm }
+  - scroll_to: { id: notify-perm-request }
+  - tap: { id: notify-perm-request }
+  - screenshot: notify-perm-asked

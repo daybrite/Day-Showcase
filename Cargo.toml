@@ -71,6 +71,8 @@ day-tweak-slider-tickmarks = { git = "https://github.com/daybrite/day.git" }
 day-piece-webview = { git = "https://github.com/daybrite/day.git" }
 day-piece-media = { git = "https://github.com/daybrite/day.git" }
 day-part-haptics = { git = "https://github.com/daybrite/day.git" }
+# Local notifications (docs/notify.md): the Platform Services page posts and schedules them.
+day-part-local-notify = { git = "https://github.com/daybrite/day.git" }
 # day-part-prefs is no longer a direct dependency: it arrives through the day facade as
 # `day::prefs` (docs/prefs.md).
 day-piece-settings = { git = "https://github.com/daybrite/day.git" }
