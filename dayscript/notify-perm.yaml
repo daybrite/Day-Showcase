@@ -1,9 +1,8 @@
 name: notify-perm
-description: Request notification permission, then post — the flow a user follows by hand.
+description: The notification consent affordance — shown only where the OS keeps a consent record.
 flow:
   - wait_for: { id: home-title }
   - navigate: { route: services }
-  - wait_for: { id: notify-perm }
-  - scroll_to: { id: notify-perm-request }
-  - tap: { id: notify-perm-request }
-  - screenshot: notify-perm-asked
+  - wait_for: { id: notify-supported }
+  - scroll_to: { id: notify-post }
+  - screenshot: notify-perm-state

@@ -233,10 +233,38 @@ fn notify_section() -> impl Piece {
     let sound = Signal::new(true);
     let badge = Signal::new(0.0f64);
     let status = Signal::new(crate::res::str::notify_status_idle().format());
+    // Whether this platform keeps a consent record at all. Static: a target does not grow a
+    // permissions database at runtime.
+    let prompts = day_part_permissions::gate(day_part_permissions::Permission::Notifications)
+        == day_part_permissions::Gate::Prompts;
     let granted = Signal::new(
         day_part_permissions::status(day_part_permissions::Permission::Notifications)
             == day_part_permissions::Status::Granted,
     );
+    // Reactive, because a denial flips it: `request` stops showing a dialog once the answer is
+    // final and the affordance must switch to Open Settings.
+    let can_prompt = Signal::new(day_part_permissions::can_prompt(
+        day_part_permissions::Permission::Notifications,
+    ));
+    // Prime both from the AUTHORITATIVE status. Notifications are the one Apple permission with no
+    // synchronous accessor: the first `status()` answers `Unknown` while it fills its cache in the
+    // background, so `can_prompt()` (which is `status == Prompt` there) reads false on a fresh
+    // install and the button would offer Open Settings when a real prompt was still available.
+    {
+        let g = granted.setter();
+        let c = can_prompt.setter();
+        day_part_permissions::status_async(
+            day_part_permissions::Permission::Notifications,
+            move |s| {
+                g.set(s == day_part_permissions::Status::Granted);
+                // Re-read rather than derive: the cache is primed now, and Android computes
+                // can_prompt from its own rationale rules rather than from the status alone.
+                c.set(day_part_permissions::can_prompt(
+                    day_part_permissions::Permission::Notifications,
+                ));
+            },
+        );
+    }
 
     let supported = if caps.post {
         crate::res::str::notify_caps_post()
@@ -251,7 +279,9 @@ fn notify_section() -> impl Piece {
 
     section((
         label(supported).font(Font::Footnote).id("notify-supported"),
-        label(scheduling).font(Font::Footnote).id("notify-scheduling"),
+        label(scheduling)
+            .font(Font::Footnote)
+            .id("notify-scheduling"),
         labeled(
             crate::res::str::notify_title_label(),
             text_field(title)
@@ -307,30 +337,71 @@ fn notify_section() -> impl Piece {
         ),
         // The consent line, ahead of the controls: on Apple an unauthorized post is accepted and
         // then dropped by the system with no error, so without this the page would look broken.
-        row((
-            label(move || {
-                if granted.get() {
-                    crate::res::str::notify_perm_granted().format()
-                } else {
-                    crate::res::str::notify_perm_missing().format()
-                }
-            })
-            .font(Font::Footnote)
-            .id("notify-perm"),
-            button(crate::res::str::notify_perm_request())
-                .bordered()
-                .action(move || {
-                    // The callback can land on another thread, and Signal is !Send — a Setter is
-                    // the sanctioned cross-thread door (DESIGN §3.3).
-                    let set = granted.setter();
-                    day_part_permissions::request(
-                        day_part_permissions::Permission::Notifications,
-                        move |s| set.set(s == day_part_permissions::Status::Granted),
-                    );
-                })
-                .id("notify-perm-request"),
-        ))
-        .spacing(8.0),
+        //
+        // What is offered depends on what the platform actually does about this permission
+        // (docs/permissions.md). `Gate::Absent`/`Ungated` mean no consent record exists — desktop
+        // Linux and Windows have no database to ask — so a Request button there would be a control
+        // that provably does nothing, and none is shown. Where the OS does prompt, the affordance
+        // still changes: once the answer is final, `request` no longer puts a dialog on screen and
+        // Settings is the only remedy, which is why `can_prompt` picks the label and the action.
+        when(
+            move || prompts,
+            move || {
+                // A column, not a row: the status sentence is long enough that sharing a line
+                // squeezed the button off the edge of a phone screen.
+                column((
+                    label(move || {
+                        if granted.get() {
+                            crate::res::str::notify_perm_granted().format()
+                        } else {
+                            crate::res::str::notify_perm_missing().format()
+                        }
+                    })
+                    .font(Font::Footnote)
+                    .id("notify-perm"),
+                    when(
+                        move || !granted.get(),
+                        move || {
+                            button(move || {
+                                if can_prompt.get() {
+                                    crate::res::str::notify_perm_request().format()
+                                } else {
+                                    crate::res::str::perm_open_settings().format()
+                                }
+                            })
+                            .bordered()
+                            .action(move || {
+                                if can_prompt.get() {
+                                    // The callback can land on another thread, and Signal is
+                                    // !Send — a Setter is the sanctioned cross-thread door
+                                    // (DESIGN §3.3).
+                                    let set = granted.setter();
+                                    let still = can_prompt.setter();
+                                    day_part_permissions::request(
+                                        day_part_permissions::Permission::Notifications,
+                                        move |s| {
+                                            set.set(s == day_part_permissions::Status::Granted);
+                                            // A denial usually makes the answer final, so the
+                                            // button has to become Open Settings.
+                                            still.set(day_part_permissions::can_prompt(
+                                                day_part_permissions::Permission::Notifications,
+                                            ));
+                                        },
+                                    );
+                                } else {
+                                    day_part_permissions::open_settings(
+                                        day_part_permissions::Permission::Notifications,
+                                    );
+                                }
+                            })
+                            .id("notify-perm-request")
+                        },
+                    ),
+                ))
+                .spacing(6.0)
+                .align(HAlign::Leading)
+            },
+        ),
         row((
             button(crate::res::str::notify_post())
                 .prominent()
@@ -366,10 +437,9 @@ fn notify_section() -> impl Piece {
                             };
                             format!("{} (#{})", head.format(), id.0)
                         }
-                        Err(e) => format!(
-                            "{}: {e}",
-                            crate::res::str::notify_status_failed().format()
-                        ),
+                        Err(e) => {
+                            format!("{}: {e}", crate::res::str::notify_status_failed().format())
+                        }
                     };
                     status.set(msg);
                 })
