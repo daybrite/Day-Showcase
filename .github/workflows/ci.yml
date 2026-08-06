@@ -33,6 +33,7 @@ jobs:
       # Tag builds sign and notarize the .dmg in a job that checks out nothing and runs only
       # Apple's own tools — the Developer ID is never present where repository code runs. Needs a
       # `release-signing` environment in THIS repository holding DAY_MACOS_CERT_P12,
-      # DAY_MACOS_CERT_PASSWORD, DAY_SIGN_MACOS_IDENTITY and the DAY_NOTARY_* trio; without it the
-      # .dmg ships dev-signed and everything else still works.
+      # DAY_MACOS_CERT_PASSWORD, DAY_SIGN_MACOS_IDENTITY and the DAY_NOTARY_* trio. Setting this
+      # input is what asks for signing, so a tag build FAILS if the material is missing rather than
+      # quietly shipping a .dmg macOS refuses to open. Remove the input to release unsigned.
       signing-environment: release-signing
