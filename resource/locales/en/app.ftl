@@ -484,6 +484,25 @@ anim_curve_ease_out = Ease-out
 anim_curve_linear = Linear
 anim_duration_ms = { $ms } ms
 
+# — Benchmark page (the Day-Bench Grids benchmark; on the Apple-native backends a segmented
+#   picker also hosts its hand-written SwiftUI twin via day-piece-swiftui, docs/swiftui.md) —
+nav_benchmark = Benchmark
+bench_caption = A pseudo-random patchwork of grid cells that tiles the pane exactly. Both parameters repack every row, so the layout engine renegotiates all of it at once.
+bench_parameters = Parameters
+bench_seed = Random Seed
+bench_count = Total Count
+bench_rows = { $rows } { $rows ->
+    [one] row
+   *[other] rows
+}
+# %d templates for the hosted SwiftUI pane, whose row count lives in Swift @State (one/other only —
+# the same fidelity for every locale, since printf templates cannot carry Fluent's plural rules).
+bench_rows_one = %d row
+bench_rows_other = %d rows
+bench_tab_day = Day Native
+bench_tab_swiftui = SwiftUI Grid
+bench_swiftui_note = SwiftUI Grid is a hand-written SwiftUI twin of the same benchmark, hosted natively inside this page.
+
 # Menu bar + context menu items (menus page)
 menu_file = File
 menu_open = Open…

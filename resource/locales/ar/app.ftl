@@ -491,6 +491,28 @@ anim_curve_ease_out = تباطؤ
 anim_curve_linear = خطّي
 anim_duration_ms = { $ms } مللي ثانية
 
+# — صفحة قياس الأداء (اختبار الشبكات من Day-Bench؛ على منصات Apple الأصلية يستضيف منتقٍ مقسّم
+#   أيضًا نسخته التوأم المكتوبة بـ SwiftUI عبر day-piece-swiftui، docs/swiftui.md) —
+nav_benchmark = قياس الأداء
+bench_caption = رقعة شبه عشوائية من خلايا الشبكة تُبلِّط اللوحة تمامًا. كلا المُعاملين يعيد رصّ كل صف، فيعيد محرك التخطيط التفاوض على كل شيء دفعة واحدة.
+bench_parameters = المعلمات
+bench_seed = بذرة عشوائية
+bench_count = العدد الإجمالي
+bench_rows = { $rows ->
+    [zero] لا صفوف
+    [one] صف واحد
+    [two] صفان
+    [few] { $rows } صفوف
+    [many] { $rows } صفًا
+   *[other] { $rows } صف
+}
+# قوالب %d للوحة SwiftUI المستضافة (عدّادها يعيش في حالة Swift؛ صيغتا مفرد/جمع فقط).
+bench_rows_one = صف واحد
+bench_rows_other = %d صفوف
+bench_tab_day = Day أصلي
+bench_tab_swiftui = شبكة SwiftUI
+bench_swiftui_note = «شبكة SwiftUI» نسخة توأم مكتوبة يدويًا بـ SwiftUI من الاختبار نفسه، مستضافة أصليًا داخل هذه الصفحة.
+
 # شريط القوائم وقائمة السياق
 menu_file = ملف
 menu_open = فتح…

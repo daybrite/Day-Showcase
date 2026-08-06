@@ -85,6 +85,10 @@ day-piece-map = { git = "https://github.com/daybrite/day.git" }
 # day-piece-lottie is iOS/Android only; the front-end compiles everywhere but the `lottie` page is
 # `#[cfg]`-gated to those targets. Its backend features are enabled only in `uikit`/`mdc`.
 day-piece-lottie = { git = "https://github.com/daybrite/day.git" }
+# SwiftUI embedding (docs/swiftui.md): hosts the swiftui/ package's views on the Benchmark page.
+# Apple-native only, but a plain dep with no cfg anywhere — the front-end compiles on every
+# backend and `day_piece_swiftui::support()` gates the UI, so no placeholder can ever realize.
+day-piece-swiftui = { git = "https://github.com/daybrite/day.git" }
 
 [[bin]]
 name = "showcase"
@@ -95,3 +99,18 @@ path = "src/main.rs"
 # framework checkout — makes cargo walk up, find that workspace, and refuse to build a package the
 # workspace does not list as a member.
 [workspace]
+
+# --- SwiftUI embedding (docs/swiftui.md): the app's own SwiftPM package ---
+# `day build` wires swiftui/ into the generated DayPieces module on each Apple leg (with its
+# transitive SwiftPM dependencies) and generates hosting glue for its public views; day-build
+# (build.rs) generates the matching typed Rust constructors, surfaced as `crate::swiftui::*` in
+# lib.rs. `products` is named because the library product ("ShowcaseSwiftUI") differs from the
+# directory ("swiftui"); `platform` raises the deployment floor — SwiftUI `Grid` needs iOS 16 /
+# macOS 13 — which `day build` conveys to xcodebuild / `swift build` without touching scaffolds.
+[package.metadata.day.ios]
+swift-packages = [{ path = "swiftui", products = ["ShowcaseSwiftUI"] }]
+platform = "16.0"
+
+[package.metadata.day.macos]
+swift-packages = [{ path = "swiftui", products = ["ShowcaseSwiftUI"] }]
+platform = "13.0"

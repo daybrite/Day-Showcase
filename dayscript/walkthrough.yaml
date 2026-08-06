@@ -32,6 +32,35 @@ flow:
   - pause: { secs: 1.0 }
   - screenshot: animation
 
+  # Benchmark (the Day-Bench Grids benchmark): a deterministic patchwork — the same (seed, count)
+  # draws the same picture on every target, so the shots are diffable. The readouts prove the
+  # sliders reached the generator; the row counts are pinned by unit tests
+  # (known_parameters_pack_to_known_row_counts), so a generator change fails in cargo test first.
+  - navigate: { route: benchmark }
+  - assert_route: { route: benchmark }
+  - assert_visible: { id: benchmark-title }
+  - wait_for: { id: bench-grid }
+  - assert_text: { id: bench-seed-value, text: "1" }
+  - assert_text: { id: bench-count-value, text: "48" }
+  - assert_text: { id: bench-rows, key: bench_rows, args: { rows: 10 } }
+  - screenshot: benchmark
+  # Denser patchwork, then back to the defaults — reproducibility means the run must land on the
+  # row count it opened with.
+  - set_value: { id: bench-count, value: 240 }
+  - assert_text: { id: bench-count-value, text: "240" }
+  - assert_text: { id: bench-rows, key: bench_rows, args: { rows: 45 } }
+  - screenshot: benchmark-dense
+  - set_value: { id: bench-count, value: 48 }
+  - assert_text: { id: bench-rows, key: bench_rows, args: { rows: 10 } }
+  # The SwiftUI twin (day-piece-swiftui, docs/swiftui.md) — the segmented picker exists only where
+  # support() is Native, so these steps are gated to the two Apple-native targets. The pane's own
+  # sliders live inside the hosted SwiftUI view (no dayscript ids); the shot is the deliverable.
+  - select: { id: bench-impl, index: 1, only_on: [macos-appkit, ios-uikit] }
+  - wait_for: { id: bench-swiftui, only_on: [macos-appkit, ios-uikit] }
+  - pause: { secs: 1.0, only_on: [macos-appkit, ios-uikit] }
+  - screenshot: { name: benchmark-swiftui, only_on: [macos-appkit, ios-uikit] }
+  - select: { id: bench-impl, index: 0, only_on: [macos-appkit, ios-uikit] }
+
   # Canvas & shapes: the 3×3 shape-kind grid (one slider rotates every shape live), the
   # gradient grid, the slider-driven gauge, and the composition-tier widgets. Drive the shared
   # rotation so the screenshot shows the grid mid-spin.

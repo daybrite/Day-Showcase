@@ -1,0 +1,19 @@
+name: benchmark-swiftui-shot
+description: >
+  Benchmark page only — both tabs shot at the default parameters, for iterating on the hosted
+  SwiftUI pane without paying the full walkthrough. Run on macos-appkit / ios-uikit only: the
+  segmented picker exists only where day_piece_swiftui::support() is Native (docs/swiftui.md).
+  The SwiftUI pane's own sliders live inside the hosted view (no dayscript ids), so the
+  cross-check is visual: at (seed 1, count 48) both shots must show the same patchwork.
+flow:
+  - wait_for: { id: nav }
+  - navigate: { route: benchmark }
+  - assert_route: { route: benchmark }
+  - wait_for: { id: bench-grid }
+  - assert_text: { id: bench-rows, key: bench_rows, args: { rows: 10 } }
+  - screenshot: benchmark-day-default
+  - select: { id: bench-impl, index: 1 }
+  - wait_for: { id: bench-swiftui }
+  - pause: { secs: 1.0 }
+  - screenshot: benchmark-swiftui-default
+  - select: { id: bench-impl, index: 0 }

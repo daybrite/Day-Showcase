@@ -479,6 +479,23 @@ anim_curve_ease_out = 缓出
 anim_curve_linear = 线性
 anim_duration_ms = { $ms } 毫秒
 
+# — 基准测试页（Day-Bench 的网格基准测试；在 Apple 原生后端上，分段选择器还通过
+#   day-piece-swiftui 承载其手写的 SwiftUI 孪生实现，docs/swiftui.md）—
+nav_benchmark = 基准测试
+bench_caption = 由网格单元组成的伪随机拼块，恰好铺满整个窗格。两个参数都会重新打包每一行，布局引擎因此一次性重新协商全部布局。
+bench_parameters = 参数
+bench_seed = 随机种子
+bench_count = 总数
+bench_rows = { $rows ->
+   *[other] { $rows } 行
+}
+# 供承载的 SwiftUI 面板使用的 %d 模板（其计数保存在 Swift 状态中）。
+bench_rows_one = %d 行
+bench_rows_other = %d 行
+bench_tab_day = Day 原生
+bench_tab_swiftui = SwiftUI 网格
+bench_swiftui_note = "SwiftUI 网格"是同一基准测试的手写 SwiftUI 孪生实现，以原生方式嵌入本页。
+
 # 菜单栏与上下文菜单
 menu_file = 文件
 menu_open = 打开…

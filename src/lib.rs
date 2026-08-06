@@ -21,6 +21,14 @@ pub mod res {
     include!(concat!(env!("OUT_DIR"), "/day_resources.rs"));
 }
 
+/// Typed constructors for the SwiftUI views exported by the `swiftui/` package (docs/swiftui.md),
+/// generated at build time by `day-build` from the `[package.metadata.day.ios/macos]` declaration:
+/// `crate::swiftui::BenchGridsView(…)` mirrors `public struct BenchGridsView`'s init exactly, so a
+/// renamed view or a changed parameter is a compile error here, not a runtime miss there.
+pub mod swiftui {
+    include!(concat!(env!("OUT_DIR"), "/day_swiftui.rs"));
+}
+
 thread_local! {
     /// The most recent app-lifecycle phase, shown live on the About page (docs/lifecycle.md).
     static LIFECYCLE_LOG: OnceCell<Signal<String>> = const { OnceCell::new() };
@@ -90,6 +98,7 @@ day::routes! {
         Localization => "localization",
         Canvas => "canvas",
         Animation => "animation",
+        Benchmark => "benchmark",
         Grid => "grid",
         List => "list",
         Refresh => "refresh",
@@ -122,6 +131,7 @@ impl Section {
         match self {
             Section::About => "src/pages/about.rs",
             Section::Animation => "src/pages/animation.rs",
+            Section::Benchmark => "src/pages/benchmark.rs",
             Section::Canvas => "src/pages/canvas.rs",
             Section::Controls => "src/pages/controls.rs",
             Section::CrashReporting => "src/pages/crash.rs",
@@ -247,6 +257,12 @@ fn destinations() -> Vec<Dest> {
             title: crate::res::str::nav_animation,
             icon: res::images::nav_animation,
             page: animation_page,
+        },
+        Dest {
+            section: Section::Benchmark,
+            title: crate::res::str::nav_benchmark,
+            icon: res::images::nav_benchmark,
+            page: benchmark_page,
         },
         Dest {
             section: Section::Canvas,

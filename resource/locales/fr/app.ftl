@@ -484,6 +484,24 @@ anim_curve_ease_out = Décéléré
 anim_curve_linear = Linéaire
 anim_duration_ms = { $ms } ms
 
+# — Page Benchmark (le benchmark Grilles de Day-Bench ; sur les backends Apple natifs, un
+#   sélecteur segmenté héberge aussi sa réplique SwiftUI via day-piece-swiftui, docs/swiftui.md) —
+nav_benchmark = Benchmark
+bench_caption = Un patchwork pseudo-aléatoire de cellules de grille qui pave exactement le panneau. Les deux paramètres réempaquettent chaque rangée, le moteur de mise en page renégocie donc tout d'un coup.
+bench_parameters = Paramètres
+bench_seed = Graine aléatoire
+bench_count = Nombre total
+bench_rows = { $rows } { $rows ->
+    [one] rangée
+   *[other] rangées
+}
+# Gabarits %d pour le panneau SwiftUI hébergé (son compteur vit dans l'état Swift).
+bench_rows_one = %d rangée
+bench_rows_other = %d rangées
+bench_tab_day = Day natif
+bench_tab_swiftui = Grille SwiftUI
+bench_swiftui_note = « Grille SwiftUI » est une réplique SwiftUI écrite à la main du même benchmark, hébergée nativement dans cette page.
+
 # Barre de menus + menu contextuel
 menu_file = Fichier
 menu_open = Ouvrir…

@@ -17,6 +17,10 @@ build/
 .gradle/
 local.properties
 
+# SwiftPM build products of the app's own Swift package (docs/swiftui.md); `day build` compiles
+# it via the generated DayPieces package, `swift test` uses this local scratch.
+swiftui/.build/
+
 # Xcode local state (DayApp.xcodeproj itself is hand-written source — do NOT ignore it)
 xcuserdata/
 DerivedData/
