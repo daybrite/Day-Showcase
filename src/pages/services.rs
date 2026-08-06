@@ -127,20 +127,252 @@ fn haptic_button(
     id: &'static str,
     title: LocalizedText,
     h: Haptic,
+    playing: Signal<bool>,
     last: Signal<String>,
 ) -> AnyPiece {
     button(title)
         .bordered()
+        // A single tap fired mid-song would land inside the rhythm and read as part of it, so every
+        // haptic control greys out for the duration. The native control does the greying.
+        .enabled(move || !playing.get())
         .action(move || {
             day_part_haptics::play(h);
             last.set(crate::res::str::haptics_last_played(format!("{h:?}")).format());
         })
         .id(id)
-        .any()
+        // `.grow_w()` is what makes the grid column FLEXIBLE. With every cell flexible the layout
+        // splits the leftover width evenly between the columns (docs/grid.md §3), so the buttons
+        // come out identical whatever the label length or screen width — the reason a `row` was
+        // wrong here: it sized each button to its own text and ran off the edge.
+        .grow_w()
 }
+
+/// One step of a haptic "song": wait `delay_ms`, then fire `haptic`.
+type Beat = (u32, Haptic);
+
+/// Play a timed sequence on `day::task` (docs/async.md), which polls on the UI thread — where
+/// `day_part_haptics::play` has to be called anyway, so no thread hop is needed. `playing` guards
+/// against a second tap overlapping the first, which would garble the rhythm into noise.
+fn play_song(
+    name: &'static str,
+    beats: &'static [Beat],
+    playing: Signal<bool>,
+    last: Signal<String>,
+) {
+    if playing.get() {
+        return;
+    }
+    playing.set(true);
+    last.set(crate::res::str::haptics_last_played(name.to_string()).format());
+    day::task(async move {
+        for (delay, h) in beats {
+            day::sleep(*delay).await;
+            day_part_haptics::play(*h);
+        }
+        playing.set(false);
+    });
+}
+
+// The songs.
+//
+// TEMPO GRID. The beats are written against 120 BPM rather than in ad-hoc milliseconds, because
+// that is what separates a rhythm from a list of buzzes: repetition on a grid is what the ear —
+// and the hand — hears as musical. Accelerandos deliberately leave the grid, which is why those
+// runs carry explicit millisecond gaps.
+//
+// DYNAMIC RANGE, and what actually varies per platform. iOS maps the seven styles onto three
+// impact intensities plus three multi-tap notification patterns, so all seven feel distinct.
+// Android collapses them: Light/Selection are both EFFECT_TICK, Heavy AND Warning are both
+// EFFECT_HEAVY_CLICK, Success AND Error are both EFFECT_DOUBLE_CLICK. So the honest palette these
+// songs compose against is four sensations — tick (quietest), click, heavy click (loudest single
+// hit), and double click (the accent) — and the contrast is built from Selection/Light against
+// Heavy, with Error reserved for phrase-ending crashes. Leaning on Warning-vs-Heavy would have
+// sounded like a difference on iPhone and like nothing at all on a Pixel.
+//
+// A notification-style haptic (Success/Error) plays its own multi-tap pattern over ~150-300 ms, so
+// nothing is scheduled tight behind one — it would collide rather than syncopate.
+
+/// Quarter note at 120 BPM.
+const Q: u32 = 500;
+/// Eighth.
+const E: u32 = 250;
+/// Sixteenth.
+const S: u32 = 125;
+/// Thirty-second — around the floor where the engine still resolves separate taps rather than
+/// smearing them into one buzz.
+const T: u32 = 63;
+
+/// 5.6 s. The Duolingo shape: a pickup that rises into a downbeat, a two-bar phrase answered by a
+/// denser repeat, a crash, and a resolve. Maximum contrast — near-silent Selection ticks a beat
+/// away from full Heavy hits.
+const CELEBRATION: &[Beat] = &[
+    // Pickup: three rising sixteenths into the bar line.
+    (0, Haptic::Selection),
+    (S, Haptic::Light),
+    (S, Haptic::Medium),
+    (S, Haptic::Heavy), // downbeat, full force
+    (E, Haptic::Light),
+    (S, Haptic::Selection),
+    (S, Haptic::Light),
+    (E, Haptic::Heavy), // beat 2
+    (E, Haptic::Selection),
+    (T, Haptic::Selection),
+    (T, Haptic::Selection),
+    (E, Haptic::Heavy),
+    (S, Haptic::Medium),
+    (S, Haptic::Heavy),
+    (E, Haptic::Success), // phrase accent
+    // Second bar: same skeleton, twice the density.
+    (Q, Haptic::Heavy),
+    (T, Haptic::Light),
+    (T, Haptic::Light),
+    (T, Haptic::Light),
+    (E, Haptic::Heavy),
+    (T, Haptic::Light),
+    (T, Haptic::Light),
+    (T, Haptic::Light),
+    (E, Haptic::Heavy),
+    (E, Haptic::Heavy),
+    (E, Haptic::Error), // crash
+    (Q, Haptic::Success),
+    (E, Haptic::Selection),
+    (E, Haptic::Selection),
+    (Q, Haptic::Success),
+];
+
+/// 7.5 s. A riser and a drop. The pulse accelerates from a quarter note to a near-continuous buzz
+/// while the intensity climbs tick → click → heavy, then everything stops dead for most of a second
+/// before the hit lands. The silence is the loudest part.
+const LEVEL_UP: &[Beat] = &[
+    (0, Haptic::Selection),
+    (Q, Haptic::Selection),
+    (450, Haptic::Light),
+    (400, Haptic::Light),
+    (350, Haptic::Medium),
+    (300, Haptic::Medium),
+    (260, Haptic::Medium),
+    (220, Haptic::Heavy),
+    (190, Haptic::Heavy),
+    (160, Haptic::Heavy),
+    (135, Haptic::Heavy),
+    (115, Haptic::Heavy),
+    (100, Haptic::Heavy),
+    (85, Haptic::Heavy),
+    (75, Haptic::Heavy),
+    (65, Haptic::Heavy),
+    (58, Haptic::Heavy),
+    (52, Haptic::Heavy),
+    (48, Haptic::Heavy),
+    (45, Haptic::Heavy),
+    (45, Haptic::Heavy),
+    (45, Haptic::Heavy),
+    // The drop: dead air, then the biggest thing the platform has.
+    (750, Haptic::Error),
+    (Q, Haptic::Heavy),
+    (E, Haptic::Heavy),
+    (E, Haptic::Heavy),
+    // Fanfare, back on the grid.
+    (Q, Haptic::Success),
+    (E, Haptic::Medium),
+    (E, Haptic::Heavy),
+    (Q, Haptic::Success),
+    (Q, Haptic::Error),
+];
+
+/// 8.0 s. Resting pulse, exertion, panic, flatline, one last beat. The widest dynamic swing of the
+/// four: a 12-tick flatline buzz at the noise floor sits directly between full-force Heavy pairs.
+const HEARTBEAT: &[Beat] = &[
+    // At rest: lub-dub, slow.
+    (0, Haptic::Heavy),
+    (180, Haptic::Medium),
+    (900, Haptic::Heavy),
+    (180, Haptic::Medium),
+    (820, Haptic::Heavy),
+    (170, Haptic::Medium),
+    // Quickening.
+    (680, Haptic::Heavy),
+    (160, Haptic::Medium),
+    (560, Haptic::Heavy),
+    (150, Haptic::Medium),
+    (460, Haptic::Heavy),
+    (140, Haptic::Medium),
+    (380, Haptic::Heavy),
+    (130, Haptic::Medium),
+    // Panic — both halves of the beat at full force.
+    (300, Haptic::Heavy),
+    (120, Haptic::Heavy),
+    (240, Haptic::Heavy),
+    (110, Haptic::Heavy),
+    (200, Haptic::Heavy),
+    (100, Haptic::Heavy),
+    // Flatline: the quietest sensation the platform has, held.
+    (280, Haptic::Selection),
+    (55, Haptic::Selection),
+    (55, Haptic::Selection),
+    (55, Haptic::Selection),
+    (55, Haptic::Selection),
+    (55, Haptic::Selection),
+    (55, Haptic::Selection),
+    (55, Haptic::Selection),
+    (55, Haptic::Selection),
+    // One last beat, then release.
+    (620, Haptic::Heavy),
+    (700, Haptic::Success),
+];
+
+/// 5.4 s. A fall and a climb, mirrored: heavy hits tumble away into a near-continuous tick, hold
+/// at the bottom, then rebuild — decelerating as they intensify — into a crash.
+const CASCADE: &[Beat] = &[
+    // Fall: loud and slow to quiet and fast.
+    (0, Haptic::Heavy),
+    (E, Haptic::Heavy),
+    (S + T, Haptic::Medium),
+    (S, Haptic::Medium),
+    (100, Haptic::Light),
+    (85, Haptic::Light),
+    (70, Haptic::Selection),
+    (60, Haptic::Selection),
+    (52, Haptic::Selection),
+    (46, Haptic::Selection),
+    (42, Haptic::Selection),
+    (40, Haptic::Selection),
+    (40, Haptic::Selection),
+    (40, Haptic::Selection),
+    // Bottom of the arc.
+    (Q, Haptic::Selection),
+    // Climb: the fall run backwards — slowing down as it gets heavier.
+    (42, Haptic::Selection),
+    (48, Haptic::Selection),
+    (58, Haptic::Light),
+    (72, Haptic::Light),
+    (92, Haptic::Medium),
+    (118, Haptic::Medium),
+    (150, Haptic::Heavy),
+    (195, Haptic::Heavy),
+    (250, Haptic::Heavy),
+    (E, Haptic::Error),
+    // Second fall, heavier and shorter — the pattern the ear now expects, delivered harder.
+    (Q, Haptic::Heavy),
+    (S, Haptic::Heavy),
+    (S, Haptic::Heavy),
+    (100, Haptic::Medium),
+    (80, Haptic::Medium),
+    (65, Haptic::Light),
+    (52, Haptic::Selection),
+    (44, Haptic::Selection),
+    (40, Haptic::Selection),
+    (40, Haptic::Selection),
+    (40, Haptic::Selection),
+    (E, Haptic::Heavy),
+    (S, Haptic::Heavy),
+    (S, Haptic::Heavy),
+    (E, Haptic::Error),
+    (Q, Haptic::Success),
+];
 
 fn haptics_section() -> impl Piece {
     let last = Signal::new(crate::res::str::haptics_none().format());
+    let playing = Signal::new(false);
     // Report whether this platform has a haptic engine (each branch a full `tr(...)` for `day lint`).
     let supported = if day_part_haptics::is_supported() {
         crate::res::str::haptics_supported_yes()
@@ -151,52 +383,115 @@ fn haptics_section() -> impl Piece {
         label(supported)
             .font(Font::Footnote)
             .id("haptics-supported"),
-        row((
-            haptic_button(
-                "haptics-light",
-                crate::res::str::haptics_light(),
-                Haptic::Light,
-                last,
-            ),
-            haptic_button(
-                "haptics-medium",
-                crate::res::str::haptics_medium(),
-                Haptic::Medium,
-                last,
-            ),
-            haptic_button(
-                "haptics-heavy",
-                crate::res::str::haptics_heavy(),
-                Haptic::Heavy,
-                last,
-            ),
+        // A grid, not rows: every cell is `grow_w`, so all three columns are flexible and the
+        // layout divides the width evenly between them. Buttons stay the same size and none can
+        // overflow, whatever the label or the screen. The trailing `spacer()`s are inert cells that
+        // hold the last row's columns open so its buttons match the rows above.
+        grid((
+            grid_row((
+                haptic_button(
+                    "haptics-light",
+                    crate::res::str::haptics_light(),
+                    Haptic::Light,
+                    playing,
+                    last,
+                ),
+                haptic_button(
+                    "haptics-medium",
+                    crate::res::str::haptics_medium(),
+                    Haptic::Medium,
+                    playing,
+                    last,
+                ),
+                haptic_button(
+                    "haptics-heavy",
+                    crate::res::str::haptics_heavy(),
+                    Haptic::Heavy,
+                    playing,
+                    last,
+                ),
+            )),
+            grid_row((
+                haptic_button(
+                    "haptics-success",
+                    crate::res::str::haptics_success(),
+                    Haptic::Success,
+                    playing,
+                    last,
+                ),
+                haptic_button(
+                    "haptics-warning",
+                    crate::res::str::haptics_warning(),
+                    Haptic::Warning,
+                    playing,
+                    last,
+                ),
+                haptic_button(
+                    "haptics-error",
+                    crate::res::str::haptics_error(),
+                    Haptic::Error,
+                    playing,
+                    last,
+                ),
+            )),
+            grid_row((
+                haptic_button(
+                    "haptics-selection",
+                    crate::res::str::haptics_selection(),
+                    Haptic::Selection,
+                    playing,
+                    last,
+                ),
+                spacer(),
+                spacer(),
+            )),
         ))
         .spacing(8.0),
-        row((
-            haptic_button(
-                "haptics-success",
-                crate::res::str::haptics_success(),
-                Haptic::Success,
-                last,
-            ),
-            haptic_button(
-                "haptics-warning",
-                crate::res::str::haptics_warning(),
-                Haptic::Warning,
-                last,
-            ),
-            haptic_button(
-                "haptics-error",
-                crate::res::str::haptics_error(),
-                Haptic::Error,
-                last,
-            ),
-            haptic_button(
-                "haptics-selection",
-                crate::res::str::haptics_selection(),
-                Haptic::Selection,
-                last,
-            ),
+        label(crate::res::str::haptics_songs_caption()).font(Font::Footnote),
+        // The songs get filled colours so they read as a different KIND of control from the single
+        // taps above — `FilledButtonStyle` also recolours the label, so contrast holds in both
+        // light and dark.
+        grid((
+            grid_row((
+                song_button(
+                    "haptics-song-celebration",
+                    crate::res::str::haptics_song_celebration(),
+                    "Celebration",
+                    CELEBRATION,
+                    crate::palette::TEAL,
+                    playing,
+                    last,
+                ),
+                song_button(
+                    "haptics-song-levelup",
+                    crate::res::str::haptics_song_levelup(),
+                    "Level up",
+                    LEVEL_UP,
+                    crate::palette::VIOLET,
+                    playing,
+                    last,
+                ),
+            )),
+            grid_row((
+                song_button(
+                    "haptics-song-heartbeat",
+                    crate::res::str::haptics_song_heartbeat(),
+                    "Heartbeat",
+                    HEARTBEAT,
+                    crate::palette::CORAL,
+                    playing,
+                    last,
+                ),
+                song_button(
+                    "haptics-song-cascade",
+                    crate::res::str::haptics_song_cascade(),
+                    "Cascade",
+                    CASCADE,
+                    crate::palette::AMBER,
+                    playing,
+                    last,
+                ),
+            )),
         ))
         .spacing(8.0),
         labeled(
@@ -207,14 +502,48 @@ fn haptics_section() -> impl Piece {
     .title(crate::res::str::nav_haptics())
 }
 
-/// Local notifications (docs/notify.md). The controls cover what the API actually varies —
-/// message, delay, importance, sound, badge, and the route a tap opens — and the capability lines
-/// are first, because the honest answer differs per platform: Apple and Android hand a scheduled
-/// notification to the OS, while Linux and the web run an in-process timer that dies with the app.
-///
-/// Importance is fixed when a channel is registered (Android's `NotificationChannel` is immutable
-/// after first use), so the page registers ONE CHANNEL PER LEVEL up front and the picker chooses
-/// between them rather than mutating one.
+/// A filled style like `FilledButtonStyle`, but with the label CENTERED. The built-in leaves the
+/// label at its natural position, which reads as off-centre once `grow_w` stretches the button to
+/// share a grid column.
+struct FilledCenteredStyle {
+    color: day::prelude::Color,
+}
+
+impl day::prelude::ButtonStyle for FilledCenteredStyle {
+    fn body(&self, label: AnyPiece) -> AnyPiece {
+        column((label,))
+            .align(HAlign::Center)
+            .grow_w()
+            .padding(day::prelude::Insets::symmetric(16.0, 10.0))
+            .background(self.color)
+            .corner_radius(10.0)
+    }
+    fn label_color(&self) -> Option<day::prelude::Color> {
+        Some(day::prelude::Color::WHITE)
+    }
+}
+
+/// A coloured button that plays one haptic song.
+#[allow(clippy::too_many_arguments)]
+fn song_button(
+    id: &'static str,
+    title: LocalizedText,
+    name: &'static str,
+    beats: &'static [Beat],
+    color: day::prelude::Color,
+    playing: Signal<bool>,
+    last: Signal<String>,
+) -> AnyPiece {
+    // `.style` is a Button method returning AnyPiece, so it comes before the Decorate modifiers;
+    // the grid modifier goes last, per docs/grid.md's ordering rule.
+    button(title)
+        .enabled(move || !playing.get())
+        .action(move || play_song(name, beats, playing, last))
+        .style(FilledCenteredStyle { color })
+        .id(id)
+        .grow_w()
+}
+
 fn notify_section() -> impl Piece {
     let caps = day_part_local_notify::capabilities();
     let levels = [

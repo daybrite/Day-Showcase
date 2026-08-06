@@ -1,0 +1,10 @@
+name: haptics-song
+description: Play a haptic song and confirm the app reports it.
+flow:
+  - wait_for: { id: home-title }
+  - navigate: { route: services }
+  - wait_for: { id: haptics-supported }
+  - scroll_to: { id: haptics-song-celebration }
+  - tap: { id: haptics-song-celebration }
+  - assert_text: { id: haptics-last-played, text: "Played: Celebration" }
+  - screenshot: haptics-song-played
