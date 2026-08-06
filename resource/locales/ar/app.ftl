@@ -611,6 +611,7 @@ toolbar_extra = علامة مرجعية
 toolbar_menu_first = تكرار
 toolbar_menu_second = إعادة تسمية
 toolbar_search_placeholder = بحث
+show_source = عرض المصدر
 # The live readout.
 toolbar_query_label = نص البحث
 toolbar_query_empty = (فارغ)

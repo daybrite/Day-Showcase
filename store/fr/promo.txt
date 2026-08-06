@@ -1,1 +1,1 @@
-Une seule base de code Rust. De vrais widgets natifs sur chaque plateforme. Passez-les tous en revue ici.
+Dix paires plateforme-toolkit, une seule base Rust. Chaque contrôle appartient à la plateforme — UIKit, Material, AppKit, GTK, Qt, XAML, ArkUI ou le DOM.

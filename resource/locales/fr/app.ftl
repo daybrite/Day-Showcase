@@ -604,6 +604,7 @@ toolbar_extra = Signet
 toolbar_menu_first = Dupliquer
 toolbar_menu_second = Renommer
 toolbar_search_placeholder = Rechercher
+show_source = Afficher la source
 # The live readout.
 toolbar_query_label = Texte de recherche
 toolbar_query_empty = (vide)

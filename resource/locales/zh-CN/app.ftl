@@ -599,6 +599,7 @@ toolbar_extra = 书签
 toolbar_menu_first = 创建副本
 toolbar_menu_second = 重命名
 toolbar_search_placeholder = 搜索
+show_source = 查看源代码
 # The live readout.
 toolbar_query_label = 搜索文字
 toolbar_query_empty = （空）

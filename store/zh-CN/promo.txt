@@ -1,1 +1,1 @@
-一份 Rust 代码。每个平台上都是真正的原生控件。在这里逐个查看。
+十组平台－工具包组合，一份 Rust 代码。应用中的每个控件都是平台自己的——UIKit、Material、AppKit、GTK、Qt、XAML、ArkUI 或 DOM。

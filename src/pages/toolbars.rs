@@ -98,6 +98,13 @@ pub(crate) fn install() {
                 ],
             )
             .icon(Symbol::More),
+            // "Show Source" (docs/toolbars.md): open the current page's source on GitHub. The
+            // desktop counterpart to the mobile nav-bar button (lib.rs `show_source`); a bundled
+            // image, since the command is app-specific and has no standard Symbol.
+            toolbar_button("tb-source", crate::res::str::show_source())
+                .image(crate::res::images::show_source)
+                .tooltip(crate::res::str::show_source())
+                .action(crate::show_source),
         ];
         if s.extra.get() {
             items.push(

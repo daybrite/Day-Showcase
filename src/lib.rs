@@ -109,6 +109,63 @@ day::routes! {
     }
 }
 
+/// The GitHub repository the "Show Source" action opens.
+const SOURCE_REPO: &str = "https://github.com/daybrite/Day-Showcase";
+/// The git ref "Show Source" links against — `vX.Y.Z` for a tagged release, else `main` for a
+/// development build. Baked by `build.rs` from the release pipeline's `GITHUB_REF` (see there).
+const SOURCE_REF: &str = env!("DAY_SHOWCASE_SOURCE_REF");
+
+impl Section {
+    /// The repo-relative source file whose page this section shows — the "Show Source" target.
+    /// Kept exhaustive by the compiler, so a new section must name its file here.
+    fn source_file(self) -> &'static str {
+        match self {
+            Section::About => "src/pages/about.rs",
+            Section::Animation => "src/pages/animation.rs",
+            Section::Canvas => "src/pages/canvas.rs",
+            Section::Controls => "src/pages/controls.rs",
+            Section::CrashReporting => "src/pages/crash.rs",
+            Section::Dates => "src/pages/dates.rs",
+            Section::Focus => "src/pages/focus.rs",
+            Section::Grid => "src/pages/grid.rs",
+            Section::List => "src/pages/list.rs",
+            Section::Localization => "src/pages/localization.rs",
+            Section::Map => "src/pages/map.rs",
+            Section::Media => "src/pages/media.rs",
+            Section::Menus => "src/pages/menus.rs",
+            Section::Refresh => "src/pages/refresh.rs",
+            Section::Resources => "src/pages/resources.rs",
+            Section::Scripting => "src/pages/scripting.rs",
+            Section::Services => "src/pages/services.rs",
+            Section::Stack => "src/pages/stack.rs",
+            Section::System => "src/pages/system.rs",
+            Section::Tabs => "src/pages/tabs.rs",
+            Section::Text => "src/pages/text.rs",
+            Section::TextAreas => "src/pages/text_areas.rs",
+            Section::Toolbars => "src/pages/toolbars.rs",
+            Section::Tweaks => "src/pages/tweaks.rs",
+            Section::WebView => "src/pages/webview.rs",
+        }
+    }
+}
+
+/// Open the source of the page currently showing on GitHub, pinned to this build's ref (a release
+/// tag, else `main`). Both the desktop toolbar button and the mobile nav-bar button call this —
+/// it reads the live route, so one handler serves every page (docs/navigation.md). With nothing
+/// selected (the desktop split's default) it falls back to About, which is that default detail.
+pub(crate) fn show_source() {
+    let section = current_route()
+        .as_deref()
+        .and_then(|r| r.split(['/', '?']).next())
+        .filter(|s| !s.is_empty())
+        .and_then(Section::from_key)
+        .unwrap_or(Section::About);
+    open_url(&format!(
+        "{SOURCE_REPO}/blob/{SOURCE_REF}/{}",
+        section.source_file()
+    ));
+}
+
 /// Arm crash reporting (docs/break.md) — the Crash Reporting page demonstrates it. Idempotent
 /// (day-break's `init` is single-shot); safe to call from every entry point.
 pub fn install_crash_reporting() {
@@ -377,6 +434,14 @@ fn window_root(primary: bool) -> AnyPiece {
                     .collect::<Vec<_>>()
             },
             |d: &Dest| item(d.section, (d.title)()).icon(d.icon.clone()),
+        )
+        // "Show Source" as an upper-right nav-bar button on the toolkits with no window toolbar
+        // (the phones, HarmonyOS — docs/navigation.md); desktop shows it in the toolbar instead
+        // (pages/toolbars.rs). One handler for every page: it reads the live route.
+        .bar_action(
+            res::images::show_source,
+            crate::res::str::show_source(),
+            show_source,
         )
         // Dynamic rows carry no page builder of their own — the key is looked up here.
         .destination(|key: &Option<Section>| match key {

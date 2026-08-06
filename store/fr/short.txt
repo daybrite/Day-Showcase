@@ -1,1 +1,1 @@
-L'app de démonstration de Day : tous les widgets natifs, une base Rust.
+Le catalogue de widgets de Day : tous les contrôles natifs, une base Rust.

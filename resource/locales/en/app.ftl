@@ -605,6 +605,7 @@ toolbar_extra = Bookmark
 toolbar_menu_first = Duplicate
 toolbar_menu_second = Rename
 toolbar_search_placeholder = Search
+show_source = Show Source
 # The live readout.
 toolbar_query_label = Search text
 toolbar_query_empty = (empty)

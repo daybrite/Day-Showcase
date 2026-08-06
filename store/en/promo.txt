@@ -1,1 +1,1 @@
-One Rust codebase. Real native widgets on every platform. Look through every one of them here.
+Ten platform-toolkit pairs, one Rust codebase. Every control in this app is the platform's own — UIKit, Material, AppKit, GTK, Qt, XAML, ArkUI, or the DOM.

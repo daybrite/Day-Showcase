@@ -1,8 +1,8 @@
-Day Showcase est l'application de démonstration de Day, un framework qui permet d'écrire des applications en Rust dessinées avec les widgets natifs de chaque plateforme.
+Day Showcase est l'application catalogue de Day, un framework qui permet d'écrire des applications en Rust dessinées avec les widgets natifs de chaque plateforme.
 
-Tout ce que vous voyez ici est du vrai UIKit sur iPhone, de vrais Material Components sur Android, du vrai AppKit sur Mac — piloté par une seule base de code Rust, sans vue web ni rendu maison.
+L'interrupteur de la page Contrôles est un UISwitch sur iPhone, un MaterialSwitch sur Android et un NSSwitch sur Mac. Une seule base de code Rust dessine les trois. Il n'y a aucune vue web intermédiaire, et rien à l'écran n'est dessiné sur mesure.
 
-CE QU'ELLE CONTIENT
+Ce qu'elle contient
 
 • Contrôles — boutons, interrupteurs, curseurs, sélecteurs et champs de texte, chacun lié en double sens à un signal
 • Texte et zones de texte — style, sélection et édition
@@ -13,10 +13,10 @@ CE QU'ELLE CONTIENT
 • Appareil et capteurs — batterie, connectivité et relevés en direct de l'accéléromètre, du gyroscope et du magnétomètre
 • Services système, Focus, Animation, Vue Web, Carte, Actualisation et Rapports de plantage
 
-L'application entière est traduite en anglais, français, arabe et chinois simplifié, et changer de langue en cours d'exécution reconstruit chaque écran — y compris la mise en page de droite à gauche qu'exige l'arabe.
+Chaque écran est traduit en anglais, français, arabe et chinois simplifié. Changer de langue en cours d'exécution remet en page chaque écran, en miroir pour l'arabe.
 
-À QUI ELLE S'ADRESSE
+À qui elle s'adresse
 
-Aux développeurs qui évaluent Day, et à quiconque se demande à quoi ressemble une application Rust qui utilise les vrais widgets au lieu de les imiter. C'est un catalogue, pas un produit : il n'y a rien à quoi se connecter et rien à acheter.
+Aux développeurs qui évaluent Day, et à quiconque se demande à quoi ressemble une application Rust qui utilise les vrais widgets de la plateforme. Chaque écran fonctionne dès le premier lancement — sans compte et sans connexion réseau.
 
 Day est open source. Le code de chaque écran de cette application se trouve sur github.com/daybrite/day.
