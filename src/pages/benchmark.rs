@@ -187,7 +187,7 @@ pub(crate) fn benchmark_page() -> AnyPiece {
         .align(HAlign::Center)
         .grow_w()
         .any();
-        let body = column((
+        column((
             picker_row,
             when(move || tab.get() == 0, move || day_native(seed, count)),
             when(move || tab.get() == 1, swiftui_pane),
@@ -195,8 +195,7 @@ pub(crate) fn benchmark_page() -> AnyPiece {
         .spacing(10.0)
         .align(HAlign::Leading)
         .grow()
-        .any();
-        body
+        .any()
     } else {
         day_native(seed, count)
     };
