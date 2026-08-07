@@ -54,5 +54,20 @@
 	</dict>
 	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>Show how Day asks for Bluetooth — the showcase never connects to a device.</string>
+	<key>UIApplicationShortcutItems</key>
+	<array>
+		<dict>
+			<key>UIApplicationShortcutItemType</key>
+			<string>dayshowcase://menus</string>
+			<key>UIApplicationShortcutItemTitle</key>
+			<string>Menus &amp; dialogs</string>
+		</dict>
+		<dict>
+			<key>UIApplicationShortcutItemType</key>
+			<string>dayshowcase://localization</string>
+			<key>UIApplicationShortcutItemTitle</key>
+			<string>Localization</string>
+		</dict>
+	</array>
 </dict>
 </plist>

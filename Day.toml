@@ -36,6 +36,16 @@ motion = "Show live accelerometer, gyroscope and magnetometer traces on the Devi
 [permissions.raw]
 ios = { NSBluetoothAlwaysUsageDescription = "Show how Day asks for Bluetooth — the showcase never connects to a device." }
 
+# Launcher shortcuts (docs/deep-links.md): long-press the app icon to jump straight to a page.
+# Labels are Fluent ids resolved per locale at build; routes are saved deep links.
+[[shortcuts]]
+route = "menus"
+label = "nav_menus"
+
+[[shortcuts]]
+route = "localization"
+label = "nav_localization"
+
 # The desktop window (docs/cli.md). Kept in lockstep with main.rs's WindowOptions — the CLI
 # sizes headless X servers (xvfb) from THIS, so a mismatch would crop or letterbox the
 # root-capture screenshot fallback on linux-gtk.

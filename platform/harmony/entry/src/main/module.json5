@@ -26,6 +26,10 @@
     "abilities": [
       {
         "name": "EntryAbility",
+        // day: [[shortcuts]] — labels and routes live in the generated profile.
+        "metadata": [
+          { "name": "ohos.ability.shortcuts", "resource": "$profile:shortcuts_config" },
+        ],
         "srcEntry": "./ets/entryability/EntryAbility.ets",
         "description": "Day ArkUI demo",
         "icon": "$media:layered_image",

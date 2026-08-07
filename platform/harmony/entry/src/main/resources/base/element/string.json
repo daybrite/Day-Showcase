@@ -3,5 +3,7 @@
   { "name": "EntryAbility_label", "value": "Day Showcase" },
   { "name": "day_perm_reason_camera", "value": "Show how Day asks for a permission — the showcase never opens the camera." },
   { "name": "day_perm_reason_location_when_in_use", "value": "Show your coordinates live on the Device & sensors page." },
-  { "name": "day_perm_reason_motion", "value": "Show live accelerometer, gyroscope and magnetometer traces on the Device & sensors page." }
+  { "name": "day_perm_reason_motion", "value": "Show live accelerometer, gyroscope and magnetometer traces on the Device & sensors page." },
+  { "name": "day_shortcut_0", "value": "Menus & dialogs" },
+  { "name": "day_shortcut_1", "value": "Localization" }
 ] }
