@@ -224,8 +224,16 @@ fn messages_section() -> impl Piece {
     section((
         column((
             message_row(0, "Maya Chen", crate::res::str::msg_subject_one().format()),
-            message_row(1, "Tomás Rivera", crate::res::str::msg_subject_two().format()),
-            message_row(2, "Aiko Tanaka", crate::res::str::msg_subject_three().format()),
+            message_row(
+                1,
+                "Tomás Rivera",
+                crate::res::str::msg_subject_two().format(),
+            ),
+            message_row(
+                2,
+                "Aiko Tanaka",
+                crate::res::str::msg_subject_three().format(),
+            ),
         ))
         .spacing(8.0),
         label(crate::res::str::menus_messages_hint()).font(Font::Footnote),
