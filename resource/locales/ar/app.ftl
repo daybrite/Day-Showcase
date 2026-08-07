@@ -738,3 +738,21 @@ scripting_pick = تحميل نص برمجي محفوظ…
 scripting_save = حفظ
 scripting_name_hint = نصي البرمجي
 scripting_saved = تم الحفظ
+
+# --- app badge (docs/badge.md) ---
+nav_badge = شارة التطبيق
+badge_caps_native = تعرض هذه المنصة شارة على أيقونة التطبيق
+badge_caps_emulated = تُرسل الشارة، لكن ظهورها يعتمد على الصدفة أو على تثبيت التطبيق
+badge_caps_none = لا تملك هذه المنصة واجهة لشارة التطبيق
+badge_android_note = لا تملك أندرويد واجهة لتعيين شارة: تستنتج المشغّلات النقطة من الإشعارات المنشورة، فاستخدم عدّاد الإشعار بدلًا من ذلك.
+badge_count_label = العدد
+badge_minus = −
+badge_plus = +
+badge_set = تعيين الشارة
+badge_clear = مسح
+badge_set_text = تعيين النص "beta"
+badge_last = آخر إجراء
+badge_status_idle = لم يتم التعيين بعد
+badge_status_set = تم تعيين الشارة إلى { $count }
+badge_status_cleared = تم مسح الشارة
+badge_status_text = تم تعيين الشارة إلى "beta"

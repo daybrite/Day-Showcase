@@ -1,7 +1,7 @@
 use day::prelude::*;
 use day_piece_media::media;
 
-use crate::widgets::page;
+use crate::widgets::page_wide;
 
 /// A native media player (day-piece-media, an EXTERNAL standalone piece): AVPlayerView /
 /// AVPlayerViewController / QMediaPlayer+QVideoWidget / android.widget.VideoView / GtkVideo.
@@ -48,7 +48,7 @@ pub(crate) fn media_page() -> AnyPiece {
     let body = form((video, lottie_section())).any();
     #[cfg(not(any(target_os = "ios", target_os = "android")))]
     let body = form((video,)).any();
-    page(
+    page_wide(
         crate::res::str::nav_media(),
         "media-title",
         Some(crate::res::str::media_caption()),

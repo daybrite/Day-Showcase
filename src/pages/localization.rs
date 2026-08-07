@@ -54,8 +54,8 @@ fn locale_section() -> impl Piece {
         ),
         row((
             button(crate::res::str::loc_reset())
-                .bordered()
                 .action(move || set_locale(&initial))
+                .style(crate::widgets::primary())
                 .id("locale-reset"),
             // `en-XA` accents + expands every string — the layout stress-test pseudolocale.
             button("Ⓔⓝ-ⓍⒶ")

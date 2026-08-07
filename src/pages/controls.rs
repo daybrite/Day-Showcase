@@ -112,13 +112,13 @@ fn flavor_block() -> AnyPiece {
                 .placeholder(crate::res::str::flavor_placeholder())
                 .id("flavor-combo"),
             button(crate::res::str::flavor_add())
-                .bordered()
                 .action(move || {
                     let typed = flavor.get_untracked();
                     if !typed.is_empty() && !flavors.get_untracked().contains(&typed) {
                         flavors.update(|v| v.push(typed));
                     }
                 })
+                .style(crate::widgets::primary())
                 .id("flavor-add"),
             label(move || flavor.get()).id("flavor-value"),
         ))

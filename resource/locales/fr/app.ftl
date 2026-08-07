@@ -723,3 +723,21 @@ scripting_pick = Charger un script enregistré…
 scripting_save = Enregistrer
 scripting_name_hint = Mon script
 scripting_saved = Enregistré
+
+# --- app badge (docs/badge.md) ---
+nav_badge = Pastille d'application
+badge_caps_native = Cette plateforme affiche une pastille sur l'icône
+badge_caps_emulated = La pastille est envoyée, mais son affichage dépend du shell ou de l'installation de l'application
+badge_caps_none = Cette plateforme n'a pas d'API de pastille
+badge_android_note = Android n'a aucune API pour définir une pastille : les lanceurs déduisent le point des notifications publiées ; utilisez le compteur d'une notification.
+badge_count_label = Nombre
+badge_minus = −
+badge_plus = +
+badge_set = Définir
+badge_clear = Effacer
+badge_set_text = Texte « beta »
+badge_last = Dernière action
+badge_status_idle = Rien de défini
+badge_status_set = Pastille définie sur { $count }
+badge_status_cleared = Pastille effacée
+badge_status_text = Pastille définie sur « beta »

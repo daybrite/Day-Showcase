@@ -26,6 +26,7 @@ pub(crate) fn crash_page() -> AnyPiece {
             crate::res::str::crash_abort_label(),
             button(crate::res::str::crash_abort())
                 .action(|| schedule(|| std::process::abort()))
+                .style(crate::widgets::danger())
                 .id("crash-abort"),
         ),
         labeled(
@@ -80,9 +81,11 @@ pub(crate) fn crash_page() -> AnyPiece {
                 row((
                     button(crate::res::str::crash_send())
                         .action(send_newest)
+                        .style(crate::widgets::primary())
                         .id("crash-send"),
                     button(crate::res::str::crash_clear())
                         .action(clear_reports)
+                        .style(crate::widgets::secondary())
                         .id("crash-clear"),
                 ))
                 .spacing(8.0)

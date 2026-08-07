@@ -1,0 +1,13 @@
+name: badge-shot
+description: The App badge group — capability line, stepper, and set/clear.
+flow:
+  - wait_for: { id: home-title }
+  - navigate: { route: services }
+  - wait_for: { id: badge-supported }
+  - scroll_to: { id: badge-set }
+  - tap: { id: badge-plus }
+  - tap: { id: badge-plus }
+  - tap: { id: badge-plus }
+  - assert_text: { id: badge-value, text: "3" }
+  - tap: { id: badge-set }
+  - screenshot: badge-set

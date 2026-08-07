@@ -716,3 +716,21 @@ scripting_pick = 加载已保存的脚本…
 scripting_save = 保存
 scripting_name_hint = 我的脚本
 scripting_saved = 已保存
+
+# --- app badge (docs/badge.md) ---
+nav_badge = 应用角标
+badge_caps_native = 此平台会在应用图标上显示角标
+badge_caps_emulated = 角标已发送，但是否显示取决于桌面环境或应用是否已安装
+badge_caps_none = 此平台没有应用角标接口
+badge_android_note = Android 没有设置角标的接口：启动器根据已发布的通知推导小圆点，请改用通知的角标数字。
+badge_count_label = 数量
+badge_minus = −
+badge_plus = +
+badge_set = 设置角标
+badge_clear = 清除
+badge_set_text = 设为文本 “beta”
+badge_last = 最近操作
+badge_status_idle = 尚未设置
+badge_status_set = 角标已设为 { $count }
+badge_status_cleared = 角标已清除
+badge_status_text = 角标已设为 “beta”

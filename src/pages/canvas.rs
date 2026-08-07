@@ -2,14 +2,14 @@ use day::prelude::*;
 use day_piece_rating::{Card, badge, rating};
 
 use crate::palette::{AMBER, AZURE, CORAL, INK, RUST, SKY, SLATE, TEAL, VIOLET};
-use crate::widgets::{gauge, page};
+use crate::widgets::{gauge, page_wide};
 
 /// Drawing & composition (docs/shapes.md, docs/canvas.md, DESIGN §8/§11): the unified `shape`
 /// piece in every kind, live canvas transforms and gestures, the slider-driven gauge, and the
 /// composition-tier widgets (rating, card, badge, button styles, ambient environment) — each
 /// group in its own themed section.
 pub(crate) fn canvas_page() -> AnyPiece {
-    page(
+    page_wide(
         crate::res::str::nav_canvas(),
         "canvas-title",
         Some(crate::res::str::canvas_caption()),

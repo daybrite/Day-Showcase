@@ -20,6 +20,7 @@ pub(crate) fn services_page() -> AnyPiece {
             prefs_section(),
             haptics_section(),
             notify_section(),
+            badge_section(),
             files_section(),
             storage_section(),
         ))
@@ -38,7 +39,6 @@ fn clipboard_section() -> impl Piece {
             .id("clipboard-field"),
         row((
             button(crate::res::str::clipboard_copy())
-                .bordered()
                 .action(move || {
                     let ok = draft.with(|t| day_part_clipboard::set_text(t));
                     let msg = if ok {
@@ -48,6 +48,7 @@ fn clipboard_section() -> impl Piece {
                     };
                     status.set(msg.format());
                 })
+                .style(crate::widgets::primary())
                 .id("clipboard-copy"),
             button(crate::res::str::clipboard_paste())
                 .bordered()
@@ -79,7 +80,6 @@ fn prefs_section() -> impl Piece {
             .id("prefs-field"),
         row((
             button(crate::res::str::prefs_save())
-                .bordered()
                 .action(move || {
                     let ok = field.with(|t| day::prefs::set(KEY, t));
                     let msg = if ok {
@@ -89,6 +89,7 @@ fn prefs_section() -> impl Piece {
                     };
                     status.set(msg.format());
                 })
+                .style(crate::widgets::primary())
                 .id("prefs-save"),
             button(crate::res::str::prefs_load())
                 .bordered()
@@ -104,12 +105,12 @@ fn prefs_section() -> impl Piece {
                 })
                 .id("prefs-load"),
             button(crate::res::str::prefs_clear())
-                .bordered()
                 .action(move || {
                     day::prefs::remove(KEY);
                     value.set(crate::res::str::prefs_empty().format());
                     status.set(crate::res::str::prefs_cleared().format());
                 })
+                .style(crate::widgets::danger())
                 .id("prefs-clear"),
             label(move || status.get()).id("prefs-status"),
         ))
@@ -502,27 +503,6 @@ fn haptics_section() -> impl Piece {
     .title(crate::res::str::nav_haptics())
 }
 
-/// A filled style like `FilledButtonStyle`, but with the label CENTERED. The built-in leaves the
-/// label at its natural position, which reads as off-centre once `grow_w` stretches the button to
-/// share a grid column.
-struct FilledCenteredStyle {
-    color: day::prelude::Color,
-}
-
-impl day::prelude::ButtonStyle for FilledCenteredStyle {
-    fn body(&self, label: AnyPiece) -> AnyPiece {
-        column((label,))
-            .align(HAlign::Center)
-            .grow_w()
-            .padding(day::prelude::Insets::symmetric(16.0, 10.0))
-            .background(self.color)
-            .corner_radius(10.0)
-    }
-    fn label_color(&self) -> Option<day::prelude::Color> {
-        Some(day::prelude::Color::WHITE)
-    }
-}
-
 /// A coloured button that plays one haptic song.
 #[allow(clippy::too_many_arguments)]
 fn song_button(
@@ -539,7 +519,7 @@ fn song_button(
     button(title)
         .enabled(move || !playing.get())
         .action(move || play_song(name, beats, playing, last))
-        .style(FilledCenteredStyle { color })
+        .style(crate::widgets::tinted(color))
         .id(id)
         .grow_w()
 }
@@ -772,6 +752,7 @@ fn notify_section() -> impl Piece {
                     };
                     status.set(msg);
                 })
+                .style(crate::widgets::primary())
                 .id("notify-post"),
             button(crate::res::str::notify_cancel())
                 .bordered()
@@ -790,6 +771,95 @@ fn notify_section() -> impl Piece {
     .title(crate::res::str::nav_notify())
 }
 
+/// App-icon badge (docs/badge.md). The capability line comes first because this is the feature
+/// whose support varies most: macOS renders arbitrary text, iOS and the web take a number,
+/// Android has no API for it at all and says so.
+fn badge_section() -> impl Piece {
+    let count = Signal::new(0.0f64);
+    let status = Signal::new(crate::res::str::badge_status_idle().format());
+
+    let can_count = capability(Cap::AppBadgeCount);
+    let can_text = capability(Cap::AppBadgeText) == Support::Native;
+    let supported = can_count != Support::Unsupported;
+
+    // Three states, not two: `Emulated` means the call is made and the shell may ignore it — the
+    // web unless installed, and desktop Linux under a shell that skips the Unity protocol.
+    let caps_line = match can_count {
+        Support::Native => crate::res::str::badge_caps_native(),
+        Support::Emulated => crate::res::str::badge_caps_emulated(),
+        Support::Unsupported => crate::res::str::badge_caps_none(),
+    };
+
+    section((
+        label(caps_line).font(Font::Footnote).id("badge-supported"),
+        // Named so a user on Android reads WHY rather than assuming it is broken.
+        when(
+            move || !supported,
+            move || {
+                label(crate::res::str::badge_android_note())
+                    .font(Font::Footnote)
+                    .id("badge-unsupported-why")
+            },
+        ),
+        labeled(
+            crate::res::str::badge_count_label(),
+            row((
+                button(crate::res::str::badge_minus())
+                    .bordered()
+                    .enabled(move || supported && count.get() > 0.0)
+                    .action(move || count.set((count.get() - 1.0).max(0.0)))
+                    .id("badge-minus"),
+                label(move || format!("{}", count.get() as u32)).id("badge-value"),
+                button(crate::res::str::badge_plus())
+                    .bordered()
+                    .enabled(move || supported && count.get() < 99.0)
+                    .action(move || count.set((count.get() + 1.0).min(99.0)))
+                    .id("badge-plus"),
+            ))
+            .spacing(8.0),
+        ),
+        row((
+            button(crate::res::str::badge_set())
+                .prominent()
+                .enabled(supported)
+                .action(move || {
+                    let n = count.get() as u32;
+                    day::set_app_badge(&day::AppBadge::Count(n));
+                    status.set(crate::res::str::badge_status_set(n.to_string()).format());
+                })
+                .id("badge-set"),
+            button(crate::res::str::badge_clear())
+                .bordered()
+                .enabled(supported)
+                .action(move || {
+                    day::set_app_badge(&day::AppBadge::None);
+                    status.set(crate::res::str::badge_status_cleared().format());
+                })
+                .id("badge-clear"),
+            // Text is macOS-only, so the control simply is not offered elsewhere rather than
+            // sitting there doing nothing.
+            when(
+                move || can_text,
+                move || {
+                    button(crate::res::str::badge_set_text())
+                        .bordered()
+                        .action(move || {
+                            day::set_app_badge(&day::AppBadge::Text("beta".into()));
+                            status.set(crate::res::str::badge_status_text().format());
+                        })
+                        .id("badge-set-text")
+                },
+            ),
+        ))
+        .spacing(8.0),
+        labeled(
+            crate::res::str::badge_last(),
+            label(move || status.get()).id("badge-status"),
+        ),
+    ))
+    .title(crate::res::str::nav_badge())
+}
+
 fn files_section() -> impl Piece {
     // The editor text: what "Save" writes and what "Open" loads into.
     let content = Signal::new(crate::res::str::files_initial_content().format());
@@ -802,7 +872,6 @@ fn files_section() -> impl Piece {
             .id("files-content"),
         row((
             button(crate::res::str::files_open())
-                .bordered()
                 .action(move || {
                     day::task(async move {
                         match open_file()
@@ -822,6 +891,7 @@ fn files_section() -> impl Piece {
                         }
                     });
                 })
+                .style(crate::widgets::primary())
                 .id("btn-open-file"),
             button(crate::res::str::files_save())
                 .bordered()
@@ -914,7 +984,6 @@ fn http_section() -> impl Piece {
         label(crate::res::str::http_caption()).font(Font::Footnote),
         row((
             button(crate::res::str::http_fetch())
-                .bordered()
                 .action(move || match demo_url() {
                     Ok(url) => day_part_http::fetch_async(
                         day_part_http::Request::get(url)
@@ -931,6 +1000,7 @@ fn http_section() -> impl Piece {
                     ),
                     Err(e) => status.set(format!("error: {e}")),
                 })
+                .style(crate::widgets::primary())
                 .id("http-fetch"),
             label(move || status.get()).id("http-status"),
         ))
@@ -1106,7 +1176,6 @@ fn storage_section() -> impl Piece {
             .id("fs-note"),
         row((
             button(crate::res::str::storage_save())
-                .bordered()
                 .action(move || {
                     let data = note.get_untracked().into_bytes();
                     day::task(async move {
@@ -1118,6 +1187,7 @@ fn storage_section() -> impl Piece {
                         refresh();
                     });
                 })
+                .style(crate::widgets::primary())
                 .id("fs-save"),
             button(crate::res::str::storage_load())
                 .bordered()
@@ -1134,7 +1204,6 @@ fn storage_section() -> impl Piece {
                 })
                 .id("fs-load"),
             button(crate::res::str::storage_delete())
-                .bordered()
                 .action(move || {
                     day::task(async move {
                         let text = match day_part_fs::remove_future(FILE).await {
@@ -1145,6 +1214,7 @@ fn storage_section() -> impl Piece {
                         refresh();
                     });
                 })
+                .style(crate::widgets::danger())
                 .id("fs-delete"),
             label(move || status.get()).id("fs-status"),
         ))

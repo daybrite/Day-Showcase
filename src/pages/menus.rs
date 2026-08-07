@@ -190,7 +190,6 @@ fn dialogs_section() -> impl Piece {
     section((
         row((
             button(crate::res::str::modal_alert())
-                .bordered()
                 .action(move || {
                     day::task(async move {
                         alert(crate::res::str::alert_title())
@@ -201,6 +200,7 @@ fn dialogs_section() -> impl Piece {
                         last.set("alert-ok".into());
                     });
                 })
+                .style(crate::widgets::primary())
                 .id("btn-alert"),
             button(crate::res::str::modal_confirm())
                 .bordered()
@@ -214,7 +214,6 @@ fn dialogs_section() -> impl Piece {
                 })
                 .id("btn-confirm"),
             button(crate::res::str::modal_delete())
-                .bordered()
                 .action(move || {
                     day::task(async move {
                         let ok = confirm(crate::res::str::delete_title())
@@ -225,6 +224,7 @@ fn dialogs_section() -> impl Piece {
                         last.set(if ok { "delete-yes" } else { "delete-no" }.into());
                     });
                 })
+                .style(crate::widgets::danger())
                 .id("btn-delete"),
         ))
         .spacing(8.0),

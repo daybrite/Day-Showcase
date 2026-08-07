@@ -49,7 +49,6 @@ fn battery_section() -> impl Piece {
         ),
         row((
             button(crate::res::str::battery_refresh())
-                .bordered()
                 .action(move || {
                     reading.set(battery_line().format());
                     if let Some(b) = day_part_battery::status() {
@@ -59,6 +58,7 @@ fn battery_section() -> impl Piece {
                         charging.set(b.is_charging());
                     }
                 })
+                .style(crate::widgets::primary())
                 .id("battery-refresh"),
             label(move || reading.get()).id("battery-reading"),
         ))

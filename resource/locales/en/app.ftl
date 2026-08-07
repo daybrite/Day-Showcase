@@ -725,3 +725,21 @@ scripting_pick = Load a saved script…
 scripting_save = Save
 scripting_name_hint = My Script
 scripting_saved = Saved
+
+# --- app badge (docs/badge.md) ---
+nav_badge = App badge
+badge_caps_native = This platform draws a badge on the app icon
+badge_caps_emulated = The badge is sent, but whether it appears depends on the shell or on the app being installed
+badge_caps_none = This platform has no app-badge API
+badge_android_note = Android has no API for setting a badge: launchers derive the dot from posted notifications, so use a notification's badge count instead.
+badge_count_label = Count
+badge_minus = −
+badge_plus = +
+badge_set = Set badge
+badge_clear = Clear
+badge_set_text = Set text "beta"
+badge_last = Last action
+badge_status_idle = Nothing set yet
+badge_status_set = Badge set to { $count }
+badge_status_cleared = Badge cleared
+badge_status_text = Badge set to "beta"

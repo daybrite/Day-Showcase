@@ -72,6 +72,7 @@ pub(crate) fn list_page() -> AnyPiece {
             button(crate::res::str::list_add())
                 .prominent()
                 .action(move || total.update(|c| *c += 100))
+                .style(crate::widgets::primary())
                 .id("list-add"),
         ))
         .spacing(8.0),
@@ -105,8 +106,8 @@ pub(crate) fn list_page() -> AnyPiece {
                 .action(move || jump_end.notify())
                 .id("list-scroll-bottom"),
             button(crate::res::str::list_shuffle())
-                .bordered()
                 .action(move || rows.update(|v| shuffle(v)))
+                .style(crate::widgets::secondary())
                 .id("list-shuffle"),
             button(crate::res::str::list_reset())
                 .bordered()

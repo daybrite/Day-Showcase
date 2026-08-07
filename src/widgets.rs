@@ -142,17 +142,121 @@ pub(crate) fn heading(
     }
 }
 
+/// The widest a page's content column grows before it stops and centres instead.
+///
+/// A desktop window is far wider than a comfortable reading measure, and a form stretched to
+/// 1900px reads as a spreadsheet: labels drift a screen away from the controls they name, and a
+/// row of buttons scatters. Capping the column and centring the remainder gives every page the
+/// same spine, on every window size and every platform — and it is what makes the screenshots
+/// look composed rather than merely wide.
+///
+/// The value is tuned against the window the screenshots are captured at (Day.toml `[window]`,
+/// 1000×720pt — about 760pt of content beside the sidebar), so the cap engages there and leaves a
+/// visible margin. A phone is far narrower, so it never engages on mobile and that layout is
+/// unchanged; [`page_wide`] opts out for the pages whose content wants the whole canvas.
+pub(crate) const CONTENT_MAX_WIDTH: f64 = 680.0;
+
 pub(crate) fn page(
     title: LocalizedText,
     title_id: &'static str,
     caption: Option<LocalizedText>,
     body: AnyPiece,
 ) -> AnyPiece {
+    page_inner(title, title_id, caption, body, Some(CONTENT_MAX_WIDTH))
+}
+
+/// [`page`] without the width cap — for pages whose content is the canvas itself (a benchmark
+/// patchwork, a map, a web view, a wide grid), where narrowing it would throw away the thing the
+/// page exists to show.
+pub(crate) fn page_wide(
+    title: LocalizedText,
+    title_id: &'static str,
+    caption: Option<LocalizedText>,
+    body: AnyPiece,
+) -> AnyPiece {
+    page_inner(title, title_id, caption, body, None)
+}
+
+fn page_inner(
+    title: LocalizedText,
+    title_id: &'static str,
+    caption: Option<LocalizedText>,
+    body: AnyPiece,
+    max_width: Option<f64>,
+) -> AnyPiece {
+    let content = column((heading(title, title_id, caption), body))
+        .spacing(16.0)
+        .align(HAlign::Leading);
+    let content = match max_width {
+        Some(w) => content.max_width(w).any(),
+        None => content.any(),
+    };
+    // The outer column is what centres: it grows to the scroll's width and aligns the capped
+    // content column in the middle of it.
     scroll(
-        column((heading(title, title_id, caption), body))
-            .spacing(16.0)
-            .align(HAlign::Leading)
+        column((content,))
+            .align(HAlign::Center)
+            .grow_w()
             .padding(20.0),
     )
     .any()
+}
+
+// ---------------------------------------------------------------------------
+// Button styling (§5.2 Decorate + ButtonStyle)
+// ---------------------------------------------------------------------------
+
+/// A filled, centred button in one of the palette's colors.
+///
+/// `FilledButtonStyle` leaves the label at its natural position, which reads as off-centre the
+/// moment `grow_w` stretches a button to share a grid column — so this centres it. Everything
+/// here is plain composition (`padding`/`background`/`corner_radius`), so it needs no per-backend
+/// code and looks the same on all nine.
+pub(crate) struct Tinted {
+    color: Color,
+    /// Pale fills (AMBER) need dark text; the palette's own note.
+    ink: bool,
+}
+
+impl ButtonStyle for Tinted {
+    fn body(&self, label: AnyPiece) -> AnyPiece {
+        column((label,))
+            .align(HAlign::Center)
+            .grow_w()
+            .padding(Insets::symmetric(16.0, 10.0))
+            .background(self.color)
+            .corner_radius(10.0)
+    }
+    fn label_color(&self) -> Option<Color> {
+        Some(if self.ink {
+            crate::palette::INK
+        } else {
+            Color::WHITE
+        })
+    }
+}
+
+/// A tinted button in an arbitrary palette color (white label).
+pub(crate) fn tinted(color: Color) -> Tinted {
+    Tinted { color, ink: false }
+}
+
+/// A tinted button on a PALE fill, which takes [`crate::palette::INK`] text instead of white.
+pub(crate) fn tinted_pale(color: Color) -> Tinted {
+    Tinted { color, ink: true }
+}
+
+/// The page's headline action — the one thing a visitor should press first.
+pub(crate) fn primary() -> Tinted {
+    tinted(crate::palette::SKY)
+}
+
+/// A supporting action that still deserves color: a second, cooler voice next to [`primary`].
+pub(crate) fn secondary() -> Tinted {
+    tinted(crate::palette::TEAL)
+}
+
+/// Destructive or irreversible — deleting, clearing, crashing on purpose.
+pub(crate) fn danger() -> Tinted {
+    tinted(crate::palette::RUST)
 }

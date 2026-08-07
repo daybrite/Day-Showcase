@@ -24,6 +24,7 @@ pub(crate) fn webview_page() -> AnyPiece {
             button(crate::res::str::webview_go())
                 .prominent()
                 .action(move || go.notify())
+                .style(crate::widgets::primary())
                 .id("webview-go"),
         ))
         .spacing(8.0),
