@@ -39,7 +39,9 @@ fn battery_section() -> impl Piece {
             crate::res::str::battery_level(),
             row((
                 slider(level).range(0.0..=100.0).id("battery-level"),
-                label(move || format!("{:.0}%", level.get())).id("battery-level-value"),
+                label(move || format!("{:.0}%", level.get()))
+                    .tabular()
+                    .id("battery-level-value"),
             ))
             .spacing(8.0),
         ),

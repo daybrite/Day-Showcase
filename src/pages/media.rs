@@ -78,7 +78,9 @@ fn lottie_section() -> impl Piece {
                     .range(0.25..=3.0)
                     .step(0.25)
                     .id("lottie-speed-slider"),
-                label(move || format!("{:.2}×", speed.get())).id("lottie-speed-value"),
+                label(move || format!("{:.2}×", speed.get()))
+                    .tabular()
+                    .id("lottie-speed-value"),
             ))
             .spacing(8.0),
         ),

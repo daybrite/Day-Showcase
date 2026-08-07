@@ -261,6 +261,7 @@ fn day_native(seed: Signal<f64>, count: Signal<f64>) -> AnyPiece {
                 )
                 .format()
             })
+            .tabular()
             .font(Font::Footnote)
             .id("bench-rows"),
         ))

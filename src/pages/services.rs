@@ -450,8 +450,9 @@ fn haptics_section() -> impl Piece {
         .spacing(8.0),
         label(crate::res::str::haptics_songs_caption()).font(Font::Footnote),
         // The songs get filled colours so they read as a different KIND of control from the single
-        // taps above — `FilledButtonStyle` also recolours the label, so contrast holds in both
-        // light and dark.
+        // taps above. Each fill picks its own label colour: the three saturated ones take white,
+        // and AMBER takes `tinted_pale`, which swaps in INK text — white on a pale fill is the
+        // contrast case that variant exists for.
         grid((
             grid_row((
                 song_button(
@@ -459,7 +460,7 @@ fn haptics_section() -> impl Piece {
                     crate::res::str::haptics_song_celebration(),
                     "Celebration",
                     CELEBRATION,
-                    crate::palette::TEAL,
+                    crate::widgets::tinted(crate::palette::TEAL),
                     playing,
                     last,
                 ),
@@ -468,7 +469,7 @@ fn haptics_section() -> impl Piece {
                     crate::res::str::haptics_song_levelup(),
                     "Level up",
                     LEVEL_UP,
-                    crate::palette::VIOLET,
+                    crate::widgets::tinted(crate::palette::VIOLET),
                     playing,
                     last,
                 ),
@@ -479,7 +480,7 @@ fn haptics_section() -> impl Piece {
                     crate::res::str::haptics_song_heartbeat(),
                     "Heartbeat",
                     HEARTBEAT,
-                    crate::palette::CORAL,
+                    crate::widgets::tinted(crate::palette::CORAL),
                     playing,
                     last,
                 ),
@@ -488,7 +489,7 @@ fn haptics_section() -> impl Piece {
                     crate::res::str::haptics_song_cascade(),
                     "Cascade",
                     CASCADE,
-                    crate::palette::AMBER,
+                    crate::widgets::tinted_pale(crate::palette::AMBER),
                     playing,
                     last,
                 ),
@@ -510,7 +511,7 @@ fn song_button(
     title: LocalizedText,
     name: &'static str,
     beats: &'static [Beat],
-    color: day::prelude::Color,
+    style: crate::widgets::Tinted,
     playing: Signal<bool>,
     last: Signal<String>,
 ) -> AnyPiece {
@@ -519,7 +520,7 @@ fn song_button(
     button(title)
         .enabled(move || !playing.get())
         .action(move || play_song(name, beats, playing, last))
-        .style(crate::widgets::tinted(color))
+        .style(style)
         .id(id)
         .grow_w()
 }
@@ -809,7 +810,9 @@ fn badge_section() -> impl Piece {
                     .enabled(move || supported && count.get() > 0.0)
                     .action(move || count.set((count.get() - 1.0).max(0.0)))
                     .id("badge-minus"),
-                label(move || format!("{}", count.get() as u32)).id("badge-value"),
+                label(move || format!("{}", count.get() as u32))
+                    .tabular()
+                    .id("badge-value"),
                 button(crate::res::str::badge_plus())
                     .bordered()
                     .enabled(move || supported && count.get() < 99.0)

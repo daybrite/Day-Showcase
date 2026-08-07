@@ -191,6 +191,7 @@ fn spanning_demo() -> AnyPiece {
             .map(|n| {
                 // Grid modifiers go LAST so the facts land on the outermost (width) wrapper.
                 label(n.to_string())
+                    .tabular()
                     .width(32.0)
                     .grid_align(Alignment::Center)
             })
@@ -334,10 +335,13 @@ fn composite_demo() -> AnyPiece {
                 label(crate::res::str::grid_day_n(n)).grid_align(Alignment::Leading),
                 glyph,
                 label(format!("{low:.0}°"))
+                    .tabular()
                     .font(Font::Footnote)
                     .grid_align(Alignment::Trailing),
                 range_bar(low, high, wmin, wmax),
-                label(format!("{high:.0}°")).grid_align(Alignment::Trailing),
+                label(format!("{high:.0}°"))
+                    .tabular()
+                    .grid_align(Alignment::Trailing),
             ))
             .any()
         })
@@ -368,6 +372,7 @@ fn stress_demo() -> AnyPiece {
                 if r == 0 && c == 0 {
                     cells.push(
                         label(move || hot.get().to_string())
+                            .tabular()
                             .id("grid-stress-hot")
                             .any(),
                     );
@@ -381,6 +386,7 @@ fn stress_demo() -> AnyPiece {
                 } else {
                     cells.push(
                         label(((r * 37 + c * 11) % 97).to_string())
+                            .tabular()
                             .font(Font::Footnote)
                             .grid_align(Alignment::Trailing)
                             .any(),

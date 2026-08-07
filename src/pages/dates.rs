@@ -54,14 +54,18 @@ fn date_section(date: Signal<DayDate>) -> impl Piece {
                     .min(DayDate::new(2026, 1, 1).expect("valid min"))
                     .max(DayDate::new(2026, 12, 31).expect("valid max"))
                     .id("date-bounded"),
-                label(move || bounded.get().to_string()).id("date-bounded-value"),
+                label(move || bounded.get().to_string())
+                    .tabular()
+                    .id("date-bounded-value"),
             ))
             .spacing(8.0),
         ),
         // Locale-independent ISO readout — what the walkthrough asserts on every backend.
         labeled(
             crate::res::str::date_picked(),
-            label(move || date.get().to_string()).id("date-value"),
+            label(move || date.get().to_string())
+                .tabular()
+                .id("date-value"),
         ),
     ))
     .title(crate::res::str::dates_date_section())
@@ -82,7 +86,9 @@ fn time_section() -> impl Piece {
         ),
         labeled(
             crate::res::str::time_picked(),
-            label(move || time.get().to_string()).id("time-value"),
+            label(move || time.get().to_string())
+                .tabular()
+                .id("time-value"),
         ),
     ))
     .title(crate::res::str::dates_time_section())

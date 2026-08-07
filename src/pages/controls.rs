@@ -128,7 +128,10 @@ fn mix_section(mix: Mix) -> impl Piece {
     let dim = move || if mix.on.get() { 1.0 } else { 0.45 };
 
     section((
-        label(summary).font(Font::Headline).id("mix-summary"),
+        label(summary)
+            .font(Font::Headline)
+            .tabular()
+            .id("mix-summary"),
         row((
             gauge(mix.level).frame(120.0, 120.0),
             column((

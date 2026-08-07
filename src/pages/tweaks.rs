@@ -55,7 +55,9 @@ pub(crate) fn tweaks_page() -> AnyPiece {
         row((
             label(crate::res::str::tweaks_stock()).font(Font::Caption),
             slider(free).range(0.0..=100.0).id("tweak-ticks-stock"),
-            label(move || format!("{:.0}", free.get())).id("tweak-ticks-stock-value"),
+            label(move || format!("{:.0}", free.get()))
+                .tabular()
+                .id("tweak-ticks-stock-value"),
         ))
         .spacing(8.0),
         row((
@@ -68,7 +70,9 @@ pub(crate) fn tweaks_page() -> AnyPiece {
                         .position(TickPosition::Below),
                 )
                 .id("tweak-ticks-slider"),
-            label(move || format!("{:.0}", snapped.get())).id("tweak-ticks-value"),
+            label(move || format!("{:.0}", snapped.get()))
+                .tabular()
+                .id("tweak-ticks-value"),
         ))
         .spacing(8.0),
     ))

@@ -176,6 +176,7 @@ fn readout_section() -> impl Piece {
         labeled(
             crate::res::str::toolbar_presses_label(),
             label(move || crate::res::str::toolbar_presses(s.presses.get() as f64).format())
+                .tabular()
                 .id("toolbar-presses"),
         ),
         labeled(

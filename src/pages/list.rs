@@ -77,6 +77,7 @@ pub(crate) fn list_page() -> AnyPiece {
         ))
         .spacing(8.0),
         label(move || crate::res::str::list_caption(rows.get().len() as i64).format())
+            .tabular()
             .id("list-caption"),
         // Programmatic scrolling + order controls, merged from the old Scrolling page: the
         // buttons drive the RECYCLING list (scroll-to-row realizes virtualized rows), and
