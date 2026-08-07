@@ -93,6 +93,7 @@ webview_back = Back
 webview_forward = Forward
 webview_stop = Stop
 webview_reload = Reload
+webview_note_iframe = This platform embeds the page in an iframe. The browser blocks cross-origin history and URL readback, so Back, Forward and Stop are unavailable and the field above will not follow links opened inside the page.
 
 lottie_caption = A native Lottie animation, bundled as JSON (lottie-ios / lottie-android)
 lottie_speed = Speed

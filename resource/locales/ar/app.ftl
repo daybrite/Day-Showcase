@@ -97,6 +97,7 @@ webview_back = رجوع
 webview_forward = تقدّم
 webview_stop = إيقاف
 webview_reload = إعادة تحميل
+webview_note_iframe = تضمّن هذه المنصة الصفحة داخل إطار iframe. يمنع المتصفّح الوصول إلى السجل وقراءة العنوان عبر الأصول المختلفة، لذا تتعطّل أزرار رجوع وتقدّم وإيقاف، ولن يتابع الحقل أعلاه الروابط المفتوحة داخل الصفحة.
 
 lottie_caption = رسم Lottie متحرّك أصلي، مضمَّن كملف JSON‏ (lottie-ios / lottie-android)
 lottie_speed = السرعة

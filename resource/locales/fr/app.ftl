@@ -93,6 +93,7 @@ webview_back = Précédent
 webview_forward = Suivant
 webview_stop = Arrêter
 webview_reload = Recharger
+webview_note_iframe = Cette plateforme intègre la page dans une iframe. Le navigateur bloque l'historique et la lecture de l'URL entre origines : Précédent, Suivant et Arrêter sont indisponibles, et le champ ci-dessus ne suivra pas les liens ouverts dans la page.
 
 lottie_caption = Une animation Lottie native, fournie en JSON (lottie-ios / lottie-android)
 lottie_speed = Vitesse

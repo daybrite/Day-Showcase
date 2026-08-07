@@ -1,5 +1,5 @@
 use day::prelude::*;
-use day_piece_webview::web_view;
+use day_piece_webview::{support, web_view};
 
 use crate::widgets::heading;
 
@@ -7,6 +7,10 @@ use crate::widgets::heading;
 /// android.webkit.WebView. The URL bar is bound two-way to the view — type + Go loads it, and
 /// navigation reports the URL back so the field follows. Back/Forward/Stop/Reload drive history via
 /// `Trigger`s the piece watches. The view fills the remaining space (a growing leaf).
+///
+/// web-dom is the exception: it embeds an `<iframe>`, where the same-origin policy blocks history
+/// and URL readback. There the piece reports `Support::Emulated`, the history buttons are disabled
+/// rather than left to do nothing, and a footnote says why (docs/webview.md).
 pub(crate) fn webview_page() -> AnyPiece {
     let url = Signal::new("https://daybrite.dev".to_string());
     let go = Trigger::new();
@@ -14,6 +18,10 @@ pub(crate) fn webview_page() -> AnyPiece {
     let forward = Trigger::new();
     let stop = Trigger::new();
     let reload = Trigger::new();
+    // Only a real embedded engine can drive session history. `Go` and `Reload` work everywhere the
+    // piece has a renderer at all, so only Back/Forward/Stop are gated.
+    let history = support() == Support::Native;
+    let iframe = support() == Support::Emulated;
     column((
         heading(crate::res::str::nav_webview(), "webview-title", None),
         // URL bar: the field is bound to the view's URL; Go loads whatever it holds.
@@ -28,18 +36,30 @@ pub(crate) fn webview_page() -> AnyPiece {
                 .id("webview-go"),
         ))
         .spacing(8.0),
+        // Why the three buttons below are dead on this backend.
+        when(
+            move || iframe,
+            move || {
+                label(crate::res::str::webview_note_iframe())
+                    .font(Font::Footnote)
+                    .id("webview-note")
+            },
+        ),
         // History controls. "Stop" is the demo's cancel.
         row((
             button(crate::res::str::webview_back())
                 .bordered()
+                .enabled(move || history)
                 .action(move || back.notify())
                 .id("webview-back"),
             button(crate::res::str::webview_forward())
                 .bordered()
+                .enabled(move || history)
                 .action(move || forward.notify())
                 .id("webview-forward"),
             button(crate::res::str::webview_stop())
                 .bordered()
+                .enabled(move || history)
                 .action(move || stop.notify())
                 .id("webview-stop"),
             button(crate::res::str::webview_reload())

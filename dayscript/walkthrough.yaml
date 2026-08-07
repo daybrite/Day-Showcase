@@ -644,6 +644,9 @@ flow:
   - navigate: { route: webview, skip_on: [harmony-arkui] }
   - assert_route: { route: webview, skip_on: [harmony-arkui] }
   - assert_visible: { id: webview-title, skip_on: [harmony-arkui] }
+  # web-dom embeds an <iframe>, so history is unreachable and the page says so (docs/webview.md).
+  # Only that backend renders the footnote; everywhere else the piece reports Support::Native.
+  - assert_visible: { id: webview-note, only_on: [web-dom] }
   - pause: { secs: 5, skip_on: [harmony-arkui] }
   - screenshot: { name: webview, skip_on: [harmony-arkui] }
 
@@ -693,4 +696,4 @@ flow:
   - assert_no_placeholders:
       only_on: [web-dom]
       allow: [day.piece.activity, day.piece.combobox, day.piece.datepicker, day.piece.searchfield,
-              day.piece.timepicker, day.piece.webview]
+              day.piece.timepicker]
