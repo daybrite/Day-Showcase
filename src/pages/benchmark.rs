@@ -21,6 +21,11 @@
 
 use day::prelude::*;
 
+/// The height reserved for the Parameters block, so the patchwork below it starts at the same y in
+/// the Day-native tab and the SwiftUI tab (whose own controls are laid out by SwiftUI). Two slider
+/// rows plus the row-count line at the default text size.
+const PARAMS_HEIGHT: f64 = 132.0;
+
 use crate::widgets::heading;
 
 // --- The deterministic generator (ported from Day-Bench src/bench.rs) ---
@@ -168,26 +173,30 @@ pub(crate) fn benchmark_page() -> AnyPiece {
 
     let body: AnyPiece = if day_piece_swiftui::support() == Support::Native {
         let tab = Signal::new(0usize);
-        column((
-            picker(
-                [
-                    crate::res::str::bench_tab_day().format(),
-                    crate::res::str::bench_tab_swiftui().format(),
-                ],
-                tab,
-            )
-            .segmented()
-            .id("bench-impl"),
+        // The picker centres over the pane rather than hugging the leading edge: it names the two
+        // implementations being compared, so it reads as a title for the comparison below it.
+        let picker_row = column((picker(
+            [
+                crate::res::str::bench_tab_day().format(),
+                crate::res::str::bench_tab_swiftui().format(),
+            ],
+            tab,
+        )
+        .segmented()
+        .id("bench-impl"),))
+        .align(HAlign::Center)
+        .grow_w()
+        .any();
+        let body = column((
+            picker_row,
             when(move || tab.get() == 0, move || day_native(seed, count)),
             when(move || tab.get() == 1, swiftui_pane),
-            label(crate::res::str::bench_swiftui_note())
-                .font(Font::Footnote)
-                .id("bench-swiftui-note"),
         ))
         .spacing(10.0)
         .align(HAlign::Leading)
         .grow()
-        .any()
+        .any();
+        body
     } else {
         day_native(seed, count)
     };
@@ -223,9 +232,11 @@ fn day_native(seed: Signal<f64>, count: Signal<f64>) -> AnyPiece {
                 crate::res::str::bench_seed(),
                 row((
                     slider(seed).range(0.0..=999.0).step(1.0).id("bench-seed"),
-                    label(move || (seed.get() as u32).to_string())
-                        .font(Font::Body)
-                        .id("bench-seed-value"),
+                    crate::widgets::numeric_readout(
+                        move || (seed.get() as u32).to_string(),
+                        "999",
+                        "bench-seed-value",
+                    ),
                 ))
                 .spacing(8.0),
             ),
@@ -236,9 +247,11 @@ fn day_native(seed: Signal<f64>, count: Signal<f64>) -> AnyPiece {
                         .range(0.0..=2000.0)
                         .step(1.0)
                         .id("bench-count"),
-                    label(move || (count.get() as u32).to_string())
-                        .font(Font::Body)
-                        .id("bench-count-value"),
+                    crate::widgets::numeric_readout(
+                        move || (count.get() as u32).to_string(),
+                        "2000",
+                        "bench-count-value",
+                    ),
                 ))
                 .spacing(8.0),
             ),
@@ -251,7 +264,12 @@ fn day_native(seed: Signal<f64>, count: Signal<f64>) -> AnyPiece {
             .font(Font::Footnote)
             .id("bench-rows"),
         ))
-        .title(crate::res::str::bench_parameters()),)),
+        .title(crate::res::str::bench_parameters()),))
+        // A FIXED height, because the whole point of this page is that the two tabs draw the same
+        // scene at the same size: if the Day-native parameter block is a different height from the
+        // SwiftUI pane's own, the grids below them get different areas and stop being comparable.
+        // Sized for two slider rows plus the row-count line at the default text size.
+        .height(PARAMS_HEIGHT),
         // The patchwork. Every tile grows on both axes, so the grid resolves columns by the
         // flexible share and stretches rows into the leftover height — it fills the pane exactly.
         grid((each(

@@ -10,15 +10,12 @@ counter_value = { $count ->
 decrement = −
 increment = +
 name_placeholder = اسمك
-greeting = مرحبًا، { $name }!
 volume_label = مستوى الصوت
 progress_label = التقدّم
-busy_label = مشغول
 flavor_label = النكهة
 flavor_placeholder = اكتب نكهة أو اخترها
 flavor_add = إضافة
 flavor_ios_note = لا يوفر iOS عنصر مربع تحرير وسرد، لذا يعرض Day عنصرًا نائبًا هنا.
-history_title = السجلّ
 history_entry = أصبح العدّاد { $value }
 nav_controls = عناصر التحكّم
 nav_menus = القوائم والحوارات
@@ -293,7 +290,6 @@ activity_off = متوقف
 
 # --- day-piece-searchfield ---
 nav_search = البحث
-search_placeholder = ابحث عن فاكهة…
 search_clear = مسح
 
 # --- day-piece-map ---
@@ -329,7 +325,6 @@ nav_system = الجهاز والمستشعرات
 nav_services = خدمات المنصة
 controls_caption = ربط ثنائي الاتجاه: كل عنصر تحكّم إسقاط لإشارة يملكها التطبيق.
 controls_basics = الأساسيات
-controls_feedback = الاستجابة
 canvas_caption = أشكال وتحويلات وإيماءات وقطع الطبقة التركيبية — كلها تُرسم عبر اللوحة.
 canvas_gauge = مقياس اللوحة
 gauge_value_label = القيمة
@@ -516,7 +511,6 @@ bench_rows_one = صف واحد
 bench_rows_other = %d صفوف
 bench_tab_day = Day أصلي
 bench_tab_swiftui = شبكة SwiftUI
-bench_swiftui_note = «شبكة SwiftUI» نسخة توأم مكتوبة يدويًا بـ SwiftUI من الاختبار نفسه، مستضافة أصليًا داخل هذه الصفحة.
 
 # شريط القوائم وقائمة السياق
 menu_file = ملف
@@ -756,3 +750,9 @@ badge_status_idle = لم يتم التعيين بعد
 badge_status_set = تم تعيين الشارة إلى { $count }
 badge_status_cleared = تم مسح الشارة
 badge_status_text = تم تعيين الشارة إلى "beta"
+
+# The Controls page mixer: one shared state, many editors.
+mix_custom = مخصص
+mix_untitled = مزيج بلا عنوان
+mix_summary = {$name} · {$preset} عند {$level}٪
+voice_search_placeholder = تصفية النكهات…

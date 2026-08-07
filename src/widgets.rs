@@ -78,43 +78,6 @@ pub(crate) fn gauge(value: Signal<f64>) -> AnyPiece {
     .id("gauge")
 }
 
-pub(crate) fn history(count: Signal<i64>) -> AnyPiece {
-    let entries = Signal::new(Vec::<(u64, i64)>::new());
-    let next_id = Signal::new(0u64);
-    watch(
-        move || count.get(),
-        move |new, _old| {
-            let id = next_id.get_untracked();
-            next_id.set(id + 1);
-            let v = *new;
-            entries.update(|e| {
-                e.push((id, v));
-                if e.len() > 8 {
-                    e.remove(0);
-                }
-            });
-        },
-    );
-    // The enclosing form section's title carries the "History" heading; an empty collection
-    // still shows the hint line so the card never renders blank.
-    column((
-        when(
-            move || entries.with(|e| e.is_empty()),
-            move || label(crate::res::str::history_hint()).font(Font::Footnote),
-        ),
-        each(
-            move || entries.get(),
-            |e| e.0,
-            move |slot: ItemSlot<(u64, i64), u64>| {
-                label(move || crate::res::str::history_entry(slot.field(|t| t.1)).format())
-            },
-        ),
-    ))
-    .spacing(4.0)
-    .align(HAlign::Leading)
-    .any()
-}
-
 /// Standard page scaffold (the showcase design pass): a title + optional caption header over a
 /// scrollable, consistently padded content column. Every page uses it, so typography, spacing,
 /// and scrolling behave identically across the app.
@@ -200,6 +163,29 @@ fn page_inner(
             .padding(20.0),
     )
     .any()
+}
+
+/// A numeric readout that does not resize as its value changes.
+///
+/// A bare `label(move || format!("{v:.0}"))` beside a slider reflows the row on every drag: `1` is
+/// narrower than `8`, and `9` → `10` adds a glyph, so the slider shifts under the pointer that is
+/// dragging it. `reserving` measures `widest` in this label's own font and holds that much room,
+/// which is why this scales with the reader's accessibility text size where a fixed `.width()`
+/// would clip.
+///
+/// Pass the widest string the field can ever show — `"100"` for a percentage, `"8888"` for a
+/// count.
+/// The `id` goes on the LABEL, not on the wrapper `reserving` returns: a script asserting the
+/// readout's text has to resolve to the piece that has text, and the reservation wrapper has none.
+pub(crate) fn numeric_readout(
+    text: impl Fn() -> String + 'static,
+    widest: &'static str,
+    id: &'static str,
+) -> AnyPiece {
+    // Both halves of the problem: `tabular` stops the digits shifting inside the box (`1` is
+    // narrower than `8`), `reserving` stops the box itself resizing when the digit count changes.
+    // `.tabular()` is a Label builder method, so it comes before the Decorate modifiers.
+    label(text).tabular().id(id).reserving(widest)
 }
 
 // ---------------------------------------------------------------------------

@@ -7,15 +7,12 @@ counter_value = { $count ->
 decrement = −
 increment = +
 name_placeholder = Votre nom
-greeting = Bonjour, { $name } !
 volume_label = Volume
 progress_label = Progression
-busy_label = Occupé
 flavor_label = Parfum
 flavor_placeholder = Saisissez ou choisissez un parfum
 flavor_add = Ajouter
 flavor_ios_note = iOS n'a pas de contrôle combo box, Day affiche donc un espace réservé ici.
-history_title = Historique
 history_entry = le compteur est passé à { $value }
 nav_controls = Contrôles
 nav_menus = Menus et dialogues
@@ -286,7 +283,6 @@ activity_off = Arrêté
 
 # --- day-piece-searchfield ---
 nav_search = Recherche
-search_placeholder = Rechercher un fruit…
 search_clear = Effacer
 
 # --- day-piece-map ---
@@ -322,7 +318,6 @@ nav_system = Appareil et capteurs
 nav_services = Services système
 controls_caption = Liaisons bidirectionnelles : chaque contrôle projette un signal de l'application.
 controls_basics = Essentiels
-controls_feedback = Retour visuel
 canvas_caption = Formes, transformations, gestes et widgets composés — tous dessinés via le canevas.
 canvas_gauge = Jauge canevas
 gauge_value_label = Valeur
@@ -505,7 +500,6 @@ bench_rows_one = %d rangée
 bench_rows_other = %d rangées
 bench_tab_day = Day natif
 bench_tab_swiftui = Grille SwiftUI
-bench_swiftui_note = « Grille SwiftUI » est une réplique SwiftUI écrite à la main du même benchmark, hébergée nativement dans cette page.
 
 # Barre de menus + menu contextuel
 menu_file = Fichier
@@ -741,3 +735,9 @@ badge_status_idle = Rien de défini
 badge_status_set = Pastille définie sur { $count }
 badge_status_cleared = Pastille effacée
 badge_status_text = Pastille définie sur « beta »
+
+# The Controls page mixer: one shared state, many editors.
+mix_custom = Personnalisé
+mix_untitled = Mixage sans titre
+mix_summary = {$name} · {$preset} à {$level} %
+voice_search_placeholder = Filtrer les parfums…

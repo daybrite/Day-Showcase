@@ -4,15 +4,12 @@ counter_value = { $count } 次点击
 decrement = −
 increment = +
 name_placeholder = 你的名字
-greeting = 你好，{ $name }！
 volume_label = 音量
 progress_label = 进度
-busy_label = 忙碌
 flavor_label = 口味
 flavor_placeholder = 输入或选择口味
 flavor_add = 添加
 flavor_ios_note = iOS 没有组合框控件，Day 在此显示占位符。
-history_title = 历史记录
 history_entry = 计数变为 { $value }
 nav_controls = 控件
 nav_menus = 菜单与对话框
@@ -281,7 +278,6 @@ activity_off = 已停止
 
 # --- day-piece-searchfield ---
 nav_search = 搜索
-search_placeholder = 搜索水果…
 search_clear = 清除
 
 # --- day-piece-map ---
@@ -317,7 +313,6 @@ nav_system = 设备与传感器
 nav_services = 平台服务
 controls_caption = 双向绑定：每个控件都是应用持有信号的投影。
 controls_basics = 基础
-controls_feedback = 反馈
 canvas_caption = 形状、变换、手势和组合层部件——全部通过画布绘制。
 canvas_gauge = 画布仪表
 gauge_value_label = 数值
@@ -499,7 +494,6 @@ bench_rows_one = %d 行
 bench_rows_other = %d 行
 bench_tab_day = Day 原生
 bench_tab_swiftui = SwiftUI 网格
-bench_swiftui_note = "SwiftUI 网格"是同一基准测试的手写 SwiftUI 孪生实现，以原生方式嵌入本页。
 
 # 菜单栏与上下文菜单
 menu_file = 文件
@@ -734,3 +728,9 @@ badge_status_idle = 尚未设置
 badge_status_set = 角标已设为 { $count }
 badge_status_cleared = 角标已清除
 badge_status_text = 角标已设为 “beta”
+
+# The Controls page mixer: one shared state, many editors.
+mix_custom = 自定义
+mix_untitled = 未命名混音
+mix_summary = {$name} · {$preset}，{$level}%
+voice_search_placeholder = 筛选口味…

@@ -85,52 +85,54 @@ flow:
   - navigate: { route: controls }
   - assert_route: { route: controls }
   - assert_visible: { id: controls-title }
+  # The page is one small mixer: a name, a level, a preset, and a master switch, with every
+  # control bound to that shared state. So each step below drives ONE control and asserts that a
+  # DIFFERENT one moved — which is the property the page exists to demonstrate.
   - input: { id: name-field, text: "Ada" }
-  - assert_visible: { id: greeting-label }
-  - assert_text: { id: greeting-label, key: greeting, args: { name: "Ada" } }
+  # Slider → numeric readout AND the progress bar AND the preset label. 80 sits on no preset, so
+  # the label reads "Custom": the derivation from level back to preset terms.
   - set_value: { id: volume-slider, value: 80 }
   - assert_text: { id: volume-value, text: "80" }
+  - assert_value: { id: volume-progress, value: 0.8 }
+  - assert_text: { id: picker-value, key: mix_custom }
+  # The steppers write the same signal the slider does, ±5 a press.
+  - tap: { id: increment-button, repeat: 2 }
+  - assert_text: { id: volume-value, text: "90" }
+  # 90 IS the Large preset, so the label snaps back out of "Custom" on its own.
+  - assert_text: { id: picker-value, key: size_large }
+  - tap: { id: decrement-button }
+  - assert_text: { id: volume-value, text: "85" }
+  # Three native picker stylings over ONE Signal<usize>: selecting in any one moves the other two,
+  # and the watch in Mix::new snaps the level, which the readout and progress bar report.
+  - select: { id: picker-segmented, index: 0 }
+  - assert_text: { id: picker-value, key: size_small }
+  - assert_text: { id: volume-value, text: "25" }
+  - assert_value: { id: volume-progress, value: 0.25 }
+  - select: { id: picker-menu, index: 2 }
+  - assert_text: { id: volume-value, text: "90" }
+  - select: { id: picker-inline, index: 1 }
+  - assert_text: { id: picker-value, key: size_medium }
+  - assert_text: { id: volume-value, text: "60" }
+  # The master switch dims the editors and stops the activity indicator.
+  - toggle: { id: subscribe-toggle, value: false }
+  - assert_text: { id: activity-status, key: activity_off }
   - toggle: { id: subscribe-toggle, value: true }
-  - assert_value: { id: subscribe-toggle, value: true }
-  - tap: { id: increment-button, repeat: 3 }
-  - assert_text: { id: counter-label, key: counter_value, args: { count: 3 } }
-  # Combo box (day-piece-combobox, docs/combobox.md): a REAL combo — menu-driven selection AND
-  # free-form entry — whose text signal is the value. `select` is the menu path (an index mapped
-  # through the items); the options are localized, so assert by key.
+  - assert_text: { id: activity-status, key: activity_on }
+  # Combo box (day-piece-combobox, docs/combobox.md): menu selection and free-form entry over the
+  # same list. `select` is the menu path (options are localized, so assert by key); `input` is the
+  # free-form path (a literal — user input is not localized); Add grows the list for both.
   - select: { id: flavor-combo, index: 2 }
   - assert_text: { id: flavor-value, key: pistachio }
-  # `input` is the free-form path: text that is in NO list (a literal — user input is not
-  # localized).
   - input: { id: flavor-combo, text: "Stracciatella" }
   - assert_text: { id: flavor-value, text: "Stracciatella" }
-  # Add pushes the typed text into the reactive item list; index 3 exists only after the add, so
-  # selecting it round-trips the grown list.
   - tap: { id: flavor-add }
-  - select: { id: flavor-combo, index: 0 }
-  - assert_text: { id: flavor-value, key: vanilla }
   - select: { id: flavor-combo, index: 3 }
   - assert_text: { id: flavor-value, text: "Stracciatella" }
-  # Pickers section: three native stylings bound two-way to a Signal<usize> — the selection
-  # round-trips the signal into each value label.
-  # The three picker stylings share ONE selection signal: selecting via any styling must move
-  # the other two (each row's readout mirrors the same signal).
-  - select: { id: picker-segmented, index: 2 }
-  - assert_text: { id: picker-value, key: size_large }
-  - select: { id: picker-inline, index: 0 }
-  - assert_text: { id: picker-value, key: size_small }
-  - select: { id: picker-menu, index: 1 }
-  - assert_text: { id: picker-value, key: size_medium }
-  # Search section: the native search field filters reactively; Clear proves the reverse binding.
-  # The fruits are localized, so the QUERY is typed by key too (`input.key` resolves the Fluent
-  # key in the run's locale) — typing the full localized name always matches exactly itself.
-  - input: { id: search-input, key: fruit_cherry }
-  - assert_text: { id: search-result, key: fruit_cherry }
+  # The search field filters the SAME collection the combo offers, so the two share state too.
+  - input: { id: search-input, key: chocolate }
+  - assert_text: { id: search-result, key: chocolate }
   - tap: { id: search-clear }
-  # Feedback section: the progress bar tracks its slider; the activity spinner obeys its toggle.
-  - set_value: { id: progress-slider, value: 80 }
-  - assert_value: { id: volume-progress, value: 0.8 }
-  - toggle: { id: activity-toggle, value: false }
-  - assert_text: { id: activity-status, key: activity_off }
+  - assert_text: { id: search-result, key: vanilla }
   - screenshot: controls
 
   # Crash Reporting (day-break, docs/break.md): the walkthrough only VISITS the page (empty state);

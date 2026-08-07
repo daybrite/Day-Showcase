@@ -7,15 +7,12 @@ counter_value = { $count ->
 decrement = −
 increment = +
 name_placeholder = Your name
-greeting = Hello, { $name }!
 volume_label = Volume
 progress_label = Progress
-busy_label = Busy
 flavor_label = Flavor
 flavor_placeholder = Type or pick a flavor
 flavor_add = Add
 flavor_ios_note = iOS has no combo box control, so Day shows a placeholder here.
-history_title = History
 history_entry = count became { $value }
 nav_controls = Controls
 nav_menus = Menus & dialogs
@@ -286,7 +283,6 @@ activity_off = Stopped
 
 # --- day-piece-searchfield ---
 nav_search = Search
-search_placeholder = Search fruit…
 search_clear = Clear
 
 # --- day-piece-map ---
@@ -322,7 +318,6 @@ nav_system = Device & sensors
 nav_services = Platform services
 controls_caption = Two-way bindings: every control is a projection of an app-owned signal.
 controls_basics = Basics
-controls_feedback = Feedback
 canvas_caption = Shapes, transforms, gestures, and composition-tier widgets — all drawn through the canvas.
 canvas_gauge = Canvas gauge
 gauge_value_label = Value
@@ -506,7 +501,6 @@ bench_rows_one = %d row
 bench_rows_other = %d rows
 bench_tab_day = Day Native
 bench_tab_swiftui = SwiftUI Grid
-bench_swiftui_note = SwiftUI Grid is a hand-written SwiftUI twin of the same benchmark, hosted natively inside this page.
 
 # Menu bar + context menu items (menus page)
 menu_file = File
@@ -743,3 +737,9 @@ badge_status_idle = Nothing set yet
 badge_status_set = Badge set to { $count }
 badge_status_cleared = Badge cleared
 badge_status_text = Badge set to "beta"
+
+# The Controls page mixer: one shared state, many editors.
+mix_custom = Custom
+mix_untitled = Untitled mix
+mix_summary = {$name} · {$preset} at {$level}%
+voice_search_placeholder = Filter flavors…
