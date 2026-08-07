@@ -237,7 +237,13 @@ struct Dest {
     /// The generated `res::str` accessor, not a resolved `String`: the title has to be
     /// re-resolved on every derive so the rows re-title (and re-filter) on a locale switch.
     title: fn() -> day::LocalizedText,
-    icon: day::prelude::ImageName,
+    /// A `resource/vectors/` glyph (docs/vectors.md): resolution-independent, staged per backend
+    /// as whatever its nav rows load natively (VectorDrawable / catalog entry / raster cache).
+    icon: day::VectorName,
+    /// This destination's icon tint — Vega's "tableau20" categorical scheme in scheme order
+    /// (cycling past 20 rows), so neighbouring rows stay distinct without reading as a
+    /// gradient (docs/vectors.md).
+    tint: Color,
     page: fn() -> AnyPiece,
 }
 
@@ -249,158 +255,184 @@ fn destinations() -> Vec<Dest> {
         Dest {
             section: Section::About,
             title: crate::res::str::nav_about,
-            icon: res::images::nav_about,
+            icon: res::vectors::nav_about,
+            tint: Color::rgba(0.298, 0.471, 0.659, 1.0),
             page: about_page,
         },
         Dest {
             section: Section::Animation,
             title: crate::res::str::nav_animation,
-            icon: res::images::nav_animation,
+            icon: res::vectors::nav_animation,
+            tint: Color::rgba(0.620, 0.792, 0.914, 1.0),
             page: animation_page,
         },
         Dest {
             section: Section::Benchmark,
             title: crate::res::str::nav_benchmark,
-            icon: res::images::nav_benchmark,
+            icon: res::vectors::nav_benchmark,
+            tint: Color::rgba(0.961, 0.522, 0.094, 1.0),
             page: benchmark_page,
         },
         Dest {
             section: Section::Canvas,
             title: crate::res::str::nav_canvas,
-            icon: res::images::nav_canvas,
+            icon: res::vectors::nav_canvas,
+            tint: Color::rgba(1.000, 0.749, 0.475, 1.0),
             page: canvas_page,
         },
         Dest {
             section: Section::Controls,
             title: crate::res::str::nav_controls,
-            icon: res::images::nav_controls,
+            icon: res::vectors::nav_controls,
+            tint: Color::rgba(0.329, 0.635, 0.294, 1.0),
             page: controls_page,
         },
         Dest {
             section: Section::CrashReporting,
             title: crate::res::str::nav_crash,
-            icon: res::images::nav_crash,
+            icon: res::vectors::nav_crash,
+            tint: Color::rgba(0.533, 0.824, 0.478, 1.0),
             page: crash_page,
         },
         Dest {
             section: Section::Dates,
             title: crate::res::str::nav_dates,
-            icon: res::images::nav_dates,
+            icon: res::vectors::nav_dates,
+            tint: Color::rgba(0.718, 0.604, 0.125, 1.0),
             page: dates_page,
         },
         Dest {
             section: Section::System,
             title: crate::res::str::nav_system,
-            icon: res::images::nav_system,
+            icon: res::vectors::nav_system,
+            tint: Color::rgba(0.949, 0.812, 0.357, 1.0),
             page: system_page,
         },
         Dest {
             section: Section::Focus,
             title: crate::res::str::nav_focus,
-            icon: res::images::nav_focus,
+            icon: res::vectors::nav_focus,
+            tint: Color::rgba(0.263, 0.596, 0.580, 1.0),
             page: focus_page,
         },
         Dest {
             section: Section::Grid,
             title: crate::res::str::nav_grid,
-            icon: res::images::nav_grid,
+            icon: res::vectors::nav_grid,
+            tint: Color::rgba(0.514, 0.737, 0.714, 1.0),
             page: grid_page,
         },
         Dest {
             section: Section::List,
             title: crate::res::str::nav_list,
-            icon: res::images::nav_list,
+            icon: res::vectors::nav_list,
+            tint: Color::rgba(0.894, 0.341, 0.337, 1.0),
             page: list_page,
         },
         Dest {
             section: Section::Localization,
             title: crate::res::str::nav_localization,
-            icon: res::images::nav_localization,
+            icon: res::vectors::nav_localization,
+            tint: Color::rgba(1.000, 0.616, 0.596, 1.0),
             page: localization_page,
         },
         #[cfg(any(target_os = "macos", target_os = "ios"))]
         Dest {
             section: Section::Map,
             title: crate::res::str::nav_map,
-            icon: res::images::nav_map,
+            icon: res::vectors::nav_map,
+            tint: Color::rgba(0.475, 0.439, 0.431, 1.0),
             page: map_page,
         },
         Dest {
             section: Section::Media,
             title: crate::res::str::nav_media,
-            icon: res::images::nav_media,
+            icon: res::vectors::nav_media,
+            tint: Color::rgba(0.729, 0.690, 0.675, 1.0),
             page: media_page,
         },
         Dest {
             section: Section::Menus,
             title: crate::res::str::nav_menus,
-            icon: res::images::nav_menus,
+            icon: res::vectors::nav_menus,
+            tint: Color::rgba(0.839, 0.443, 0.584, 1.0),
             page: menus_page,
         },
         Dest {
             section: Section::Services,
             title: crate::res::str::nav_services,
-            icon: res::images::nav_services,
+            icon: res::vectors::nav_services,
+            tint: Color::rgba(0.988, 0.749, 0.824, 1.0),
             page: services_page,
         },
         Dest {
             section: Section::Refresh,
             title: crate::res::str::nav_refresh,
-            icon: res::images::nav_refresh,
+            icon: res::vectors::nav_refresh,
+            tint: Color::rgba(0.698, 0.475, 0.635, 1.0),
             page: refresh_page,
         },
         Dest {
             section: Section::Resources,
             title: crate::res::str::nav_resources,
-            icon: res::images::nav_resources,
+            icon: res::vectors::nav_resources,
+            tint: Color::rgba(0.839, 0.647, 0.788, 1.0),
             page: resources_page,
         },
         Dest {
             section: Section::Scripting,
             title: crate::res::str::nav_scripting,
-            icon: res::images::nav_scripting,
+            icon: res::vectors::nav_scripting,
+            tint: Color::rgba(0.620, 0.463, 0.373, 1.0),
             page: scripting_page,
         },
         Dest {
             section: Section::Stack,
             title: crate::res::str::nav_stack,
-            icon: res::images::nav_stack,
+            icon: res::vectors::nav_stack,
+            tint: Color::rgba(0.847, 0.710, 0.647, 1.0),
             page: stack_page,
         },
         Dest {
             section: Section::Tabs,
             title: crate::res::str::nav_tabs,
-            icon: res::images::nav_tabs,
+            icon: res::vectors::nav_tabs,
+            tint: Color::rgba(0.298, 0.471, 0.659, 1.0),
             page: tabs_page,
         },
         Dest {
             section: Section::Text,
             title: crate::res::str::nav_text,
-            icon: res::images::nav_text,
+            icon: res::vectors::nav_text,
+            tint: Color::rgba(0.620, 0.792, 0.914, 1.0),
             page: text_page,
         },
         Dest {
             section: Section::TextAreas,
             title: crate::res::str::nav_textareas,
-            icon: res::images::nav_textareas,
+            icon: res::vectors::nav_textareas,
+            tint: Color::rgba(0.961, 0.522, 0.094, 1.0),
             page: text_areas_page,
         },
         Dest {
             section: Section::Toolbars,
             title: crate::res::str::nav_toolbars,
-            icon: res::images::nav_toolbars,
+            icon: res::vectors::nav_toolbars,
+            tint: Color::rgba(1.000, 0.749, 0.475, 1.0),
             page: toolbars_page,
         },
         Dest {
             section: Section::Tweaks,
             title: crate::res::str::nav_tweaks,
-            icon: res::images::nav_tweaks,
+            icon: res::vectors::nav_tweaks,
+            tint: Color::rgba(0.329, 0.635, 0.294, 1.0),
             page: tweaks_page,
         },
         Dest {
             section: Section::WebView,
             title: crate::res::str::nav_webview,
-            icon: res::images::nav_webview,
+            icon: res::vectors::nav_webview,
+            tint: Color::rgba(0.533, 0.824, 0.478, 1.0),
             page: webview_page,
         },
     ]
@@ -449,7 +481,11 @@ fn window_root(primary: bool) -> AnyPiece {
                     .filter(|d| matches_search(&(d.title)().format(), &q))
                     .collect::<Vec<_>>()
             },
-            |d: &Dest| item(d.section, (d.title)()).icon(d.icon.clone()),
+            |d: &Dest| {
+                item(d.section, (d.title)())
+                    .icon(d.icon.clone())
+                    .icon_tint(d.tint)
+            },
         )
         // "Show Source" as an upper-right nav-bar button on the toolkits with no window toolbar
         // (the phones, HarmonyOS — docs/navigation.md); desktop shows it in the toolbar instead

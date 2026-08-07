@@ -269,6 +269,11 @@ prefs_value_label = القيمة المخزَّنة:
 # --- bundled resources (§18.3) ---
 nav_resources = الموارد
 resources_caption = صورة تُحمَّل بالاسم من مورد مضمَّن، مع قراءات عشوائية لبيانات مضمّنة.
+vectors_title = المتجهات
+vectors_note = رموز الشريط الجانبي من resource/vectors/ — ملف SVG لكل أيقونة، مستقل عن الدقة على كل واجهة خلفية.
+vectors_tints = التلوين
+vectors_weights = الأوزان
+vectors_sizes = الأحجام
 resources_numbers = ‏numbers.bin: { $len } بايت، byte[100] = { $byte }
 resources_greeting = ‏greeting.txt: { $text }
 

@@ -262,6 +262,11 @@ prefs_value_label = Stored value:
 # --- bundled resources (§18.3) ---
 nav_resources = Resources
 resources_caption = An image loaded by name from a bundled resource, plus random-access reads of embedded data.
+vectors_title = Vectors
+vectors_note = The sidebar's glyphs, drawn from resource/vectors/ — one SVG per icon, resolution-independent on every backend.
+vectors_tints = Tints
+vectors_weights = Weights
+vectors_sizes = Sizes
 resources_numbers = numbers.bin: { $len } bytes, byte[100] = { $byte }
 resources_greeting = greeting.txt: { $text }
 

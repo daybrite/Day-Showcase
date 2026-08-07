@@ -262,6 +262,11 @@ prefs_value_label = Valeur enregistrée :
 # --- bundled resources (§18.3) ---
 nav_resources = Ressources
 resources_caption = Une image chargée par nom depuis une ressource, avec accès aléatoire à des données embarquées.
+vectors_title = Vecteurs
+vectors_note = Les glyphes de la barre latérale, issus de resource/vectors/ — un SVG par icône, indépendant de la résolution sur chaque backend.
+vectors_tints = Teintes
+vectors_weights = Graisses
+vectors_sizes = Tailles
 resources_numbers = numbers.bin : { $len } octets, byte[100] = { $byte }
 resources_greeting = greeting.txt : { $text }
 

@@ -257,6 +257,11 @@ prefs_value_label = 已存储的值：
 # --- bundled resources (§18.3) ---
 nav_resources = 资源
 resources_caption = 按名称从打包资源加载的图片，以及对嵌入数据的随机读取。
+vectors_title = 矢量图
+vectors_note = 侧边栏图标均来自 resource/vectors/ —— 每个图标一个 SVG，在所有后端都与分辨率无关。
+vectors_tints = 着色
+vectors_weights = 字重
+vectors_sizes = 尺寸
 resources_numbers = numbers.bin：{ $len } 字节，byte[100] = { $byte }
 resources_greeting = greeting.txt：{ $text }
 
