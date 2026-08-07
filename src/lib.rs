@@ -170,6 +170,14 @@ pub(crate) fn show_source() {
         .filter(|s| !s.is_empty())
         .and_then(Section::from_key)
         .unwrap_or(Section::About);
+    open_source_of(section);
+}
+
+/// Open one section's source on GitHub — the sidebar rows' context-menu "Show Source"
+/// (docs/menus.md) names its own section, so a right-click / long-press on ANY row works
+/// without navigating there first; the toolbar/nav-bar button resolves the live route
+/// through [`show_source`] instead.
+pub(crate) fn open_source_of(section: Section) {
     open_url(&format!(
         "{SOURCE_REPO}/blob/{SOURCE_REF}/{}",
         section.source_file()
@@ -482,9 +490,18 @@ fn window_root(primary: bool) -> AnyPiece {
                     .collect::<Vec<_>>()
             },
             |d: &Dest| {
+                // Each row's context menu (docs/menus.md): "Show Source" opens THIS row's
+                // page source on GitHub — the same handler surface as the toolbar button,
+                // but per destination, so no navigation is needed first. The label re-lowers
+                // localized on every derive (locale switches re-run this mapper).
+                let section = d.section;
                 item(d.section, (d.title)())
                     .icon(d.icon.clone())
                     .icon_tint(d.tint)
+                    .context_menu(vec![
+                        menu_item(crate::res::str::show_source().format())
+                            .action(move || open_source_of(section)),
+                    ])
             },
         )
         // "Show Source" as an upper-right nav-bar button on the toolkits with no window toolbar

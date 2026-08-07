@@ -10,7 +10,13 @@ thread_local! {
 }
 
 fn menu_log() -> Signal<String> {
-    MENU_LOG.with(|c| *c.get_or_init(|| Signal::new("—".into())))
+    // `global`, NOT `new` — the same reason lifecycle_log gives in lib.rs. The OnceCell hands
+    // this signal out for the life of the thread, but the first `get_or_init` runs inside
+    // whichever scope happened to reach it first (the menus page's readout, or the app menu
+    // rebuilt while a page is current). A scope-owned signal dies with that scope, and every
+    // later read panics on a disposed signal — which is what wedges the walkthrough's second
+    // and subsequent variants, since the first one creates the scope that the rest outlive.
+    MENU_LOG.with(|c| *c.get_or_init(|| Signal::global("—".into())))
 }
 
 /// The application menu bar (native NSMenu / GtkPopoverMenuBar / QMenuBar; app-bar overflow on Android;
@@ -119,7 +125,14 @@ pub(crate) fn menus_page() -> AnyPiece {
         crate::res::str::nav_menus(),
         "menus-title",
         Some(crate::res::str::menus_caption()),
-        form((app_menu_section(), context_section(), dialogs_section())).any(),
+        form((
+            app_menu_section(),
+            context_section(),
+            messages_section(),
+            photo_section(),
+            dialogs_section(),
+        ))
+        .any(),
     )
 }
 
@@ -180,6 +193,66 @@ fn context_section() -> impl Piece {
                 .action(log(format!("{context} ▸ {delete}"))),
         ]),))
     .title(crate::res::str::menus_context_section())
+}
+
+/// Real-world per-ROW menus (docs/menus.md): every message row carries its own context menu,
+/// so the action names the row it came from — the mail-list idiom. The senders are fixture
+/// DATA (like the file names above) and stay raw; everything the user reads as UI is
+/// localized.
+fn messages_section() -> impl Piece {
+    let log = |what: String| move || menu_log().set(what.clone());
+    let reply = crate::res::str::menu_reply().format();
+    let forward = crate::res::str::menu_forward().format();
+    let archive = crate::res::str::menu_archive().format();
+    let delete = crate::res::str::delete().format();
+    let message_row = move |i: usize, sender: &'static str, subject: String| {
+        let menu = vec![
+            menu_item(reply.clone()).action(log(format!("{reply} ▸ {sender}"))),
+            menu_item(forward.clone()).action(log(format!("{forward} ▸ {sender}"))),
+            menu_separator(),
+            menu_item(archive.clone()).action(log(format!("{archive} ▸ {sender}"))),
+            menu_item(delete.clone()).action(log(format!("{delete} ▸ {sender}"))),
+        ];
+        column((label(sender), label(subject).font(Font::Footnote)))
+            .spacing(2.0)
+            .padding(Insets::symmetric(14.0, 10.0))
+            .background(Color::rgba(0.5, 0.5, 0.5, 0.10))
+            .corner_radius(8.0)
+            .id(format!("menus-message-{i}"))
+            .context_menu(menu)
+    };
+    section((
+        column((
+            message_row(0, "Maya Chen", crate::res::str::msg_subject_one().format()),
+            message_row(1, "Tomás Rivera", crate::res::str::msg_subject_two().format()),
+            message_row(2, "Aiko Tanaka", crate::res::str::msg_subject_three().format()),
+        ))
+        .spacing(8.0),
+        label(crate::res::str::menus_messages_hint()).font(Font::Footnote),
+    ))
+    .title(crate::res::str::menus_messages_section())
+}
+
+/// A media card with the sharing-flavored menu every photo grid grows eventually — the
+/// context target is the IMAGE itself (the decorator attaches to whatever piece it follows).
+fn photo_section() -> impl Piece {
+    let log = |what: String| move || menu_log().set(what.clone());
+    let share = crate::res::str::menu_share().format();
+    let copy_image = crate::res::str::menu_copy_image().format();
+    let save_image = crate::res::str::menu_save_image().format();
+    let info = crate::res::str::menu_get_info().format();
+    section((image(crate::res::images::day_logo)
+        .frame(96.0, 96.0)
+        .corner_radius(12.0)
+        .id("menus-photo-target")
+        .context_menu(vec![
+            menu_item(share.clone()).action(log(share.clone())),
+            menu_item(copy_image.clone()).action(log(copy_image.clone())),
+            menu_item(save_image.clone()).action(log(save_image.clone())),
+            menu_separator(),
+            menu_item(info.clone()).action(log(info.clone())),
+        ]),))
+    .title(crate::res::str::menus_photo_section())
 }
 
 /// Imperative dialogs (docs/dialogs.md): each button opens a native dialog from within an

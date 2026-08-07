@@ -734,3 +734,18 @@ mix_custom = 自定义
 mix_untitled = 未命名混音
 mix_summary = {$name} · {$preset}，{$level}%
 voice_search_placeholder = 筛选口味…
+
+# Context-menu demos (menus page): the message-list rows and the media card.
+menu_reply = 回复
+menu_forward = 转发
+menu_archive = 归档
+menu_share = 分享…
+menu_copy_image = 拷贝图像
+menu_save_image = 存储到照片
+menu_get_info = 显示简介
+menus_messages_section = 消息列表
+menus_messages_hint = 每一行都有自己的菜单——操作会注明来自哪条消息。
+menus_photo_section = 媒体卡片
+msg_subject_one = 季度数据，初稿
+msg_subject_two = 周末计划，最终答复
+msg_subject_three = 工作坊的草图

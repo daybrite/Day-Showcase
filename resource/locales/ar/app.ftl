@@ -756,3 +756,18 @@ mix_custom = مخصص
 mix_untitled = مزيج بلا عنوان
 mix_summary = {$name} · {$preset} عند {$level}٪
 voice_search_placeholder = تصفية النكهات…
+
+# Context-menu demos (menus page): the message-list rows and the media card.
+menu_reply = رد
+menu_forward = إعادة توجيه
+menu_archive = أرشفة
+menu_share = مشاركة…
+menu_copy_image = نسخ الصورة
+menu_save_image = حفظ في الصور
+menu_get_info = عرض المعلومات
+menus_messages_section = قائمة رسائل
+menus_messages_hint = كل صف يحمل قائمته الخاصة — يذكر الإجراء الرسالة التي جاء منها.
+menus_photo_section = بطاقة وسائط
+msg_subject_one = أرقام الربع، مسودة أولى
+msg_subject_two = خطة عطلة نهاية الأسبوع، الجواب النهائي
+msg_subject_three = رسومات من الورشة

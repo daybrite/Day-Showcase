@@ -743,3 +743,18 @@ mix_custom = Custom
 mix_untitled = Untitled mix
 mix_summary = {$name} · {$preset} at {$level}%
 voice_search_placeholder = Filter flavors…
+
+# Context-menu demos (menus page): the message-list rows and the media card.
+menu_reply = Reply
+menu_forward = Forward
+menu_archive = Archive
+menu_share = Share…
+menu_copy_image = Copy Image
+menu_save_image = Save to Photos
+menu_get_info = Get Info
+menus_messages_section = A message list
+menus_messages_hint = Each row carries its own menu — the action names the message it came from.
+menus_photo_section = A media card
+msg_subject_one = Quarterly numbers, first pass
+msg_subject_two = Weekend plan, final answer
+msg_subject_three = Sketches from the workshop

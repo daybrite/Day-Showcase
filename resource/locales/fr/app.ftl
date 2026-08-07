@@ -741,3 +741,18 @@ mix_custom = Personnalisé
 mix_untitled = Mixage sans titre
 mix_summary = {$name} · {$preset} à {$level} %
 voice_search_placeholder = Filtrer les parfums…
+
+# Context-menu demos (menus page): the message-list rows and the media card.
+menu_reply = Répondre
+menu_forward = Transférer
+menu_archive = Archiver
+menu_share = Partager…
+menu_copy_image = Copier l’image
+menu_save_image = Enregistrer dans Photos
+menu_get_info = Lire les informations
+menus_messages_section = Une liste de messages
+menus_messages_hint = Chaque ligne porte son propre menu — l’action nomme le message d’origine.
+menus_photo_section = Une carte média
+msg_subject_one = Chiffres trimestriels, première passe
+msg_subject_two = Plan du week-end, réponse définitive
+msg_subject_three = Croquis de l’atelier
