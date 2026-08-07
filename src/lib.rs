@@ -530,10 +530,11 @@ fn sidebar_header() -> AnyPiece {
     .any()
 }
 
-// Mobile / embedded entries (DESIGN.md §17.4): the iOS Runner binds `day_main`, DayBridge binds the
-// `Java_…` natives, the HarmonyOS ArkTS host binds `day_arkui_start`, and the web host page binds
-// `day_dom_main`. Every macro emits nothing off its own target.
+// Mobile / embedded entries (DESIGN.md §17.4): the iOS and macOS Runners bind `day_main`,
+// DayBridge binds the `Java_…` natives, the HarmonyOS ArkTS host binds `day_arkui_start`, and
+// the web host page binds `day_dom_main`. Every macro emits nothing off its own target.
 day::ios_main!("Day Showcase", root);
+day::macos_main!("Day Showcase", root);
 day::android_main!(root);
 day::arkui_main!(root);
 day::web_main!("Day Showcase", root);
