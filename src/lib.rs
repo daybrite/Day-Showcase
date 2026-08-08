@@ -196,6 +196,22 @@ pub fn install_crash_reporting() {
 pub fn root() -> AnyPiece {
     // Arm crash capture before the UI mounts so the Crash Reporting page's crashes are recorded.
     install_crash_reporting();
+    // Narrate every action to the console for the app's whole life (§14.6) — the same lines the
+    // Scripting page's recorder echoes, in the same dayscript vocabulary:
+    //
+    //     dayscript ▸ navigate → dates  "Date & time"
+    //     dayscript ▸ tap list-shuffle  "Shuffle"
+    //
+    // Nothing is retained, so it costs the same as the recorder's observer and never grows. The
+    // showcase leaves it on because it is a demonstration: the log is a live reading of what a
+    // recording WOULD capture, which makes the Scripting page's output legible before you record
+    // anything. Set DAY_LOG_ACTIONS=0 to silence it — the env is read first, so a launch can
+    // override the app.
+    if std::env::var("DAY_LOG_ACTIONS").as_deref() != Ok("0") {
+        // The Scripting page's own controls stay out, exactly as they stay out of a recording.
+        day::record::exclude_prefix("scripting-");
+        day::record::log_actions(true);
+    }
     // Every locale under `resource/locales/` (en, fr, ar, zh-CN), embedded and registered by the
     // generated catalog (§18.5) — adding a language is a new directory, nothing to edit here.
     res::locales::install();
