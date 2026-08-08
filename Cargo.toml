@@ -1,10 +1,10 @@
 [package]
 name = "showcase"
 publish = false
-version = "0.1.9"
+version = "0.2.0"
 edition = "2024"
 rust-version = "1.89"
-license = "MPL-2.0"
+license = "Apache-2.0"
 authors = ["Daybrite <hello@daybrite.dev>"]
 repository = "https://github.com/daybrite/Day-Showcase"
 homepage = "https://daybrite.dev"
