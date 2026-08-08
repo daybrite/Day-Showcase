@@ -1,7 +1,32 @@
 use day::prelude::*;
-use day_piece_webview::{JsHandle, eval_support, support, web_view};
+use day_piece_webview::{JsHandle, WebSession, eval_support, support, web_view};
 
 use crate::widgets::heading;
+
+// Page state that outlives the page. Day rebuilds a destination's whole subtree on every
+// navigation, so anything declared inside `webview_page()` is minted fresh each visit — the URL bar
+// would snap back, the console would clear. `Signal::global` allocates in the root scope instead,
+// and the `OnceCell` keeps the SAME signal across rebuilds (calling `global` per build would mint a
+// new one every time). Same idiom as pages/scripting.rs.
+//
+// This is transient, not persisted: it lives as long as the process and is never written to disk.
+thread_local! {
+    static STATE: std::cell::OnceCell<(Signal<String>, Signal<String>, Signal<String>)> =
+        const { std::cell::OnceCell::new() };
+}
+
+/// `(url, script, result)` — created once, reused by every visit to this page.
+fn state() -> (Signal<String>, Signal<String>, Signal<String>) {
+    STATE.with(|c| {
+        *c.get_or_init(|| {
+            (
+                Signal::global("https://daybrite.dev".to_string()),
+                Signal::global("document.title".to_string()),
+                Signal::global(String::new()),
+            )
+        })
+    })
+}
 
 /// A native web view (day-piece-webview, an EXTERNAL standalone piece): WKWebView / QWebEngineView /
 /// android.webkit.WebView. The URL bar is bound two-way to the view — type + Go loads it, and
@@ -12,7 +37,7 @@ use crate::widgets::heading;
 /// and URL readback. There the piece reports `Support::Emulated`, the history buttons are disabled
 /// rather than left to do nothing, and a footnote says why (docs/webview.md).
 pub(crate) fn webview_page() -> AnyPiece {
-    let url = Signal::new("https://daybrite.dev".to_string());
+    let (url, script, result) = state();
     let go = Trigger::new();
     let back = Trigger::new();
     let forward = Trigger::new();
@@ -25,8 +50,6 @@ pub(crate) fn webview_page() -> AnyPiece {
     // The JS console below. `script` is what the user types, `result` the JSON it evaluated to (or
     // the error it threw) — both bound to text areas, so the round trip is visible in one screen.
     let js = JsHandle::new();
-    let script = Signal::new("document.title".to_string());
-    let result = Signal::new(String::new());
     let can_eval = eval_support() == Support::Native;
     column((
         heading(crate::res::str::nav_webview(), "webview-title", None),
@@ -107,6 +130,9 @@ pub(crate) fn webview_page() -> AnyPiece {
         ))
         .spacing(8.0),
         web_view(url)
+            // A retained session: the engine outlives this page's subtree, so navigating away and
+            // back returns to the page as it was left rather than reloading it.
+            .session(WebSession::global("showcase.webview"))
             .js(js)
             .go(go)
             .back(back)

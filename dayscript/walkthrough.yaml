@@ -672,6 +672,43 @@ flow:
         text: "TypeError: boom",
         only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt],
       }
+  # Session retention (docs/webview.md): plant a marker in the LIVE JS context, leave the page
+  # entirely, come back, and read it. It only survives if the native engine was retained rather
+  # than rebuilt — a reloaded page would have a fresh, empty `window`.
+  - input:
+      {
+        id: webview-js,
+        text: "window.__dayMarker = 'survived'",
+        only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt],
+      }
+  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - pause: { secs: 2, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - navigate: { route: controls, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - pause: { secs: 2, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - navigate: { route: webview, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - pause: { secs: 3, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  # The hoisted signals survived the rebuild…
+  - assert_text:
+      {
+        id: webview-js,
+        text: "window.__dayMarker = 'survived'",
+        only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt],
+      }
+  # …and so did the engine's own JS context.
+  - input:
+      {
+        id: webview-js,
+        text: "window.__dayMarker",
+        only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt],
+      }
+  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - pause: { secs: 2, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - assert_text:
+      {
+        id: webview-js-result,
+        text: '"survived"',
+        only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt],
+      }
   - screenshot: { name: webview, skip_on: [harmony-arkui] }
 
   # Every page has now been visited, so every piece kind this app uses has been realized. A kind
