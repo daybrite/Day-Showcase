@@ -19,6 +19,7 @@
 		DA0000000000000000000003 /* Showcase.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Showcase.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DA0000000000000000000004 /* hello.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = hello.json; path = "../../resource/assets/hello.json"; sourceTree = SOURCE_ROOT; };
 		DA0000000000000000000005 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		DA0000000000000000000006 /* DayApp.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = DayApp.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -38,6 +39,7 @@
 			children = (
 				DA0000000000000000000011 /* Runner */,
 				DA0000000000000000000005 /* Assets.xcassets */,
+				DA0000000000000000000006 /* DayApp.xcconfig */,
 				DA0000000000000000000012 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -177,11 +179,11 @@
 /* Begin XCBuildConfiguration section */
 		DA0000000000000000000060 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = DA0000000000000000000006 /* DayApp.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_MODULES = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -191,11 +193,11 @@
 		};
 		DA0000000000000000000061 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = DA0000000000000000000006 /* DayApp.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_MODULES = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
@@ -204,37 +206,27 @@
 		};
 		DA0000000000000000000062 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = DA0000000000000000000006 /* DayApp.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGNING_ALLOWED = NO;
-				CODE_SIGN_IDENTITY = "";
-				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				LIBRARY_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/day";
-				MARKETING_VERSION = 0.1.0;
 				OTHER_LDFLAGS = "-lshowcase";
-				PRODUCT_BUNDLE_IDENTIFIER = dev.daybrite.showcase;
 				PRODUCT_NAME = Showcase;
-				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
 		DA0000000000000000000063 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = DA0000000000000000000006 /* DayApp.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGNING_ALLOWED = NO;
-				CODE_SIGN_IDENTITY = "";
-				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				LIBRARY_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/day";
-				MARKETING_VERSION = 0.1.0;
 				OTHER_LDFLAGS = "-lshowcase";
-				PRODUCT_BUNDLE_IDENTIFIER = dev.daybrite.showcase;
 				PRODUCT_NAME = Showcase;
-				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};

@@ -89,6 +89,9 @@ webview_back = 后退
 webview_forward = 前进
 webview_stop = 停止
 webview_reload = 重新加载
+webview_js_hint = 要在页面中运行的 JavaScript
+webview_js_run = 运行 »
+webview_js_result_hint = JSON 结果显示在此
 webview_note_iframe = 此平台通过 iframe 嵌入页面。浏览器禁止跨源访问历史记录和读取网址，因此“后退”“前进”和“停止”不可用，上方的地址栏也不会跟随页面内打开的链接。
 
 lottie_caption = 原生 Lottie 动画，以 JSON 打包（lottie-ios / lottie-android）

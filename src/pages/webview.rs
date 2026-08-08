@@ -1,5 +1,5 @@
 use day::prelude::*;
-use day_piece_webview::{support, web_view};
+use day_piece_webview::{JsHandle, eval_support, support, web_view};
 
 use crate::widgets::heading;
 
@@ -22,6 +22,12 @@ pub(crate) fn webview_page() -> AnyPiece {
     // piece has a renderer at all, so only Back/Forward/Stop are gated.
     let history = support() == Support::Native;
     let iframe = support() == Support::Emulated;
+    // The JS console below. `script` is what the user types, `result` the JSON it evaluated to (or
+    // the error it threw) — both bound to text areas, so the round trip is visible in one screen.
+    let js = JsHandle::new();
+    let script = Signal::new("document.title".to_string());
+    let result = Signal::new(String::new());
+    let can_eval = eval_support() == Support::Native;
     column((
         heading(crate::res::str::nav_webview(), "webview-title", None),
         // URL bar: the field is bound to the view's URL; Go loads whatever it holds.
@@ -68,7 +74,40 @@ pub(crate) fn webview_page() -> AnyPiece {
                 .id("webview-reload"),
         ))
         .spacing(8.0),
+        // JS console: script in, JSON out. `eval` returns a future, so the click spawns a task and
+        // the result lands in the bound signal whenever the engine answers.
+        row((
+            text_area(script)
+                .placeholder(crate::res::str::webview_js_hint())
+                .min_lines(3)
+                .max_lines(3)
+                .spellcheck(false)
+                .editable(move || can_eval)
+                .id("webview-js"),
+            button(crate::res::str::webview_js_run())
+                .prominent()
+                .enabled(move || can_eval)
+                .action(move || {
+                    day::task(async move {
+                        let text = match js.eval(script.get_untracked()).await {
+                            Ok(json) => json,
+                            Err(e) => e.to_string(),
+                        };
+                        result.set(text);
+                    });
+                })
+                .style(crate::widgets::primary())
+                .id("webview-js-run"),
+            text_area(result)
+                .placeholder(crate::res::str::webview_js_result_hint())
+                .min_lines(3)
+                .max_lines(3)
+                .editable(false)
+                .id("webview-js-result"),
+        ))
+        .spacing(8.0),
         web_view(url)
+            .js(js)
             .go(go)
             .back(back)
             .forward(forward)
