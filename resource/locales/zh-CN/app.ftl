@@ -1,5 +1,4 @@
 app_title = Day 演示
-app_tagline = 一份代码，处处原生
 counter_value = { $count } 次点击
 decrement = −
 increment = +
@@ -208,6 +207,7 @@ plural_items = { $count ->
 
 # Text playground (typography)
 text_caption = 语义样式映射到平台的原生文本样式和无障碍文字缩放。
+text_selectable_toggle = 可选中
 text_styles_header = 样式
 text_weights_header = 字重
 text_styling_header = 粗体与斜体
@@ -310,6 +310,10 @@ tweaks_ref_title = NativeRef 存活性
 tweaks_ref_caption = NativeRef 在挂载后能访问微调过的滑块；卸载它后引用会被清空而不是悬空。
 tweaks_ref_live = 引用：存活
 tweaks_ref_cleared = 引用：已清空
+tweaks_label_title = 微调文本标签
+tweaks_label_caption = 内联微调（AppKit、UIKit）通过原生视图调暗此标签，并报告它看到的类。在 iOS 上，“可选中”会把标签重建为只读 UITextView——微调在 .selectable() 之后运行，因此作用于最终上屏的控件。
+tweaks_label_sample = 此标签由原生微调调暗。
+tweaks_label_class = 原生类：{ $class }
 
 # — merged section pages (design overhaul) —
 nav_canvas = 画布与形状

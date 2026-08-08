@@ -125,7 +125,34 @@ pub(crate) fn page(
     caption: Option<LocalizedText>,
     body: AnyPiece,
 ) -> AnyPiece {
-    page_inner(title, title_id, caption, body, Some(CONTENT_MAX_WIDTH))
+    page_inner(
+        title,
+        title_id,
+        caption,
+        None,
+        body,
+        Some(CONTENT_MAX_WIDTH),
+    )
+}
+
+/// [`page`] with a control in the heading's corner slot — pushed to the trailing edge of the
+/// heading row (upper-right in LTR, mirrored under RTL), for a page-wide switch like the Text
+/// page's Selectable toggle.
+pub(crate) fn page_trailing(
+    title: LocalizedText,
+    title_id: &'static str,
+    caption: Option<LocalizedText>,
+    trailing: AnyPiece,
+    body: AnyPiece,
+) -> AnyPiece {
+    page_inner(
+        title,
+        title_id,
+        caption,
+        Some(trailing),
+        body,
+        Some(CONTENT_MAX_WIDTH),
+    )
 }
 
 /// [`page`] without the width cap — for pages whose content is the canvas itself (a benchmark
@@ -137,19 +164,36 @@ pub(crate) fn page_wide(
     caption: Option<LocalizedText>,
     body: AnyPiece,
 ) -> AnyPiece {
-    page_inner(title, title_id, caption, body, None)
+    page_inner(title, title_id, caption, None, body, None)
 }
 
 fn page_inner(
     title: LocalizedText,
     title_id: &'static str,
     caption: Option<LocalizedText>,
+    trailing: Option<AnyPiece>,
     body: AnyPiece,
     max_width: Option<f64>,
 ) -> AnyPiece {
-    let content = column((heading(title, title_id, caption), body))
-        .spacing(16.0)
-        .align(HAlign::Leading);
+    let head = heading(title, title_id, caption);
+    let head = match trailing {
+        // The corner slot: beside the heading where the big in-content title renders. On
+        // native-header targets (the phones — the nav bar owns the title, so the heading is
+        // the caption sentence) that sentence needs the full measure; the control rides its
+        // own trailing-aligned row above it instead of squeezing the caption sideways.
+        Some(t) => {
+            if capability(Cap::NavHeader) == Support::Native {
+                column((row((spacer(), t)).grow_w(), head))
+                    .spacing(8.0)
+                    .grow_w()
+                    .any()
+            } else {
+                row((head, spacer(), t)).grow_w().any()
+            }
+        }
+        None => head,
+    };
+    let content = column((head, body)).spacing(16.0).align(HAlign::Leading);
     let content = match max_width {
         Some(w) => content.max_width(w).any(),
         None => content.any(),

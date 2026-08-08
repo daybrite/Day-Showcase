@@ -9,7 +9,10 @@ use crate::widgets::page;
 /// phase (docs/lifecycle.md).
 pub(crate) fn about_page() -> AnyPiece {
     let hero = column((
-        image(crate::res::images::day_logo).frame(96.0, 96.0),
+        // The vector mark (docs/vectors.md), not the day_logo raster: drawn at display
+        // resolution on the backends with a vector arm, no tint — the plate and gradient
+        // are the authored colors.
+        vector(crate::res::vectors::day_mark).frame(96.0, 96.0),
         label(crate::res::str::app_title()).font(Font::Title2),
         label(crate::res::str::about_text())
             .font(Font::Footnote)

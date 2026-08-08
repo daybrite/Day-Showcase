@@ -1,5 +1,4 @@
 app_title = Vitrine de Day
-app_tagline = Widgets natifs, une base Rust
 counter_value = { $count ->
     [one] { $count } clic
    *[other] { $count } clics
@@ -213,6 +212,7 @@ plural_items = { $count ->
 
 # Aire de jeu Texte (typographie)
 text_caption = Les styles sémantiques correspondent aux styles natifs et à l'échelle de texte d'accessibilité.
+text_selectable_toggle = Sélectionnable
 text_styles_header = Styles
 text_weights_header = Graisses
 text_styling_header = Gras et italique
@@ -315,6 +315,10 @@ tweaks_ref_title = Vivacité du NativeRef
 tweaks_ref_caption = Un NativeRef atteint le curseur ajusté après montage ; démontez-le et la référence se vide au lieu de pendre.
 tweaks_ref_live = réf : vivante
 tweaks_ref_cleared = réf : vidée
+tweaks_label_title = Ajuster un libellé
+tweaks_label_caption = Un ajustement direct (AppKit, UIKit) atténue ce libellé via sa vue native et rapporte la classe rencontrée. Sur iOS, « Sélectionnable » reconstruit le libellé en UITextView en lecture seule — l'ajustement s'applique après .selectable(), donc au widget réellement affiché.
+tweaks_label_sample = Ce libellé est atténué par un ajustement natif.
+tweaks_label_class = Classe native : { $class }
 
 # — merged section pages (design overhaul) —
 nav_canvas = Canevas et formes

@@ -117,6 +117,39 @@ pub(crate) fn tweaks_page() -> AnyPiece {
     .align(HAlign::Leading)
     .modifier(Card);
 
+    // Inline `.appkit(…)`/`.uikit(…)` on a text label with a CONDITIONAL backing
+    // (docs/tweaks.md "Conditional backings"): with Selectable on, iOS realizes the label as a
+    // read-only UITextView instead of a UILabel (docs/text.md). The tweak stays correct because
+    // it sits AFTER `.selectable()` in the chain and pokes view-level surface (alpha), which
+    // lands on either class; the caption line reports the concrete class the tweak saw — flip
+    // the toggle on iOS and watch it change. AppKit keeps NSTextField for both states; every
+    // other toolkit shows the stock label and an em-dash class.
+    let label_sel = Signal::new(false);
+    let seen_class = Signal::new(String::from("\u{2014}"));
+    let label_card = column((
+        label(crate::res::str::tweaks_label_title()).font(Font::Headline),
+        label(crate::res::str::tweaks_label_caption()).font(Font::Footnote),
+        row((
+            label(crate::res::str::text_selectable_toggle()).font(Font::Caption),
+            toggle(label_sel).id("tweak-label-selectable"),
+        ))
+        .spacing(8.0),
+        when(
+            move || label_sel.get(),
+            move || tweaked_label(true, seen_class),
+        ),
+        when(
+            move || !label_sel.get(),
+            move || tweaked_label(false, seen_class),
+        ),
+        label(move || crate::res::str::tweaks_label_class(seen_class.get()).format())
+            .font(Font::Caption)
+            .id("tweak-label-class"),
+    ))
+    .spacing(8.0)
+    .align(HAlign::Leading)
+    .modifier(Card);
+
     scroll(
         column((
             heading(
@@ -128,10 +161,40 @@ pub(crate) fn tweaks_page() -> AnyPiece {
             tooltip_card,
             ticks_card,
             ref_card,
+            label_card,
         ))
         .spacing(14.0)
         .align(HAlign::Leading)
         .padding(16.0),
     )
     .any()
+}
+
+/// The label-card sample for one Selectable state: `.selectable()` FIRST — it may REBUILD the
+/// backing (UIKit) — then the tweak, so it runs against the widget that ships and reports that
+/// widget's class (docs/tweaks.md "Conditional backings").
+fn tweaked_label(selectable: bool, seen: Signal<String>) -> AnyPiece {
+    let l = label(crate::res::str::tweaks_label_sample()).id("tweak-label-sample");
+    let l = if selectable { l.selectable() } else { l };
+    #[cfg(feature = "appkit")]
+    let l = {
+        use day_appkit::AppKitExt;
+        l.appkit(move |view, class, _mtm| {
+            seen.set(class.to_string());
+            // View-level surface on purpose: alpha lands identically on any backing class.
+            view.setAlphaValue(0.55);
+        })
+    };
+    #[cfg(feature = "uikit")]
+    let l = {
+        use day_uikit::UiKitExt;
+        l.uikit(move |view, class, _mtm| {
+            seen.set(class.to_string());
+            view.setAlpha(0.55);
+        })
+    };
+    // Toolkits without the inline arm keep the stock label; the class line stays an em dash.
+    #[cfg(not(any(feature = "appkit", feature = "uikit")))]
+    let _ = seen;
+    l
 }

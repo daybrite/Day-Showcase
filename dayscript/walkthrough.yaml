@@ -558,6 +558,14 @@ flow:
   - assert_visible: { id: text-font-specialelite }
   - assert_visible: { id: text-selectable }
   - screenshot: text
+  # The page-wide Selectable toggle (upper-right): every text piece rebuilds out of and back
+  # into `.selectable()` — on iOS that swaps each label to a read-only text view and back
+  # (docs/text.md), so both arms must realize cleanly on every backend.
+  - toggle: { id: text-selectable-toggle, value: false }
+  - assert_visible: { id: text-selectable }
+  - assert_visible: { id: text-font-pacifico }
+  - toggle: { id: text-selectable-toggle, value: true }
+  - assert_visible: { id: text-selectable }
 
   # Text areas (docs/textarea.md): the native multi-line editor with editable/selectable/spell-check
   # attributes and per-toolkit capability-gated toggles. Seed the markdown sample for a stable shot.
@@ -629,6 +637,14 @@ flow:
   - assert_text: { id: tweak-ref-status, key: tweaks_ref_cleared }
   - toggle: { id: tweak-ref-toggle, value: true }
   - assert_text: { id: tweak-ref-status, key: tweaks_ref_live }
+  # The inline label tweak beside a conditional backing (docs/tweaks.md "Conditional
+  # backings"): flipping Selectable rebuilds the sample label — on iOS as a read-only
+  # UITextView — and the tweak must land on both arms, on every backend.
+  - assert_visible: { id: tweak-label-sample }
+  - toggle: { id: tweak-label-selectable, value: true }
+  - assert_visible: { id: tweak-label-sample }
+  - toggle: { id: tweak-label-selectable, value: false }
+  - assert_visible: { id: tweak-label-sample }
   - screenshot: tweaks
 
   # Native web view (docs/webview.md): each toolkit's native browser. Load the project site,

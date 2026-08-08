@@ -1,5 +1,4 @@
 app_title = Day Showcase
-app_tagline = Native widgets, one codebase
 counter_value = { $count ->
     [one] { $count } click
    *[other] { $count } clicks
@@ -213,6 +212,7 @@ plural_items = { $count ->
 
 # Text playground (typography)
 text_caption = Semantic styles map to the platform's native text styles and accessibility text scaling.
+text_selectable_toggle = Selectable
 text_styles_header = Styles
 text_weights_header = Weights
 text_styling_header = Bold & italic
@@ -315,6 +315,10 @@ tweaks_ref_title = NativeRef liveness
 tweaks_ref_caption = A NativeRef reaches the tweaked slider after mount; unmount it and the ref clears instead of dangling.
 tweaks_ref_live = ref: live
 tweaks_ref_cleared = ref: cleared
+tweaks_label_title = Tweak a text label
+tweaks_label_caption = An inline tweak (AppKit, UIKit) dims this label through its native view and reports the class it saw. On iOS, Selectable rebuilds the label as a read-only UITextView — the tweak runs after .selectable(), so it lands on the widget that ships.
+tweaks_label_sample = This label is dimmed by a native tweak.
+tweaks_label_class = Native class: { $class }
 
 # — merged section pages (design overhaul) —
 nav_canvas = Canvas & shapes

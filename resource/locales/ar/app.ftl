@@ -1,5 +1,4 @@
 app_title = عرض Day
-app_tagline = واجهة أصلية، كود Rust واحد
 counter_value = { $count ->
     [zero] لا نقرات
     [one] نقرة واحدة
@@ -220,6 +219,7 @@ plural_items = { $count ->
 
 # Text playground (typography)
 text_caption = الأنماط الدلالية تُطابق أنماط النص الأصلية للمنصة وتكبير نص إمكانية الوصول.
+text_selectable_toggle = قابل للتحديد
 text_styles_header = الأنماط
 text_weights_header = الأوزان
 text_styling_header = عريض ومائل
@@ -322,6 +322,10 @@ tweaks_ref_title = حيوية NativeRef
 tweaks_ref_caption = يصل NativeRef إلى المنزلق المولَّف بعد التركيب؛ وعند إزالته يُمسح المرجع بدلًا من أن يبقى معلّقًا.
 tweaks_ref_live = المرجع: حي
 tweaks_ref_cleared = المرجع: ممسوح
+tweaks_label_title = تعديل تسمية نصية
+tweaks_label_caption = تعديل مباشر (AppKit وUIKit) يخفّف هذه التسمية عبر عرضها الأصلي ويبلّغ عن الفئة التي وجدها. على iOS يعيد مفتاح «قابل للتحديد» بناء التسمية كـ UITextView للقراءة فقط — يعمل التعديل بعد .selectable()‎ فيصل إلى الودجة المعروضة فعلًا.
+tweaks_label_sample = هذه التسمية مخفّفة بتعديل أصلي.
+tweaks_label_class = الفئة الأصلية: { $class }
 
 # — merged section pages (design overhaul) —
 nav_canvas = اللوحة والأشكال

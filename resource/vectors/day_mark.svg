@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="g" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#B7410E"/>
+      <stop offset="1" stop-color="#EFA94A"/>
+    </linearGradient>
+  </defs>
+  <!-- The in-app logo mark: resource/icons/day-icon.svg's art on its charcoal plate, with the
+       corner mask baked in (r matches images/day_logo.png's render) since no platform masks
+       an in-page image. Named apart from the day_logo raster: vector and image names share one
+       resolution namespace, and this art's gradient stages an Android raster fallback that
+       would collide with images/day_logo.png. -->
+  <rect x="0" y="0" width="120" height="120" rx="24" fill="#201512"/>
+  <g stroke="#EFA94A" stroke-width="6" stroke-linecap="round">
+    <line x1="60" y1="48" x2="60" y2="30"/>
+    <line x1="60" y1="48" x2="60" y2="40" transform="rotate(20 60 78)"/>
+    <line x1="60" y1="48" x2="60" y2="40" transform="rotate(-20 60 78)"/>
+    <line x1="60" y1="48" x2="60" y2="30" transform="rotate(40 60 78)"/>
+    <line x1="60" y1="48" x2="60" y2="30" transform="rotate(-40 60 78)"/>
+    <line x1="60" y1="48" x2="60" y2="40" transform="rotate(60 60 78)"/>
+    <line x1="60" y1="48" x2="60" y2="40" transform="rotate(-60 60 78)"/>
+    <line x1="60" y1="48" x2="60" y2="30" transform="rotate(80 60 78)"/>
+    <line x1="60" y1="48" x2="60" y2="30" transform="rotate(-80 60 78)"/>
+  </g>
+  <path d="M38 78 A22 22 0 0 1 82 78 Z" fill="url(#g)" stroke="url(#g)" stroke-width="5" stroke-linejoin="round"/>
+  <line x1="28" y1="90" x2="92" y2="90" stroke="#D95B29" stroke-width="4" stroke-linecap="round"/>
+  <line x1="38" y1="98" x2="82" y2="98" stroke="#D95B29" stroke-width="4" stroke-linecap="round"/>
+</svg>

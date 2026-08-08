@@ -23,10 +23,10 @@ build = "build.rs"
 # through `day build`, which passes `--no-default-features --features <backend>` (see day-cli), so the
 # mock default is stripped and never unifies with the selected backend.
 default = ["mock"]
-appkit = ["day/appkit", "day-tweak-button-bezel/appkit", "day-tweak-tooltip/appkit", "day-tweak-slider-tickmarks/appkit"]
+appkit = ["day/appkit", "dep:day-appkit", "day-tweak-button-bezel/appkit", "day-tweak-tooltip/appkit", "day-tweak-slider-tickmarks/appkit"]
 gtk = ["day/gtk", "day-tweak-tooltip/gtk", "day-tweak-slider-tickmarks/gtk"]
 qt = ["day/qt", "day-tweak-slider-tickmarks/qt"]
-uikit = ["day/uikit"]
+uikit = ["day/uikit", "dep:day-uikit"]
 mdc = ["day/mdc", "day-tweak-tooltip/mdc", "day-tweak-slider-tickmarks/mdc"]
 xaml = ["day/xaml", "day-tweak-slider-tickmarks/xaml"]
 arkui = ["day/arkui", "day-tweak-slider-tickmarks/arkui"]
@@ -66,6 +66,10 @@ day-piece-pullrefresh = { git = "https://github.com/daybrite/day.git" }
 day-piece-datetime = { git = "https://github.com/daybrite/day.git" }
 # Tweaks (docs/tweaks.md): packaged per-toolkit configuration of built-in pieces.
 day-tweak-button-bezel = { git = "https://github.com/daybrite/day.git" }
+# The Apple toolkit crates directly, for the Tweaks page's INLINE `.appkit(…)`/`.uikit(…)`
+# label card (docs/tweaks.md "Per-toolkit access") — each rides only its backend's feature.
+day-appkit = { git = "https://github.com/daybrite/day.git", optional = true }
+day-uikit = { git = "https://github.com/daybrite/day.git", optional = true }
 day-tweak-tooltip = { git = "https://github.com/daybrite/day.git" }
 day-tweak-slider-tickmarks = { git = "https://github.com/daybrite/day.git" }
 day-piece-webview = { git = "https://github.com/daybrite/day.git" }
