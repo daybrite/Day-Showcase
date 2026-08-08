@@ -53,7 +53,10 @@ fn state() -> ToolbarDemo {
 
 /// Does this toolkit have a real toolbar?
 fn available() -> bool {
-    capability(Cap::Toolbar) == Support::Native
+    // Emulated counts: web-dom docks a real strip above the app root rather than hanging chrome
+    // off a title bar it does not have (docs/toolbars.md). What matters to the app is whether
+    // the commands belong in a bar at all, not who draws it.
+    capability(Cap::Toolbar) != Support::Unsupported
 }
 
 /// Install the main window's toolbar. Called from `root` for the primary window and from the
@@ -69,6 +72,11 @@ pub(crate) fn install() {
     // which is why the labels are `res::str` calls rather than captured Strings.
     toolbar_reactive(move || {
         let mut items = vec![
+            // Show/hide the sidebar. Declared FIRST, which is where every desktop platform
+            // expects it — beside the split's divider on macOS, at the head of the header bar
+            // on GNOME. It takes no `.action`: the toolkit binds it to this window's
+            // `selector(Sidebar)` and drives that host's own collapse (docs/toolbars.md).
+            toolbar_sidebar_toggle("tb-sidebar", crate::res::str::toolbar_sidebar()),
             // A plain command.
             toolbar_button("tb-new", crate::res::str::toolbar_new())
                 .icon(Symbol::New)

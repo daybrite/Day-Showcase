@@ -619,6 +619,7 @@ toolbar_readout_title = What the toolbar is doing
 toolbar_controls_title = Driving it from here
 toolbar_vocabulary_title = The item vocabulary
 # Item labels — these appear IN the toolbar, so they stay short.
+toolbar_sidebar = Sidebar
 toolbar_new = New
 toolbar_refresh = Refresh
 toolbar_star = Star

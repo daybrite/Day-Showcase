@@ -617,6 +617,7 @@ toolbar_readout_title = Ce que fait la barre d'outils
 toolbar_controls_title = La piloter depuis ici
 toolbar_vocabulary_title = Le vocabulaire des éléments
 # Item labels — these appear IN the toolbar, so they stay short.
+toolbar_sidebar = Barre latérale
 toolbar_new = Nouveau
 toolbar_refresh = Actualiser
 toolbar_star = Étoile

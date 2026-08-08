@@ -628,6 +628,7 @@ toolbar_readout_title = ما الذي يفعله شريط الأدوات
 toolbar_controls_title = قيادته من هنا
 toolbar_vocabulary_title = مفردات العناصر
 # Item labels — these appear IN the toolbar, so they stay short.
+toolbar_sidebar = الشريط الجانبي
 toolbar_new = جديد
 toolbar_refresh = تحديث
 toolbar_star = نجمة

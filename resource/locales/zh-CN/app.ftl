@@ -611,6 +611,7 @@ toolbar_readout_title = 工具栏正在做什么
 toolbar_controls_title = 从这里驱动它
 toolbar_vocabulary_title = 工具栏项的种类
 # Item labels — these appear IN the toolbar, so they stay short.
+toolbar_sidebar = 边栏
 toolbar_new = 新建
 toolbar_refresh = 刷新
 toolbar_star = 星标
