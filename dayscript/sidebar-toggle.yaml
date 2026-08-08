@@ -1,0 +1,17 @@
+name: sidebar-toggle
+description: >
+  The toolbar's sidebar-collapse item (docs/toolbars.md) driven through the DUTY, the same call
+  the native button makes — so this covers the scripted path, which resolves no window from a
+  click and drives the primary window's nav. Collapse, capture, restore, capture: the pair is
+  what shows the toggle round-trips rather than latching.
+flow:
+  - wait_for: { id: home-title }
+  - navigate: { route: toolbars }
+  - assert_visible: { id: toolbars-title }
+  - screenshot: sidebar-expanded
+  - toolbar: { item: tb-sidebar }
+  - pause: 0.6
+  - screenshot: sidebar-collapsed
+  - toolbar: { item: tb-sidebar }
+  - pause: 0.6
+  - screenshot: sidebar-expanded-again
