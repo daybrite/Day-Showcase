@@ -1,7 +1,7 @@
 name: text
 description: Navigate to the Text playground and screenshot the typography specimen.
 flow:
-  - wait_for: { id: home-title }
+  - wait_for: { id: nav }
   - navigate: { route: text }
   - assert_visible: { id: text-title }
   - assert_visible: { id: text-emphasis }

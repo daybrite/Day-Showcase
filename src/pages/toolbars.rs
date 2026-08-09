@@ -122,10 +122,11 @@ pub(crate) fn install() {
             );
         }
         items.push(toolbar_flexible_space());
-        items.push(
-            toolbar_search("tb-search", s.query)
-                .placeholder(crate::res::str::toolbar_search_placeholder()),
-        );
+        // The search field is NOT declared here. It belongs to the sidebar it filters
+        // (`crate::showcase_nav`'s `.searchable(query)`, docs/search.md), and day drops it into
+        // this bar itself — trailing, after everything above. That is what will let it move into
+        // the navigation list when the sidebar collapses on a narrow window, without this page
+        // changing.
         items
     });
 }

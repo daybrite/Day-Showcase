@@ -486,14 +486,35 @@ fn window_root(primary: bool) -> AnyPiece {
     );
     // Each destination carries a bundled vector glyph (resource/vectors/nav_*.svg) shown in the
     // native nav where the backend supports it (e.g. the Windows NavigationView pane).
-    // The sidebar filters live on what the toolbar's search field holds (docs/localization.md
+    // The sidebar filters live on what its own search field holds (docs/localization.md
     // "Searching"): a row survives when the query is a case-insensitive prefix of one of its
     // title's words, with the words found by the current locale's own segmentation.
     let query = pages::toolbars::search_query();
     let nav = selector(section)
         .style(SelectorStyle::Sidebar)
         .title(crate::res::str::app_title())
-        .header(sidebar_header)
+        // Search belongs to the surface it filters, not to the toolbar (docs/search.md). Day
+        // resolves where to draw it: today the window's toolbar on every desktop, and — once the
+        // size-class work lands — the navigation list itself on a window too narrow for a
+        // sidebar, with nothing here changing.
+        .searchable(query)
+        .search_prompt(crate::res::str::toolbar_search_placeholder())
+        // Completions, drawn by whatever the platform's search field already has for them (a
+        // QCompleter popup, a <datalist>, an AutoSuggestBox — docs/search.md). Every section
+        // title that starts with what has been typed, localized, so they follow a language
+        // switch like the rows do.
+        .search_suggestions(|q: &str| {
+            let q = q.to_lowercase();
+            if q.is_empty() {
+                return Vec::new();
+            }
+            destinations()
+                .into_iter()
+                .map(|d| (d.title)().format())
+                .filter(|t| t.to_lowercase().starts_with(&q))
+                .take(8)
+                .collect()
+        })
         // Reopen on the last-viewed section (web only — see the install_nav_store note above).
         .restore("nav.section")
         .items(
@@ -540,20 +561,6 @@ fn window_root(primary: bool) -> AnyPiece {
         });
     let nav = if primary { nav } else { nav.local() };
     nav.id("nav")
-}
-
-fn sidebar_header() -> AnyPiece {
-    // The identity row above the section list: the vector mark (docs/vectors.md) beside the
-    // app title, untinted — the plate and gradient are the authored colors.
-    row((
-        vector(res::vectors::day_mark).frame(32.0, 32.0),
-        label(crate::res::str::app_title())
-            .font(Font::Headline)
-            .id("home-title"),
-    ))
-    .spacing(10.0)
-    .padding(12.0)
-    .any()
 }
 
 // Mobile / embedded entries (DESIGN.md §17.4): the iOS and macOS Runners bind `day_main`,

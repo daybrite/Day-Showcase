@@ -3,7 +3,7 @@ description: The preferences theme flip recoloring every window live (docs/windo
   needs Cap::Appearance (appkit/gtk; qt runs windows.yaml only). Ends back on System so
   later runs and CI variants stay deterministic.
 flow:
-  - wait_for: { id: home-title }
+  - wait_for: { id: nav }
   - menu: { key: day-preferences }
   - wait_for: { id: prefs-title }
   - assert_visible: { id: theme-picker }

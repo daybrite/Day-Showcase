@@ -1,7 +1,7 @@
 name: notify-perm
 description: The notification consent affordance — shown only where the OS keeps a consent record.
 flow:
-  - wait_for: { id: home-title }
+  - wait_for: { id: nav }
   - navigate: { route: services }
   - wait_for: { id: notify-supported }
   - scroll_to: { id: notify-post }

@@ -1,6 +1,6 @@
 name: menus-hold
 flow:
-  - wait_for: { id: home-title }
+  - wait_for: { id: nav }
   - navigate: { route: menus }
   - assert_visible: { id: menus-title }
   - screenshot: menus

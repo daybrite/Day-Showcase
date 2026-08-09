@@ -4,7 +4,7 @@ description: >
   the Crash Reporting page shows it in the viewer and the consent banner offers to send it. Screenshot
   it, then clear it so subsequent runs start clean.
 flow:
-  - wait_for: { id: home-title }
+  - wait_for: { id: nav }
   - navigate: { route: crash }
   - assert_route: { route: crash }
   - assert_visible: { id: crash-report }

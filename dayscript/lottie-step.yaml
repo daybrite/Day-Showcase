@@ -2,7 +2,7 @@ name: lottie-step
 description: Verify the speed slider snaps to its .step(0.25) — off-grid values round to the grid — and
   that applying speed doesn't crash. (The snapping is what keeps set_speed from firing per-drag-frame.)
 flow:
-  - wait_for: { id: home-title }
+  - wait_for: { id: nav }
   - navigate: { route: media }
   - assert_text: { id: lottie-speed-value, text: "1.00×" }
   - set_value: { id: lottie-speed-slider, value: 1.6 }

@@ -1,7 +1,7 @@
 name: lottie-speed
 description: Drive the Lottie speed slider (iOS/Android only) and confirm the bound readout tracks it.
 flow:
-  - wait_for: { id: home-title }
+  - wait_for: { id: nav }
   - navigate: { route: media }
   - assert_route: { route: media }
   - assert_visible: { id: lottie-view }

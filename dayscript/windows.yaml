@@ -5,7 +5,7 @@ description: Desktop secondary windows (docs/windows.md) — File ▸ New Window
   (Cap::Appearance-gated — qt has no runtime appearance override). Dayscript ids resolve
   tree-globally, so steps need no window scoping — only screenshots name their window.
 flow:
-  - wait_for: { id: home-title }
+  - wait_for: { id: nav }
 
   # A second, independent showcase shell (the tab-bar "+" runs the same action).
   - menu: { key: day-new-window }

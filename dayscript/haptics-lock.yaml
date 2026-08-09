@@ -1,7 +1,7 @@
 name: haptics-lock
 description: Every haptic control greys out while a song plays, and comes back when it ends.
 flow:
-  - wait_for: { id: home-title }
+  - wait_for: { id: nav }
   - navigate: { route: services }
   - wait_for: { id: haptics-supported }
   - scroll_to: { id: haptics-song-cascade }

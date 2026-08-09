@@ -7,7 +7,7 @@ description: >
   server) has no system clipboard, so the shared walkthrough covers the clipboard page there without
   this assertion.
 flow:
-  - wait_for: { id: home-title }
+  - wait_for: { id: nav }
   - navigate: { route: services }
   - assert_route: { route: services }
   - input: { id: clipboard-field, text: "day walkthrough clip" }

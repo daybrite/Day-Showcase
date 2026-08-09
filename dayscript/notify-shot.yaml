@@ -1,7 +1,7 @@
 name: notify-shot
 description: The Platform Services notifications group — capability lines, controls, and a post.
 flow:
-  - wait_for: { id: home-title }
+  - wait_for: { id: nav }
   - navigate: { route: services }
   - wait_for: { id: notify-supported }
   - scroll_to: { id: notify-post }

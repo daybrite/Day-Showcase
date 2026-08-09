@@ -11,6 +11,24 @@ use crate::widgets::page;
 /// `segfault` (SIGSEGV) both die and are recorded by the signal handler; the "contained panic"
 /// stays alive (day-core catches panics at its trampoline boundaries — see docs/break.md) and is
 /// recorded as a NON-fatal report on the next launch.
+/// One crash trigger: its explanation above, its button below and full width.
+///
+/// Not a `labeled` form row. These explanations are sentences, not field names, and in the label
+/// column they took most of a phone's width and left the button squeezed into what remained — the
+/// three buttons ended up three different sizes, each sized by how long its sentence happened to
+/// be. Stacked, the sentence gets the full width to wrap into and every button is the same size as
+/// every other, on a phone and on a desktop alike.
+fn crash_action(explanation: String, action: impl Piece + 'static) -> AnyPiece {
+    column((
+        label(explanation).font(Font::Footnote),
+        AnyPiece::new(action).grow_w(),
+    ))
+    .spacing(6.0)
+    .align(HAlign::Leading)
+    .grow_w()
+    .any()
+}
+
 pub(crate) fn crash_page() -> AnyPiece {
     // The report viewer text, refreshed whenever the pending list changes (send/discard/relaunch).
     let report = Signal::new(String::new());
@@ -22,25 +40,28 @@ pub(crate) fn crash_page() -> AnyPiece {
 
     let crash_controls = section((
         // Each crash is scheduled ~150 ms out so the dayscript tap gets its reply before we die.
-        labeled(
-            crate::res::str::crash_abort_label(),
+        crash_action(
+            crate::res::str::crash_abort_label().format(),
             button(crate::res::str::crash_abort())
                 .action(|| schedule(|| std::process::abort()))
                 .style(crate::widgets::danger())
                 .id("crash-abort"),
         ),
-        labeled(
-            crate::res::str::crash_segv_label(),
+        crash_action(
+            crate::res::str::crash_segv_label().format(),
             button(crate::res::str::crash_segv())
                 .action(|| schedule(segfault))
+                .style(crate::widgets::tinted(crate::palette::VIOLET))
                 .id("crash-segv"),
         ),
-        labeled(
-            crate::res::str::crash_contained_label(),
+        crash_action(
+            crate::res::str::crash_contained_label().format(),
             // Panics in a button handler run inside day-core's event pump, which CONTAINS the
             // panic (the app survives); it becomes a non-fatal report on the next launch.
+            // Pale amber, the mildest of the three — it is the one the app walks away from.
             button(crate::res::str::crash_contained())
                 .action(|| panic!("intentional contained panic from the showcase crash page"))
+                .style(crate::widgets::tinted_pale(crate::palette::AMBER))
                 .id("crash-contained"),
         ),
     ))

@@ -4,7 +4,7 @@ description: Navigate every destination, exercise every control, take localized 
   selector(Tabs); the stack section is a genuine push/pop stack bound to a path signal. Every
   page is a grouped form (docs/forms.md) of themed sections — menus & dialogs share one page.
 flow:
-  - wait_for: { id: home-title }
+  - wait_for: { id: nav }
   - screenshot: home
 
   # Leaving via a route the stack doesn't own falls through to the enclosing selector.
@@ -588,7 +588,7 @@ flow:
   # `key:`, not a literal: the search field FILTERS THE SIDEBAR on localized titles, so an English
   # query drops every row under `--locale fr` (and with them this very page). Typing a title matches
   # itself — a query is compared against each word start, and the start at 0 is the whole title.
-  - toolbar: { item: tb-search, key: nav_toolbars, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - toolbar: { item: day.search, key: nav_toolbars, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - toolbar: { item: tb-star, on: true, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - wait_idle:
   - assert_text: { id: toolbar-query, key: nav_toolbars, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
@@ -609,14 +609,14 @@ flow:
   # together without stranding the detail pane — the bug the nav derive effect now closes. The
   # query is the Stack destination's own localized title, so the row it navigates to is in the
   # filtered set in EVERY locale; the word-prefix behaviour itself is pinned by day-l10n's tests.
-  - toolbar: { item: tb-search, key: nav_stack, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - toolbar: { item: day.search, key: nav_stack, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - wait_idle:
   - navigate: { route: stack }
   - assert_route: { route: stack }
   - assert_visible: { id: stack-root }
   - screenshot: toolbars-filtered
   # Clearing the query restores every row, and the page opened while filtered is still there.
-  - toolbar: { item: tb-search, text: "", skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - toolbar: { item: day.search, text: "", skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - wait_idle:
   - assert_route: { route: stack }
   - navigate: { route: toolbars }

@@ -2,7 +2,7 @@ name: dates-shot
 description: Open the Date & time page and screenshot it in its seeded state — the visual check
   for the native date/time picker realizations (docs/datepicker.md).
 flow:
-  - wait_for: { id: home-title }
+  - wait_for: { id: nav }
   - navigate: { route: dates }
   - assert_route: { route: dates }
   - assert_visible: { id: dates-title }

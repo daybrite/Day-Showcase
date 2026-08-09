@@ -1,7 +1,7 @@
 name: shapes-check
 description: Verify stroked shapes are not clipped at the edges.
 flow:
-  - wait_for: { id: home-title }
+  - wait_for: { id: nav }
   - navigate: { route: canvas }
   - assert_visible: { id: canvas-title }
   - assert_visible: { id: shape-rect }

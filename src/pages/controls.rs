@@ -21,8 +21,8 @@ pub(crate) fn controls_page() -> AnyPiece {
     page(
         crate::res::str::nav_controls(),
         "controls-title",
-        Some(crate::res::str::controls_caption()),
-        form((mix_section(mix), preset_section(mix), voice_section(mix))).any(),
+        None,
+        form((mix_section(mix), voice_section(mix))).any(),
     )
 }
 
@@ -180,8 +180,11 @@ fn mix_section(mix: Mix) -> impl Piece {
                 .placeholder(crate::res::str::name_placeholder())
                 .id("name-field"),
             labeled(
-                crate::res::str::volume_label(),
+                crate::res::str::value_label(),
                 row((
+                    // The two steppers are the same control pointing opposite ways, so they take
+                    // the same styling: tinting only one of them made it read as the primary
+                    // action of the row, which is not true — neither is.
                     button(crate::res::str::decrement())
                         .enabled(move || mix.on.get())
                         .action(move || mix.nudge(-5.0))
@@ -190,7 +193,6 @@ fn mix_section(mix: Mix) -> impl Piece {
                     button(crate::res::str::increment())
                         .enabled(move || mix.on.get())
                         .action(move || mix.nudge(5.0))
-                        .style(crate::widgets::primary())
                         .id("increment-button"),
                     // Reserves the width of "100" so the row stops reflowing as the value
                     // changes under the slider being dragged.
@@ -205,17 +207,20 @@ fn mix_section(mix: Mix) -> impl Piece {
         ))
         .spacing(8.0)
         .opacity(dim),
+        // The same `preset` signal in three native stylings (docs/picker.md), directly under the
+        // slider that shares its state: selecting in any one moves the other two, and — through
+        // the watch in `Mix::new` — snaps the level, which the slider, gauge and progress bar
+        // report at once. They sat in a section of their own with a sentence explaining that
+        // relationship; put under the slider they demonstrate it instead.
+        picker_rows(mix).opacity(dim),
     ))
     .title(crate::res::str::controls_basics())
 }
 
-/// One selection, three native stylings (docs/picker.md). Each is a two-way projection of the
-/// same `Signal<usize>`, so selecting in any one moves the other two — and, through the watch in
-/// `Mix::new`, snaps the level as well, which the gauge and progress bar report immediately.
-fn preset_section(mix: Mix) -> impl Piece {
+/// The three picker stylings, all bound to `preset`.
+fn picker_rows(mix: Mix) -> impl Piece {
     let names = Mix::preset_names();
-    section((
-        label(crate::res::str::picker_shared_caption()).font(Font::Footnote),
+    column((
         labeled(
             crate::res::str::picker_segmented(),
             picker(names.iter().cloned(), mix.preset)
@@ -235,7 +240,7 @@ fn preset_section(mix: Mix) -> impl Piece {
                 .id("picker-inline"),
         ),
     ))
-    .title(crate::res::str::nav_pickers())
+    .spacing(8.0)
 }
 
 /// The combo box and the search field over ONE list: search filters what the rows show, the combo

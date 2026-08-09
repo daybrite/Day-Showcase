@@ -5,7 +5,7 @@ description: >
   click and drives the primary window's nav. Collapse, capture, restore, capture: the pair is
   what shows the toggle round-trips rather than latching.
 flow:
-  - wait_for: { id: home-title }
+  - wait_for: { id: nav }
   - navigate: { route: toolbars }
   - assert_visible: { id: toolbars-title }
   - screenshot: sidebar-expanded

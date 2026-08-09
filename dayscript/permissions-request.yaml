@@ -6,7 +6,7 @@ description: >
   `adb shell pm grant dev.daybrite.showcase android.permission.ACCESS_FINE_LOCATION` (or `revoke`)
   makes the outcome deterministic before the run.
 flow:
-  - wait_for: { id: home-title }
+  - wait_for: { id: nav }
   - navigate: { route: system }
   - assert_route: { route: system }
   - assert_visible: { id: location-perm }

@@ -1,7 +1,7 @@
 name: map-shot
 description: Apple-only native MapKit map (docs/map.md) — recenter Boston->Paris, let tiles load, screenshot. Run on appkit/uikit only.
 flow:
-  - wait_for: { id: home-title }
+  - wait_for: { id: nav }
   - navigate: { route: map }
   - assert_route: { route: map }
   - assert_visible: { id: map-title }
