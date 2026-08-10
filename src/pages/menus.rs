@@ -103,6 +103,23 @@ fn build_app_menu() -> Vec<MenuEntry> {
         sub_menu(
             view.clone(),
             vec![
+                // The Star command (commands.rs). Its TITLE is the command's, so this item reads
+                // "Star" or "Unstar" for the page that is showing — `app_menu_reactive` re-lowers
+                // the bar when the starred set changes, which is what keeps it in step with the
+                // toolbar button and the sidebar rows without any of them knowing about the
+                // others. ⌘D / Ctrl+D, the platform's usual "bookmark this" key.
+                //
+                // The TITLE carries the state, not a check mark: "Star" / "Unstar" is the
+                // platform idiom for a command whose two directions are one item, and day's
+                // menu model has no checked state to set anyway.
+                {
+                    let star = crate::commands::star();
+                    menu_item((star.title)().format())
+                        .key("d")
+                        .enabled((star.enabled)())
+                        .action(move || (star.run)())
+                },
+                menu_separator(),
                 menu_item(reload.clone())
                     .key("r")
                     .action(log(format!("{view} ▸ {reload}"))),

@@ -762,3 +762,8 @@ menus_photo_section = Une carte média
 msg_subject_one = Chiffres trimestriels, première passe
 msg_subject_two = Plan du week-end, réponse définitive
 msg_subject_three = Croquis de l’atelier
+
+# The Star command (commands.rs): one label per state, shared by the toolbar, the
+# application menu and each navigation row's context menu.
+cmd_star = Suivre
+cmd_unstar = Ne plus suivre

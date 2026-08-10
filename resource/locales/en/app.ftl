@@ -764,3 +764,8 @@ menus_photo_section = A media card
 msg_subject_one = Quarterly numbers, first pass
 msg_subject_two = Weekend plan, final answer
 msg_subject_three = Sketches from the workshop
+
+# The Star command (commands.rs): one label per state, shared by the toolbar, the
+# application menu and each navigation row's context menu.
+cmd_star = Star
+cmd_unstar = Unstar

@@ -66,6 +66,11 @@ pub(crate) fn install() {
         return;
     }
     let s = state();
+    // The toolbar's star shows the STARRED state of the page that is showing. `toolbar_toggle`
+    // is bound to a signal, and the truth lives in the command's persisted set, so mirror it
+    // here: the effect re-runs whenever the set (or the route) changes, from whichever surface
+    // did it, and the button follows.
+    Effect::new(move || s.starred.set((crate::commands::star().checked)()));
 
     // Reactive: the builder reads `extra`, so ticking that switch adds or removes the item —
     // the add/remove API is just a different list. It also re-lowers on a language change,
@@ -88,10 +93,21 @@ pub(crate) fn install() {
                 .action(move || note(s, crate::res::str::toolbar_last_refresh()))
                 .enabled_when(move || s.refresh_enabled.get()),
             toolbar_separator(),
-            // Two-way: the page's switch and the toolbar button show one state.
-            toolbar_toggle("tb-star", crate::res::str::toolbar_star(), s.starred)
-                .icon(Symbol::Star)
-                .action(move || note(s, crate::res::str::toolbar_last_star())),
+            // The Star command (commands.rs), not a demo toggle: it stars the page that is
+            // showing. The label, the pressed state and the enablement all come from the one
+            // `Command`, so this button, the App menu's item and the row's context menu can
+            // never disagree — and because they are read HERE, inside `toolbar_reactive`, a
+            // star from any of them re-lowers this bar with no wiring between them.
+            {
+                let star = crate::commands::star();
+                toolbar_toggle(star.id, (star.title)(), s.starred)
+                    .image(crate::res::vectors::star.clone())
+                    .enabled_when(star.enabled)
+                    .action(move || {
+                        (star.run)();
+                        note(s, crate::res::str::toolbar_last_star());
+                    })
+            },
             // A pull-down, built from the same entries the menu bar takes.
             toolbar_menu(
                 "tb-menu",

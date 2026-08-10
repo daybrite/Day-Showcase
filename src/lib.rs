@@ -8,6 +8,7 @@
 use day::prelude::*;
 use std::cell::OnceCell;
 
+mod commands;
 mod pages;
 mod palette;
 mod widgets;
@@ -479,11 +480,9 @@ fn window_root(primary: bool) -> AnyPiece {
     // Deep-link: open directly on a section when `DAY_DEMO_ROUTE` is set (`day launch --env
     // DAY_DEMO_ROUTE=canvas`), else start at the root menu. Handy for driving the emulator when
     // synthetic input is unreliable.
-    let section = Signal::new(
-        std::env::var("DAY_DEMO_ROUTE")
-            .ok()
-            .and_then(|r| Section::from_key(r.split(['/', '?']).next().unwrap_or(""))),
-    );
+    // The selection lives in commands.rs (hoisted there so the toolbar and the app menu can read
+    // it reactively — see `commands::section`); it still seeds from DAY_DEMO_ROUTE.
+    let section = crate::commands::section();
     // Each destination carries a bundled vector glyph (resource/vectors/nav_*.svg) shown in the
     // native nav where the backend supports it (e.g. the Windows NavigationView pane).
     // The sidebar filters live on what its own search field holds (docs/localization.md
@@ -522,10 +521,16 @@ fn window_root(primary: bool) -> AnyPiece {
                 // TRACKED: reads the query AND (through `matches_search`) the locale, so the
                 // rows re-filter on a keystroke and re-title on a language switch.
                 let q = query.get();
-                destinations()
+                let mut rows = destinations()
                     .into_iter()
                     .filter(|d| matches_search(&(d.title)().format(), &q))
-                    .collect::<Vec<_>>()
+                    .collect::<Vec<_>>();
+                // Starred pages rise to the top, keeping their relative (alphabetical) order —
+                // a STABLE partition, so unstarring a page drops it back exactly where it was
+                // rather than shuffling the list. Reading `is_starred` here is what subscribes
+                // this derive to the starred set: a star from any surface re-orders the rows.
+                rows.sort_by_key(|d| !crate::commands::is_starred(d.section));
+                rows
             },
             |d: &Dest| {
                 // Each row's context menu (docs/menus.md): "Show Source" opens THIS row's
@@ -533,13 +538,33 @@ fn window_root(primary: bool) -> AnyPiece {
                 // but per destination, so no navigation is needed first. The label re-lowers
                 // localized on every derive (locale switches re-run this mapper).
                 let section = d.section;
-                item(d.section, (d.title)())
+                let starred = crate::commands::is_starred(section);
+                let row = item(d.section, (d.title)())
                     .icon(d.icon.clone())
                     .icon_tint(d.tint)
+                    // Star/Unstar per ROW, so any page can be starred without navigating to it
+                    // first — the same handler surface "Show Source" already uses here.
                     .context_menu(vec![
+                        menu_item(
+                            if starred {
+                                crate::res::str::cmd_unstar()
+                            } else {
+                                crate::res::str::cmd_star()
+                            }
+                            .format(),
+                        )
+                        .action(move || crate::commands::toggle_star(section)),
                         menu_item(crate::res::str::show_source().format())
                             .action(move || open_source_of(section)),
-                    ])
+                    ]);
+                // The marker itself: the app's own star, tinted the colour a star IS rather
+                // than a theme accent (palette.rs AMBER).
+                if starred {
+                    row.badge_icon(res::vectors::star.clone())
+                        .badge_tint(crate::palette::AMBER)
+                } else {
+                    row
+                }
             },
         )
         // "Show Source" as an upper-right nav-bar button on the toolkits with no window toolbar

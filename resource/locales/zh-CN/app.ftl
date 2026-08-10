@@ -755,3 +755,8 @@ menus_photo_section = 媒体卡片
 msg_subject_one = 季度数据，初稿
 msg_subject_two = 周末计划，最终答复
 msg_subject_three = 工作坊的草图
+
+# The Star command (commands.rs): one label per state, shared by the toolbar, the
+# application menu and each navigation row's context menu.
+cmd_star = 收藏
+cmd_unstar = 取消收藏

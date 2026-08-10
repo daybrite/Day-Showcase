@@ -777,3 +777,8 @@ menus_photo_section = بطاقة وسائط
 msg_subject_one = أرقام الربع، مسودة أولى
 msg_subject_two = خطة عطلة نهاية الأسبوع، الجواب النهائي
 msg_subject_three = رسومات من الورشة
+
+# The Star command (commands.rs): one label per state, shared by the toolbar, the
+# application menu and each navigation row's context menu.
+cmd_star = تمييز بنجمة
+cmd_unstar = إزالة النجمة
