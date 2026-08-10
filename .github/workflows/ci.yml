@@ -28,6 +28,9 @@ jobs:
       # The gallery's variant ids: one run per theme × locale, the same matrix day's own CI drives.
       themes: light dark
       locales: en fr ar zh-CN
+      # The tablet columns: the same walkthrough on an iPad simulator and a tablet AVD, uploaded
+      # as screenshots-ios-uikit-ipad / screenshots-android-mdc-tablet (gallery.config.mjs).
+      tablet-walkthroughs: true
       app-id: dev.daybrite.showcase
       deploy-web: true
       # Tag builds sign and notarize the .dmg in a job that checks out nothing and runs only

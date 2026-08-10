@@ -104,7 +104,16 @@ pub(crate) fn install() {
                     .image(crate::res::vectors::star.clone())
                     .enabled_when(star.enabled)
                     .action(move || {
-                        (star.run)();
+                        // Honour the state the toggle was moved TO, rather than flipping blindly.
+                        // `toolbar_toggle` writes the requested value into the bound signal before
+                        // running this, so that signal IS the intent — and a toggle asked to turn
+                        // ON while the page is already starred must be a no-op, not an unstar.
+                        // Toggling regardless made the action depend on what happened to be
+                        // persisted from the last run: the walkthrough starred this page, and the
+                        // NEXT run's `on: true` silently unstarred it.
+                        if s.starred.get_untracked() != (star.checked)() {
+                            (star.run)();
+                        }
                         note(s, crate::res::str::toolbar_last_star());
                     })
             },

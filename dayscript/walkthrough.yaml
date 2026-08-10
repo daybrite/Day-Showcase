@@ -589,9 +589,22 @@ flow:
   # query drops every row under `--locale fr` (and with them this very page). Typing a title matches
   # itself — a query is compared against each word start, and the start at 0 is the whole title.
   - toolbar: { item: day.search, key: nav_toolbars, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
-  - toolbar: { item: tb-star, on: true, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  # The star is the shared Star COMMAND (src/commands.rs), not a demo toggle: it stars whichever
+  # page is showing — here, Toolbars — and the page's own readout mirrors its state.
+  - toolbar: { item: cmd-star, on: true, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - wait_idle:
   - assert_text: { id: toolbar-query, key: nav_toolbars, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - assert_text: { id: toolbar-star-state, key: toolbar_on, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  # One command, four surfaces (docs/menus.md, docs/toolbars.md): the App menu's item carries the
+  # state in its TITLE, so with this page starred it must now read "Unstar" — invoking it unstars,
+  # and the toolbar's own readout follows without the two knowing about each other. `key:` rather
+  # than a literal so the step survives the localized runs.
+  - menu: { key: cmd_unstar, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - wait_idle:
+  - assert_text: { id: toolbar-star-state, key: toolbar_off, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  # …and back, from the menu this time, leaving the page starred for the screenshot below.
+  - menu: { key: cmd_star, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - wait_idle:
   - assert_text: { id: toolbar-star-state, key: toolbar_on, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   # Adding an item is just a different list: tick the switch, then the new item is drivable.
   - toggle: { id: toolbar-extra-switch, value: true, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
