@@ -5,16 +5,17 @@ use day_part_local_notify::{Channel, Importance, Notification, Trigger};
 use crate::widgets::page;
 
 /// Platform services (docs/http.md, docs/clipboard.md, docs/prefs.md, docs/haptics.md,
-/// docs/files.md, docs/notify.md): the headless "do something with the OS" parts, one grouped
-/// form section each — an HTTP fetch (first: it works on every target, including web-dom),
-/// clipboard round-trip, persisted preferences, haptic feedback, local notifications, and the
-/// native file pickers.
+/// docs/files.md, docs/notify.md, docs/bridge.md): the headless "do something with the OS" parts,
+/// one grouped form section each — text to speech (first: it is the daybridge reference, and the
+/// one demo you can hear), an HTTP fetch, clipboard round-trip, persisted preferences, haptic
+/// feedback, local notifications, and the native file pickers.
 pub(crate) fn services_page() -> AnyPiece {
     page(
         crate::res::str::nav_services(),
         "services-title",
         Some(crate::res::str::services_caption()),
         form((
+            speech_section(),
             http_section(),
             clipboard_section(),
             prefs_section(),
@@ -26,6 +27,61 @@ pub(crate) fn services_page() -> AnyPiece {
         ))
         .any(),
     )
+}
+
+/// Text to speech (docs/bridge.md): day-part-speech is daybridge's reference part — one Rust API
+/// whose implementation is Swift on Apple, Java on Android, ArkTS on HarmonyOS, JavaScript on the
+/// web, C++ (SAPI) on Windows, and C on Linux, all declared in one file. This section is deliberately the simplest thing
+/// that proves a bridged call ran: type a line (or take the placeholder's) and the device says it.
+///
+/// `available()` reports what THIS target's arm promises, so the label is the honest answer on a
+/// target with no arm (Unsupported) or a partial one (HarmonyOS, whose voices are zh-CN only).
+///
+/// There is no progress readout. A v1 bridge call is synchronous and one-shot, so nothing tells the
+/// app when the engine stopped talking (docs/bridge.md "After v1") — a "Speaking…" label would sit
+/// there forever and read as a hang. The voice is the feedback.
+fn speech_section() -> impl Piece {
+    // Empty means "say the localized sample", which is exactly what the placeholder shows.
+    let phrase = Signal::new(String::new());
+    let support = day_part_speech::available();
+    let support_text = match support {
+        Support::Native => crate::res::str::speech_native(),
+        Support::Emulated => crate::res::str::speech_emulated(),
+        Support::Unsupported => crate::res::str::speech_unsupported(),
+    };
+
+    section((
+        label(crate::res::str::speech_caption()).font(Font::Footnote),
+        labeled(
+            crate::res::str::speech_support_label(),
+            label(support_text).id("speech-support"),
+        ),
+        text_field(phrase)
+            .placeholder(crate::res::str::speech_phrase())
+            .id("speech-text"),
+        row((
+            button(crate::res::str::speech_speak())
+                .action(move || {
+                    let typed = phrase.with(|t| t.trim().to_string());
+                    let text = if typed.is_empty() {
+                        crate::res::str::speech_phrase().format()
+                    } else {
+                        typed
+                    };
+                    // An `Unsupported` here is the fallback arm answering, which the support label
+                    // above already said; nothing to report that the user was not told.
+                    let _ = day_part_speech::speak(&text);
+                })
+                .style(crate::widgets::primary())
+                .id("speech-speak"),
+            button(crate::res::str::speech_stop())
+                .bordered()
+                .action(day_part_speech::stop)
+                .id("speech-stop"),
+        ))
+        .spacing(8.0),
+    ))
+    .title(crate::res::str::speech_title())
 }
 
 fn clipboard_section() -> impl Piece {

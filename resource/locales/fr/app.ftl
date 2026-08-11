@@ -767,3 +767,14 @@ msg_subject_three = Croquis de l’atelier
 # application menu and each navigation row's context menu.
 cmd_star = Suivre
 cmd_unstar = Ne plus suivre
+
+# Speech (day-part-speech) : la référence daybridge — une API, un langage par plateforme.
+speech_title = Synthèse vocale
+speech_caption = Une seule API Rust ; la voix native en dessous — Swift sur Apple, Java sur Android, ArkTS sur HarmonyOS, JavaScript sur le web, C++ sur Windows.
+speech_phrase = Une journée claire, avec un risque de pluie plus tard.
+speech_speak = Parler
+speech_stop = Arrêter
+speech_support_label = Prise en charge ici
+speech_native = Native
+speech_emulated = Émulée (partielle)
+speech_unsupported = Non prise en charge sur cette cible

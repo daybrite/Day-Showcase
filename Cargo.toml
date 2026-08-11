@@ -53,6 +53,8 @@ day = { git = "https://github.com/daybrite/day.git" }
 day-break = { git = "https://github.com/daybrite/day.git" }
 # A HEADLESS capability crate (no UI Piece): app Rust code calls day_part_battery::status() directly.
 day-part-battery = { git = "https://github.com/daybrite/day.git" }
+# daybridge's reference part (docs/bridge.md): one API, a different language per platform.
+day-part-speech = { git = "https://github.com/daybrite/day.git" }
 day-part-sensors = { git = "https://github.com/daybrite/day.git" }
 day-part-permissions = { git = "https://github.com/daybrite/day.git" }
 day-part-location = { git = "https://github.com/daybrite/day.git" }

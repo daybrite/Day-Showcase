@@ -1,0 +1,22 @@
+name: speech
+description: >
+  The daybridge reference part (docs/bridge.md): day-part-speech declares one API and implements it
+  in Swift on Apple, Java on Android, ArkTS on HarmonyOS, JavaScript on the web and C on Linux.
+  This drives the Speech section on the Platform services page: it types a line, speaks it, and
+  stops it. What a script can check here is the section's own state — a v1 bridge call is
+  synchronous and one-shot, so the app is never told when the engine finished talking and there is
+  nothing on screen that reports it. Hearing the voice is the acceptance test; this run proves the
+  section renders on every target, reports the support the part claims for it, and takes both
+  bridged calls without wedging the UI.
+flow:
+  - wait_for: { id: nav }
+  - navigate: { route: services }
+  - assert_route: { route: services }
+  # The support label is the part's own answer for this target — Native, Emulated, or Unsupported.
+  - wait_for: { id: speech-support }
+  - screenshot: { name: speech }
+  # Empty means "speak the localized sample the placeholder shows"; typing overrides it.
+  - input: { id: speech-text, text: "Day speaks through the bridge." }
+  - tap: { id: speech-speak }
+  - tap: { id: speech-stop }
+  - assert_text: { id: speech-text, text: "Day speaks through the bridge." }

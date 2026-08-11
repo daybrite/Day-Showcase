@@ -769,3 +769,15 @@ msg_subject_three = Sketches from the workshop
 # application menu and each navigation row's context menu.
 cmd_star = Star
 cmd_unstar = Unstar
+
+# Speech (day-part-speech): the daybridge reference part — one API, a different language per
+# platform (docs/bridge.md).
+speech_title = Text to speech
+speech_caption = One Rust API; the platform's own voice underneath — Swift on Apple, Java on Android, ArkTS on HarmonyOS, JavaScript on the web, C++ on Windows.
+speech_phrase = A clear day, with a chance of rain later.
+speech_speak = Speak
+speech_stop = Stop
+speech_support_label = Support here
+speech_native = Native
+speech_emulated = Emulated (partial)
+speech_unsupported = Unsupported on this target

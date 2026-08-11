@@ -782,3 +782,14 @@ msg_subject_three = رسومات من الورشة
 # application menu and each navigation row's context menu.
 cmd_star = تمييز بنجمة
 cmd_unstar = إزالة النجمة
+
+# النطق (day-part-speech): مرجع daybridge — واجهة واحدة، ولغة مختلفة لكل منصة.
+speech_title = تحويل النص إلى كلام
+speech_caption = واجهة Rust واحدة؛ وصوت المنصة نفسه تحتها — Swift على أبل، وJava على أندرويد، وArkTS على HarmonyOS، وJavaScript على الويب، وC++ على ويندوز.
+speech_phrase = يوم صافٍ، مع احتمال هطول المطر لاحقًا.
+speech_speak = انطق
+speech_stop = أوقف
+speech_support_label = الدعم هنا
+speech_native = أصلي
+speech_emulated = محاكى (جزئي)
+speech_unsupported = غير مدعوم على هذا الهدف

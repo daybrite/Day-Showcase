@@ -760,3 +760,14 @@ msg_subject_three = 工作坊的草图
 # application menu and each navigation row's context menu.
 cmd_star = 收藏
 cmd_unstar = 取消收藏
+
+# 语音（day-part-speech）：daybridge 的参考部件——一套 API，每个平台一种语言。
+speech_title = 文本转语音
+speech_caption = 一套 Rust API；底层是平台自己的语音引擎——Apple 用 Swift，Android 用 Java，HarmonyOS 用 ArkTS，Web 用 JavaScript，Windows 用 C++。
+speech_phrase = 天气晴朗，稍后可能有雨。
+speech_speak = 朗读
+speech_stop = 停止
+speech_support_label = 此平台支持
+speech_native = 原生
+speech_emulated = 模拟（部分）
+speech_unsupported = 此目标不支持
