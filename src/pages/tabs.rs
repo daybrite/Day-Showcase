@@ -34,15 +34,18 @@ pub(crate) fn tabs_page() -> AnyPiece {
     let clicks = Signal::new(0i64);
     let badges = Signal::new(true);
     let sounds = Signal::new(false);
-    // `item_icon` attaches a bundled template image per tab (docs/tabs.md). Backends whose tab
-    // widget shows icons (iOS UITabBar, the Android tab strip) render them; text-only tab widgets
-    // (the desktop NSTabView/GtkNotebook/QTabWidget) ignore the icon and just show the label.
+    // `item_icon` attaches a bundled template VECTOR per tab (docs/tabs.md, docs/vectors.md).
+    // Vectors, not PNGs: a tab bar draws its icon at a size the toolkit picks, and on iOS the SVG
+    // rides an asset catalog with `preserves-vector-representation`, so it is resolved at display
+    // size instead of scaled from a bitmap. Backends whose tab widget shows icons (iOS UITabBar,
+    // the Android tab strip, QTabWidget) render them; text-only tab widgets (NSTabView,
+    // GtkNotebook) ignore the icon and just show the label.
     let main = selector(tab)
         .style(SelectorStyle::Tabs)
         .item_icon(
             Tab::One,
             crate::res::str::tab_one(),
-            crate::res::images::tab_one,
+            crate::res::vectors::tab_one.clone(),
             move || {
                 pane(
                     crate::res::str::tab_one(),
@@ -55,7 +58,7 @@ pub(crate) fn tabs_page() -> AnyPiece {
         .item_icon(
             Tab::Two,
             crate::res::str::tab_two(),
-            crate::res::images::tab_two,
+            crate::res::vectors::tab_two.clone(),
             || {
                 pane(
                     crate::res::str::tab_two(),
@@ -73,7 +76,7 @@ pub(crate) fn tabs_page() -> AnyPiece {
         .item_icon(
             Tab::Three,
             crate::res::str::tab_three(),
-            crate::res::images::tab_three,
+            crate::res::vectors::tab_three.clone(),
             move || {
                 pane(
                     crate::res::str::tab_three(),

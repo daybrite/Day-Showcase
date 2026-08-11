@@ -16,34 +16,42 @@ day::routes! {
 
 /// The `grid` piece (docs/grid.md) from simple to stress test. Desktop (`Cap::NavSplit`) gets a
 /// flat tab strip; mobile gets a menu that pushes each demo onto a navigation stack.
+///
+/// Each tab carries a bundled vector (docs/vectors.md), which the toolkits with icon-bearing tab
+/// widgets draw beside the label and the text-only ones ignore.
 pub(crate) fn grid_page() -> AnyPiece {
     if capability(Cap::NavSplit) == Support::Native {
         let tab = Signal::new(GridDemo::Basics);
         selector(tab)
             .style(SelectorStyle::Tabs)
-            .item(
+            .item_icon(
                 GridDemo::Basics,
                 crate::res::str::grid_tab_basics(),
+                crate::res::vectors::grid_basics.clone(),
                 basics_demo,
             )
-            .item(
+            .item_icon(
                 GridDemo::Sizing,
                 crate::res::str::grid_tab_sizing(),
+                crate::res::vectors::grid_sizing.clone(),
                 sizing_demo,
             )
-            .item(
+            .item_icon(
                 GridDemo::Spanning,
                 crate::res::str::grid_tab_spanning(),
+                crate::res::vectors::grid_spanning.clone(),
                 spanning_demo,
             )
-            .item(
+            .item_icon(
                 GridDemo::Composite,
                 crate::res::str::grid_tab_composite(),
+                crate::res::vectors::grid_composite.clone(),
                 composite_demo,
             )
-            .item(
+            .item_icon(
                 GridDemo::Stress,
                 crate::res::str::grid_tab_stress(),
+                crate::res::vectors::grid_stress.clone(),
                 stress_demo,
             )
             .id("grid-tabs")
