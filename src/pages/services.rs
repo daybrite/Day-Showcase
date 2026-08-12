@@ -43,7 +43,7 @@ pub(crate) fn services_page() -> AnyPiece {
 fn speech_section() -> impl Piece {
     // Empty means "say the localized sample", which is exactly what the placeholder shows.
     let phrase = Signal::new(String::new());
-    let support = day_part_speech::available();
+    let support = crate::support::speech();
     let support_text = match support {
         Support::Native => crate::res::str::speech_native(),
         Support::Emulated => crate::res::str::speech_emulated(),
@@ -51,6 +51,7 @@ fn speech_section() -> impl Piece {
     };
 
     section((
+        crate::widgets::support_note(support),
         label(crate::res::str::speech_caption()).font(Font::Footnote),
         labeled(
             crate::res::str::speech_support_label(),
@@ -437,6 +438,7 @@ fn haptics_section() -> impl Piece {
         crate::res::str::haptics_supported_no()
     };
     section((
+        crate::widgets::support_note(crate::support::haptics()),
         label(supported)
             .font(Font::Footnote)
             .id("haptics-supported"),
@@ -644,6 +646,7 @@ fn notify_section() -> impl Piece {
     };
 
     section((
+        crate::widgets::support_note(crate::support::notifications()),
         label(supported).font(Font::Footnote).id("notify-supported"),
         label(scheduling)
             .font(Font::Footnote)
@@ -848,6 +851,7 @@ fn badge_section() -> impl Piece {
     };
 
     section((
+        crate::widgets::support_note(crate::support::cap(Cap::AppBadgeCount)),
         label(caps_line).font(Font::Footnote).id("badge-supported"),
         // Named so a user on Android reads WHY rather than assuming it is broken.
         when(
@@ -925,6 +929,7 @@ fn files_section() -> impl Piece {
     let status = Signal::new(String::new());
     let opened = Signal::new(String::new());
     section((
+        crate::widgets::support_note(crate::support::cap(Cap::FileDialogs)),
         label(crate::res::str::files_caption()).font(Font::Footnote),
         text_field(content)
             .placeholder(crate::res::str::files_placeholder())

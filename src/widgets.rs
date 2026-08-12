@@ -290,3 +290,55 @@ pub(crate) fn secondary() -> Tinted {
 pub(crate) fn danger() -> Tinted {
     tinted(crate::palette::RUST)
 }
+
+// ---------------------------------------------------------------------------
+// "Not supported here" banners (docs/coverage-matrix.md)
+// ---------------------------------------------------------------------------
+
+/// A banner marking a demo the current target cannot actually run.
+///
+/// The demo stays on screen: a visitor comparing two platforms should see the SAME pages, and a
+/// missing section reads as a bug in the showcase rather than as a fact about the platform. The
+/// banner says which it is, right where the disappointment would otherwise happen.
+///
+/// `Native` gets no banner at all — the overwhelmingly common case, and a banner on a working
+/// feature is noise. `Emulated` gets the amber one, because the demo does something but not the
+/// native thing. `Unsupported` gets the coral one.
+pub(crate) fn support_banner(support: Support) -> Option<AnyPiece> {
+    let (color, text) = match support {
+        Support::Native => return None,
+        Support::Emulated => (
+            crate::palette::AMBER,
+            crate::res::str::support_emulated_here(),
+        ),
+        Support::Unsupported => (
+            crate::palette::CORAL,
+            crate::res::str::support_missing_here(),
+        ),
+    };
+    Some(
+        row((
+            // Untinted: the caution gold (#F2C94C) is authored into the glyph itself. Tinting
+            // it here would leave it grey on the backends whose `vector` piece has no tint arm
+            // (Qt, web — docs/vectors.md), and the icon has to read as a caution mark rather
+            // than as the first letter of the sentence beside it.
+            vector(crate::res::vectors::support_warning.clone()).frame(18.0, 18.0),
+            label(text).font(Font::Footnote).color(color).grow(),
+        ))
+        .spacing(8.0)
+        .align(VAlign::Center)
+        .padding(10.0)
+        .background(Color::rgba(color.r, color.g, color.b, 0.14))
+        .corner_radius(8.0)
+        .any(),
+    )
+}
+
+/// The banner as a form child: renders nothing at all where the feature works, so a section can
+/// carry it unconditionally as its first row.
+pub(crate) fn support_note(support: Support) -> AnyPiece {
+    match support_banner(support) {
+        Some(banner) => banner,
+        None => column(()).any(),
+    }
+}

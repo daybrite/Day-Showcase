@@ -781,3 +781,9 @@ speech_support_label = Support here
 speech_native = Native
 speech_emulated = Emulated (partial)
 speech_unsupported = Unsupported on this target
+
+# Support banners (widgets.rs): shown over a demo the target cannot run.
+support_missing_here = Not supported on this platform — the demo stays visible so you can see it, but it will not work here.
+support_emulated_here = Partly supported here — this demo runs, but not on the platform's own native implementation.
+vectors_live_tint = Live tint
+vectors_cycle_tint = Cycle

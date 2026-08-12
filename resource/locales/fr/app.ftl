@@ -778,3 +778,9 @@ speech_support_label = Prise en charge ici
 speech_native = Native
 speech_emulated = Émulée (partielle)
 speech_unsupported = Non prise en charge sur cette cible
+
+# Support banners (widgets.rs): shown over a demo the target cannot run.
+support_missing_here = Non pris en charge sur cette plateforme — la démo reste visible, mais elle ne fonctionnera pas ici.
+support_emulated_here = Partiellement pris en charge ici — la démo fonctionne, mais sans l'implémentation native de la plateforme.
+vectors_live_tint = Teinte dynamique
+vectors_cycle_tint = Changer

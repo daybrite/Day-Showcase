@@ -88,6 +88,8 @@ fn resource_lines() -> (String, String) {
 /// backend supports recoloring (Apple template rendering, Android drawable tint, GTK pixel
 /// recolor; other backends draw the authored color).
 fn vectors_section() -> impl Piece {
+    // Which stop of the palette ramp the live-tint glyph is showing.
+    let live = Signal::new(0usize);
     fn v(g: day::VectorName) -> AnyPiece {
         vector(g)
             .tint(crate::palette::SLATE)
@@ -154,6 +156,22 @@ fn vectors_section() -> impl Piece {
             ))
             .spacing(12.0)
             .id("resources-vectors-tints"),
+        ),
+        // A LIVE tint: the same glyph bound to a signal, so pressing the button repaints the
+        // realized view through `ImagePatch::Tint` instead of rebuilding it (docs/vectors.md).
+        labeled(
+            crate::res::str::vectors_live_tint(),
+            row((
+                vector(gv::nav_animation)
+                    .tint(move || crate::palette::RAMP[live.get() % crate::palette::RAMP.len()])
+                    .frame(28.0, 28.0)
+                    .id("vector-live-tint"),
+                button(crate::res::str::vectors_cycle_tint())
+                    .action(move || live.update(|i| *i += 1))
+                    .id("vector-cycle-tint"),
+            ))
+            .spacing(12.0)
+            .align(VAlign::Center),
         ),
         // Weights: ONE SF-template master (home_symbol.svg), three true weight variants
         // selected through the piece API (docs/vectors.md).

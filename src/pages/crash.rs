@@ -39,6 +39,7 @@ pub(crate) fn crash_page() -> AnyPiece {
     });
 
     let crash_controls = section((
+        crate::widgets::support_note(crate::support::crash_reporting()),
         // Each crash is scheduled ~150 ms out so the dayscript tap gets its reply before we die.
         crash_action(
             crate::res::str::crash_abort_label().format(),

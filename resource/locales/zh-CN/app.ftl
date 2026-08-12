@@ -771,3 +771,9 @@ speech_support_label = 此平台支持
 speech_native = 原生
 speech_emulated = 模拟（部分）
 speech_unsupported = 此目标不支持
+
+# Support banners (widgets.rs): shown over a demo the target cannot run.
+support_missing_here = 此平台不支持——演示仍会显示，方便查看，但在这里无法运行。
+support_emulated_here = 此平台部分支持——演示可以运行，但并非平台的原生实现。
+vectors_live_tint = 实时着色
+vectors_cycle_tint = 切换

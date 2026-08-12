@@ -793,3 +793,9 @@ speech_support_label = الدعم هنا
 speech_native = أصلي
 speech_emulated = محاكى (جزئي)
 speech_unsupported = غير مدعوم على هذا الهدف
+
+# Support banners (widgets.rs): shown over a demo the target cannot run.
+support_missing_here = غير مدعوم على هذه المنصة — يبقى العرض ظاهرًا لتراه، لكنه لن يعمل هنا.
+support_emulated_here = مدعوم جزئيًا هنا — يعمل هذا العرض، لكن ليس عبر التنفيذ الأصلي للمنصة.
+vectors_live_tint = تلوين حي
+vectors_cycle_tint = تبديل

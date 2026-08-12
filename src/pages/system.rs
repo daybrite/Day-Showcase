@@ -34,6 +34,7 @@ fn battery_section() -> impl Piece {
     let charging = Signal::new(status.map(|b| b.is_charging()).unwrap_or(false));
     let reading = Signal::new(battery_line().format());
     section((
+        crate::widgets::support_note(crate::support::battery()),
         battery_view(level, charging),
         labeled(
             crate::res::str::battery_level(),
@@ -157,6 +158,7 @@ fn sensors_section() -> impl Piece {
     Scope::current().on_cleanup(move || drop(watches));
 
     section((
+        crate::widgets::support_note(crate::support::sensors()),
         permission_row(
             crate::res::str::sensor_permission(),
             day_part_permissions::Permission::Motion,

@@ -11,6 +11,7 @@ use std::cell::OnceCell;
 mod commands;
 mod pages;
 mod palette;
+pub(crate) mod support;
 mod widgets;
 
 use crate::pages::*;
