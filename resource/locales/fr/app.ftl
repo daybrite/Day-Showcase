@@ -567,6 +567,7 @@ textareas_seed_markdown = Markdown
 textareas_editable = Modifiable
 textareas_selectable = Sélectionnable
 textareas_spellcheck = Correction orthographique
+textareas_sample_short = Une courte note. Modifiez-la, ou insérez un texte plus long ou structuré avec les boutons ci-dessous.
 sensor_permission = Accès aux mouvements
 perm_request = Demander
 perm_open_settings = Ouvrir les réglages

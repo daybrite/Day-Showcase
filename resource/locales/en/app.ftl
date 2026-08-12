@@ -568,6 +568,7 @@ textareas_seed_markdown = Markdown
 textareas_editable = Editable
 textareas_selectable = Selectable
 textareas_spellcheck = Spell-check
+textareas_sample_short = A short note. Edit it, or seed longer or structured text with the buttons below.
 sensor_permission = Motion access
 perm_request = Request
 perm_open_settings = Open Settings

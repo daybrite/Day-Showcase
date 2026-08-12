@@ -561,6 +561,7 @@ textareas_seed_markdown = Markdown
 textareas_editable = 可编辑
 textareas_selectable = 可选择
 textareas_spellcheck = 拼写检查
+textareas_sample_short = 一段简短的备注。可以直接编辑，或用下面的按钮填入更长的或带格式的文本。
 sensor_permission = 运动权限
 perm_request = 请求
 perm_open_settings = 打开设置

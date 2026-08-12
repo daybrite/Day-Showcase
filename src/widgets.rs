@@ -342,3 +342,24 @@ pub(crate) fn support_note(support: Support) -> AnyPiece {
         None => column(()).any(),
     }
 }
+
+/// A button and the result it produces: side by side where they fit, stacked where they do not.
+///
+/// Side by side, the button takes its natural width and the result takes what is left — which on a
+/// phone is a few characters once the button carries a translated label ("Récupérer depuis
+/// localhost" is most of a 411dp row). The result then wraps mid-word, because at that width no
+/// break point helps: the remaining column is narrower than a single token like `day-http-ok`.
+/// Stacking at Compact width gives the result the whole row instead.
+///
+/// `size_class()` is a tracked read (docs/size-classes.md), so this re-lays out when the window
+/// crosses a breakpoint — a rotation, a foldable opening, a desktop window dragged narrow.
+pub(crate) fn action_result(action: AnyPiece, result: AnyPiece) -> AnyPiece {
+    let compact = day::size_class()
+        .map(|c| c.width == WidthClass::Compact)
+        .unwrap_or(false);
+    if compact {
+        column((action, result)).spacing(6.0).any()
+    } else {
+        row((action, result)).spacing(8.0).any()
+    }
+}

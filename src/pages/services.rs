@@ -1046,7 +1046,7 @@ fn http_section() -> impl Piece {
     let patch_status = Signal::new(crate::res::str::http_idle().format());
     section((
         label(crate::res::str::http_caption()).font(Font::Footnote),
-        row((
+        crate::widgets::action_result(
             button(crate::res::str::http_fetch())
                 .action(move || match demo_url() {
                     Ok(url) => day_part_http::fetch_async(
@@ -1065,13 +1065,13 @@ fn http_section() -> impl Piece {
                     Err(e) => status.set(format!("error: {e}")),
                 })
                 .style(crate::widgets::primary())
-                .id("http-fetch"),
-            label(move || status.get()).id("http-status"),
-        ))
-        .spacing(8.0),
+                .id("http-fetch")
+                .any(),
+            label(move || status.get()).id("http-status").any(),
+        ),
         // PATCH through the same engine, await-style (docs/async.md): the echo body proves the
         // method crossed the platform stack — the historic Android HttpURLConnection gap.
-        row((
+        crate::widgets::action_result(
             button(crate::res::str::http_patch())
                 .bordered()
                 .action(move || match demo_url() {
@@ -1088,10 +1088,12 @@ fn http_section() -> impl Piece {
                     }
                     Err(e) => patch_status.set(format!("error: {e}")),
                 })
-                .id("http-patch"),
-            label(move || patch_status.get()).id("http-patch-status"),
-        ))
-        .spacing(8.0),
+                .id("http-patch")
+                .any(),
+            label(move || patch_status.get())
+                .id("http-patch-status")
+                .any(),
+        ),
         http_resource_row(),
         labeled(
             crate::res::str::http_tier(),
@@ -1129,11 +1131,12 @@ fn http_resource_row() -> impl Piece {
     );
     labeled(
         crate::res::str::http_res_label(),
-        row((
+        crate::widgets::action_result(
             button(crate::res::str::http_res_refetch())
                 .bordered()
                 .action(move || res.refetch())
-                .id("http-res-refetch"),
+                .id("http-res-refetch")
+                .any(),
             label(move || {
                 res.with(|l| match l {
                     Load::Loading => crate::res::str::http_checking().format(),
@@ -1142,9 +1145,9 @@ fn http_resource_row() -> impl Piece {
                 })
             })
             .font(Font::Footnote)
-            .id("http-res-status"),
-        ))
-        .spacing(8.0),
+            .id("http-res-status")
+            .any(),
+        ),
     )
 }
 

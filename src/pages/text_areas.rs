@@ -2,9 +2,10 @@ use day::prelude::*;
 
 use crate::widgets::page;
 
-// Demo filler for the seed buttons — illustrative content, not localized.
-const SHORT: &str =
-    "A short note. Edit it, or seed longer or structured text with the buttons below.";
+// Demo filler for the seed buttons — sample documents rather than interface text, so the two long
+// ones stay in English on every locale, the way a document a user opened would. The SHORT one is
+// different: it is what the editor holds before anyone presses anything, so under a French UI it
+// is the page's own copy and it goes through the catalog (docs/localization.md).
 const LONG: &str = "\
 Day lays out native widgets from a declarative description — you write the shape of the UI once and \
 each platform's real toolkit draws it. There is no webview and no custom renderer; a button is the \
@@ -38,7 +39,7 @@ pub(crate) fn text_areas_page() -> AnyPiece {
     let cap_selectable = capability(Cap::TextSelectable) != Support::Unsupported;
     let cap_spellcheck = capability(Cap::TextSpellCheck) != Support::Unsupported;
 
-    let content = Signal::new(SHORT.to_string());
+    let content = Signal::new(crate::res::str::textareas_sample_short().format());
     // The three attributes, each bound to a toggle. Live: flipping a toggle patches the editor.
     // Spell-check starts off where the toolkit has none (Qt/GTK), so the disabled toggle reads
     // "off" rather than falsely showing an active checker.
@@ -68,7 +69,7 @@ pub(crate) fn text_areas_page() -> AnyPiece {
 
     let seed = section((row((
         button(crate::res::str::textareas_seed_short())
-            .action(move || content.set(SHORT.into()))
+            .action(move || content.set(crate::res::str::textareas_sample_short().format()))
             .id("ta-seed-short"),
         button(crate::res::str::textareas_seed_long())
             .action(move || content.set(LONG.into()))

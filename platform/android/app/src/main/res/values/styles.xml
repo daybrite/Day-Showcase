@@ -10,5 +10,11 @@
         <item name="colorOnPrimary">@color/showcase_on_primary</item>
         <item name="colorPrimaryContainer">@color/showcase_primary_container</item>
         <item name="colorOnPrimaryContainer">@color/showcase_on_primary_container</item>
+        <!-- Status bar: the app's own surface, with icons in the matching polarity. The Material
+             default paints colorPrimary there, which in the dark scheme is this palette's pale
+             #A8C7FA — a light band with white icons sitting above a near-black app bar. Both
+             attributes resolve per scheme, so one declaration covers light and dark. -->
+        <item name="android:statusBarColor">?attr/colorSurface</item>
+        <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
     </style>
 </resources>

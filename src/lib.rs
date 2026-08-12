@@ -59,7 +59,10 @@ pub fn install_lifecycle_handlers() {
 
     let note = |phase: day::Lifecycle| {
         move || {
-            eprintln!("day lifecycle: {}", phase.name());
+            // stdout, not stderr: this is a trace of normal operation, and day-android routes
+            // fd 1 to logcat at INFO and fd 2 at ERROR — on stderr every phase would surface as
+            // `E Day` and drown the log level out as a filter.
+            println!("day lifecycle: {}", phase.name());
             lifecycle_log().set(phase.name().into());
         }
     };

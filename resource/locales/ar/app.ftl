@@ -578,6 +578,7 @@ textareas_seed_markdown = ماركداون
 textareas_editable = قابل للتحرير
 textareas_selectable = قابل للتحديد
 textareas_spellcheck = التدقيق الإملائي
+textareas_sample_short = ملاحظة قصيرة. عدّلها، أو أدرج نصًا أطول أو منسّقًا بالأزرار أدناه.
 sensor_permission = الوصول إلى الحركة
 perm_request = طلب
 perm_open_settings = فتح الإعدادات
