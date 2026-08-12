@@ -1,4 +1,5 @@
 use day::prelude::*;
+use day_piece_datetime::{DayDate, date_picker};
 
 use crate::palette::{SKY, TEAL, VIOLET};
 use crate::widgets::page_trailing;
@@ -321,7 +322,95 @@ fn sections(on: bool) -> AnyPiece {
     // Bundled fonts lead the page: the most visually distinctive section, and the one the
     // walkthrough screenshot must show above the fold.
     form((
-        fonts, styles, weights, styling, colors, custom, links, selectable,
+        fonts,
+        styles,
+        weights,
+        styling,
+        colors,
+        custom,
+        links,
+        selectable,
+        baseline(),
     ))
+    .any()
+}
+
+/// Baseline alignment (docs/baseline.md), with a toggle that turns it off so the difference is
+/// visible rather than asserted.
+///
+/// The rows are built to make the two states disagree as loudly as possible: each mixes a
+/// Body-size label, a control whose text is inset by its own border, and a trailing unit in
+/// Caption size. Aligned, all three sit on one line. Centered — what every row did before Day
+/// had a baseline concept — each text sits in the middle of its own box, so the three drift
+/// apart by the difference in their heights.
+///
+/// These use `row(..).align(..)` rather than `labeled`, which is baseline-aligned with no way to
+/// opt out: the point here is to show both states side by side in time.
+fn baseline() -> AnyPiece {
+    let aligned = Signal::new(true);
+    let qty = Signal::new("12".to_string());
+    let due = Signal::new(DayDate::new(2026, 3, 9).expect("valid demo date"));
+    let support = capability(Cap::BaselineAlignment);
+    section((
+        crate::widgets::support_note(support),
+        label(crate::res::str::text_baseline_caption()).font(Font::Footnote),
+        row((
+            label(crate::res::str::text_baseline_toggle()).font(Font::Subheadline),
+            toggle(aligned).id("text-baseline-toggle"),
+        ))
+        .spacing(8.0),
+        when(
+            move || aligned.get(),
+            move || baseline_rows(VAlign::FirstBaseline, qty, due),
+        ),
+        when(
+            move || !aligned.get(),
+            move || baseline_rows(VAlign::Center, qty, due),
+        ),
+    ))
+    .title(crate::res::str::text_baseline_section())
+    .any()
+}
+
+/// The three demo rows at one alignment (the `when` arms above rebuild them on flip). The ids
+/// carry the alignment so a dayscript can tell the two states apart.
+fn baseline_rows(align: VAlign, qty: Signal<String>, due: Signal<DayDate>) -> AnyPiece {
+    let tag = match align {
+        VAlign::FirstBaseline => "baseline",
+        _ => "centered",
+    };
+    let lead = |t: LocalizedText| label(t).font(Font::Body).width(90.0);
+    column((
+        // A bordered field between two labels: the field insets its text, the labels do not.
+        row((
+            lead(crate::res::str::text_baseline_quantity()),
+            text_field(qty)
+                .width(70.0)
+                .id_keyed("text-baseline-qty", tag),
+            label(crate::res::str::text_baseline_unit()).font(Font::Caption),
+        ))
+        .spacing(8.0)
+        .align(align),
+        // Type sizes alone, no control: a Title-size number beside Body and Caption text.
+        row((
+            lead(crate::res::str::text_baseline_total()),
+            label("$1,240.00")
+                .font(Font::Title2)
+                .id_keyed("text-baseline-total", tag),
+            label(crate::res::str::text_baseline_currency()).font(Font::Caption),
+        ))
+        .spacing(8.0)
+        .align(align),
+        // The tallest control on the page: a date picker's stepper makes its box far taller than
+        // its text, which is where centering goes most obviously wrong.
+        row((
+            lead(crate::res::str::text_baseline_due()),
+            date_picker(due).id_keyed("text-baseline-due", tag),
+        ))
+        .spacing(8.0)
+        .align(align),
+    ))
+    .spacing(10.0)
+    .align(HAlign::Leading)
     .any()
 }

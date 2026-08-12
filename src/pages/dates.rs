@@ -58,7 +58,11 @@ fn date_section(date: Signal<DayDate>) -> impl Piece {
                     .tabular()
                     .id("date-bounded-value"),
             ))
-            .spacing(8.0),
+            .spacing(8.0)
+            // The readout is half the picker's height, so centring it would leave its digits
+            // riding above the picker's — a control and the value it produces belong on one
+            // line (docs/baseline.md).
+            .align(VAlign::FirstBaseline),
         ),
         // Locale-independent ISO readout — what the walkthrough asserts on every backend.
         labeled(
