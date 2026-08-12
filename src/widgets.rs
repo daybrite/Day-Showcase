@@ -358,7 +358,12 @@ pub(crate) fn action_result(action: AnyPiece, result: AnyPiece) -> AnyPiece {
         .map(|c| c.width == WidthClass::Compact)
         .unwrap_or(false);
     if compact {
-        column((action, result)).spacing(6.0).any()
+        // Leading, not the container default of centered: stacked, these read as a control and
+        // the line it produced, and a centered result floats away from the button it belongs to.
+        column((action, result))
+            .spacing(6.0)
+            .align(HAlign::Leading)
+            .any()
     } else {
         row((action, result)).spacing(8.0).any()
     }
