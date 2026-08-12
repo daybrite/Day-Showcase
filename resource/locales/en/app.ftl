@@ -225,7 +225,7 @@ menus_caption = The transient native surfaces: the menu bar, per-piece context m
 menus_last = Last action
 menus_lifecycle = Lifecycle
 menus_target = Right-click here (long-press on mobile) for a context menu
-menus_shortcut_hint = Keyboard shortcuts (⌘/Ctrl + key) are shown in the menu bar and work while the app is focused — e.g. New (N), Save (S), Reload (R), Save As (⇧S).
+menus_shortcut_hint = Keyboard shortcuts (⌘/Ctrl + key) are shown in the menu bar and work while the app is focused — e.g. New (N), Save (S), Reload (R), Save As (⇧/Shift + S).
 
 # --- day-part-haptics ---
 nav_haptics = Haptics

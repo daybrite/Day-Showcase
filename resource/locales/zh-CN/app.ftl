@@ -220,7 +220,7 @@ menus_caption = 原生菜单——应用菜单栏与部件的上下文菜单—�
 menus_last = 最近操作
 menus_lifecycle = 生命周期
 menus_target = 在此右键（移动端长按）打开上下文菜单
-menus_shortcut_hint = 键盘快捷键（⌘/Ctrl + 键）显示在菜单栏中，应用聚焦时生效——例如 新建 (N)、保存 (S)、重新加载 (R)、另存为 (⇧S)。
+menus_shortcut_hint = 键盘快捷键（⌘/Ctrl + 键）显示在菜单栏中，应用聚焦时生效——例如 新建 (N)、保存 (S)、重新加载 (R)、另存为 (⇧/Shift + S)。
 
 # --- day-part-haptics ---
 nav_haptics = 触感反馈
