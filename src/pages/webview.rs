@@ -59,8 +59,13 @@ fn embed_status() -> Signal<(u8, String)> {
 /// Both tabs come back as they were left: the selection rides a hoisted signal, and each view
 /// rides its own retained `WebSession`, so the engines that retain (WebKit here, docs/webview.md)
 /// re-attach the SAME native view — page, scroll position and JS state intact.
+///
+/// The JS console sits BELOW the tabs, outside both panes: each view carries its own bound
+/// [`JsHandle`], and Run evaluates against whichever tab is selected.
 pub(crate) fn webview_page() -> AnyPiece {
     let tab = TAB.with(|c| *c.get_or_init(|| Signal::global(0usize)));
+    let js_remote = JsHandle::new();
+    let js_embedded = JsHandle::new();
     column((
         heading(crate::res::str::nav_webview(), "webview-title", None),
         column((picker(
@@ -74,8 +79,9 @@ pub(crate) fn webview_page() -> AnyPiece {
         .id("webview-tab"),))
         .align(HAlign::Center)
         .grow_w(),
-        when(move || tab.get() == 0, remote_pane),
-        when(move || tab.get() == 1, embedded_pane),
+        when(move || tab.get() == 0, move || remote_pane(js_remote)),
+        when(move || tab.get() == 1, move || embedded_pane(js_embedded)),
+        js_console(tab, js_remote, js_embedded),
     ))
     .spacing(10.0)
     .align(HAlign::Leading)
@@ -83,9 +89,57 @@ pub(crate) fn webview_page() -> AnyPiece {
     .any()
 }
 
-/// The original page body: URL bar + history controls + JS console over a session-retained view.
-fn remote_pane() -> AnyPiece {
-    let (url, script, result) = state();
+/// The JS console, below both tabs: script in, JSON out, evaluated against WHICHEVER web view
+/// the selected tab shows — each view binds its own [`JsHandle`], and Run picks by the tab
+/// signal. `eval` returns a future, so the click spawns a task and the result lands in the
+/// bound signal whenever the engine answers. Sized in LINES, not points, so the editors track
+/// the platform accessibility text scale (day-dom used to ignore the hints; it measures them
+/// now, docs/textarea.md).
+fn js_console(tab: Signal<usize>, js_remote: JsHandle, js_embedded: JsHandle) -> AnyPiece {
+    let (_, script, result) = state();
+    let can_eval = eval_support() == Support::Native;
+    row((
+        text_area(script)
+            .placeholder(crate::res::str::webview_js_hint())
+            .min_lines(3)
+            .max_lines(3)
+            .spellcheck(false)
+            .editable(move || can_eval)
+            .id("webview-js"),
+        button(crate::res::str::webview_js_run())
+            .prominent()
+            .enabled(move || can_eval)
+            .action(move || {
+                let js = if tab.get_untracked() == 1 {
+                    js_embedded
+                } else {
+                    js_remote
+                };
+                day::task(async move {
+                    let text = match js.eval(script.get_untracked()).await {
+                        Ok(json) => json,
+                        Err(e) => e.to_string(),
+                    };
+                    result.set(text);
+                });
+            })
+            .style(crate::widgets::primary())
+            .id("webview-js-run"),
+        text_area(result)
+            .placeholder(crate::res::str::webview_js_result_hint())
+            .min_lines(3)
+            .max_lines(3)
+            .editable(false)
+            .id("webview-js-result"),
+    ))
+    .spacing(8.0)
+    .any()
+}
+
+/// The Remote pane: URL bar + history controls over a session-retained view. The JS console
+/// lives below the tabs (`js_console`), bound here through `js`.
+fn remote_pane(js: JsHandle) -> AnyPiece {
+    let (url, _, _) = state();
     let go = Trigger::new();
     let back = Trigger::new();
     let forward = Trigger::new();
@@ -95,10 +149,6 @@ fn remote_pane() -> AnyPiece {
     // piece has a renderer at all, so only Back/Forward/Stop are gated.
     let history = support() == Support::Native;
     let iframe = support() == Support::Emulated;
-    // The JS console below. `script` is what the user types, `result` the JSON it evaluated to (or
-    // the error it threw) — both bound to text areas, so the round trip is visible in one screen.
-    let js = JsHandle::new();
-    let can_eval = eval_support() == Support::Native;
     column((
         // URL bar: the field is bound to the view's URL; Go loads whatever it holds.
         row((
@@ -144,38 +194,6 @@ fn remote_pane() -> AnyPiece {
                 .id("webview-reload"),
         ))
         .spacing(8.0),
-        // JS console: script in, JSON out. `eval` returns a future, so the click spawns a task and
-        // the result lands in the bound signal whenever the engine answers.
-        row((
-            text_area(script)
-                .placeholder(crate::res::str::webview_js_hint())
-                .min_lines(3)
-                .max_lines(3)
-                .spellcheck(false)
-                .editable(move || can_eval)
-                .id("webview-js"),
-            button(crate::res::str::webview_js_run())
-                .prominent()
-                .enabled(move || can_eval)
-                .action(move || {
-                    day::task(async move {
-                        let text = match js.eval(script.get_untracked()).await {
-                            Ok(json) => json,
-                            Err(e) => e.to_string(),
-                        };
-                        result.set(text);
-                    });
-                })
-                .style(crate::widgets::primary())
-                .id("webview-js-run"),
-            text_area(result)
-                .placeholder(crate::res::str::webview_js_result_hint())
-                .min_lines(3)
-                .max_lines(3)
-                .editable(false)
-                .id("webview-js-result"),
-        ))
-        .spacing(8.0),
         web_view(url)
             // A retained session: the engine outlives this page's subtree, so navigating away and
             // back returns to the page as it was left rather than reloading it.
@@ -198,13 +216,15 @@ fn remote_pane() -> AnyPiece {
 /// `web_view_inline` serves it through each backend's local-content channel, and the
 /// `on_external_link` hook shows both dispositions — system browser for real URLs, in-app
 /// navigation for `day-showcase://` ones. The site's own text is sample CONTENT (like the bundled
-/// font specimens), so it ships in English only; the chrome around it localizes as usual.
-fn embedded_pane() -> AnyPiece {
+/// font specimens), so it ships in English only; the chrome around it localizes as usual. The
+/// shared JS console below the tabs evaluates in THIS view while the tab is selected, through
+/// the bound `js`.
+fn embedded_pane(js: JsHandle) -> AnyPiece {
     let status = embed_status();
     let arm = inline_support();
     let body: AnyPiece = if arm == Support::Unsupported {
-        // No local-content arm on this toolkit yet (docs/webview.md lists the rollout order) —
-        // say so instead of showing a blank frame.
+        // No web engine in this toolkit build (docs/webview.md) — say so instead of showing a
+        // blank frame.
         label(crate::res::str::webview_embedded_unsupported())
             .font(Font::Footnote)
             .id("webview-embedded-unsupported")
@@ -212,6 +232,7 @@ fn embedded_pane() -> AnyPiece {
     } else {
         web_view_inline(crate::res::assets::web::minisite)
             .session(WebSession::global("showcase.webview.embedded"))
+            .js(js)
             .on_external_link(move |url| {
                 if let Some(route) = url.strip_prefix("day-showcase://") {
                     // The custom hook: a link the SITE authors as day-showcase://<route>
@@ -230,16 +251,6 @@ fn embedded_pane() -> AnyPiece {
     };
     column((
         label(crate::res::str::webview_embedded_caption()).font(Font::Footnote),
-        // web-dom renders the site same-origin in an iframe: pages and relative links work, the
-        // link policy can't reach inside the frame yet (docs/webview.md).
-        when(
-            move || arm == Support::Emulated,
-            move || {
-                label(crate::res::str::webview_embedded_note_iframe())
-                    .font(Font::Footnote)
-                    .id("webview-embedded-note")
-            },
-        ),
         label(move || {
             let (kind, payload) = status.get();
             match kind {

@@ -703,24 +703,24 @@ flow:
   # assertions are engine-independent: JSON.stringify's output and a TypeError's name/message are
   # spec-defined, so WebKit and V8 agree. A SyntaxError's TEXT is not, so it is not asserted here.
   - input:
-      { id: webview-js, text: "1+1", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
-  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
-  - pause: { secs: 2, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+      { id: webview-js, text: "1+1", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc] }
+  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc] }
+  - pause: { secs: 2, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc] }
   - assert_text:
-      { id: webview-js-result, text: "2", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+      { id: webview-js-result, text: "2", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc] }
   - input:
       {
         id: webview-js,
         text: "throw new TypeError('boom')",
-        only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt],
+        only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc],
       }
-  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
-  - pause: { secs: 2, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc] }
+  - pause: { secs: 2, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc] }
   - assert_text:
       {
         id: webview-js-result,
         text: "TypeError: boom",
-        only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt],
+        only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc],
       }
   # Session retention (docs/webview.md): plant a marker in the LIVE JS context, leave the page
   # entirely, come back, and read it. It only survives if the native engine was retained rather
