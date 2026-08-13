@@ -5,7 +5,11 @@ description: Navigate every destination, exercise every control, take localized 
   page is a grouped form (docs/forms.md) of themed sections — menus & dialogs share one page.
 flow:
   - wait_for: { id: nav }
-  - screenshot: home
+  - screenshot:
+      name: home
+      title: { en: "Home", fr: "Accueil", ar: "الرئيسية", zh-CN: "主页" }
+      caption: { en: "The app's sidebar of demo pages.", fr: "La barre latérale des pages de démonstration.", ar: "الشريط الجانبي لصفحات العرض التوضيحي.", zh-CN: "演示页面的侧边栏。" }
+      source: src/lib.rs
 
   # Leaving via a route the stack doesn't own falls through to the enclosing selector.
   - navigate: { route: about }
@@ -14,7 +18,10 @@ flow:
   - assert_visible: { id: about-version }
   - assert_visible: { id: about-toolkit }
   - assert_visible: { id: about-lifecycle }
-  - screenshot: about
+  - screenshot:
+      name: about
+      title: { en: "About", fr: "À propos", ar: "حول", zh-CN: "关于" }
+      source: src/pages/about.rs
   - nav_back:
   - assert_route: { route: "" }
   - screenshot: back-home
@@ -30,7 +37,10 @@ flow:
   - set_value: { id: anim-hue, value: 200 }
   - tap: { id: anim-go }
   - pause: { secs: 1.0 }
-  - screenshot: animation
+  - screenshot:
+      name: animation
+      title: { en: "Animation", fr: "Animation", ar: "الرسوم المتحركة", zh-CN: "动画" }
+      source: src/pages/animation.rs
 
   # Benchmark (the Day-Bench Grids benchmark): a deterministic patchwork — the same (seed, count)
   # draws the same picture on every target, so the shots are diffable. The readouts prove the
@@ -43,7 +53,10 @@ flow:
   - assert_text: { id: bench-seed-value, text: "1" }
   - assert_text: { id: bench-count-value, text: "48" }
   - assert_text: { id: bench-rows, key: bench_rows, args: { rows: 10 } }
-  - screenshot: benchmark
+  - screenshot:
+      name: benchmark
+      title: { en: "Benchmark", fr: "Benchmark", ar: "قياس الأداء", zh-CN: "基准测试" }
+      source: src/pages/benchmark.rs
   # Denser patchwork, then back to the defaults — reproducibility means the run must land on the
   # row count it opened with.
   - set_value: { id: bench-count, value: 240 }
@@ -78,7 +91,10 @@ flow:
   # text field re-rendered with the count.
   - tap: { id: "compose-rating:4" }
   - assert_text: { id: compose-rating-value, text: "4" }
-  - screenshot: canvas
+  - screenshot:
+      name: canvas
+      title: { en: "Canvas & shapes", fr: "Canevas et formes", ar: "اللوحة والأشكال", zh-CN: "画布与形状" }
+      source: src/pages/canvas.rs
 
   # Controls (docs/forms.md): every interactive control in one grouped form — basics, the three
   # picker stylings, search, and progress/activity feedback.
@@ -133,7 +149,10 @@ flow:
   - assert_text: { id: search-result, key: chocolate }
   - tap: { id: search-clear }
   - assert_text: { id: search-result, key: vanilla }
-  - screenshot: controls
+  - screenshot:
+      name: controls
+      title: { en: "Controls", fr: "Contrôles", ar: "عناصر التحكّم", zh-CN: "控件" }
+      source: src/pages/controls.rs
 
   # Crash Reporting (day-break, docs/break.md): the walkthrough only VISITS the page (empty state);
   # the actual crash + next-launch report are driven by crash.yaml / crash-report.yaml so the
@@ -142,7 +161,10 @@ flow:
   - assert_route: { route: crash }
   - assert_visible: { id: crash-title }
   - assert_visible: { id: crash-abort }
-  - screenshot: crash
+  - screenshot:
+      name: crash
+      title: { en: "Crash reporting", fr: "Rapports de plantage", ar: "الإبلاغ عن الأعطال", zh-CN: "崩溃报告" }
+      source: src/pages/crash.rs
 
   # Date & time (docs/datepicker.md): native pickers bound two-way to civil date/time signals.
   # Every picker accepts a synthetic ISO `input:` on every backend, and the readouts are
@@ -164,7 +186,10 @@ flow:
   # The bounded picker clamps every pick into 2026 (min/max, docs/datepicker.md).
   - input: { id: date-bounded, text: "2027-06-15" }
   - assert_text: { id: date-bounded-value, text: "2026-12-31" }
-  - screenshot: dates
+  - screenshot:
+      name: dates
+      title: { en: "Date & time", fr: "Date et heure", ar: "التاريخ والوقت", zh-CN: "日期与时间" }
+      source: src/pages/dates.rs
 
   # Device & sensors: the headless device-state parts in one form. The battery preview slider +
   # charging toggle drive a deterministic state (65% + bolt) for the screenshot, then a low
@@ -193,7 +218,10 @@ flow:
   - assert_visible: { id: deviceinfo-model }
   - tap: { id: deviceinfo-refresh }
   - assert_visible: { id: deviceinfo-system }
-  - screenshot: system
+  - screenshot:
+      name: system
+      title: { en: "Device & sensors", fr: "Appareil et capteurs", ar: "الجهاز والمستشعرات", zh-CN: "设备与传感器" }
+      source: src/pages/system.rs
   - set_value: { id: battery-level, value: 12 }
   - assert_text: { id: battery-level-value, text: "12%" }
   - set_value: { id: battery-level, value: 65 }
@@ -225,13 +253,19 @@ flow:
   - tap: { id: focus-bool-blur }
   - assert_focused: { id: focus-bool-field, focused: false }
   - assert_text: { id: focus-bool-state, key: focus_state_off }
-  - screenshot: focus
+  - screenshot:
+      name: focus
+      title: { en: "Focus", fr: "Focus", ar: "التركيز", zh-CN: "焦点" }
+      source: src/pages/focus.rs
 
   # Grid (docs/grid.md): columns sized by content, spans, and flexible cells. Desktop hosts the
   # sub-pages as tabs (basics preselected), mobile as a menu of pushed pages — so this stop only
   # takes the section screenshot; grid behavior itself is pinned by the day-pieces grid tests.
   - navigate: { route: grid }
-  - screenshot: grid
+  - screenshot:
+      name: grid
+      title: { en: "Grid", fr: "Grille", ar: "الشبكة", zh-CN: "网格" }
+      source: src/pages/grid.rs
 
   # Native recycling list (docs/list.md): 500 virtualized rows — visited after the delicate
   # stack/tabs route assertions so they stay undisturbed. The list is wrapped in pull-to-refresh
@@ -245,7 +279,10 @@ flow:
   - assert_text: { id: list-selection, key: list_selection_none }
   - select: { id: demo-list, index: 1 }
   - assert_text: { id: list-selection, key: list_selection, args: { count: 1, rows: "2" } }
-  - screenshot: list
+  - screenshot:
+      name: list
+      title: { en: "List", fr: "Liste", ar: "القائمة", zh-CN: "列表" }
+      source: src/pages/list.rs
   - tap: { id: list-clear }
   - assert_text: { id: list-selection, key: list_selection_none }
   - assert_text: { id: list-caption, key: list_caption, args: { count: 500 } }
@@ -275,7 +312,10 @@ flow:
   # The jump targets the ROW, not the position: it selects row 100, and the selection readout
   # names it whatever index the row currently sits at.
   - assert_text: { id: list-selection, key: list_selection, args: { count: 1, rows: "100" } }
-  - screenshot: list-item-100
+  - screenshot:
+      name: list-item-100
+      title: { en: "List · programmatic scrolling", fr: "Liste · défilement programmatique", ar: "القائمة · تمرير برمجي", zh-CN: "列表 · 程序化滚动" }
+      source: src/pages/list.rs
   - tap: { id: list-scroll-top }
   - wait_idle:
   # Shuffle moves row 100 somewhere else, then jump again: the same assertion has to hold, which
@@ -334,7 +374,10 @@ flow:
   - tap: { id: locale-fr }
   - assert_text: { id: loc-current, text: "fr" }
   - tap: { id: locale-reset }
-  - screenshot: localization
+  - screenshot:
+      name: localization
+      title: { en: "Localization", fr: "Localisation", ar: "التوطين", zh-CN: "本地化" }
+      source: src/pages/localization.rs
 
   # Native media player (docs/media.md): an EXTERNAL piece wrapping each toolkit's native player
   # (AVPlayerView / AVPlayerViewController / QMediaPlayer / VideoView / GtkVideo / <video>). The
@@ -345,7 +388,10 @@ flow:
   - assert_visible: { id: media-title }
   - pause: { secs: 5 }
   - tap: { id: media-pause }
-  - screenshot: media
+  - screenshot:
+      name: media
+      title: { en: "Media playback", fr: "Lecture multimédia", ar: "تشغيل الوسائط", zh-CN: "媒体播放" }
+      source: src/pages/media.rs
 
   # Menus & dialogs (docs/menus.md, docs/dialogs.md): the transient native surfaces in one
   # page — the app-menu action readout, the context-menu target, and the imperative dialogs.
@@ -355,7 +401,10 @@ flow:
   - assert_visible: { id: menus-title }
   - assert_visible: { id: menus-last }
   - assert_visible: { id: menus-context-target }
-  - screenshot: menus
+  - screenshot:
+      name: menus
+      title: { en: "Menus & dialogs", fr: "Menus et dialogues", ar: "القوائم والحوارات", zh-CN: "菜单与对话框" }
+      source: src/pages/menus.rs
   - tap: { id: btn-confirm }
   - assert_presented: {}
   - respond: { button: 1 }
@@ -384,7 +433,11 @@ flow:
   - menu: { key: day-preferences }
   - wait_for: { id: prefs-title }
   - assert_visible: { id: language-picker }
-  - screenshot: { name: preferences, window: day.preferences }
+  - screenshot:
+      name: preferences
+      window: day.preferences
+      title: { en: "Menus & dialogs · preferences window", fr: "Menus et dialogues · fenêtre des préférences", ar: "القوائم والحوارات · نافذة التفضيلات", zh-CN: "菜单与对话框 · 偏好设置窗口" }
+      source: src/pages/preferences.rs
   - close_window: { window: day.preferences }
 
   # Platform services: an HTTP fetch (first — it runs on every target, including web-dom),
@@ -400,7 +453,10 @@ flow:
   - assert_text: { id: http-res-status, text: "ok 1: 200 day-http-ok" }
   # Screenshot the pristine form BEFORE the clipboard copy: Android 13+ pops a system
   # clipboard-preview overlay on copy that lingers several seconds and would photobomb the shot.
-  - screenshot: services
+  - screenshot:
+      name: services
+      title: { en: "Platform services", fr: "Services système", ar: "خدمات المنصة", zh-CN: "平台服务" }
+      source: src/pages/services.rs
   - input: { id: clipboard-field, text: "day walkthrough clip" }
   - tap: { id: clipboard-copy }
   - tap: { id: clipboard-paste }
@@ -469,7 +525,10 @@ flow:
   - assert_text: { id: refresh-status, key: refresh_status_idle }
   - toggle: { id: feed-refresh, value: true }
   - assert_text: { id: refresh-status, key: refresh_status_refreshing }
-  - screenshot: refresh
+  - screenshot:
+      name: refresh
+      title: { en: "Refresh", fr: "Actualiser", ar: "تحديث", zh-CN: "刷新" }
+      source: src/pages/refresh.rs
   - pause: 2
   - assert_text: { id: refresh-status, key: refresh_status_idle }
   - assert_visible: { id: "refresh-row:12" }
@@ -486,7 +545,10 @@ flow:
   - assert_route: { route: resources }
   - assert_visible: { id: resources-numbers }
   - assert_visible: { id: resources-greeting }
-  - screenshot: resources
+  - screenshot:
+      name: resources
+      title: { en: "Resources", fr: "Ressources", ar: "الموارد", zh-CN: "资源" }
+      source: src/pages/resources.rs
 
   # Genuine push/pop stack (docs/navigation.md): tapping pushes onto the path signal; the
   # native back button writes the pop back into it. current_route reports the stack's top.
@@ -497,7 +559,10 @@ flow:
   - assert_visible: { id: stack-detail }
   # assert_route sees the FULL path: selector key + the stack's segments (docs/navigation.md).
   - assert_route: { route: stack/1 }
-  - screenshot: stack-detail
+  - screenshot:
+      name: stack-detail
+      title: { en: "Stack", fr: "Pile", ar: "المكدّس", zh-CN: "堆栈" }
+      source: src/pages/stack.rs
   - tap: { id: stack-deeper }
   - assert_route: { route: stack/1/2 }
   - nav_back:
@@ -530,7 +595,10 @@ flow:
   # every backend presents it now, so these steps run everywhere.
   - tap: { id: cover-present }
   - assert_visible: { id: cover-title }
-  - screenshot: cover
+  - screenshot:
+      name: cover
+      title: { en: "Stack · fullscreen cover", fr: "Pile · couverture plein écran", ar: "المكدّس · غطاء ملء الشاشة", zh-CN: "堆栈 · 全屏覆盖层" }
+      source: src/pages/stack.rs
   - tap: { id: cover-dismiss }
   - assert_visible: { id: stack-root }
 
@@ -543,7 +611,10 @@ flow:
   - assert_value: { id: demo-tabs, value: 0 }
   # Let the mobile push transition settle so the capture has no mid-animation sliver.
   - pause: { secs: 0.5 }
-  - screenshot: tabs-one
+  - screenshot:
+      name: tabs-one
+      title: { en: "Tabs", fr: "Onglets", ar: "علامات التبويب", zh-CN: "标签页" }
+      source: src/pages/tabs.rs
   - navigate: { route: two }
   - assert_route: { route: tabs/two }
   - assert_value: { id: demo-tabs, value: 1 }
@@ -571,7 +642,10 @@ flow:
   - assert_visible: { id: text-font-bungee }
   - assert_visible: { id: text-font-specialelite }
   - assert_visible: { id: text-selectable }
-  - screenshot: text
+  - screenshot:
+      name: text
+      title: { en: "Text", fr: "Texte", ar: "النص", zh-CN: "文字" }
+      source: src/pages/text.rs
   # The page-wide Selectable toggle (upper-right): every text piece rebuilds out of and back
   # into `.selectable()` — on iOS that swaps each label to a read-only text view and back
   # (docs/text.md), so both arms must realize cleanly on every backend.
@@ -589,7 +663,10 @@ flow:
   - assert_visible: { id: textareas-editor }
   - tap: { id: ta-seed-markdown }
   - wait_idle:
-  - screenshot: textareas
+  - screenshot:
+      name: textareas
+      title: { en: "Text areas", fr: "Zones de texte", ar: "مناطق النص", zh-CN: "文本区域" }
+      source: src/pages/text_areas.rs
 
   # Toolbars (docs/toolbars.md): the MAIN WINDOW's own toolbar, so the assertions read the
   # page's live bindings rather than any on-page widget. `toolbar:` drives an item through the
@@ -648,14 +725,20 @@ flow:
   - navigate: { route: stack }
   - assert_route: { route: stack }
   - assert_visible: { id: stack-root }
-  - screenshot: toolbars-filtered
+  - screenshot:
+      name: toolbars-filtered
+      title: { en: "Toolbars · sidebar search", fr: "Barres d'outils · recherche dans la barre latérale", ar: "أشرطة الأدوات · البحث في الشريط الجانبي", zh-CN: "工具栏 · 侧边栏搜索" }
+      source: src/pages/toolbars.rs
   # Clearing the query restores every row, and the page opened while filtered is still there.
   - toolbar: { item: day.search, text: "", skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - wait_idle:
   - assert_route: { route: stack }
   - navigate: { route: toolbars }
   - wait_idle:
-  - screenshot: toolbars
+  - screenshot:
+      name: toolbars
+      title: { en: "Toolbars", fr: "Barres d'outils", ar: "أشرطة الأدوات", zh-CN: "工具栏" }
+      source: src/pages/toolbars.rs
 
   # Tweaks (docs/tweaks.md): packaged per-toolkit native configuration of built-in pieces, plus
   # NativeRef liveness — unmounting the Tweaked Piece clears the ref (asserted via Fluent keys
@@ -679,7 +762,10 @@ flow:
   - assert_visible: { id: tweak-label-sample }
   - toggle: { id: tweak-label-selectable, value: false }
   - assert_visible: { id: tweak-label-sample }
-  - screenshot: tweaks
+  - screenshot:
+      name: tweaks
+      title: { en: "Tweaks", fr: "Tweaks", ar: "التوليفات", zh-CN: "微调" }
+      source: src/pages/tweaks.rs
 
   # Native web view (docs/webview.md): each toolkit's native browser. Load the project site,
   # then `pause` (runner-side — the engine must not block the UI thread) so the page finishes
@@ -759,7 +845,11 @@ flow:
         text: '"survived"',
         only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt],
       }
-  - screenshot: { name: webview, skip_on: [harmony-arkui] }
+  - screenshot:
+      name: webview
+      skip_on: [harmony-arkui]
+      title: { en: "Web view", fr: "Vue Web", ar: "عرض الويب", zh-CN: "网页视图" }
+      source: src/pages/webview.rs
   # The Embedded tab (docs/webview.md): a whole site bundled under resource/assets/web/minisite/,
   # served through web_view_inline on the backends with a local-content arm. The status line is a
   # day label (asserted everywhere the page shows); what renders INSIDE the web view is native web
