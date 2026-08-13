@@ -149,3 +149,50 @@ pub(crate) fn star() -> Command {
         },
     }
 }
+
+/// Save a picture of this window (docs/window-image.md).
+///
+/// The capture is deferred a turn rather than taken inline: this command is reached from a MENU
+/// and from a toolbar button, and on some backends the menu is still on screen (or the button
+/// still drawn pressed) at the moment the action runs — the picture would show the affordance
+/// that took it. One hop lets the chrome settle first.
+///
+/// Disabled where the toolkit cannot rasterize itself, so the affordance is absent rather than
+/// present-and-failing (`Cap::Snapshot`; today that is web-dom).
+pub(crate) fn screenshot() -> Command {
+    Command {
+        id: "cmd-screenshot",
+        title: || crate::res::str::cmd_screenshot(),
+        enabled: || day::window_image_support() == Support::Native,
+        checked: || false,
+        run: || {
+            day::task(async move {
+                // Let the menu dismiss (and the toolbar button un-press) before the shutter.
+                day::sleep(150).await;
+                let png = match day::window_image().capture() {
+                    Ok(bytes) => bytes,
+                    Err(e) => {
+                        eprintln!("day-showcase: window image failed: {e}");
+                        return;
+                    }
+                };
+                let _ = save_file(png)
+                    .title(crate::res::str::cmd_screenshot())
+                    .suggested_name(default_shot_name())
+                    .filter("PNG", &["png"])
+                    .await;
+            });
+        },
+    }
+}
+
+/// `Day-Showcase-YYYY-MM-DD-HH-MM-SS.png` — a sortable name the user can still change in the
+/// save sheet. UTC, because that is the clock day-piece-datetime offers (see `DayTime::now`).
+fn default_shot_name() -> String {
+    let d = day_piece_datetime::DayDate::today();
+    let t = day_piece_datetime::DayTime::now();
+    format!(
+        "Day-Showcase-{:04}-{:02}-{:02}-{:02}-{:02}-{:02}.png",
+        d.year, d.month, d.day, t.hour, t.minute, t.second
+    )
+}

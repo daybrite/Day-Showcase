@@ -79,10 +79,11 @@ list_selection = { $count ->
    *[other] Selected rows: { $rows }
 }
 list_clear_selection = Clear Selection
-list_reorder_hint = Drag rows to reorder; the first row is pinned
+list_reorder_hint = Drag rows to reorder, swipe to delete; the first row is pinned
 list_order = First rows: { $rows }
 list_shuffle = Shuffle
 list_reset = Reset
+list_delete = Delete
 
 webview_url_hint = Enter a URL
 webview_go = Go
@@ -777,6 +778,8 @@ msg_subject_three = Sketches from the workshop
 
 # The Star command (commands.rs): one label per state, shared by the toolbar, the
 # application menu and each navigation row's context menu.
+# Save a picture of this window (commands.rs, docs/window-image.md).
+cmd_screenshot = Screenshot…
 cmd_star = Star
 cmd_unstar = Unstar
 

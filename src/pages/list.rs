@@ -110,9 +110,12 @@ pub(crate) fn list_page() -> AnyPiece {
                 .action(move || rows.update(|v| shuffle(v)))
                 .style(crate::widgets::secondary())
                 .id("list-shuffle"),
+            // Reset rebuilds the full set rather than sorting in place: rows can now be
+            // swiped away, and a sort would faithfully restore the ORDER of whatever survived
+            // while leaving the deleted ones gone.
             button(crate::res::str::list_reset())
                 .bordered()
-                .action(move || rows.update(|v| v.sort_unstable()))
+                .action(move || rows.set((1..=total.get_untracked()).collect()))
                 .id("list-reset"),
         ))
         .spacing(8.0),
@@ -191,6 +194,19 @@ pub(crate) fn list_page() -> AnyPiece {
                 rows.update(|v| {
                     let it = v.remove(from);
                     v.insert(to, it);
+                });
+            })
+            // Native swipe-to-delete where the toolkit has the gesture (probe `Cap::ListDelete`;
+            // the desktops answer Unsupported and simply show no swipe). The same first row is
+            // pinned as for reorder, so one demo shows both guards agreeing about it.
+            .deletable(true)
+            .delete_label(crate::res::str::list_delete().format())
+            .delete_guard(|index| index != 0)
+            .on_delete(move |index| {
+                rows.update(|v| {
+                    if index < v.len() {
+                        v.remove(index);
+                    }
                 });
             })
             .id("demo-list"),

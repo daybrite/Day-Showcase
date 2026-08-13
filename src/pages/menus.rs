@@ -119,6 +119,13 @@ fn build_app_menu() -> Vec<MenuEntry> {
                         .enabled((star.enabled)())
                         .action(move || (star.run)())
                 },
+                {
+                    let shot = crate::commands::screenshot();
+                    menu_item((shot.title)().format())
+                        .key("s")
+                        .enabled((shot.enabled)())
+                        .action(move || (shot.run)())
+                },
                 menu_separator(),
                 menu_item(reload.clone())
                     .key("r")

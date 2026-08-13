@@ -79,10 +79,11 @@ list_selection = { $count ->
    *[other] Lignes sélectionnées : { $rows }
 }
 list_clear_selection = Effacer la sélection
-list_reorder_hint = Glissez les lignes pour les réordonner ; la première ligne est épinglée
+list_reorder_hint = Glissez pour réordonner, balayez pour supprimer ; la première ligne est épinglée
 list_order = Premières lignes : { $rows }
 list_shuffle = Mélanger
 list_reset = Réinitialiser
+list_delete = Supprimer
 
 webview_url_hint = Saisir une URL
 webview_go = Aller
@@ -775,6 +776,8 @@ msg_subject_three = Croquis de l’atelier
 
 # The Star command (commands.rs): one label per state, shared by the toolbar, the
 # application menu and each navigation row's context menu.
+# Save a picture of this window (commands.rs, docs/window-image.md).
+cmd_screenshot = Capture d'écran…
 cmd_star = Suivre
 cmd_unstar = Ne plus suivre
 

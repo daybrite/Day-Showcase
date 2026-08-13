@@ -83,10 +83,11 @@ list_selection = { $count ->
    *[other] الصفوف المحددة: { $rows }
 }
 list_clear_selection = مسح التحديد
-list_reorder_hint = اسحب الصفوف لإعادة ترتيبها؛ الصف الأول مثبّت
+list_reorder_hint = اسحب الصفوف لإعادة ترتيبها، ومرّر للحذف؛ الصف الأول مثبّت
 list_order = الصفوف الأولى: { $rows }
 list_shuffle = خلط
 list_reset = إعادة الضبط
+list_delete = حذف
 
 webview_url_hint = أدخل عنوان URL
 webview_go = انتقال
@@ -790,6 +791,8 @@ msg_subject_three = رسومات من الورشة
 
 # The Star command (commands.rs): one label per state, shared by the toolbar, the
 # application menu and each navigation row's context menu.
+# Save a picture of this window (commands.rs, docs/window-image.md).
+cmd_screenshot = لقطة شاشة…
 cmd_star = تمييز بنجمة
 cmd_unstar = إزالة النجمة
 

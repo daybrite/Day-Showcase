@@ -75,10 +75,11 @@ list_selection = { $count ->
    *[other] 已选行：{ $rows }
 }
 list_clear_selection = 清除选择
-list_reorder_hint = 拖动行以重新排序；第一行已固定
+list_reorder_hint = 拖动行以重新排序，滑动以删除；第一行已固定
 list_order = 前几行：{ $rows }
 list_shuffle = 打乱顺序
 list_reset = 重置
+list_delete = 删除
 
 webview_url_hint = 输入网址
 webview_go = 前往
@@ -768,6 +769,8 @@ msg_subject_three = 工作坊的草图
 
 # The Star command (commands.rs): one label per state, shared by the toolbar, the
 # application menu and each navigation row's context menu.
+# Save a picture of this window (commands.rs, docs/window-image.md).
+cmd_screenshot = 截屏…
 cmd_star = 收藏
 cmd_unstar = 取消收藏
 

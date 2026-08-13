@@ -292,6 +292,20 @@ flow:
   - tap: { id: list-reset }
   - assert_text: { id: list-order, key: list_order, args: { rows: "1,2,3,4,5" } }
 
+  # Swipe-to-delete (docs/list.md). The `delete_row` step drives the guard → commit seam, not a
+  # platform gesture, so this asserts on EVERY target — including the desktops, whose toolkits
+  # answer Cap::ListDelete = Unsupported and have no swipe to simulate.
+  - delete_row: { id: demo-list, row: 1 }
+  - assert_text: { id: list-order, key: list_order, args: { rows: "1,3,4,5,6" } }
+  - delete_row: { id: demo-list, row: 1 }
+  - assert_text: { id: list-order, key: list_order, args: { rows: "1,4,5,6,7" } }
+  - screenshot: list-deleted
+  # (The pinned first row is protected by `delete_guard` too, but dayscript has no
+  # assert-this-step-fails form, so that refusal is covered by day-pieces' mock tests instead.)
+  # Reset restores the deleted rows, not just the order.
+  - tap: { id: list-reset }
+  - assert_text: { id: list-order, key: list_order, args: { rows: "1,2,3,4,5" } }
+
   # Localization (docs/localization.md): live locale switching, icu4x NUMBER/DATETIME rendering,
   # CLDR plural categories, and collation-aware sorting. Key-based asserts resolve through the
   # SAME bundle + formatter as the labels, so the expected strings are locale-correct by
@@ -606,6 +620,13 @@ flow:
   - menu: { key: cmd_star, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - wait_idle:
   - assert_text: { id: toolbar-star-state, key: toolbar_on, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  # Screenshot (docs/window-image.md): the command captures the window IN-PROCESS first and only
+  # opens the save picker once it has bytes, so the picker appearing at all is what proves the
+  # capture worked — a failed capture returns early and presents nothing. Dismissed rather than
+  # saved: where the shot lands is the user's business, not a walkthrough's.
+  - toolbar: { item: cmd-screenshot, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - assert_presented: { skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - respond: { dismiss: true, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   # Adding an item is just a different list: tick the switch, then the new item is drivable.
   - toggle: { id: toolbar-extra-switch, value: true, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - wait_idle:

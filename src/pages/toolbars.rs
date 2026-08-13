@@ -117,6 +117,15 @@ pub(crate) fn install() {
                         note(s, crate::res::str::toolbar_last_star());
                     })
             },
+            // The Screenshot command (commands.rs) — the second real command on this bar, and
+            // the reason `Command` exists: declared once, rendered here and in the App menu.
+            {
+                let shot = crate::commands::screenshot();
+                toolbar_button(shot.id, (shot.title)())
+                    .icon(Symbol::Share)
+                    .enabled_when(shot.enabled)
+                    .action(move || (shot.run)())
+            },
             // A pull-down, built from the same entries the menu bar takes.
             toolbar_menu(
                 "tb-menu",

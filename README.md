@@ -16,6 +16,36 @@ This app is also Day's own integration test. The `dayscript/walkthrough.yaml` fl
 steps of it on every platform, in every theme and locale, and the screenshots it captures are what
 the [gallery](https://daybrite.dev/gallery) shows.
 
+## Run the latest release
+
+You don't need a Rust toolchain to see the app. One command downloads the newest release for your
+system and runs it:
+
+**macOS and Linux**
+
+```sh
+curl -fsSL https://github.com/daybrite/Day-Showcase/releases/latest/download/launch.sh | bash
+```
+
+**Windows** (PowerShell)
+
+```powershell
+irm https://github.com/daybrite/Day-Showcase/releases/latest/download/launch.ps1 | iex
+```
+
+Each script picks the build for the machine it's on: the signed, notarized `.dmg` on macOS, the
+AppImage on Linux (the Qt build under KDE, Plasma or LXQt, the GTK build otherwise), the per-user
+installer on Windows. All of them print what they're about to download and where, and ask before
+doing it. macOS and Linux run the app straight out of a temporary directory and leave nothing
+behind; Windows installs into a temporary folder without an admin prompt and prints the uninstall
+line when it's done. Pass `--yes` to skip the confirmation (`bash -s -- --yes` when piping) or
+`--target linux-qt` to override the choice; on Windows the flag is `-Yes`, or set
+`DAY_LAUNCH_YES=1`.
+
+The [releases page](https://github.com/daybrite/Day-Showcase/releases) has everything else: the
+iOS `.ipa`, the Android `.apk` and `.aab`, the HarmonyOS `.hap`, `SHA256SUMS`, and an SBOM and
+build-provenance record beside every package.
+
 ## Platforms
 
 Declared shipping targets (`Day.toml`): `macos-appkit`, `macos-gtk`, `macos-qt`, `ios-uikit`,
