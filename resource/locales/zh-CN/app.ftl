@@ -91,6 +91,14 @@ webview_js_hint = 要在页面中运行的 JavaScript
 webview_js_run = 运行 »
 webview_js_result_hint = JSON 结果显示在此
 webview_note_iframe = 此平台通过 iframe 嵌入页面。浏览器禁止跨源访问历史记录和读取网址，因此“后退”“前进”和“停止”不可用，上方的地址栏也不会跟随页面内打开的链接。
+webview_tab_remote = 远程
+webview_tab_embedded = 内嵌
+webview_embedded_caption = 一个完整的站点——页面、样式表、脚本、图片——打包在应用内的 resource/assets/web/minisite/ 下，无需网络即可加载。相对链接保持在站点内；外部链接在应用外打开；day-showcase:// 链接会被拦截并在本应用内导航。
+webview_embedded_note_iframe = 在网页端，该站点以同源 iframe 呈现：页面和相对链接可用，但外部链接策略尚不作用于框架内部。
+webview_embedded_unsupported = 此工具包尚不支持内嵌站点——目前 macOS、iOS、Android 和网页端可用。
+webview_embedded_status_none = 尚未跟随任何外部链接。
+webview_embedded_opened = 已在应用外打开：{ $url }
+webview_embedded_intercepted = 已拦截——已在应用内导航到“{ $route }”。
 
 lottie_caption = 原生 Lottie 动画，以 JSON 打包（lottie-ios / lottie-android）
 lottie_speed = 速度

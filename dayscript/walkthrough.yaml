@@ -760,6 +760,21 @@ flow:
         only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt],
       }
   - screenshot: { name: webview, skip_on: [harmony-arkui] }
+  # The Embedded tab (docs/webview.md): a whole site bundled under resource/assets/web/minisite/,
+  # served through web_view_inline on the backends with a local-content arm. The status line is a
+  # day label (asserted everywhere the page shows); what renders INSIDE the web view is native web
+  # content dayscript cannot reach, so the screenshot is the visual record.
+  - select: { id: webview-tab, index: 1, skip_on: [harmony-arkui] }
+  - assert_visible: { id: webview-embedded-status, skip_on: [harmony-arkui] }
+  - assert_text:
+      {
+        id: webview-embedded-status,
+        key: webview_embedded_status_none,
+        skip_on: [harmony-arkui],
+      }
+  - pause: { secs: 2, skip_on: [harmony-arkui] }
+  - screenshot: { name: webview-embedded, skip_on: [harmony-arkui] }
+  - select: { id: webview-tab, index: 0, skip_on: [harmony-arkui] }
 
   # Every page has now been visited, so every piece kind this app uses has been realized. A kind
   # with no renderer on this backend rendered a `⟨kind⟩` placeholder — which no other assertion can

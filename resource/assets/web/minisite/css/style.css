@@ -1,0 +1,99 @@
+/* Day mini site — bundled with the app; matches the Day identity's dawn palette. */
+
+:root {
+  --bg: #ffffff;
+  --ink: #22293a;
+  --muted: #64748b;
+  --card: #f4f6f9;
+  --accent: #c2491d;
+  --accent-soft: #f0a64c;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #181210;
+    --ink: #f2ede9;
+    --muted: #a9a09a;
+    --card: #241b17;
+    --accent: #f0a64c;
+    --accent-soft: #c2491d;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font: 16px/1.55 system-ui, sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+}
+
+.hero {
+  padding: 2.2rem 1.4rem 1.6rem;
+  text-align: center;
+  background: linear-gradient(180deg, rgba(240, 166, 76, 0.18), transparent);
+}
+
+.hero h1 {
+  margin: 0.5rem 0 0.4rem;
+  font-size: 1.6rem;
+}
+
+.hero p {
+  max-width: 34rem;
+  margin: 0 auto;
+  color: var(--muted);
+}
+
+main {
+  max-width: 36rem;
+  margin: 0 auto;
+  padding: 0 1.4rem;
+}
+
+.card {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  margin: 0.9rem 0;
+}
+
+.card h2 {
+  margin: 0 0 0.4rem;
+  font-size: 1.05rem;
+}
+
+a {
+  color: var(--accent);
+}
+
+code {
+  background: rgba(100, 116, 139, 0.16);
+  border-radius: 4px;
+  padding: 0.05rem 0.3rem;
+  font-size: 0.9em;
+}
+
+button {
+  font: inherit;
+  color: #fff;
+  background: var(--accent);
+  border: 0;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+button:active {
+  background: var(--accent-soft);
+}
+
+footer {
+  padding: 1.6rem;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.85rem;
+}

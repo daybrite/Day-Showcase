@@ -99,6 +99,14 @@ webview_js_hint = كود JavaScript لتشغيله داخل الصفحة
 webview_js_run = تشغيل »
 webview_js_result_hint = تظهر نتيجة JSON هنا
 webview_note_iframe = تضمّن هذه المنصة الصفحة داخل إطار iframe. يمنع المتصفّح الوصول إلى السجل وقراءة العنوان عبر الأصول المختلفة، لذا تتعطّل أزرار رجوع وتقدّم وإيقاف، ولن يتابع الحقل أعلاه الروابط المفتوحة داخل الصفحة.
+webview_tab_remote = بعيد
+webview_tab_embedded = مضمّن
+webview_embedded_caption = موقع كامل — صفحات وأنماط وسكربت وصورة — مضمّن داخل التطبيق تحت resource/assets/web/minisite/ ويُحمَّل دون شبكة. تبقى الروابط النسبية داخل الموقع؛ وتُفتح الروابط الخارجية خارج التطبيق؛ وتُعترض روابط day-showcase:// وتنقل التنقل إلى هذا التطبيق.
+webview_embedded_note_iframe = على الويب يُعرض الموقع داخل iframe من نفس الأصل: تعمل الصفحات والروابط النسبية، لكن سياسة الروابط الخارجية لا تسري داخل الإطار بعد.
+webview_embedded_unsupported = لا يدعم هذا التولكيت المواقع المضمّنة بعد — تعرضها اليوم macOS وiOS وأندرويد والويب.
+webview_embedded_status_none = لم يُتبع أي رابط خارجي بعد.
+webview_embedded_opened = فُتح خارج التطبيق: { $url }
+webview_embedded_intercepted = اعتُرض — انتقل التطبيق إلى "{ $route }".
 
 lottie_caption = رسم Lottie متحرّك أصلي، مضمَّن كملف JSON‏ (lottie-ios / lottie-android)
 lottie_speed = السرعة

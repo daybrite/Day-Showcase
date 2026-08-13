@@ -95,6 +95,14 @@ webview_js_hint = JavaScript to run in the page
 webview_js_run = Run JS »
 webview_js_result_hint = The JSON result appears here
 webview_note_iframe = This platform embeds the page in an iframe. The browser blocks cross-origin history and URL readback, so Back, Forward and Stop are unavailable and the field above will not follow links opened inside the page.
+webview_tab_remote = Remote
+webview_tab_embedded = Embedded
+webview_embedded_caption = A complete site — pages, stylesheet, script, image — ships inside the app under resource/assets/web/minisite/ and loads with no network. Relative links stay in the site; external links open outside; day-showcase:// links are intercepted and navigate this app.
+webview_embedded_note_iframe = On the web the site renders same-origin in an iframe: pages and relative links work, but the external-link policy does not apply inside the frame yet.
+webview_embedded_unsupported = This toolkit has no embedded-site support yet — macOS, iOS, Android and the web show it today.
+webview_embedded_status_none = No external link followed yet.
+webview_embedded_opened = Opened outside the app: { $url }
+webview_embedded_intercepted = Intercepted — navigated in-app to "{ $route }".
 
 lottie_caption = A native Lottie animation, bundled as JSON (lottie-ios / lottie-android)
 lottie_speed = Speed

@@ -65,7 +65,8 @@ day patch --local /path/to/day
 That writes the gitignored `.cargo/config.toml` and then verifies the result — a hand-written table
 that misses one direct dependency does not fail, it silently resolves that crate from the git cache
 and builds a mixture of your checkout and a published release. `day patch --check` alone re-runs
-just the verification.
+just the verification. [Developing Day and an app together](https://daybrite.dev/docs/local-development)
+covers the full workflow: changing a day crate and its showcase demonstration in the same sitting.
 
 ## Run it
 

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Day mini site</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="hero">
+    <img src="img/sun.svg" alt="" width="56" height="56">
+    <h1>A site inside the app</h1>
+    <p>
+      Every file on this page — the HTML, the stylesheet, the script, the image — ships inside
+      the app's bundle under <code>resource/assets/web/minisite/</code>. No network, no server:
+      the web view resolves each relative reference straight from the app.
+    </p>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>Scripts run</h2>
+      <p>This button is wired by <code>js/app.js</code>, loaded relatively:</p>
+      <p>
+        <button id="count">Clicked 0 times</button>
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Pages link</h2>
+      <p>
+        A relative link stays inside the site:
+        <a href="pages/features.html">a second page</a> — and its own relative links
+        (<code>../css</code>, <code>../index.html</code>) resolve back here.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>External links leave</h2>
+      <p>
+        These leave the site, so the app decides what happens.
+        By default they open outside:
+        <a href="https://daybrite.dev">daybrite.dev</a> ·
+        <a href="mailto:hello@daybrite.dev">hello@daybrite.dev</a>
+      </p>
+      <p>
+        And this one is intercepted by the app's <code>on_external_link</code> hook, which
+        navigates the Showcase itself:
+        <a href="day-showcase://text">open the Text page in the app</a>
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    <p>Day mini site · rendered <span id="year"></span></p>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

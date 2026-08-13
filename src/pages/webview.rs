@@ -1,5 +1,8 @@
 use day::prelude::*;
-use day_piece_webview::{JsHandle, WebSession, eval_support, support, web_view};
+use day_piece_webview::{
+    JsHandle, LinkPolicy, WebSession, eval_support, inline_support, support, web_view,
+    web_view_inline,
+};
 
 use crate::widgets::heading;
 
@@ -13,6 +16,14 @@ use crate::widgets::heading;
 thread_local! {
     static STATE: std::cell::OnceCell<(Signal<String>, Signal<String>, Signal<String>)> =
         const { std::cell::OnceCell::new() };
+    // The Embedded tab's external-link readout: (kind, payload) where kind 0 = none yet,
+    // 1 = opened outside, 2 = intercepted in-app. Stored as data and FORMATTED in the label so a
+    // locale switch re-resolves the text.
+    static EMBED_STATUS: std::cell::OnceCell<Signal<(u8, String)>> =
+        const { std::cell::OnceCell::new() };
+    // The selected tab (0 = Remote, 1 = Embedded), hoisted so a revisit returns to the tab the
+    // user left — the pane content itself survives through each view's WebSession either way.
+    static TAB: std::cell::OnceCell<Signal<usize>> = const { std::cell::OnceCell::new() };
 }
 
 /// `(url, script, result)` — created once, reused by every visit to this page.
@@ -28,15 +39,52 @@ fn state() -> (Signal<String>, Signal<String>, Signal<String>) {
     })
 }
 
-/// A native web view (day-piece-webview, an EXTERNAL standalone piece): WKWebView / QWebEngineView /
-/// android.webkit.WebView. The URL bar is bound two-way to the view — type + Go loads it, and
-/// navigation reports the URL back so the field follows. Back/Forward/Stop/Reload drive history via
-/// `Trigger`s the piece watches. The view fills the remaining space (a growing leaf).
+fn embed_status() -> Signal<(u8, String)> {
+    EMBED_STATUS.with(|c| *c.get_or_init(|| Signal::global((0, String::new()))))
+}
+
+/// A native web view (day-piece-webview, an EXTERNAL standalone piece), in two tabs:
 ///
-/// web-dom is the exception: it embeds an `<iframe>`, where the same-origin policy blocks history
-/// and URL readback. There the piece reports `Support::Emulated`, the history buttons are disabled
-/// rather than left to do nothing, and a footnote says why (docs/webview.md).
+/// - **Remote** — WKWebView / QWebEngineView / android.webkit.WebView browsing the live web. The
+///   URL bar is bound two-way, Back/Forward/Stop/Reload drive history via `Trigger`s, and the JS
+///   console round-trips `eval` where the engine allows it. web-dom is the exception: an
+///   `<iframe>` under the same-origin policy — the piece reports `Support::Emulated`, the history
+///   buttons are disabled, and a footnote says why (docs/webview.md).
+/// - **Embedded** — `web_view_inline`: a complete site (pages, css, js, images) bundled under
+///   `resource/assets/web/minisite/` and served from inside the app (§18.5, docs/webview.md).
+///   Relative links resolve within the site; external links open in the system browser by
+///   default; `day-showcase://` links are intercepted by `on_external_link` and navigate THIS
+///   app — the custom-policy hook, demonstrated end to end.
+///
+/// Both tabs come back as they were left: the selection rides a hoisted signal, and each view
+/// rides its own retained `WebSession`, so the engines that retain (WebKit here, docs/webview.md)
+/// re-attach the SAME native view — page, scroll position and JS state intact.
 pub(crate) fn webview_page() -> AnyPiece {
+    let tab = TAB.with(|c| *c.get_or_init(|| Signal::global(0usize)));
+    column((
+        heading(crate::res::str::nav_webview(), "webview-title", None),
+        column((picker(
+            [
+                crate::res::str::webview_tab_remote().format(),
+                crate::res::str::webview_tab_embedded().format(),
+            ],
+            tab,
+        )
+        .segmented()
+        .id("webview-tab"),))
+        .align(HAlign::Center)
+        .grow_w(),
+        when(move || tab.get() == 0, remote_pane),
+        when(move || tab.get() == 1, embedded_pane),
+    ))
+    .spacing(10.0)
+    .align(HAlign::Leading)
+    .padding(16.0)
+    .any()
+}
+
+/// The original page body: URL bar + history controls + JS console over a session-retained view.
+fn remote_pane() -> AnyPiece {
     let (url, script, result) = state();
     let go = Trigger::new();
     let back = Trigger::new();
@@ -52,7 +100,6 @@ pub(crate) fn webview_page() -> AnyPiece {
     let js = JsHandle::new();
     let can_eval = eval_support() == Support::Native;
     column((
-        heading(crate::res::str::nav_webview(), "webview-title", None),
         // URL bar: the field is bound to the view's URL; Go loads whatever it holds.
         row((
             text_field(url)
@@ -143,6 +190,70 @@ pub(crate) fn webview_page() -> AnyPiece {
     ))
     .spacing(10.0)
     .align(HAlign::Leading)
-    .padding(16.0)
+    .grow()
+    .any()
+}
+
+/// The bundled mini site (docs/webview.md): `resource/assets/web/minisite/**` ships with the app,
+/// `web_view_inline` serves it through each backend's local-content channel, and the
+/// `on_external_link` hook shows both dispositions — system browser for real URLs, in-app
+/// navigation for `day-showcase://` ones. The site's own text is sample CONTENT (like the bundled
+/// font specimens), so it ships in English only; the chrome around it localizes as usual.
+fn embedded_pane() -> AnyPiece {
+    let status = embed_status();
+    let arm = inline_support();
+    let body: AnyPiece = if arm == Support::Unsupported {
+        // No local-content arm on this toolkit yet (docs/webview.md lists the rollout order) —
+        // say so instead of showing a blank frame.
+        label(crate::res::str::webview_embedded_unsupported())
+            .font(Font::Footnote)
+            .id("webview-embedded-unsupported")
+            .any()
+    } else {
+        web_view_inline(crate::res::assets::web::minisite)
+            .session(WebSession::global("showcase.webview.embedded"))
+            .on_external_link(move |url| {
+                if let Some(route) = url.strip_prefix("day-showcase://") {
+                    // The custom hook: a link the SITE authors as day-showcase://<route>
+                    // navigates this app on the deep-link rail instead of leaving it.
+                    let route = route.trim_matches('/').to_string();
+                    status.set((2, route.clone()));
+                    day::request_route(&route);
+                    LinkPolicy::Ignore
+                } else {
+                    status.set((1, url.to_string()));
+                    LinkPolicy::OpenSystem
+                }
+            })
+            .id("webview-embedded")
+            .any()
+    };
+    column((
+        label(crate::res::str::webview_embedded_caption()).font(Font::Footnote),
+        // web-dom renders the site same-origin in an iframe: pages and relative links work, the
+        // link policy can't reach inside the frame yet (docs/webview.md).
+        when(
+            move || arm == Support::Emulated,
+            move || {
+                label(crate::res::str::webview_embedded_note_iframe())
+                    .font(Font::Footnote)
+                    .id("webview-embedded-note")
+            },
+        ),
+        label(move || {
+            let (kind, payload) = status.get();
+            match kind {
+                1 => crate::res::str::webview_embedded_opened(payload).format(),
+                2 => crate::res::str::webview_embedded_intercepted(payload).format(),
+                _ => crate::res::str::webview_embedded_status_none().format(),
+            }
+        })
+        .font(Font::Footnote)
+        .id("webview-embedded-status"),
+        body,
+    ))
+    .spacing(10.0)
+    .align(HAlign::Leading)
+    .grow()
     .any()
 }
