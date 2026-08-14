@@ -333,7 +333,6 @@ nav_services = Platform services
 controls_basics = Basics
 canvas_caption = Shapes, transforms, gestures, and composition-tier widgets — all drawn through the canvas.
 paths_title = Paths, strokes & clipping
-paths_caption = Arbitrary paths with both fill rules, a smooth spline, every cap and join, dashes, a gradient-painted stroke, and drawing confined to a path.
 canvas_gauge = Canvas gauge
 gauge_value_label = Value
 system_caption = The headless device-state parts: battery, connectivity, motion sensors, and device identity.

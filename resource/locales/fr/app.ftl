@@ -333,7 +333,6 @@ nav_services = Services système
 controls_basics = Essentiels
 canvas_caption = Formes, transformations, gestes et widgets composés — tous dessinés via le canevas.
 paths_title = Tracés, contours et découpe
-paths_caption = Tracés libres avec les deux règles de remplissage, une courbe lissée, chaque extrémité et jointure, des pointillés, un contour en dégradé, et un dessin confiné à un tracé.
 canvas_gauge = Jauge canevas
 gauge_value_label = Valeur
 system_caption = Les modules d'état de l'appareil : batterie, connectivité, capteurs et identité.
