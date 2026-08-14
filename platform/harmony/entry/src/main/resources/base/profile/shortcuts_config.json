@@ -1,13 +1,13 @@
 {
   "shortcuts": [
     {
-      "shortcutId": "day_shortcut_0",
       "label": "$string:day_shortcut_0",
+      "shortcutId": "day_shortcut_0",
       "wants": [
         {
+          "abilityName": "EntryAbility",
           "bundleName": "dev.daybrite.showcase",
           "moduleName": "entry",
-          "abilityName": "EntryAbility",
           "parameters": {
             "day.uri": "dayshowcase://menus"
           }
@@ -15,13 +15,13 @@
       ]
     },
     {
-      "shortcutId": "day_shortcut_1",
       "label": "$string:day_shortcut_1",
+      "shortcutId": "day_shortcut_1",
       "wants": [
         {
+          "abilityName": "EntryAbility",
           "bundleName": "dev.daybrite.showcase",
           "moduleName": "entry",
-          "abilityName": "EntryAbility",
           "parameters": {
             "day.uri": "dayshowcase://localization"
           }

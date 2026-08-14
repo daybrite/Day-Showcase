@@ -90,11 +90,31 @@ fn resource_lines() -> (String, String) {
 fn vectors_section() -> impl Piece {
     // Which stop of the palette ramp the live-tint glyph is showing.
     let live = Signal::new(0usize);
-    fn v(g: day::VectorName) -> AnyPiece {
-        vector(g)
-            .tint(crate::palette::SLATE)
-            .frame(28.0, 28.0)
-            .any()
+    // Edge length of the zoomable art, in points.
+    let zoom = Signal::new(96.0_f64);
+    /// One glyph cell at the current size.
+    fn v(g: day::VectorName, px: f64) -> AnyPiece {
+        vector(g).tint(crate::palette::SLATE).frame(px, px).any()
+    }
+    /// The glyph edge for a given zoom, scaled from the 28 pt the grid used when it was three
+    /// hand-written rows — so the default slider position still draws the size it always did.
+    fn glyph_px(zoom: f64) -> f64 {
+        (28.0 * zoom / 96.0).clamp(14.0, 72.0)
+    }
+    /// Columns for the glyph grid.
+    ///
+    /// Day reports the window's width CLASS, not a measured width (docs/size-classes.md), so the
+    /// base count is per-class and the glyph size scales it: bigger art means fewer columns,
+    /// which is what stops the grid running off the edge of a narrow window as the slider grows.
+    fn glyph_columns(class: Option<SizeClass>, px: f64) -> usize {
+        let base: f64 = match class.map(|c| c.width) {
+            None | Some(WidthClass::Compact) => 4.0,
+            Some(WidthClass::Medium) => 6.0,
+            Some(WidthClass::Expanded) => 8.0,
+            Some(WidthClass::Large) => 10.0,
+            Some(WidthClass::ExtraLarge) => 12.0,
+        };
+        ((base * 28.0 / px).round() as i64).clamp(2, base as i64) as usize
     }
     fn t(g: day::VectorName, c: Color) -> AnyPiece {
         vector(g).tint(c).frame(28.0, 28.0).any()
@@ -108,43 +128,68 @@ fn vectors_section() -> impl Piece {
     use crate::res::vectors as gv;
     section((
         label(crate::res::str::vectors_note()).font(Font::Footnote),
-        column((
-            row((
-                v(gv::nav_about),
-                v(gv::nav_animation),
-                v(gv::nav_canvas),
-                v(gv::nav_controls),
-                v(gv::nav_crash),
-                v(gv::nav_dates),
-                v(gv::nav_focus),
-                v(gv::nav_grid),
-            ))
-            .spacing(12.0),
-            row((
-                v(gv::nav_list),
-                v(gv::nav_localization),
-                v(gv::nav_media),
-                v(gv::nav_menus),
-                v(gv::nav_refresh),
-                v(gv::nav_resources),
-                v(gv::nav_scripting),
-                v(gv::nav_services),
-            ))
-            .spacing(12.0),
-            row((
-                v(gv::nav_stack),
-                v(gv::nav_tabs),
-                v(gv::nav_text),
-                v(gv::nav_textareas),
-                v(gv::nav_toolbars),
-                v(gv::nav_tweaks),
-                v(gv::nav_webview),
-            ))
-            .spacing(12.0),
-        ))
-        .spacing(10.0)
-        .align(HAlign::Leading)
-        .id("resources-vectors-grid"),
+        // The zoom governs BOTH the glyph grid below and the full-colour art further down, so it
+        // sits above the first thing it controls.
+        labeled(
+            crate::res::str::vectors_zoom(),
+            slider(zoom).range(48.0..=240.0).id("vector-zoom"),
+        ),
+        // The glyph grid is DERIVED, not hand-written: one list of glyphs, chunked into rows by a
+        // column count that falls out of the window's width class and the current glyph size. It
+        // was three fixed rows of eight, which meant a narrow window clipped them and adding a
+        // page's icon meant editing the layout.
+        //
+        // Rebuilt through `each` (rather than a reactive size, which pieces have no decorator for)
+        // keyed on BOTH inputs — the zoom step and the column count — so crossing a breakpoint
+        // re-chunks the rows and a zoom step re-renders every glyph at its new size. Keying on the
+        // derived column count rather than the raw class means a resize that does not change the
+        // layout costs nothing.
+        each(
+            move || {
+                let px = glyph_px(zoom.get());
+                // Both reads are tracked: the grid rebuilds on a zoom step and on a breakpoint.
+                vec![((px * 4.0).round() as i64, glyph_columns(size_class(), px))]
+            },
+            |k| *k,
+            move |slot| {
+                let (px_q, cols) = slot.get();
+                let px = px_q as f64 / 4.0;
+                let glyphs = [
+                    gv::nav_about,
+                    gv::nav_animation,
+                    gv::nav_canvas,
+                    gv::nav_controls,
+                    gv::nav_crash,
+                    gv::nav_dates,
+                    gv::nav_focus,
+                    gv::nav_grid,
+                    gv::nav_list,
+                    gv::nav_localization,
+                    gv::nav_media,
+                    gv::nav_menus,
+                    gv::nav_refresh,
+                    gv::nav_resources,
+                    gv::nav_scripting,
+                    gv::nav_services,
+                    gv::nav_stack,
+                    gv::nav_tabs,
+                    gv::nav_text,
+                    gv::nav_textareas,
+                    gv::nav_toolbars,
+                    gv::nav_tweaks,
+                    gv::nav_webview,
+                ];
+                let rows: Vec<AnyPiece> = glyphs
+                    .chunks(cols)
+                    .map(|chunk| {
+                        grid_row(PieceVec(chunk.iter().cloned().map(|g| v(g, px)).collect())).any()
+                    })
+                    .collect();
+                grid(PieceVec(rows))
+                    .spacing(12.0)
+                    .id("resources-vectors-grid")
+            },
+        ),
         // Tints: one glyph through the tint ladder.
         labeled(
             crate::res::str::vectors_tints(),
@@ -157,6 +202,29 @@ fn vectors_section() -> impl Piece {
             .spacing(12.0)
             .id("resources-vectors-tints"),
         ),
+        // Full-colour art, NOT a tintable glyph: everything above is a monochrome symbol that
+        // takes a `.tint`, so the pipeline's other half — many-path, authored-colour art — had
+        // no example here. The tiger is 240 paths, and it stays a real vector on every backend
+        // (on android-mdc a VectorDrawable, not a raster — docs/vectors.md). It follows the same
+        // zoom slider as the grid above.
+        //
+        // The glyph is REBUILT at each zoom step, not transform-scaled. A `.scale()` would
+        // magnify whatever the backend last rasterized — which is the very thing this demo
+        // exists to disprove — so the size change goes through `each`, whose keyed diff disposes
+        // the old view and asks the backend for the art at the NEW size. Every step is a fresh
+        // render from the SVG, which is what keeps the edges crisp as it grows.
+        //
+        // Keyed on 8 px steps rather than the raw f64: a slider drag would otherwise rebuild a
+        // 240-path drawing on every pixel of travel.
+        each(
+            move || vec![(zoom.get() / 8.0).round() as i64],
+            |step| *step,
+            move |slot| {
+                let px = slot.get() as f64 * 8.0;
+                vector(gv::tiger).frame(px, px).id("vector-tiger")
+            },
+        ),
+        label(crate::res::str::vectors_scene_note()).font(Font::Footnote),
         // A LIVE tint: the same glyph bound to a signal, so pressing the button repaints the
         // realized view through `ImagePatch::Tint` instead of rebuilding it (docs/vectors.md).
         labeled(

@@ -1,0 +1,7 @@
+name: runs-shot
+description: Capture styled runs.
+flow:
+  - wait_for: { id: nav }
+  - navigate: { route: text }
+  - scroll_to: { id: text-runs }
+  - screenshot: text-runs

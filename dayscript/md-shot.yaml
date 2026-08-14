@@ -1,0 +1,8 @@
+name: md-shot
+description: Capture the live markdown section.
+flow:
+  - wait_for: { id: nav }
+  - navigate: { route: text }
+  - assert_visible: { id: text-md-input }
+  - scroll_to: { id: text-md-output }
+  - screenshot: md

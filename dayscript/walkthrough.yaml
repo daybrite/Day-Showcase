@@ -545,6 +545,19 @@ flow:
   - assert_route: { route: resources }
   - assert_visible: { id: resources-numbers }
   - assert_visible: { id: resources-greeting }
+  # Full-colour vector art (docs/vectors.md): every other glyph here is a monochrome symbol that
+  # takes a tint, so this is the only step covering many-path authored-colour art. On android-mdc
+  # it is a VectorDrawable rather than a raster. Driving the zoom REBUILDS the glyph at the new
+  # size (see resources.rs), so this also covers that the art survives a resize on every backend.
+  - assert_visible: { id: vector-tiger }
+  # The same slider sizes the glyph grid, which re-chunks its columns as the art grows — so this
+  # covers the derived grid surviving a resize, not just the tiger.
+  - assert_visible: { id: resources-vectors-grid }
+  - set_value: { id: vector-zoom, value: 200 }
+  - wait_idle:
+  - assert_visible: { id: vector-tiger }
+  - assert_visible: { id: resources-vectors-grid }
+  - set_value: { id: vector-zoom, value: 96 }
   - screenshot:
       name: resources
       title: { en: "Resources", fr: "Ressources", ar: "الموارد", zh-CN: "资源" }
@@ -642,6 +655,20 @@ flow:
   - assert_visible: { id: text-font-bungee }
   - assert_visible: { id: text-font-specialelite }
   - assert_visible: { id: text-selectable }
+  # Styled runs (docs/text-runs.md): one label carrying bold/italic/code/strike/colour spans. The
+  # toggle below rebuilds it as a selectable backing, which on iOS is a different native class —
+  # the swap has to carry the attributed text across.
+  - assert_visible: { id: text-runs }
+  # Markdown parsed at run time (docs/markdown.md): type into the editor, and the label under it
+  # re-parses. Asserting its text proves the parse ran — the markers are gone from what the label
+  # shows — and the second case proves unfinished markup stays literal instead of flickering.
+  - assert_visible: { id: text-md-output }
+  - input: { id: text-md-input, text: "**bold** and *italic* and `code` and [a link](https://daybrite.dev)" }
+  - wait_idle:
+  - assert_text: { id: text-md-output, text: "bold and italic and code and a link" }
+  - input: { id: text-md-input, text: "half **open and a \\*literal\\* star" }
+  - wait_idle:
+  - assert_text: { id: text-md-output, text: "half **open and a *literal* star" }
   - screenshot:
       name: text
       title: { en: "Text", fr: "Texte", ar: "النص", zh-CN: "文字" }
@@ -652,8 +679,10 @@ flow:
   - toggle: { id: text-selectable-toggle, value: false }
   - assert_visible: { id: text-selectable }
   - assert_visible: { id: text-font-pacifico }
+  - assert_visible: { id: text-runs }
   - toggle: { id: text-selectable-toggle, value: true }
   - assert_visible: { id: text-selectable }
+  - assert_visible: { id: text-runs }
 
   # Text areas (docs/textarea.md): the native multi-line editor with editable/selectable/spell-check
   # attributes and per-toolkit capability-gated toggles. Seed the markdown sample for a stable shot.

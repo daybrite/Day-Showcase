@@ -1,0 +1,15 @@
+name: md-live
+description: The markdown label re-parses whatever the editor holds.
+flow:
+  - wait_for: { id: nav }
+  - navigate: { route: text }
+  # Typing replaces the buffer; the label under the divider re-parses it and shows the text
+  # with the markers stripped — which is the runtime parse, observed rather than asserted.
+  - input: { id: text-md-input, text: "**bold** and *italic* and `code` and [a link](https://daybrite.dev)" }
+  - wait_idle:
+  - assert_text: { id: text-md-output, text: "bold and italic and code and a link" }
+  # Unfinished markup stays literal, so a half-typed line never flickers.
+  - input: { id: text-md-input, text: "half **open and a \\*literal\\* star" }
+  - wait_idle:
+  - assert_text: { id: text-md-output, text: "half **open and a *literal* star" }
+  - screenshot: md-live

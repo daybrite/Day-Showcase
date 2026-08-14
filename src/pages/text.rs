@@ -13,6 +13,9 @@ use crate::widgets::page_trailing;
 /// body rebuilds through the `when` arms on each flip; the modifier itself is one-shot.
 pub(crate) fn text_page() -> AnyPiece {
     let sel_on = Signal::new(true);
+    // The markdown editor's buffer lives HERE, not in `sections`: flipping the Selectable toggle
+    // rebuilds the body, and a signal created down there would reset whatever the user typed.
+    let md = Signal::new(crate::res::str::text_markdown_sample().format());
     page_trailing(
         crate::res::str::nav_text(),
         "text-title",
@@ -24,8 +27,8 @@ pub(crate) fn text_page() -> AnyPiece {
         .spacing(8.0)
         .any(),
         column((
-            when(move || sel_on.get(), move || sections(true)),
-            when(move || !sel_on.get(), move || sections(false)),
+            when(move || sel_on.get(), move || sections(true, md)),
+            when(move || !sel_on.get(), move || sections(false, md)),
         ))
         .any(),
     )
@@ -39,7 +42,7 @@ fn sel(on: bool, p: impl Piece) -> AnyPiece {
 }
 
 /// The page body, built for one Selectable state (the `when` arms above rebuild it on flip).
-fn sections(on: bool) -> AnyPiece {
+fn sections(on: bool, md: Signal<String>) -> AnyPiece {
     // A style name (localized) rendered IN its own style — a self-documenting type specimen.
     // The dayscript id keeps the stable English style id regardless of locale.
     fn specimen(on: bool, id: &'static str, name: LocalizedText, f: Font) -> AnyPiece {
@@ -326,12 +329,87 @@ fn sections(on: bool) -> AnyPiece {
         styles,
         weights,
         styling,
+        rich(on),
+        markdown_live(on, md),
         colors,
         custom,
         links,
         selectable,
         baseline(),
     ))
+    .any()
+}
+
+/// Styled RUNS inside one wrapping paragraph (docs/text-runs.md): emphasis, code, colour and a
+/// strike, all in a single label. Composing several labels in a row looks similar on one line and
+/// then wraps wrongly, breaks selection, and reads as separate items to a screen reader, which is
+/// the reason this exists.
+///
+/// The text is built in code rather than from `res::str`, since the runs index the string by byte
+/// range: a translated string needs its own ranges, which is a per-locale build the localization
+/// pipeline does not do yet.
+///
+/// A banner marks the backends that render the text plain; `Cap::TextRuns` answers for it.
+fn rich(on: bool) -> AnyPiece {
+    // The sample names each style with its markdown spelling and renders it that way, so the
+    // supported set reads off the label itself.
+    let (text, runs) = TextBuilder::new()
+        .base(Font::Body)
+        .text("Inline styles in one label: ")
+        .strong("**bold**")
+        .text(", ")
+        .emphasis("*italic*")
+        .text(", ")
+        .code("`code`")
+        .text(", ")
+        .strikethrough("~~strikethrough~~")
+        .text(", and ")
+        .colored("colour", TEAL)
+        .text(", which markdown has no syntax for. Links are runs as well: they render, but ")
+        .text("nothing opens them yet.")
+        .build();
+    section((
+        crate::widgets::support_note(crate::support::cap(Cap::TextRuns)),
+        sel(on, label(text).runs(runs).id("text-runs")),
+    ))
+    .title(crate::res::str::text_runs_section())
+    .any()
+}
+
+/// Inline markdown parsed at RUN TIME (docs/markdown.md): a text area the user edits, and a
+/// `.markdown()` label under it that re-parses on every keystroke.
+///
+/// This is the case a compile-time macro cannot serve — the string is not a literal — and it is
+/// the same path a translated string or a value off the network takes. The sample seeds a link,
+/// which makes the backing on iOS a text view from the start (docs/text-runs.md); tapping it
+/// reports through `.on_link()`, which here shows the target rather than opening it.
+fn markdown_live(on: bool, md: Signal<String>) -> AnyPiece {
+    let opened = Signal::new(String::new());
+    section((
+        sel(
+            on,
+            label(crate::res::str::text_markdown_caption()).font(Font::Footnote),
+        ),
+        text_area(md).min_lines(3).max_lines(5).id("text-md-input"),
+        divider(),
+        sel(
+            on,
+            label(move || md.get())
+                .markdown()
+                .on_link(move |url| opened.set(url.to_string()))
+                .id("text-md-output"),
+        ),
+        when(
+            move || !opened.get().is_empty(),
+            move || {
+                label(crate::res::str::text_markdown_opened(opened))
+                    .font(Font::Footnote)
+                    .color(TEAL)
+                    .id("text-md-opened")
+            },
+        ),
+    ))
+    .title(crate::res::str::text_markdown_section())
     .any()
 }
 
