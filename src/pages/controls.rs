@@ -270,7 +270,7 @@ fn voice_section(mix: Mix) -> impl Piece {
                                 voices.update(|v| v.push(typed));
                             }
                         })
-                        .style(crate::widgets::primary())
+                        .tint(crate::widgets::primary())
                         .id("flavor-add"),
                 ))
                 .spacing(8.0),

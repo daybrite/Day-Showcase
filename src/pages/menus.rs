@@ -305,7 +305,7 @@ fn dialogs_section() -> impl Piece {
                         last.set("alert-ok".into());
                     });
                 })
-                .style(crate::widgets::primary())
+                .tint(crate::widgets::primary())
                 .id("btn-alert"),
             button(crate::res::str::modal_confirm())
                 .bordered()
@@ -329,7 +329,7 @@ fn dialogs_section() -> impl Piece {
                         last.set(if ok { "delete-yes" } else { "delete-no" }.into());
                     });
                 })
-                .style(crate::widgets::danger())
+                .tint(crate::widgets::danger())
                 .id("btn-delete"),
         ))
         .spacing(8.0),

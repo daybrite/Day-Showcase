@@ -123,7 +123,7 @@ fn js_console(tab: Signal<usize>, js_remote: JsHandle, js_embedded: JsHandle) ->
                     result.set(text);
                 });
             })
-            .style(crate::widgets::primary())
+            .tint(crate::widgets::primary())
             .id("webview-js-run"),
         text_area(result)
             .placeholder(crate::res::str::webview_js_result_hint())
@@ -158,7 +158,7 @@ fn remote_pane(js: JsHandle) -> AnyPiece {
             button(crate::res::str::webview_go())
                 .prominent()
                 .action(move || go.notify())
-                .style(crate::widgets::primary())
+                .tint(crate::widgets::primary())
                 .id("webview-go"),
         ))
         .spacing(8.0),

@@ -66,7 +66,7 @@ fn battery_section() -> impl Piece {
                         charging.set(b.is_charging());
                     }
                 })
-                .style(crate::widgets::primary())
+                .tint(crate::widgets::primary())
                 .id("battery-refresh"),
             label(move || reading.get()).id("battery-reading"),
         ))

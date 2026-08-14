@@ -73,7 +73,7 @@ fn speech_section() -> impl Piece {
                     // above already said; nothing to report that the user was not told.
                     let _ = day_part_speech::speak(&text);
                 })
-                .style(crate::widgets::primary())
+                .tint(crate::widgets::primary())
                 .id("speech-speak"),
             button(crate::res::str::speech_stop())
                 .bordered()
@@ -105,7 +105,7 @@ fn clipboard_section() -> impl Piece {
                     };
                     status.set(msg.format());
                 })
-                .style(crate::widgets::primary())
+                .tint(crate::widgets::primary())
                 .id("clipboard-copy"),
             button(crate::res::str::clipboard_paste())
                 .bordered()
@@ -146,7 +146,7 @@ fn prefs_section() -> impl Piece {
                     };
                     status.set(msg.format());
                 })
-                .style(crate::widgets::primary())
+                .tint(crate::widgets::primary())
                 .id("prefs-save"),
             button(crate::res::str::prefs_load())
                 .bordered()
@@ -167,7 +167,7 @@ fn prefs_section() -> impl Piece {
                     value.set(crate::res::str::prefs_empty().format());
                     status.set(crate::res::str::prefs_cleared().format());
                 })
-                .style(crate::widgets::danger())
+                .tint(crate::widgets::danger())
                 .id("prefs-clear"),
             label(move || status.get()).id("prefs-status"),
         ))
@@ -547,7 +547,7 @@ fn haptics_section() -> impl Piece {
                     crate::res::str::haptics_song_cascade(),
                     "Cascade",
                     CASCADE,
-                    crate::widgets::tinted_pale(crate::palette::AMBER),
+                    crate::widgets::tinted(crate::palette::AMBER),
                     playing,
                     last,
                 ),
@@ -569,16 +569,16 @@ fn song_button(
     title: LocalizedText,
     name: &'static str,
     beats: &'static [Beat],
-    style: crate::widgets::Tinted,
+    tint: Color,
     playing: Signal<bool>,
     last: Signal<String>,
 ) -> AnyPiece {
-    // `.style` is a Button method returning AnyPiece, so it comes before the Decorate modifiers;
-    // the grid modifier goes last, per docs/grid.md's ordering rule.
+    // `.tint` is a Button method, so it comes before the Decorate modifiers; the grid modifier
+    // goes last, per docs/grid.md's ordering rule.
     button(title)
         .enabled(move || !playing.get())
         .action(move || play_song(name, beats, playing, last))
-        .style(style)
+        .tint(tint)
         .id(id)
         .grow_w()
 }
@@ -812,7 +812,7 @@ fn notify_section() -> impl Piece {
                     };
                     status.set(msg);
                 })
-                .style(crate::widgets::primary())
+                .tint(crate::widgets::primary())
                 .id("notify-post"),
             button(crate::res::str::notify_cancel())
                 .bordered()
@@ -955,7 +955,7 @@ fn files_section() -> impl Piece {
                         }
                     });
                 })
-                .style(crate::widgets::primary())
+                .tint(crate::widgets::primary())
                 .id("btn-open-file"),
             button(crate::res::str::files_save())
                 .bordered()
@@ -1064,7 +1064,7 @@ fn http_section() -> impl Piece {
                     ),
                     Err(e) => status.set(format!("error: {e}")),
                 })
-                .style(crate::widgets::primary())
+                .tint(crate::widgets::primary())
                 .id("http-fetch")
                 .any(),
             label(move || status.get()).id("http-status").any(),
@@ -1254,7 +1254,7 @@ fn storage_section() -> impl Piece {
                         refresh();
                     });
                 })
-                .style(crate::widgets::primary())
+                .tint(crate::widgets::primary())
                 .id("fs-save"),
             button(crate::res::str::storage_load())
                 .bordered()
@@ -1281,7 +1281,7 @@ fn storage_section() -> impl Piece {
                         refresh();
                     });
                 })
-                .style(crate::widgets::danger())
+                .tint(crate::widgets::danger())
                 .id("fs-delete"),
             label(move || status.get()).id("fs-status"),
         ))

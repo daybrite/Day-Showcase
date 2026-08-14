@@ -96,7 +96,7 @@ fn group_section() -> impl Piece {
                         .unwrap_or(Field::Name);
                     focus.set(Some(next));
                 })
-                .style(crate::widgets::primary())
+                .tint(crate::widgets::primary())
                 .id("focus-next-button"),
             button(crate::res::str::focus_clear())
                 .action(move || {

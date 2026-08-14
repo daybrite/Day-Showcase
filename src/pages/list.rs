@@ -72,7 +72,7 @@ pub(crate) fn list_page() -> AnyPiece {
             button(crate::res::str::list_add())
                 .prominent()
                 .action(move || total.update(|c| *c += 100))
-                .style(crate::widgets::primary())
+                .tint(crate::widgets::primary())
                 .id("list-add"),
         ))
         .spacing(8.0),
@@ -108,7 +108,7 @@ pub(crate) fn list_page() -> AnyPiece {
                 .id("list-scroll-bottom"),
             button(crate::res::str::list_shuffle())
                 .action(move || rows.update(|v| shuffle(v)))
-                .style(crate::widgets::secondary())
+                .tint(crate::widgets::secondary())
                 .id("list-shuffle"),
             // Reset rebuilds the full set rather than sorting in place: rows can now be
             // swiped away, and a sort would faithfully restore the ORDER of whatever survived

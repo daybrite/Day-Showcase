@@ -687,7 +687,7 @@ fn compose_section() -> impl Piece {
         row((
             button(crate::res::str::compose_plain_btn()).id("compose-plain-btn"),
             button(crate::res::str::compose_styled_btn())
-                .style(FilledButtonStyle { color: SKY })
+                .tint(SKY)
                 .id("compose-styled-btn"),
         ))
         .spacing(12.0),

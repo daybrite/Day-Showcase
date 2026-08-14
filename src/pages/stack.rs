@@ -64,7 +64,7 @@ pub(crate) fn stack_page() -> AnyPiece {
         button(crate::res::str::stack_push())
             .prominent()
             .action(move || push(path))
-            .style(crate::widgets::primary())
+            .tint(crate::widgets::primary())
             .id("stack-push"),
         // An ABSOLUTE route with query params (docs/navigation.md), built typed: it anchors
         // the enclosing selector at Section::Stack, resets this stack, pushes Item { id: 42 };
@@ -78,7 +78,7 @@ pub(crate) fn stack_page() -> AnyPiece {
         .id("stack-link"),
         button(crate::res::str::stack_cover_button())
             .action(move || cover_open.set(Some(CoverKey)))
-            .style(crate::widgets::secondary())
+            .tint(crate::widgets::secondary())
             .id("cover-present"),
         cover(cover_open, move |_| {
             column((

@@ -242,53 +242,26 @@ pub(crate) fn numeric_readout(
 /// moment `grow_w` stretches a button to share a grid column — so this centres it. Everything
 /// here is plain composition (`padding`/`background`/`corner_radius`), so it needs no per-backend
 /// code and looks the same on all nine.
-pub(crate) struct Tinted {
-    color: Color,
-    /// Pale fills (AMBER) need dark text; the palette's own note.
-    ink: bool,
-}
-
-impl ButtonStyle for Tinted {
-    fn body(&self, label: AnyPiece) -> AnyPiece {
-        column((label,))
-            .align(HAlign::Center)
-            .grow_w()
-            .padding(Insets::symmetric(16.0, 10.0))
-            .background(self.color)
-            .corner_radius(10.0)
-    }
-    fn label_color(&self) -> Option<Color> {
-        Some(if self.ink {
-            crate::palette::INK
-        } else {
-            Color::WHITE
-        })
-    }
-}
-
-/// A tinted button in an arbitrary palette color (white label).
-pub(crate) fn tinted(color: Color) -> Tinted {
-    Tinted { color, ink: false }
-}
-
-/// A tinted button on a PALE fill, which takes [`crate::palette::INK`] text instead of white.
-pub(crate) fn tinted_pale(color: Color) -> Tinted {
-    Tinted { color, ink: true }
+/// A button fill in an arbitrary palette colour. The label colour is the platform's business:
+/// `Button::tint` picks the readable one for the fill, so a pale amber gets dark text and a
+/// saturated rust gets white without the app choosing.
+pub(crate) fn tinted(color: Color) -> Color {
+    color
 }
 
 /// The page's headline action — the one thing a visitor should press first.
-pub(crate) fn primary() -> Tinted {
-    tinted(crate::palette::SKY)
+pub(crate) fn primary() -> Color {
+    crate::palette::SKY
 }
 
-/// A supporting action that still deserves color: a second, cooler voice next to [`primary`].
-pub(crate) fn secondary() -> Tinted {
-    tinted(crate::palette::TEAL)
+/// A supporting action that still deserves colour: a second, cooler voice next to [`primary`].
+pub(crate) fn secondary() -> Color {
+    crate::palette::TEAL
 }
 
 /// Destructive or irreversible — deleting, clearing, crashing on purpose.
-pub(crate) fn danger() -> Tinted {
-    tinted(crate::palette::RUST)
+pub(crate) fn danger() -> Color {
+    crate::palette::RUST
 }
 
 // ---------------------------------------------------------------------------

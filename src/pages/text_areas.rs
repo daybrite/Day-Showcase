@@ -76,7 +76,7 @@ pub(crate) fn text_areas_page() -> AnyPiece {
             .id("ta-seed-long"),
         button(crate::res::str::textareas_seed_markdown())
             .action(move || content.set(MARKDOWN.into()))
-            .style(crate::widgets::primary())
+            .tint(crate::widgets::primary())
             .id("ta-seed-markdown"),
     ))
     .spacing(8.0),))

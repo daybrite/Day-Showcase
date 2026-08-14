@@ -45,14 +45,14 @@ pub(crate) fn crash_page() -> AnyPiece {
             crate::res::str::crash_abort_label().format(),
             button(crate::res::str::crash_abort())
                 .action(|| schedule(|| std::process::abort()))
-                .style(crate::widgets::danger())
+                .tint(crate::widgets::danger())
                 .id("crash-abort"),
         ),
         crash_action(
             crate::res::str::crash_segv_label().format(),
             button(crate::res::str::crash_segv())
                 .action(|| schedule(segfault))
-                .style(crate::widgets::tinted(crate::palette::VIOLET))
+                .tint(crate::widgets::tinted(crate::palette::VIOLET))
                 .id("crash-segv"),
         ),
         crash_action(
@@ -62,7 +62,7 @@ pub(crate) fn crash_page() -> AnyPiece {
             // Pale amber, the mildest of the three — it is the one the app walks away from.
             button(crate::res::str::crash_contained())
                 .action(|| panic!("intentional contained panic from the showcase crash page"))
-                .style(crate::widgets::tinted_pale(crate::palette::AMBER))
+                .tint(crate::widgets::tinted(crate::palette::AMBER))
                 .id("crash-contained"),
         ),
     ))
@@ -103,11 +103,11 @@ pub(crate) fn crash_page() -> AnyPiece {
                 row((
                     button(crate::res::str::crash_send())
                         .action(send_newest)
-                        .style(crate::widgets::primary())
+                        .tint(crate::widgets::primary())
                         .id("crash-send"),
                     button(crate::res::str::crash_clear())
                         .action(clear_reports)
-                        .style(crate::widgets::secondary())
+                        .tint(crate::widgets::secondary())
                         .id("crash-clear"),
                 ))
                 .spacing(8.0)

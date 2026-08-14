@@ -122,7 +122,15 @@ pub(crate) fn scripting_page() -> AnyPiece {
                             day::record::start_into(buf);
                         }
                     })
-                    .style(RecordButtonStyle { recording })
+                    // A REACTIVE tint: the native button recolors in place while recording,
+                    // keeping its ripple/press rendering and its role (docs/buttons.md).
+                    .tint(move || {
+                        if recording.get() {
+                            crate::palette::RUST
+                        } else {
+                            crate::palette::SLATE
+                        }
+                    })
                     .id("scripting-record"),
                     // Play back the buffer in-process with the configured per-step delay. Disabled
                     // while recording, and when the script is empty or does not parse.
@@ -226,33 +234,6 @@ pub(crate) fn scripting_page() -> AnyPiece {
         ))
         .any(),
     )
-}
-
-/// A filled button style whose fill tracks the recording flag: a strong "rust" red while recording,
-/// a quiet slate otherwise — so "recording" is unmistakable at a glance. Mirrors day-pieces'
-/// `FilledButtonStyle`, but with a REACTIVE background (the built-in fill is static). White label on
-/// both fills (the palette guarantees ≥4.5:1 on each).
-struct RecordButtonStyle {
-    recording: Signal<bool>,
-}
-
-impl day::prelude::ButtonStyle for RecordButtonStyle {
-    fn body(&self, label: AnyPiece) -> AnyPiece {
-        let recording = self.recording;
-        label
-            .padding(day::prelude::Insets::symmetric(16.0, 8.0))
-            .background(move || {
-                if recording.get() {
-                    crate::palette::RUST
-                } else {
-                    crate::palette::SLATE
-                }
-            })
-            .corner_radius(8.0)
-    }
-    fn label_color(&self) -> Option<day::prelude::Color> {
-        Some(day::prelude::Color::WHITE)
-    }
 }
 
 // ---------------------------------------------------------------------------
