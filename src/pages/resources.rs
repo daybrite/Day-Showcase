@@ -257,6 +257,15 @@ fn vectors_section() -> impl Piece {
                     .weight(VectorWeight::Bold)
                     .tint(crate::palette::SLATE)
                     .frame(36.0, 36.0),
+                // A PLAIN SVG at a weight: it has no weight axis, so it stages once and this
+                // resolves back to the base glyph (docs/vectors.md). It looks identical to
+                // Regular by design — what it proves is that the alias resolves instead of
+                // drawing nothing, which is the failure this arrangement risks on every backend.
+                vector(gv::nav_about)
+                    .weight(VectorWeight::Bold)
+                    .tint(crate::palette::SLATE)
+                    .frame(36.0, 36.0)
+                    .id("vector-aliased-weight"),
             ))
             .spacing(12.0)
             .id("resources-vectors-weights"),

@@ -553,6 +553,10 @@ flow:
   # The same slider sizes the glyph grid, which re-chunks its columns as the art grows — so this
   # covers the derived grid surviving a resize, not just the tiger.
   - assert_visible: { id: resources-vectors-grid }
+  # A plain SVG asked for a WEIGHT it has no art for: it must resolve back to its base glyph
+  # rather than draw nothing (docs/vectors.md). Only SF templates stage `__light`/`__bold`, so
+  # this is the case every other glyph in the app is in.
+  - assert_visible: { id: vector-aliased-weight }
   - set_value: { id: vector-zoom, value: 200 }
   - wait_idle:
   - assert_visible: { id: vector-tiger }
