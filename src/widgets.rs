@@ -323,10 +323,16 @@ pub(crate) fn support_banner(support: Support) -> Option<AnyPiece> {
             // (Qt, web — docs/vectors.md), and the icon has to read as a caution mark rather
             // than as the first letter of the sentence beside it.
             vector(crate::res::vectors::support_warning.clone()).frame(18.0, 18.0),
-            label(text).font(Font::Footnote).color(color).grow(),
+            // `grow_w`, not `grow`: the label takes the width but keeps the height of its text,
+            // so the row is exactly as tall as the wrapped sentence.
+            label(text).font(Font::Footnote).color(color).grow_w(),
         ))
         .spacing(8.0)
-        .align(VAlign::Center)
+        // TOP, not centre. This sentence wraps to two or three lines on a narrow window, and a
+        // centred icon then sits BETWEEN them — the mark belongs beside the line the reader
+        // starts on. `VAlign::FirstBaseline` would not help: a vector has no text baseline, so a
+        // baseline row falls back to centring it (docs/baseline.md).
+        .align(VAlign::Top)
         .padding(10.0)
         .background(Color::rgba(color.r, color.g, color.b, 0.14))
         .corner_radius(8.0)
