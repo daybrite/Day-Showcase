@@ -15,12 +15,236 @@ pub(crate) fn canvas_page() -> AnyPiece {
         Some(crate::res::str::canvas_caption()),
         form((
             shapes_section(),
+            paths_section(),
             gradients_section(),
             gauge_section(),
             compose_section(),
         ))
         .any(),
     )
+}
+
+/// Paths, stroke styles and clipping (docs/canvas.md): the primitives beyond rectangles and
+/// polygons, in three canvases so the whole vocabulary fits one screen.
+///
+/// Each canvas takes an equal share of the row's width (`grow_w`) and derives its height from
+/// that width (`aspect_ratio`), so the group fills the page and grows with the window. The
+/// drawings themselves are written in a fixed 100x100 DESIGN space and scaled once by
+/// [`in_design_box`], which is what keeps every shape's proportions instead of stretching them.
+fn paths_section() -> impl Piece {
+    section((
+        label(crate::res::str::paths_caption()).font(Font::Footnote),
+        row((
+            // Arbitrary paths: the same two contours under both fill rules (even-odd cuts the
+            // hole, non-zero does not), and a Catmull-Rom spline through scattered points.
+            canvas(|d, size| {
+                in_design_box(d, size, |d| {
+                    for (i, rule) in [FillRule::EvenOdd, FillRule::NonZero].iter().enumerate() {
+                        let cx = if i == 0 { 40.0 } else { 110.0 };
+                        d.fill(
+                            PathBuilder::new()
+                                .rule(*rule)
+                                .circle(Point::new(cx, 32.0), 20.0)
+                                .circle(Point::new(cx, 32.0), 11.0)
+                                .build(),
+                            if i == 0 { TEAL } else { VIOLET },
+                        );
+                    }
+                    let pts: Vec<Point> = [
+                        (6.0, 90.0),
+                        (28.0, 66.0),
+                        (50.0, 86.0),
+                        (72.0, 62.0),
+                        (94.0, 80.0),
+                    ]
+                    .iter()
+                    .map(|(x, y)| Point::new(*x, *y))
+                    .collect();
+                    d.stroke_styled(
+                        PathBuilder::new().smooth_polyline(&pts, 1.0).build(),
+                        AZURE,
+                        StrokeStyle::round(3.0),
+                    );
+                });
+            })
+            .id("canvas-paths")
+            .aspect_ratio(DESIGN_RATIO)
+            .grow_w(),
+            // Stroke styles and clipping: the three caps, the three joins, a dashed rule, a
+            // gradient-painted stroke, and a fan of lines confined to a path.
+            canvas(|d, size| {
+                in_design_box(d, size, |d| {
+                    for (i, cap) in [LineCap::Butt, LineCap::Round, LineCap::Square]
+                        .iter()
+                        .enumerate()
+                    {
+                        let y = 12.0 + 10.0 * i as f64;
+                        d.stroke_styled(
+                            Shape::Line(Point::new(14.0, y), Point::new(64.0, y)),
+                            CORAL,
+                            StrokeStyle {
+                                width: 7.0,
+                                cap: *cap,
+                                ..Default::default()
+                            },
+                        );
+                    }
+                    for (i, join) in [LineJoin::Miter, LineJoin::Round, LineJoin::Bevel]
+                        .iter()
+                        .enumerate()
+                    {
+                        let x = 92.0 + 21.0 * i as f64;
+                        d.stroke_styled(
+                            PathBuilder::new()
+                                .move_to(Point::new(x - 8.0, 30.0))
+                                .line_to(Point::new(x, 10.0))
+                                .line_to(Point::new(x + 8.0, 30.0))
+                                .build(),
+                            AMBER,
+                            StrokeStyle {
+                                width: 6.0,
+                                join: *join,
+                                ..Default::default()
+                            },
+                        );
+                    }
+                    d.stroke_styled(
+                        Shape::Line(Point::new(12.0, 46.0), Point::new(138.0, 46.0)),
+                        SLATE,
+                        StrokeStyle::dashed(2.0, vec![8.0, 5.0]),
+                    );
+                    d.stroke_styled(
+                        Shape::Line(Point::new(12.0, 56.0), Point::new(138.0, 56.0)),
+                        LinearGradient::horizontal(RUST, SKY),
+                        StrokeStyle::round(6.0),
+                    );
+                    // Without the clip these lines would run the full height of the box.
+                    let clip = PathBuilder::new()
+                        .move_to(Point::new(15.0, 98.0))
+                        .line_to(Point::new(15.0, 74.0))
+                        .quad_to(Point::new(75.0, 58.0), Point::new(135.0, 74.0))
+                        .line_to(Point::new(135.0, 98.0))
+                        .close()
+                        .build();
+                    d.clipped(clip, |d| {
+                        for i in 0..20 {
+                            let x = 3.0 + 8.0 * i as f64;
+                            d.stroke(
+                                Shape::Line(Point::new(x, 60.0), Point::new(x - 12.0, 100.0)),
+                                if i % 2 == 0 { INK } else { TEAL },
+                                4.0,
+                            );
+                        }
+                    });
+                });
+            })
+            .id("canvas-strokes")
+            .aspect_ratio(DESIGN_RATIO)
+            .grow_w(),
+            // SVG path data, parsed at COMPILE time into PathBuilder chains (build_path!). Each
+            // glyph is authored in a 24x24 box; the 3x2 grid places them inside the design box.
+            canvas(|d, size| {
+                in_design_box(d, size, |d| {
+                    let (cw, ch) = (DESIGN_W / 3.0, DESIGN_H / 2.0);
+                    let s = cw.min(ch) * 0.82 / 24.0;
+                    let cell = |col: usize, rowi: usize| {
+                        Affine::scale(s, s).then(Affine::translate(
+                            cw * col as f64 + (cw - 24.0 * s) / 2.0,
+                            ch * rowi as f64 + (ch - 24.0 * s) / 2.0,
+                        ))
+                    };
+                    // A heart, from relative cubics.
+                    d.transformed(cell(0, 0), |d| {
+                        d.fill(
+                            build_path!(
+                                "M12,21 C5.5,15.5 2,12 2,8.5 C2,5.4 4.4,3 7.5,3 \
+                                 C9.2,3 10.9,3.8 12,5.1 C13.1,3.8 14.8,3 16.5,3 \
+                                 C19.6,3 22,5.4 22,8.5 C22,12 18.5,15.5 12,21 Z"
+                            )
+                            .build(),
+                            CORAL,
+                        );
+                    });
+                    // A PENTAGRAM — one self-intersecting contour, so the fill rules disagree:
+                    // even-odd hollows the middle pentagon, non-zero would fill it solid.
+                    d.transformed(cell(1, 0), |d| {
+                        d.fill(
+                            build_path!("M12,2 L19.1,21.5 2.4,9.2 21.6,9.2 4.9,21.5 Z")
+                                .rule(FillRule::EvenOdd)
+                                .build(),
+                            AMBER,
+                        );
+                    });
+                    // Arcs (A) become cubics in the macro: a crescent from two of them.
+                    d.transformed(cell(2, 0), |d| {
+                        d.fill(
+                            build_path!("M16,3 A 10,10 0 1 0 16,21 A 8,8 0 1 1 16,3 Z").build(),
+                            VIOLET,
+                        );
+                    });
+                    // Smooth cubics (S) reflect the previous control point: one continuous wave.
+                    d.transformed(cell(0, 1), |d| {
+                        d.stroke_styled(
+                            build_path!("M1,12 C4,4 8,4 11,12 S18,20 23,12").build(),
+                            AZURE,
+                            StrokeStyle::round(2.4),
+                        );
+                    });
+                    // Quadratics (Q/T): a stylised cloud.
+                    d.transformed(cell(1, 1), |d| {
+                        d.fill(
+                            build_path!(
+                                "M6,18 Q2,18 2,14 T6,10 Q6,4 12,4 Q18,4 18,10 Q22,10 22,14 T18,18 Z"
+                            )
+                            .build(),
+                            SKY,
+                        );
+                    });
+                    // Two arc circles, filled even-odd: the inner one reads as a hole.
+                    d.transformed(cell(2, 1), |d| {
+                        d.fill(
+                            build_path!("M12,2 A10,10 0 1 1 11.99,2 Z M12,7 A5,5 0 1 0 12.01,7 Z")
+                                .rule(FillRule::EvenOdd)
+                                .build(),
+                            TEAL,
+                        );
+                    });
+                });
+            })
+            .id("canvas-svg-paths")
+            .aspect_ratio(DESIGN_RATIO)
+            .grow_w(),
+        ))
+        .spacing(16.0),
+    ))
+    .title(crate::res::str::paths_title())
+}
+
+/// The coordinate space the drawings above are written in, and the ratio the canvases hold.
+///
+/// 3:2 because the SVG grid IS three cells by two rows, and because a square canvas taking a
+/// third of a wide window would make this one section taller than the screen.
+const DESIGN_W: f64 = 150.0;
+const DESIGN_H: f64 = 100.0;
+const DESIGN_RATIO: f64 = DESIGN_W / DESIGN_H;
+
+/// Run `f` in the [`DESIGN_W`] x [`DESIGN_H`] box, scaled UNIFORMLY to fit `size` and centred.
+///
+/// One scale factor for both axes is the whole point: the canvas is whatever size the row gives
+/// it, and every shape inside keeps the proportions it was drawn with rather than stretching.
+/// The canvas is asked to hold the same ratio, so in practice the fit is exact and the centring
+/// terms are zero — they matter only if a backend hands the canvas a differently-shaped box.
+fn in_design_box(d: &mut Draw, size: Size, f: impl FnOnce(&mut Draw)) {
+    let s = (size.width / DESIGN_W)
+        .min(size.height / DESIGN_H)
+        .max(0.001);
+    d.transformed(
+        Affine::scale(s, s).then(Affine::translate(
+            (size.width - DESIGN_W * s) / 2.0,
+            (size.height - DESIGN_H * s) / 2.0,
+        )),
+        f,
+    );
 }
 
 /// Rotate a gradient unit point about the box centre (0.5, 0.5) — the shared angle applied to
