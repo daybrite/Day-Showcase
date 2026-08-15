@@ -709,15 +709,21 @@ flow:
   - assert_route: { route: toolbars }
   - assert_visible: { id: toolbars-title }
   # Appearance: ONE native segmented control over the persisted setting (src/commands.rs), which
-  # the App menu's Appearance submenu also drives. Skipped on Qt as
-  # well, which reports `Cap::Appearance` unsupported — the items lower DISABLED there, and the
-  # readout says so rather than the app pretending the override took.
-  - toolbar: { item: tb-theme, index: 2, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom, macos-qt, linux-qt, windows-qt] }
+  # the App menu's Appearance submenu also drives. Skipped on Qt, which reports `Cap::Appearance`
+  # unsupported — the items lower DISABLED there, and the readout says so rather than the app
+  # pretending the override took.
+  #
+  # These skip by TOOLKIT (`qt`), not by target. The gate is a capability, and every target of a
+  # toolkit answers a capability identically — but Qt has THREE targets (macos-qt, linux-qt,
+  # windows-qt) and GTK another three. Listing targets means the two you cannot build locally are
+  # the two you forget, which is exactly how linux-qt and then windows-qt each failed CI in turn.
+  # `skip_on`/`only_on` accept either form (day-cli script.rs), so prefer the toolkit.
+  - toolbar: { item: tb-theme, index: 2, skip_on: [uikit, mdc, arkui, dom, qt] }
   - wait_idle:
-  - assert_text: { id: toolbar-appearance, key: cmd_appearance_dark, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom, macos-qt, linux-qt, windows-qt] }
-  - toolbar: { item: tb-theme, index: 1, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom, macos-qt, linux-qt, windows-qt] }
+  - assert_text: { id: toolbar-appearance, key: cmd_appearance_dark, skip_on: [uikit, mdc, arkui, dom, qt] }
+  - toolbar: { item: tb-theme, index: 1, skip_on: [uikit, mdc, arkui, dom, qt] }
   - wait_idle:
-  - assert_text: { id: toolbar-appearance, key: cmd_appearance_system, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom, macos-qt, linux-qt, windows-qt] }
+  - assert_text: { id: toolbar-appearance, key: cmd_appearance_system, skip_on: [uikit, mdc, arkui, dom, qt] }
   # The recorder's transport (docs/agent.md), driven from the bar it lives in. Record two taps that
   # stay on THIS page — a replay that navigated away would take the readout with it — then stop,
   # play, pause, resume. `tb-new` is deliberately not exercised: it opens a second window, whose
@@ -776,11 +782,19 @@ flow:
   - toolbar: { item: cmd-screenshot, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - assert_presented: { skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - respond: { dismiss: true, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
-  # Adding an item is just a different list: tick the switch, then the new item is drivable.
+  # Adding an item is just a different list: tick the switch, then the new item is drivable —
+  # which the `toolbar:` step itself proves, since it fails on an absent or disabled item.
+  #
+  # Its READOUT is deliberately not asserted. `tb-extra` copies to the clipboard and only writes
+  # the readout when that succeeds, and on Linux day-part-clipboard shells out to wl-copy/xclip —
+  # neither of which a CI runner has, so the write fails and the readout is never written. That is
+  # the same constraint this file already records for the clipboard round-trip above ("headless
+  # Linux has no system clipboard"), which is why the strict assertion lives in
+  # dayscript/clipboard-roundtrip.yaml, gated to macOS + Android. Asserting it here made linux-gtk
+  # and linux-qt fail on a capability the step is not about.
   - toggle: { id: toolbar-extra-switch, value: true, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - wait_idle:
   - toolbar: { item: tb-extra, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
-  - assert_text: { id: toolbar-last, key: toolbar_last_extra, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   # Disabling one item patches only that item — `toolbar:` refuses a disabled command.
   - toggle: { id: toolbar-enabled-switch, value: false, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - wait_idle:
