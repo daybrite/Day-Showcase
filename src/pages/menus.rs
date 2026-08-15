@@ -127,6 +127,19 @@ fn build_app_menu() -> Vec<MenuEntry> {
                         .action(move || (shot.run)())
                 },
                 menu_separator(),
+                menu_separator(),
+                // Appearance (commands.rs): the same three commands the toolbar's segmented
+                // control carries. ⌘⌥1/2/3 — the digits are the group's order, and ⌥ keeps them
+                // clear of the tab-switching ⌘1..9 every desktop browser and editor already owns.
+                sub_menu(
+                    crate::res::str::menu_appearance().format(),
+                    vec![
+                        appearance_item(crate::commands::Appearance::Light, "1"),
+                        appearance_item(crate::commands::Appearance::System, "2"),
+                        appearance_item(crate::commands::Appearance::Dark, "3"),
+                    ],
+                ),
+                menu_separator(),
                 menu_item(reload.clone())
                     .key("r")
                     .action(log(format!("{view} ▸ {reload}"))),
@@ -138,7 +151,62 @@ fn build_app_menu() -> Vec<MenuEntry> {
             ],
         )
         .bar_role(MenuBarRole::View),
+        // A menu of its own for the recorder (docs/agent.md): it is neither a File nor a View
+        // command, and burying a transport in another menu is how it stops being found. No
+        // `bar_role` — there is no standard slot for it, so it takes an ordinary custom menu.
+        sub_menu(
+            crate::res::str::menu_record().format(),
+            vec![
+                // ⌘⇧R / ⌘⇧P: the recording pair, shifted clear of View ▸ Reload (⌘R) and the
+                // platform's Print (⌘P). Both TITLES carry their state, so one item is
+                // Record ▸ Stop and the other Play ▸ Pause ▸ Resume.
+                {
+                    let rec = crate::commands::record();
+                    menu_item((rec.title)().format())
+                        .shortcut(Shortcut::new("r").shift())
+                        .enabled((rec.enabled)())
+                        .action(move || (rec.run)())
+                },
+                {
+                    let play = crate::commands::play_pause();
+                    menu_item((play.title)().format())
+                        .shortcut(Shortcut::new("p").shift())
+                        .enabled((play.enabled)())
+                        .action(move || (play.run)())
+                },
+                menu_separator(),
+                {
+                    let clear = crate::commands::clear_recording();
+                    menu_item((clear.title)().format())
+                        .shortcut(Shortcut::new("k").shift())
+                        .enabled((clear.enabled)())
+                        .action(move || (clear.run)())
+                },
+                menu_separator(),
+                menu_item(crate::res::str::toolbar_menu_open_scripting().format()).action(|| {
+                    navigate_to(&crate::Section::Scripting);
+                }),
+            ],
+        ),
     ]
+}
+
+/// One appearance mode as a menu item: ⌘⌥`key`, the command's own title, and a check mark on the
+/// mode in force. Reading `checked` HERE is what re-lowers the bar when the setting changes.
+fn appearance_item(mode: crate::commands::Appearance, key: &str) -> MenuEntry {
+    let cmd = crate::commands::appearance_command(mode);
+    let title = (cmd.title)().format();
+    // The mode in force is marked in the title, since day's menu model carries no checked state
+    // (the same reason Star spells its two directions into the title).
+    let title = if (cmd.checked)() {
+        format!("✓ {title}")
+    } else {
+        title
+    };
+    menu_item(title)
+        .shortcut(Shortcut::new(key).alt())
+        .enabled((cmd.enabled)())
+        .action(move || (cmd.run)())
 }
 
 /// Menus & dialogs — the app's transient native surfaces in one place: the menu bar and

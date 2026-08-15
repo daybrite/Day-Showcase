@@ -657,13 +657,13 @@ toolbar_controls_title = قيادته من هنا
 toolbar_vocabulary_title = مفردات العناصر
 # Item labels — these appear IN the toolbar, so they stay short.
 toolbar_sidebar = الشريط الجانبي
-toolbar_new = جديد
-toolbar_refresh = تحديث
+toolbar_new = نافذة جديدة
 toolbar_star = نجمة
 toolbar_menu = المزيد
-toolbar_extra = علامة مرجعية
-toolbar_menu_first = تكرار
-toolbar_menu_second = إعادة تسمية
+toolbar_menu_open_scripting = فتح صفحة البرمجة النصية
+toolbar_menu_copy_script = نسخ البرنامج النصي
+toolbar_extra_tooltip = نسخ مجموعة الأدوات والإصدار، لتقرير خلل
+toolbar_extra = نسخ المعلومات
 toolbar_search_placeholder = بحث
 show_source = عرض المصدر
 # The live readout.
@@ -683,15 +683,19 @@ toolbar_presses = { $count ->
 }
 toolbar_last_label = آخر إجراء
 toolbar_last_none = لا شيء بعد
-toolbar_last_new = جديد
-toolbar_last_refresh = تحديث
+toolbar_appearance_label = المظهر
+toolbar_appearance_ignored = { $mode } (تتجاهله مجموعة الأدوات هذه)
+toolbar_transport_label = المُسجِّل
+toolbar_transport_idle = خامل
+toolbar_transport_recording = جارٍ التسجيل
+toolbar_transport_playing = جارٍ التشغيل
+toolbar_transport_paused = مُوقَف مؤقتًا
+toolbar_last_new = نافذة جديدة
 toolbar_last_star = تبديل النجمة
-toolbar_last_menu_first = المزيد ▸ تكرار
-toolbar_last_menu_second = المزيد ▸ إعادة تسمية
-toolbar_last_extra = علامة مرجعية
+toolbar_last_extra = نُسخت معلومات الإصدار
 # The page's own controls.
-toolbar_extra_label = إظهار عنصر العلامة المرجعية
-toolbar_enabled_label = تفعيل عنصر التحديث
+toolbar_extra_label = إظهار عنصر نسخ المعلومات
+toolbar_enabled_label = تفعيل عنصر المسح
 toolbar_clear_search = مسح البحث
 toolbar_seed_search = تعبئة البحث
 toolbar_seed_text = أشرطة الأدوات
@@ -754,7 +758,6 @@ nav_scripting = البرمجة النصية
 scripting_caption = سجّل نقراتك وتنقّلك في سكربت dayscript قابل لإعادة التشغيل. اضغط «تسجيل»، وتنقّل في التطبيق ونفّذ إجراءاتك، ثم عُد واضغط «إيقاف». عدّل YAML لضبطه، و«تشغيل» لإعادة تشغيله، و«نسخ» أو «تصدير» للاحتفاظ به.
 scripting_record = تسجيل
 scripting_stop = إيقاف
-scripting_play = تشغيل
 scripting_copy = نسخ
 scripting_export = تصدير
 scripting_copied = تم النسخ إلى الحافظة
@@ -809,6 +812,17 @@ msg_subject_three = رسومات من الورشة
 # application menu and each navigation row's context menu.
 # Save a picture of this window (commands.rs, docs/window-image.md).
 cmd_screenshot = لقطة شاشة…
+cmd_appearance_light = فاتح
+cmd_appearance_system = النظام
+cmd_appearance_dark = داكن
+cmd_record = تسجيل
+cmd_stop_recording = إيقاف
+cmd_play = تشغيل
+cmd_pause = إيقاف مؤقت
+cmd_resume = استئناف
+cmd_clear_recording = مسح التسجيل
+menu_appearance = المظهر
+menu_record = التسجيل
 cmd_star = تمييز بنجمة
 cmd_unstar = إزالة النجمة
 

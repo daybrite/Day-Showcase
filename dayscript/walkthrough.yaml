@@ -708,7 +708,39 @@ flow:
   - navigate: { route: toolbars }
   - assert_route: { route: toolbars }
   - assert_visible: { id: toolbars-title }
-  - toolbar: { item: tb-new, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  # Appearance: ONE native segmented control over the persisted setting (src/commands.rs), which
+  # the App menu's Appearance submenu also drives. Skipped on Qt as
+  # well, which reports `Cap::Appearance` unsupported — the items lower DISABLED there, and the
+  # readout says so rather than the app pretending the override took.
+  - toolbar: { item: tb-theme, index: 2, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom, macos-qt] }
+  - wait_idle:
+  - assert_text: { id: toolbar-appearance, key: cmd_appearance_dark, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom, macos-qt] }
+  - toolbar: { item: tb-theme, index: 1, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom, macos-qt] }
+  - wait_idle:
+  - assert_text: { id: toolbar-appearance, key: cmd_appearance_system, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom, macos-qt] }
+  # The recorder's transport (docs/agent.md), driven from the bar it lives in. Record two taps that
+  # stay on THIS page — a replay that navigated away would take the readout with it — then stop,
+  # play, pause, resume. `tb-new` is deliberately not exercised: it opens a second window, whose
+  # chrome would then sit behind every later screenshot in the run.
+  - assert_text: { id: toolbar-transport, key: toolbar_transport_idle, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - toolbar: { item: cmd-record, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - wait_idle:
+  - assert_text: { id: toolbar-transport, key: toolbar_transport_recording, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - tap: { id: toolbar-seed-search, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - tap: { id: toolbar-clear-search, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - toolbar: { item: cmd-record, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - wait_idle:
+  - assert_text: { id: toolbar-transport, key: toolbar_transport_idle, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  # Play ↔ Pause ↔ Resume on one item: the title and icon follow the run.
+  - toolbar: { item: cmd-play, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - wait_idle:
+  - assert_text: { id: toolbar-transport, key: toolbar_transport_playing, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - toolbar: { item: cmd-play, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - wait_idle:
+  - assert_text: { id: toolbar-transport, key: toolbar_transport_paused, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - toolbar: { item: cmd-play, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - wait_idle:
+  - assert_text: { id: toolbar-transport, key: toolbar_transport_playing, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   # `key:`, not a literal: the search field FILTERS THE SIDEBAR on localized titles, so an English
   # query drops every row under `--locale fr` (and with them this very page). Typing a title matches
   # itself — a query is compared against each word start, and the start at 0 is the whole title.

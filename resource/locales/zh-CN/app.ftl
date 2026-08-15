@@ -640,13 +640,13 @@ toolbar_controls_title = 从这里驱动它
 toolbar_vocabulary_title = 工具栏项的种类
 # Item labels — these appear IN the toolbar, so they stay short.
 toolbar_sidebar = 边栏
-toolbar_new = 新建
-toolbar_refresh = 刷新
+toolbar_new = 新建窗口
 toolbar_star = 星标
 toolbar_menu = 更多
-toolbar_extra = 书签
-toolbar_menu_first = 创建副本
-toolbar_menu_second = 重命名
+toolbar_menu_open_scripting = 打开脚本页面
+toolbar_menu_copy_script = 复制脚本
+toolbar_extra_tooltip = 复制工具包与版本，便于提交缺陷报告
+toolbar_extra = 复制信息
 toolbar_search_placeholder = 搜索
 show_source = 查看源代码
 # The live readout.
@@ -661,15 +661,19 @@ toolbar_presses = { $count ->
 }
 toolbar_last_label = 最近操作
 toolbar_last_none = 暂无
-toolbar_last_new = 新建
-toolbar_last_refresh = 刷新
+toolbar_appearance_label = 外观
+toolbar_appearance_ignored = { $mode }（此工具包会忽略）
+toolbar_transport_label = 录制器
+toolbar_transport_idle = 空闲
+toolbar_transport_recording = 录制中
+toolbar_transport_playing = 播放中
+toolbar_transport_paused = 已暂停
+toolbar_last_new = 新建窗口
 toolbar_last_star = 已切换星标
-toolbar_last_menu_first = 更多 ▸ 创建副本
-toolbar_last_menu_second = 更多 ▸ 重命名
-toolbar_last_extra = 书签
+toolbar_last_extra = 已复制版本信息
 # The page's own controls.
-toolbar_extra_label = 显示书签项
-toolbar_enabled_label = 启用刷新项
+toolbar_extra_label = 显示“复制信息”项
+toolbar_enabled_label = 启用“清除录制”项
 toolbar_clear_search = 清除搜索
 toolbar_seed_search = 填充搜索
 toolbar_seed_text = 工具栏
@@ -732,7 +736,6 @@ nav_scripting = 脚本录制
 scripting_caption = 将你的点击和导航录制为可回放的 dayscript。点击"录制"，在应用中操作，然后返回点击"停止"。编辑 YAML 进行微调，点击"播放"回放，点击"复制"或"导出"保存。
 scripting_record = 录制
 scripting_stop = 停止
-scripting_play = 播放
 scripting_copy = 复制
 scripting_export = 导出
 scripting_copied = 已复制到剪贴板
@@ -787,6 +790,17 @@ msg_subject_three = 工作坊的草图
 # application menu and each navigation row's context menu.
 # Save a picture of this window (commands.rs, docs/window-image.md).
 cmd_screenshot = 截屏…
+cmd_appearance_light = 浅色
+cmd_appearance_system = 跟随系统
+cmd_appearance_dark = 深色
+cmd_record = 录制
+cmd_stop_recording = 停止
+cmd_play = 播放
+cmd_pause = 暂停
+cmd_resume = 继续
+cmd_clear_recording = 清除录制
+menu_appearance = 外观
+menu_record = 录制
 cmd_star = 收藏
 cmd_unstar = 取消收藏
 

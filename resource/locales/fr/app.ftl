@@ -646,13 +646,13 @@ toolbar_controls_title = La piloter depuis ici
 toolbar_vocabulary_title = Le vocabulaire des éléments
 # Item labels — these appear IN the toolbar, so they stay short.
 toolbar_sidebar = Barre latérale
-toolbar_new = Nouveau
-toolbar_refresh = Actualiser
+toolbar_new = Nouvelle fenêtre
 toolbar_star = Étoile
 toolbar_menu = Plus
-toolbar_extra = Signet
-toolbar_menu_first = Dupliquer
-toolbar_menu_second = Renommer
+toolbar_menu_open_scripting = Ouvrir la page Scripts
+toolbar_menu_copy_script = Copier le script
+toolbar_extra_tooltip = Copier la boîte à outils et la version, pour un rapport de bogue
+toolbar_extra = Copier les infos
 toolbar_search_placeholder = Rechercher
 show_source = Afficher la source
 # The live readout.
@@ -668,15 +668,19 @@ toolbar_presses = { $count ->
 }
 toolbar_last_label = Dernière action
 toolbar_last_none = Rien pour l'instant
-toolbar_last_new = Nouveau
-toolbar_last_refresh = Actualiser
+toolbar_appearance_label = Apparence
+toolbar_appearance_ignored = { $mode } (cette boîte à outils l'ignore)
+toolbar_transport_label = Enregistreur
+toolbar_transport_idle = Inactif
+toolbar_transport_recording = Enregistrement
+toolbar_transport_playing = Lecture
+toolbar_transport_paused = En pause
+toolbar_last_new = Nouvelle fenêtre
 toolbar_last_star = Étoile basculée
-toolbar_last_menu_first = Plus ▸ Dupliquer
-toolbar_last_menu_second = Plus ▸ Renommer
-toolbar_last_extra = Signet
+toolbar_last_extra = Infos de version copiées
 # The page's own controls.
-toolbar_extra_label = Afficher l'élément Signet
-toolbar_enabled_label = Élément Actualiser activé
+toolbar_extra_label = Afficher l'élément Copier les infos
+toolbar_enabled_label = Élément Effacer activé
 toolbar_clear_search = Effacer la recherche
 toolbar_seed_search = Remplir la recherche
 toolbar_seed_text = barres d'outils
@@ -739,7 +743,6 @@ nav_scripting = Scripts
 scripting_caption = Enregistrez vos appuis et votre navigation dans un dayscript rejouable. Appuyez sur Enregistrer, parcourez l'application et agissez, puis revenez et appuyez sur Arrêter. Modifiez le YAML pour l'ajuster, Lire pour le rejouer, Copier ou Exporter pour le conserver.
 scripting_record = Enregistrer
 scripting_stop = Arrêter
-scripting_play = Lire
 scripting_copy = Copier
 scripting_export = Exporter
 scripting_copied = Copié dans le presse-papiers
@@ -794,6 +797,17 @@ msg_subject_three = Croquis de l’atelier
 # application menu and each navigation row's context menu.
 # Save a picture of this window (commands.rs, docs/window-image.md).
 cmd_screenshot = Capture d'écran…
+cmd_appearance_light = Clair
+cmd_appearance_system = Système
+cmd_appearance_dark = Sombre
+cmd_record = Enregistrer
+cmd_stop_recording = Arrêter
+cmd_play = Lire
+cmd_pause = Pause
+cmd_resume = Reprendre
+cmd_clear_recording = Effacer l'enregistrement
+menu_appearance = Apparence
+menu_record = Enregistrement
 cmd_star = Suivre
 cmd_unstar = Ne plus suivre
 

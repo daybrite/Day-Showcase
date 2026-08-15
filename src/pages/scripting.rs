@@ -13,8 +13,44 @@ thread_local! {
     static BASELINE: std::cell::OnceCell<Signal<String>> = const { std::cell::OnceCell::new() };
     static CURRENT_FILE: std::cell::OnceCell<Signal<Option<String>>> = const { std::cell::OnceCell::new() };
 }
-fn buf_signal() -> Signal<String> {
+/// The working script. `pub(crate)` because the toolbar's transport and the App menu record into
+/// and play from THIS buffer (commands.rs): one recording, whichever surface starts it.
+pub(crate) fn buf_signal() -> Signal<String> {
     BUF.with(|c| *c.get_or_init(|| Signal::global(day::record::script())))
+}
+
+/// The per-step playback delay, in seconds — persisted by the page's own field, and read here so
+/// a Play from the toolbar runs at the speed the page is set to.
+fn configured_delay_secs() -> f64 {
+    day::prefs::get(DELAY_KEY)
+        .unwrap_or_else(|| DEFAULT_DELAY.into())
+        .trim()
+        .parse::<f64>()
+        .unwrap_or(0.0)
+        .max(0.0)
+}
+
+/// Start recording into the shared buffer, excluding the page's own controls. The one place that
+/// knows how this app records, so the page button and the toolbar cannot start it differently.
+pub(crate) fn record_into_buffer() {
+    day::record::exclude_prefix("scripting-");
+    day::record::start_into(buf_signal());
+}
+
+/// Is there a script to play — recorded, loaded or hand-typed?
+pub(crate) fn has_script() -> bool {
+    buf_signal().with(|t| day::record::is_playable(t))
+}
+
+/// Play the shared buffer at the page's configured delay.
+pub(crate) fn play_buffer() {
+    let _ = day::record::play_with_delay(&buf_signal().get_untracked(), configured_delay_secs());
+}
+
+/// Throw the recording away: the recorder's own steps AND the buffer the surfaces read.
+pub(crate) fn clear_buffer() {
+    day::record::clear();
+    buf_signal().set(String::new());
 }
 fn baseline_signal() -> Signal<String> {
     // Seeded to the initial buffer, so a page with nothing new is NOT dirty (Save disabled); a
@@ -114,12 +150,13 @@ pub(crate) fn scripting_page() -> AnyPiece {
                             crate::res::str::scripting_record().format()
                         }
                     })
+                    // Through the shared helper, so this button and the toolbar's transport
+                    // start the SAME recording into the SAME buffer (commands.rs).
                     .action(move || {
                         if day::record::is_recording() {
                             day::record::stop();
                         } else {
-                            day::record::exclude_prefix("scripting-");
-                            day::record::start_into(buf);
+                            record_into_buffer();
                         }
                     })
                     // A REACTIVE tint: the native button recolors in place while recording,
@@ -132,16 +169,34 @@ pub(crate) fn scripting_page() -> AnyPiece {
                         }
                     })
                     .id("scripting-record"),
-                    // Play back the buffer in-process with the configured per-step delay. Disabled
-                    // while recording, and when the script is empty or does not parse.
-                    button(crate::res::str::scripting_play())
+                    // Play ↔ Pause ↔ Resume, the same transport the toolbar carries: the title
+                    // follows the run so one button covers all three, and it is disabled while
+                    // recording and when the script is empty or does not parse.
+                    button(move || (crate::commands::play_pause().title)().format())
                         .bordered()
                         .enabled(move || {
-                            !recording.get() && buf.with(|t| day::record::is_playable(t))
+                            // Read the flags REACTIVELY (the signals, not the atomics) so the
+                            // title and enablement follow a run that ends on its own. On web there
+                            // is no in-process playback at all, so the button says so by being
+                            // disabled (docs/web.md).
+                            let playing = day::record::playing_signal().get();
+                            day::record::playback_supported()
+                                && (playing
+                                    || (!recording.get()
+                                        && buf.with(|t| day::record::is_playable(t))))
                         })
                         .action(move || {
-                            let _ =
-                                day::record::play_with_delay(&buf.get_untracked(), delay_secs());
+                            // The delay the FIELD shows, which may be ahead of what prefs hold.
+                            match (day::record::is_playing(), day::record::is_paused()) {
+                                (true, false) => day::record::pause_playback(),
+                                (true, true) => day::record::resume_playback(),
+                                _ => {
+                                    let _ = day::record::play_with_delay(
+                                        &buf.get_untracked(),
+                                        delay_secs(),
+                                    );
+                                }
+                            }
                         })
                         .id("scripting-play"),
                     // Save to the app's scripts folder. Enabled only when the buffer differs from

@@ -648,13 +648,13 @@ toolbar_controls_title = Driving it from here
 toolbar_vocabulary_title = The item vocabulary
 # Item labels — these appear IN the toolbar, so they stay short.
 toolbar_sidebar = Sidebar
-toolbar_new = New
-toolbar_refresh = Refresh
+toolbar_new = New Window
 toolbar_star = Star
 toolbar_menu = More
-toolbar_extra = Bookmark
-toolbar_menu_first = Duplicate
-toolbar_menu_second = Rename
+toolbar_menu_open_scripting = Open the Scripting page
+toolbar_menu_copy_script = Copy the script
+toolbar_extra_tooltip = Copy the toolkit and version, for a bug report
+toolbar_extra = Copy Info
 toolbar_search_placeholder = Search
 show_source = Show Source
 # The live readout.
@@ -670,15 +670,19 @@ toolbar_presses = { $count ->
 }
 toolbar_last_label = Last action
 toolbar_last_none = Nothing yet
-toolbar_last_new = New
-toolbar_last_refresh = Refresh
+toolbar_appearance_label = Appearance
+toolbar_appearance_ignored = { $mode } (this toolkit ignores it)
+toolbar_transport_label = Recorder
+toolbar_transport_idle = Idle
+toolbar_transport_recording = Recording
+toolbar_transport_playing = Playing
+toolbar_transport_paused = Paused
+toolbar_last_new = New window
 toolbar_last_star = Star toggled
-toolbar_last_menu_first = More ▸ Duplicate
-toolbar_last_menu_second = More ▸ Rename
-toolbar_last_extra = Bookmark
+toolbar_last_extra = Build info copied
 # The page's own controls.
-toolbar_extra_label = Show the bookmark item
-toolbar_enabled_label = Refresh enabled
+toolbar_extra_label = Show the Copy Info item
+toolbar_enabled_label = Clear recording enabled
 toolbar_clear_search = Clear search
 toolbar_seed_search = Fill search
 toolbar_seed_text = toolbars
@@ -741,7 +745,6 @@ nav_scripting = Scripting
 scripting_caption = Record your taps and navigation into a replayable dayscript. Hit Record, move around and act, then come back and Stop. Edit the YAML to tweak it, Play to replay it, and Copy or Export to keep it.
 scripting_record = Record
 scripting_stop = Stop
-scripting_play = Play
 scripting_copy = Copy
 scripting_export = Export
 scripting_copied = Copied to clipboard
@@ -796,6 +799,17 @@ msg_subject_three = Sketches from the workshop
 # application menu and each navigation row's context menu.
 # Save a picture of this window (commands.rs, docs/window-image.md).
 cmd_screenshot = Screenshot…
+cmd_appearance_light = Light
+cmd_appearance_system = System
+cmd_appearance_dark = Dark
+cmd_record = Record
+cmd_stop_recording = Stop
+cmd_play = Play
+cmd_pause = Pause
+cmd_resume = Resume
+cmd_clear_recording = Clear Recording
+menu_appearance = Appearance
+menu_record = Record
 cmd_star = Star
 cmd_unstar = Unstar
 

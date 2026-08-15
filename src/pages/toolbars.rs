@@ -26,10 +26,39 @@ struct ToolbarDemo {
     presses: Signal<i64>,
     /// Whether the optional item is in the bar — the add/remove demonstration.
     extra: Signal<bool>,
-    /// Whether the refresh item is enabled.
+    /// Whether the disable-able item (Clear recording) is enabled.
     refresh_enabled: Signal<bool>,
     /// The last thing the toolbar did, in words.
     last: Signal<String>,
+    /// The appearance segmented control's chosen index. The truth is the persisted setting
+    /// (commands.rs); this MIRRORS it, the way `starred` mirrors the starred set.
+    theme: Signal<usize>,
+}
+
+/// The appearance chooser: ONE native segmented control, not three toggles (docs/toolbars.md).
+///
+/// Exactly one mode is in force, so this is what a segmented control is for — the platform draws
+/// the three as one grouped control, announces them as one radio group, and keeps the exclusivity
+/// itself. The sun/auto/moon glyphs are the standard symbols, so each desktop draws its own.
+fn appearance_item(mode: Signal<usize>) -> ToolbarEntry {
+    toolbar_segmented(
+        "tb-theme",
+        vec![
+            segment(crate::res::str::cmd_appearance_light()).icon(Symbol::Light),
+            segment(crate::res::str::cmd_appearance_system()).icon(Symbol::Auto),
+            segment(crate::res::str::cmd_appearance_dark()).icon(Symbol::Dark),
+        ],
+        mode,
+    )
+    .enabled_when(crate::commands::appearance_supported)
+    .action(move || {
+        // The control has already written the chosen index into `mode`; turn it into the app's
+        // setting. The mirroring effect in `install` writes the index back, which is a no-op when
+        // it agrees — and the backends suppress their own programmatic echo, so it stays one hop.
+        crate::commands::set_appearance(crate::commands::Appearance::from_index(
+            mode.get_untracked(),
+        ));
+    })
 }
 
 /// The toolbar's search text, which also filters the sidebar (`crate::destinations`). Public to
@@ -47,6 +76,7 @@ fn state() -> ToolbarDemo {
             extra: Signal::global(false),
             refresh_enabled: Signal::global(true),
             last: Signal::global(String::new()),
+            theme: Signal::global(crate::commands::Appearance::System.index()),
         })
     })
 }
@@ -71,6 +101,10 @@ pub(crate) fn install() {
     // here: the effect re-runs whenever the set (or the route) changes, from whichever surface
     // did it, and the button follows.
     Effect::new(move || s.starred.set((crate::commands::star().checked)()));
+    // The appearance group, same shape: the SETTING is the truth (commands.rs), and these three
+    // follow it. So a mode chosen from the App menu presses the right button here, and pressing
+    // the mode already on writes the same value back rather than turning the group off.
+    Effect::new(move || s.theme.set(crate::commands::appearance().index()));
 
     // Reactive: the builder reads `extra`, so ticking that switch adds or removes the item —
     // the add/remove API is just a different list. It also re-lowers on a language change,
@@ -82,17 +116,89 @@ pub(crate) fn install() {
             // on GNOME. It takes no `.action`: the toolkit binds it to this window's
             // `selector(Sidebar)` and drives that host's own collapse (docs/toolbars.md).
             toolbar_sidebar_toggle("tb-sidebar", crate::res::str::toolbar_sidebar()),
-            // A plain command.
+            // A plain command: another window on the same app state (docs/windows.md), the same
+            // thing File ▸ New Window does.
             toolbar_button("tb-new", crate::res::str::toolbar_new())
                 .icon(Symbol::New)
-                .action(move || note(s, crate::res::str::toolbar_last_new())),
-            // ...and one that can be disabled from the page, to show the targeted patch: only
-            // this item changes, so a search in progress is undisturbed.
-            toolbar_button("tb-refresh", crate::res::str::toolbar_refresh())
-                .icon(Symbol::Refresh)
-                .action(move || note(s, crate::res::str::toolbar_last_refresh()))
-                .enabled_when(move || s.refresh_enabled.get()),
+                .enabled_when(|| capability(Cap::MultiWindow) != Support::Unsupported)
+                .action(move || {
+                    day::open_new_window();
+                    note(s, crate::res::str::toolbar_last_new());
+                }),
             toolbar_separator(),
+            // ── Appearance: one segmented control over one setting (commands.rs) ─────────
+            appearance_item(s.theme),
+            toolbar_separator(),
+            // ── The recorder's transport (commands.rs, docs/agent.md) ────────────────────
+            //
+            // Record ↔ Stop, then Play ↔ Pause. Both drive the Scripting page's buffer, so a
+            // recording started here is the script that page shows, and Play replays it.
+            {
+                let rec = crate::commands::record();
+                // Stop is a standard Symbol; there is no standard "record", so the dot is a
+                // bundled vector (§18.4) — the one glyph in this bar the platform has no idea of.
+                let mut item = toolbar_button(rec.id, (rec.title)());
+                item = if day::record::recording_signal().get() {
+                    item.icon(Symbol::Stop)
+                } else {
+                    item.image(crate::res::vectors::record_dot.clone())
+                };
+                item.tooltip((rec.title)())
+                    .enabled_when(rec.enabled)
+                    .action(move || {
+                        // The title BEFORE running: pressing Record leaves the item reading
+                        // "Stop", and the readout is supposed to name what was invoked.
+                        let what = (rec.title)();
+                        (rec.run)();
+                        note(s, what);
+                    })
+            },
+            {
+                let play = crate::commands::play_pause();
+                toolbar_button(play.id, (play.title)())
+                    .icon(
+                        if day::record::playing_signal().get()
+                            && !day::record::paused_signal().get()
+                        {
+                            Symbol::Pause
+                        } else {
+                            Symbol::Play
+                        },
+                    )
+                    .tooltip((play.title)())
+                    .enabled_when(play.enabled)
+                    .action(move || {
+                        // The title BEFORE running: pressing Record leaves the item reading
+                        // "Stop", and the readout is supposed to name what was invoked.
+                        let what = (play.title)();
+                        (play.run)();
+                        note(s, what);
+                    })
+            },
+            // The one item the page can disable, so the targeted-patch demo still has a subject:
+            // only this item changes, and a search in progress is undisturbed.
+            {
+                let clear = crate::commands::clear_recording();
+                toolbar_button(clear.id, (clear.title)())
+                    .icon(Symbol::Delete)
+                    .enabled_when(move || s.refresh_enabled.get() && (clear.enabled)())
+                    .action(move || {
+                        // The title BEFORE running: pressing Record leaves the item reading
+                        // "Stop", and the readout is supposed to name what was invoked.
+                        let what = (clear.title)();
+                        (clear.run)();
+                        note(s, what);
+                    })
+            },
+            toolbar_separator(),
+            // "Show Source" (docs/toolbars.md): open the current page's source on GitHub — the
+            // desktop counterpart to the mobile nav-bar button (lib.rs `show_source`). It leads
+            // the page-command group (source, star, screenshot): all three act on the page that
+            // is showing, and it used to sit apart from them wearing an oversized bundled PNG.
+            toolbar_button("tb-source", crate::res::str::show_source())
+                .icon(Symbol::Code)
+                .tooltip(crate::res::str::show_source())
+                .action(crate::show_source),
             // The Star command (commands.rs), not a demo toggle: it stars the page that is
             // showing. The label, the pressed state and the enablement all come from the one
             // `Command`, so this button, the App menu's item and the row's context menu can
@@ -122,37 +228,56 @@ pub(crate) fn install() {
             {
                 let shot = crate::commands::screenshot();
                 toolbar_button(shot.id, (shot.title)())
-                    .icon(Symbol::Share)
+                    .icon(Symbol::Camera)
                     .enabled_when(shot.enabled)
                     .action(move || (shot.run)())
             },
-            // A pull-down, built from the same entries the menu bar takes.
+            // A pull-down, built from the same entries the menu bar takes — the recorder's
+            // less-used commands, which do not each deserve a button.
             toolbar_menu(
                 "tb-menu",
                 crate::res::str::toolbar_menu(),
                 vec![
-                    menu_item(crate::res::str::toolbar_menu_first().format())
-                        .action(move || note(s, crate::res::str::toolbar_last_menu_first())),
-                    menu_item(crate::res::str::toolbar_menu_second().format())
-                        .action(move || note(s, crate::res::str::toolbar_last_menu_second())),
+                    menu_item(crate::res::str::toolbar_menu_open_scripting().format()).action(
+                        move || {
+                            navigate_to(&crate::Section::Scripting);
+                            note(s, crate::res::str::toolbar_menu_open_scripting());
+                        },
+                    ),
+                    menu_item(crate::res::str::toolbar_menu_copy_script().format())
+                        .enabled(crate::pages::scripting::has_script())
+                        .action(move || {
+                            let ok = crate::pages::scripting::buf_signal()
+                                .with(|t| day_part_clipboard::set_text(t));
+                            if ok {
+                                note(s, crate::res::str::toolbar_menu_copy_script());
+                            }
+                        }),
                     menu_separator(),
                     menu_role(MenuRole::Copy),
                 ],
             )
             .icon(Symbol::More),
-            // "Show Source" (docs/toolbars.md): open the current page's source on GitHub. The
-            // desktop counterpart to the mobile nav-bar button (lib.rs `show_source`); a bundled
-            // image, since the command is app-specific and has no standard Symbol.
-            toolbar_button("tb-source", crate::res::str::show_source())
-                .image(crate::res::images::show_source)
-                .tooltip(crate::res::str::show_source())
-                .action(crate::show_source),
         ];
         if s.extra.get() {
+            // The add/remove demonstration, and a real command: save a picture of the window
+            // straight to the app's scripts-adjacent container is overkill, so this one copies
+            // the running toolkit's name — the thing a bug report always wants and nothing else
+            // in the app puts on the clipboard.
             items.push(
                 toolbar_button("tb-extra", crate::res::str::toolbar_extra())
-                    .icon(Symbol::Bookmark)
-                    .action(move || note(s, crate::res::str::toolbar_last_extra())),
+                    .icon(Symbol::Copy)
+                    .tooltip(crate::res::str::toolbar_extra_tooltip())
+                    .action(move || {
+                        let info = format!(
+                            "Day-Showcase {} · {}",
+                            env!("CARGO_PKG_VERSION"),
+                            day::toolkit_name()
+                        );
+                        if day_part_clipboard::set_text(&info) {
+                            note(s, crate::res::str::toolbar_last_extra());
+                        }
+                    }),
             );
         }
         items.push(toolbar_flexible_space());
@@ -215,6 +340,41 @@ fn readout_section() -> impl Piece {
                 }
             })
             .id("toolbar-star-state"),
+        ),
+        // The appearance group's setting, and whether this toolkit acts on it — the three buttons
+        // lower disabled where it does not, and this says why.
+        labeled(
+            crate::res::str::toolbar_appearance_label(),
+            label(move || {
+                let mode = (crate::commands::appearance_command(crate::commands::appearance())
+                    .title)()
+                .format();
+                if crate::commands::appearance_supported() {
+                    mode
+                } else {
+                    crate::res::str::toolbar_appearance_ignored(mode).format()
+                }
+            })
+            .id("toolbar-appearance"),
+        ),
+        // The recorder's transport, in one word: what the bar's Record and Play items are doing.
+        labeled(
+            crate::res::str::toolbar_transport_label(),
+            label(|| {
+                let s = if day::record::recording_signal().get() {
+                    crate::res::str::toolbar_transport_recording()
+                } else if day::record::playing_signal().get() {
+                    if day::record::paused_signal().get() {
+                        crate::res::str::toolbar_transport_paused()
+                    } else {
+                        crate::res::str::toolbar_transport_playing()
+                    }
+                } else {
+                    crate::res::str::toolbar_transport_idle()
+                };
+                s.format()
+            })
+            .id("toolbar-transport"),
         ),
         labeled(
             crate::res::str::toolbar_presses_label(),

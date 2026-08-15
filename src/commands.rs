@@ -186,6 +186,229 @@ pub(crate) fn screenshot() -> Command {
     }
 }
 
+// ── Appearance ──────────────────────────────────────────────────────────────────────────────
+//
+// Three commands over one persisted setting, so the toolbar's button group, the View ▸ Appearance
+// menu and the Preferences window can never disagree about which mode is on.
+
+/// Which appearance the app is asking for. `System` is the absence of an override.
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(crate) enum Appearance {
+    Light,
+    System,
+    Dark,
+}
+
+impl Appearance {
+    /// The persisted form. A stable key, not a display string — it outlives translations.
+    fn key(self) -> &'static str {
+        match self {
+            Appearance::Light => "light",
+            Appearance::System => "system",
+            Appearance::Dark => "dark",
+        }
+    }
+    /// Its position in the toolbar's segmented control — light, system, dark, left to right.
+    pub(crate) fn index(self) -> usize {
+        match self {
+            Appearance::Light => 0,
+            Appearance::System => 1,
+            Appearance::Dark => 2,
+        }
+    }
+    /// The mode a segment index chose. Out of range is `System`, the neutral one.
+    pub(crate) fn from_index(i: usize) -> Appearance {
+        match i {
+            0 => Appearance::Light,
+            2 => Appearance::Dark,
+            _ => Appearance::System,
+        }
+    }
+    fn from_key(s: &str) -> Appearance {
+        match s {
+            "light" => Appearance::Light,
+            "dark" => Appearance::Dark,
+            _ => Appearance::System,
+        }
+    }
+    /// What `day::set_appearance` takes: an override, or `None` to follow the system.
+    fn override_dark(self) -> Option<bool> {
+        match self {
+            Appearance::Light => Some(false),
+            Appearance::Dark => Some(true),
+            Appearance::System => None,
+        }
+    }
+    fn title(self) -> day::LocalizedText {
+        match self {
+            Appearance::Light => crate::res::str::cmd_appearance_light(),
+            Appearance::System => crate::res::str::cmd_appearance_system(),
+            Appearance::Dark => crate::res::str::cmd_appearance_dark(),
+        }
+    }
+    fn id(self) -> &'static str {
+        match self {
+            Appearance::Light => "cmd-appearance-light",
+            Appearance::System => "cmd-appearance-system",
+            Appearance::Dark => "cmd-appearance-dark",
+        }
+    }
+}
+
+thread_local! {
+    static APPEARANCE: std::cell::OnceCell<Signal<String>> = const { std::cell::OnceCell::new() };
+}
+
+/// The persisted appearance setting, applied to the running app whenever it changes.
+///
+/// The `Effect` is what makes this one setting rather than three buttons that each call
+/// `set_appearance`: whoever writes the signal — a toolbar toggle, a menu item, a restored
+/// preference — the override lands the same way.
+fn appearance_signal() -> Signal<String> {
+    APPEARANCE.with(|c| {
+        *c.get_or_init(|| {
+            let s = Signal::global(Appearance::System.key().to_string());
+            day::prefs::bind("showcase.appearance", s);
+            Effect::new(move || {
+                day::set_appearance(Appearance::from_key(&s.get()).override_dark());
+            });
+            s
+        })
+    })
+}
+
+/// The mode in force. A tracked read, so a surface rendering the group re-lowers when it changes.
+pub(crate) fn appearance() -> Appearance {
+    appearance_signal().with(|s| Appearance::from_key(s))
+}
+
+/// Ask for `mode`. Idempotent: choosing the mode already in force changes nothing.
+pub(crate) fn set_appearance(mode: Appearance) {
+    appearance_signal().set(mode.key().to_string());
+}
+
+/// One appearance mode as a command — `checked` is "this is the mode in force", which is what
+/// makes the three read as a radio group in a toolbar and a menu alike.
+///
+/// Disabled where the toolkit cannot restyle itself (`Cap::Appearance`; today Qt, Android and
+/// ArkUI), so the affordance is visibly inert rather than silently doing nothing.
+pub(crate) fn appearance_command(mode: Appearance) -> Command {
+    match mode {
+        Appearance::Light => Command {
+            id: Appearance::Light.id(),
+            title: || Appearance::Light.title(),
+            enabled: appearance_supported,
+            checked: || appearance() == Appearance::Light,
+            run: || set_appearance(Appearance::Light),
+        },
+        Appearance::System => Command {
+            id: Appearance::System.id(),
+            title: || Appearance::System.title(),
+            enabled: appearance_supported,
+            checked: || appearance() == Appearance::System,
+            run: || set_appearance(Appearance::System),
+        },
+        Appearance::Dark => Command {
+            id: Appearance::Dark.id(),
+            title: || Appearance::Dark.title(),
+            enabled: appearance_supported,
+            checked: || appearance() == Appearance::Dark,
+            run: || set_appearance(Appearance::Dark),
+        },
+    }
+}
+
+/// Whether this backend honours an appearance override at all.
+pub(crate) fn appearance_supported() -> bool {
+    capability(Cap::Appearance) != Support::Unsupported
+}
+
+// ── The recorder ────────────────────────────────────────────────────────────────────────────
+//
+// The toolbar's transport and the Scripting page drive ONE recording, into the page's buffer: a
+// recording started from the toolbar is the script the page shows, and one started on the page is
+// what the toolbar's Play plays. Anything else would be two recorders with one Record button.
+
+/// Record ↔ Stop. The title carries the state, as Star does — the item does not need a check mark
+/// to say which half it is on.
+pub(crate) fn record() -> Command {
+    Command {
+        id: "cmd-record",
+        // Through the SIGNALS, not `is_recording()` / `is_playing()`: those read a RefCell and an
+        // atomic, so a surface that consulted them would never learn the state had changed. The
+        // signal read is what subscribes the toolbar's builder and each item's `enabled_when`.
+        title: || match day::record::recording_signal().get() {
+            true => crate::res::str::cmd_stop_recording(),
+            false => crate::res::str::cmd_record(),
+        },
+        // Recording during a replay would capture the replay's own synthesized actions.
+        enabled: || !day::record::playing_signal().get(),
+        checked: || day::record::recording_signal().get(),
+        run: || {
+            if day::record::is_recording() {
+                day::record::stop();
+            } else {
+                crate::pages::scripting::record_into_buffer();
+            }
+        },
+    }
+}
+
+/// Play ↔ Pause over the recorded script: Play when idle, Pause while it runs, Play again to
+/// resume. One button, because that is what a transport control is; Stop is the recorder's.
+pub(crate) fn play_pause() -> Command {
+    Command {
+        id: "cmd-play",
+        title: || match (
+            day::record::playing_signal().get(),
+            day::record::paused_signal().get(),
+        ) {
+            (true, false) => crate::res::str::cmd_pause(),
+            (true, true) => crate::res::str::cmd_resume(),
+            _ => crate::res::str::cmd_play(),
+        },
+        // Nothing to play until something is recorded (or typed on the Scripting page), and
+        // never while recording — a replay must not record itself.
+        //
+        // All three reads happen EVERY time, before the logic: `||`/`&&` would short-circuit
+        // past one of them, and a read that does not happen is a dependency not subscribed —
+        // which is how Play stayed disabled after a recording ended (nothing had subscribed to
+        // the buffer while recording was live).
+        enabled: || {
+            let playing = day::record::playing_signal().get();
+            let recording = day::record::recording_signal().get();
+            let has = crate::pages::scripting::has_script();
+            // In-process playback needs a background thread, which wasm has not got: on web the
+            // control lowers DISABLED rather than sitting there doing nothing when pressed
+            // (docs/web.md — drive the page over the dayscript socket instead). Recording itself
+            // works on every target.
+            day::record::playback_supported() && (playing || (!recording && has))
+        },
+        checked: || day::record::playing_signal().get() && !day::record::paused_signal().get(),
+        run: || match (day::record::is_playing(), day::record::is_paused()) {
+            (true, false) => day::record::pause_playback(),
+            (true, true) => day::record::resume_playback(),
+            _ => crate::pages::scripting::play_buffer(),
+        },
+    }
+}
+
+/// Throw the recording away — the transport's reset, and the one destructive command here.
+pub(crate) fn clear_recording() -> Command {
+    Command {
+        id: "cmd-clear-recording",
+        title: || crate::res::str::cmd_clear_recording(),
+        enabled: || {
+            let recording = day::record::recording_signal().get();
+            let playing = day::record::playing_signal().get();
+            let has = crate::pages::scripting::has_script();
+            !recording && !playing && has
+        },
+        checked: || false,
+        run: crate::pages::scripting::clear_buffer,
+    }
+}
+
 /// `Day-Showcase-YYYY-MM-DD-HH-MM-SS.png` — a sortable name the user can still change in the
 /// save sheet. UTC, because that is the clock day-piece-datetime offers (see `DayTime::now`).
 fn default_shot_name() -> String {
