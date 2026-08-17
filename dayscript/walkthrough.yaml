@@ -928,9 +928,24 @@ flow:
         text: "TypeError: boom",
         only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc],
       }
+  - screenshot:
+      name: webview
+      skip_on: [harmony-arkui]
+      title: { en: "Web view", fr: "Vue Web", ar: "عرض الويب", zh-CN: "网页视图" }
+      source: src/pages/webview.rs
   # Session retention (docs/webview.md): plant a marker in the LIVE JS context, leave the page
   # entirely, come back, and read it. It only survives if the native engine was retained rather
   # than rebuilt — a reloaded page would have a fresh, empty `window`.
+  #
+  # Runs AFTER the gallery screenshot above, and opens by STOPPING the load, because the marker
+  # lives in a document the network can still replace. `pause` cannot close that window: a load
+  # commits when the origin answers, so on a cold CI runner the marker went into the outgoing
+  # document and the commit took it with it — `expected "survived", found "null"`, on the first
+  # of eight variants and no other. (`document.readyState` does not help either: it reads
+  # "complete" for the page being replaced.) Stopping first makes the current document final, so
+  # what this block measures is retention rather than the runner's luck with the network.
+  - tap: { id: webview-stop, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - pause: { secs: 1, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
   - input:
       {
         id: webview-js,
@@ -939,24 +954,34 @@ flow:
       }
   - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
   - pause: { secs: 2, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  # Prove the marker took BEFORE leaving: if this fails the plant itself lost a race, which is a
+  # different fault from the retention the steps below are about.
+  - input: { id: webview-js, text: "window.__dayMarker", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - pause: { secs: 2, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - assert_text: { id: webview-js-result, text: '"survived"', only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  # Overwrite the readout before leaving. The result label is a global signal that outlives this
+  # page, so leaving "survived" on screen would let the final assertion below pass on a STALE
+  # label without the marker having survived anything.
+  - input: { id: webview-js, text: "'left the page'", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - pause: { secs: 2, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - assert_text: { id: webview-js-result, text: '"left the page"', only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
   - navigate: { route: controls, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
   - pause: { secs: 2, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
   - navigate: { route: webview, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
   - pause: { secs: 3, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
-  # The hoisted signals survived the rebuild…
+  # The hoisted signals survived the rebuild — the editor still holds the last text typed into
+  # it, which is the line that overwrote the readout before leaving.
   - assert_text:
       {
         id: webview-js,
-        text: "window.__dayMarker = 'survived'",
+        text: "'left the page'",
         only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt],
       }
-  # …and so did the engine's own JS context.
-  - input:
-      {
-        id: webview-js,
-        text: "window.__dayMarker",
-        only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt],
-      }
+  # …and so did the engine's own JS context: reading the marker back turns the stale readout
+  # into "survived", which it cannot do unless the live context outlived the page.
+  - input: { id: webview-js, text: "window.__dayMarker", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
   - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
   - pause: { secs: 2, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
   - assert_text:
@@ -965,11 +990,6 @@ flow:
         text: '"survived"',
         only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt],
       }
-  - screenshot:
-      name: webview
-      skip_on: [harmony-arkui]
-      title: { en: "Web view", fr: "Vue Web", ar: "عرض الويب", zh-CN: "网页视图" }
-      source: src/pages/webview.rs
   # The Embedded tab (docs/webview.md): a whole site bundled under resource/assets/web/minisite/,
   # served through web_view_inline on the backends with a local-content arm. The status line is a
   # day label (asserted everywhere the page shows); what renders INSIDE the web view is native web
