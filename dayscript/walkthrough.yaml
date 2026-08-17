@@ -267,6 +267,40 @@ flow:
       title: { en: "Grid", fr: "Grille", ar: "الشبكة", zh-CN: "网格" }
       source: src/pages/grid.rs
 
+  # Row fit policies (docs/size-classes.md "Row fit policies"): ONE row of numbered buttons
+  # rebuilt under whichever policy the picker selects, with a stepper for the count. Drive
+  # every policy so each arm realizes on every backend — the arms are `when`-gated rebuilds,
+  # which is exactly the seam a build-time property needs — then screenshot the Wrap arm with
+  # the count raised, the state where the policies visibly differ.
+  - navigate: { route: layout }
+  - assert_route: { route: layout }
+  - assert_visible: { id: layout-title }
+  - assert_text: { id: layout-count, text: "5" }
+  - assert_visible: { id: layout-demo }
+  - tap: { id: layout-add, repeat: 3 }
+  - assert_text: { id: layout-count, text: "8" }
+  - select: { id: layout-fit, index: 1 }
+  - assert_visible: { id: layout-demo }
+  - screenshot:
+      name: layout
+      title: { en: "Layout", fr: "Disposition", ar: "التخطيط", zh-CN: "布局" }
+      caption: { en: "One row under each fit policy.", fr: "Une même rangée selon chaque politique d'ajustement.", ar: "صف واحد وفق كل سياسة ملاءمة.", zh-CN: "同一行在各种适配策略下的表现。" }
+      source: src/pages/layout.rs
+  # The same eight buttons one policy over: Wrap's ragged lines become aligned columns. The
+  # pair is the comparison, so both halves are captured.
+  - select: { id: layout-fit, index: 2 }
+  - assert_visible: { id: layout-demo }
+  - screenshot: layout-even-columns
+  - select: { id: layout-fit, index: 3 }
+  - assert_visible: { id: layout-demo }
+  - select: { id: layout-fit, index: 4 }
+  - assert_visible: { id: layout-demo }
+  # Back to the defaults, so the page reads pristine if a later variant revisits it.
+  - select: { id: layout-fit, index: 0 }
+  - assert_visible: { id: layout-demo }
+  - tap: { id: layout-remove, repeat: 3 }
+  - assert_text: { id: layout-count, text: "5" }
+
   # Native recycling list (docs/list.md): 500 virtualized rows — visited after the delicate
   # stack/tabs route assertions so they stay undisturbed. The list is wrapped in pull-to-refresh
   # (day-piece-pullrefresh): a synthetic toggle begins a reload that adds 100 rows and ends itself.

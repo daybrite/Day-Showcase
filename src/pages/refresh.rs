@@ -39,6 +39,9 @@ pub(crate) fn refresh_page() -> AnyPiece {
     };
 
     column((
+        // Beside the heading there is no room left for the button at phone width — it
+        // clipped at the window's edge — so at Compact the button drops below the caption
+        // instead (docs/size-classes.md "Row fit policies").
         row((
             heading(
                 crate::res::str::nav_refresh(),
@@ -50,7 +53,9 @@ pub(crate) fn refresh_page() -> AnyPiece {
                 .prominent()
                 .action(move || refreshing.set(true))
                 .id("refresh-now"),
-        )),
+        ))
+        .spacing(8.0)
+        .fit(RowFit::ColumnAt(WidthClass::Compact)),
         label(move || {
             if refreshing.get() {
                 crate::res::str::refresh_status_refreshing().format()

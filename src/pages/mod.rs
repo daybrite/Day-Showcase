@@ -9,6 +9,7 @@ pub(crate) mod crash;
 pub(crate) mod dates;
 pub(crate) mod focus;
 pub(crate) mod grid;
+pub(crate) mod layout;
 pub(crate) mod list;
 pub(crate) mod localization;
 #[cfg(any(target_os = "macos", target_os = "ios"))]
@@ -38,6 +39,7 @@ pub(crate) use crash::crash_page;
 pub(crate) use dates::dates_page;
 pub(crate) use focus::focus_page;
 pub(crate) use grid::grid_page;
+pub(crate) use layout::layout_page;
 pub(crate) use list::list_page;
 pub(crate) use localization::localization_page;
 #[cfg(any(target_os = "macos", target_os = "ios"))]

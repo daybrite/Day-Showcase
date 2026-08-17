@@ -82,7 +82,9 @@ pub(crate) fn list_page() -> AnyPiece {
         // Programmatic scrolling + order controls, merged from the old Scrolling page: the
         // buttons drive the RECYCLING list (scroll-to-row realizes virtualized rows), and
         // Shuffle/Reset permute the backing Vec — animated as native row moves where the
-        // toolkit supports it (docs/list.md).
+        // toolkit supports it (docs/list.md). Wrapped, because five buttons overflow a
+        // phone-portrait window — a plain row left Shuffle and Reset offscreen and untappable
+        // (docs/size-classes.md "Row fit policies").
         row((
             button(crate::res::str::scroll_to_top())
                 .bordered()
@@ -118,7 +120,8 @@ pub(crate) fn list_page() -> AnyPiece {
                 .action(move || rows.set((1..=total.get_untracked()).collect()))
                 .id("list-reset"),
         ))
-        .spacing(8.0),
+        .spacing(8.0)
+        .fit(RowFit::Wrap { run_spacing: 8.0 }),
         // Drag-to-reorder (docs/list.md): the hint names the pinned-row guard, and the order
         // readout makes the committed order assertable (dayscript `reorder` steps check it).
         label(crate::res::str::list_reorder_hint())

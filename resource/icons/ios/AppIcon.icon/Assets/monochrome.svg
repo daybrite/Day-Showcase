@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="1024" height="1024">
   <defs>
     <linearGradient id="g" x1="0" y1="1" x2="0" y2="0">
-      <stop offset="0" stop-color="#B7410E"></stop>
-      <stop offset="1" stop-color="#EFA94A"></stop>
+      <stop offset="0" stop-color="#E8541C"></stop>
+      <stop offset="1" stop-color="#FFD84D"></stop>
     </linearGradient>
   </defs>
   <!-- Full-bleed backdrop (day icon master format, docs/icons.md): platforms apply their own

@@ -151,6 +151,9 @@ fn mix_section(mix: Mix) -> impl Piece {
                 ),
                 labeled(
                     crate::res::str::activity_animating(),
+                    // Wrapped: the trailing column is narrow enough on a phone that
+                    // "Spinning" broke mid-word beside the spinner — as a whole word on its
+                    // own line it stays readable (docs/size-classes.md "Row fit policies").
                     row((
                         activity()
                             .animating(move || mix.on.get() && mix.level.get() > 0.0)
@@ -165,7 +168,8 @@ fn mix_section(mix: Mix) -> impl Piece {
                         })
                         .id("activity-status"),
                     ))
-                    .spacing(8.0),
+                    .spacing(8.0)
+                    .fit(RowFit::Wrap { run_spacing: 8.0 }),
                 ),
             ))
             .spacing(8.0)
@@ -252,7 +256,7 @@ fn voice_section(mix: Mix) -> impl Piece {
         crate::res::str::pistachio().format(),
     ]);
     let query = Signal::new(String::new());
-    let block = section((
+    section((
         labeled(
             crate::res::str::flavor_label(),
             // The bound value reads BELOW the field, not at the end of the row. On the same row it
@@ -274,6 +278,14 @@ fn voice_section(mix: Mix) -> impl Piece {
                         .id("flavor-add"),
                 ))
                 .spacing(8.0),
+                // iOS has no native combo-box control and the piece carries no uikit renderer
+                // (docs/combobox.md) — day renders its placeholder leaf in the row above, and
+                // this note sits right beside it, where a phone user actually looks. `when`
+                // rather than `#[cfg]` because an attribute cannot gate one tuple element.
+                when(
+                    || cfg!(target_os = "ios"),
+                    || label(crate::res::str::flavor_ios_note()).font(Font::Footnote),
+                ),
                 label(move || mix.voice.get())
                     .font(Font::Footnote)
                     .id("flavor-value"),
@@ -299,16 +311,7 @@ fn voice_section(mix: Mix) -> impl Piece {
             move |slot: ItemSlot<String, String>| label(slot.field(|v| v.clone())),
         ),
     ))
-    .title(crate::res::str::nav_search());
-    // iOS has no native combo-box control and the piece carries no uikit renderer
-    // (docs/combobox.md) — day renders its placeholder leaf, and this note says why.
-    #[cfg(target_os = "ios")]
-    let block = column((
-        block.any(),
-        label(crate::res::str::flavor_ios_note()).font(Font::Footnote),
-    ))
-    .spacing(4.0);
-    block
+    .title(crate::res::str::nav_search())
 }
 
 /// Case-insensitive substring match; an empty query matches everything.

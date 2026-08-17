@@ -117,21 +117,23 @@ fn sensors_section() -> impl Piece {
         }
     }
 
-    // A signal per sensor, fed by its own subscription.
+    // A signal per sensor, fed by its own subscription. The callback crosses the RAW reading
+    // and nothing else: it runs on the platform's sampling thread, where day-l10n's
+    // thread-local bundles are empty — formatting there resolved every reading to the
+    // ⟨sensor_reading⟩ miss marker. The label formats on the UI side instead, which also
+    // re-renders readings in the new language on a live locale switch.
     let mut watches = Vec::new();
-    let mut row = |kind: SensorKind, unit: &'static str| {
-        let text = Signal::new(line(None, kind, unit));
+    let mut row = |kind: SensorKind| {
+        let reading = Signal::new(None::<day_part_sensors::SensorReading>);
         if day_part_sensors::is_available(kind) {
-            let set = text.setter();
-            watches.push(day_part_sensors::watch(kind, move |r| {
-                set.set(line(Some(r), kind, unit))
-            }));
+            let set = reading.setter();
+            watches.push(day_part_sensors::watch(kind, move |r| set.set(Some(r))));
         }
-        text
+        reading
     };
-    let accel = row(SensorKind::Accelerometer, "m/s²");
-    let gyro = row(SensorKind::Gyroscope, "rad/s");
-    let magnet = row(SensorKind::Magnetometer, "µT");
+    let accel = row(SensorKind::Accelerometer);
+    let gyro = row(SensorKind::Gyroscope);
+    let magnet = row(SensorKind::Magnetometer);
 
     // A rolling history per sensor, for the strip charts. The same subscription feeds both the
     // readout and the chart — one stream, two views.
@@ -171,7 +173,7 @@ fn sensors_section() -> impl Piece {
         ),
         labeled(
             crate::res::str::sensor_accelerometer(),
-            label(move || accel.get()).id("sensor-accel"),
+            label(move || line(accel.get(), SensorKind::Accelerometer, "m/s²")).id("sensor-accel"),
         ),
         when(
             move || day_part_sensors::is_available(SensorKind::Accelerometer),
@@ -179,7 +181,7 @@ fn sensors_section() -> impl Piece {
         ),
         labeled(
             crate::res::str::sensor_gyroscope(),
-            label(move || gyro.get()).id("sensor-gyro"),
+            label(move || line(gyro.get(), SensorKind::Gyroscope, "rad/s")).id("sensor-gyro"),
         ),
         when(
             move || day_part_sensors::is_available(SensorKind::Gyroscope),
@@ -187,7 +189,7 @@ fn sensors_section() -> impl Piece {
         ),
         labeled(
             crate::res::str::sensor_magnetometer(),
-            label(move || magnet.get()).id("sensor-magnet"),
+            label(move || line(magnet.get(), SensorKind::Magnetometer, "µT")).id("sensor-magnet"),
         ),
         when(
             move || day_part_sensors::is_available(SensorKind::Magnetometer),
@@ -313,6 +315,8 @@ fn permission_row(
     };
     labeled(
         title,
+        // Status text plus a Request/Settings button outgrew a phone-portrait row — the
+        // button clipped at the panel's edge (docs/size-classes.md "Row fit policies").
         row((
             label(move || status.get()).id(id),
             when(
@@ -340,7 +344,8 @@ fn permission_row(
                 },
             ),
         ))
-        .spacing(8.0),
+        .spacing(8.0)
+        .fit(RowFit::ColumnAt(WidthClass::Compact)),
     )
 }
 

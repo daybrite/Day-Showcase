@@ -32,6 +32,8 @@ fn locale_section() -> impl Piece {
     let initial = day::locale().get_untracked();
     section((
         label(crate::res::str::loc_live_note()).font(Font::Footnote),
+        // Wrapped: Android's filled chips are wide enough that the fourth one clipped at
+        // phone-portrait width (docs/size-classes.md "Row fit policies").
         row((
             button("English")
                 .action(|| set_locale("en"))
@@ -46,7 +48,8 @@ fn locale_section() -> impl Piece {
                 .action(|| set_locale("zh-CN"))
                 .id("locale-zh"),
         ))
-        .spacing(8.0),
+        .spacing(8.0)
+        .fit(RowFit::Wrap { run_spacing: 8.0 }),
         labeled(
             crate::res::str::loc_current_label(),
             // The raw locale tag — a locale-independent value the walkthrough asserts literally.
