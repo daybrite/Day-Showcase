@@ -845,3 +845,10 @@ layout_fit_scroll = Scroll
 layout_count_label = Components
 layout_item = Item { $n }
 layout_item_wide = Item { $n } (wider)
+
+# The Resources page's Weight picker reuses the Text page's weight names (text_weight_*) —
+# same three words, same meaning — so only the notes below are new here.
+vectors_alias_note = A plain SVG asked for Bold: it has no weight axis, so the alias resolves back to the base glyph rather than drawing nothing.
+# The two color wells beside Cycle (docs/colorpicker.md).
+vectors_pick_tint = Pick a tint
+vectors_tint_idioms = Two color wells, one bound color: the first opens the platform's own chooser, the second opens the panel Day draws itself — the same picker on every target.

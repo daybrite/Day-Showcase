@@ -584,18 +584,45 @@ flow:
   # it is a VectorDrawable rather than a raster. Driving the zoom REBUILDS the glyph at the new
   # size (see resources.rs), so this also covers that the art survives a resize on every backend.
   - assert_visible: { id: vector-tiger }
-  # The same slider sizes the glyph grid, which re-chunks its columns as the art grows — so this
-  # covers the derived grid surviving a resize, not just the tiger.
-  - assert_visible: { id: resources-vectors-grid }
+  # The glyph row wraps itself now (`RowFit::Wrap`), and the two segmented pickers govern every
+  # glyph in it: a weight change re-resolves each source name, a size change re-frames each cell,
+  # and both go through the same keyed rebuild. Driving them covers that the row survives both —
+  # and the weight sweep is what caught android-mdc drawing NOTHING for an aliased weight, which
+  # `assert_visible` alone cannot see (the view has a frame either way; docs/vectors.md).
+  - assert_visible: { id: resources-vectors-row }
+  - select: { id: vector-weight, index: 0 }
+  - select: { id: vector-size, index: 3 }
+  - wait_idle:
+  - assert_visible: { id: resources-vectors-row }
+  - select: { id: vector-weight, index: 1 }
+  - select: { id: vector-size, index: 1 }
+  - wait_idle:
   # A plain SVG asked for a WEIGHT it has no art for: it must resolve back to its base glyph
   # rather than draw nothing (docs/vectors.md). Only SF templates stage `__light`/`__bold`, so
   # this is the case every other glyph in the app is in.
   - assert_visible: { id: vector-aliased-weight }
-  - set_value: { id: vector-zoom, value: 200 }
+  # The zoom drives the tiger alone now (the glyph row takes its size from the picker above), and
+  # its top is five times what it was — past the content column the art becomes a pannable strip
+  # rather than being clipped, so this covers both arrangements.
+  - set_value: { id: vector-zoom, value: 1200 }
   - wait_idle:
   - assert_visible: { id: vector-tiger }
-  - assert_visible: { id: resources-vectors-grid }
   - set_value: { id: vector-zoom, value: 96 }
+  - wait_idle:
+  - assert_visible: { id: vector-tiger }
+  # The COMPOSED color picker (docs/colorpicker.md): Day's own panel, built from pieces and a
+  # canvas, so these same steps run identically on all nine targets — including the two with no
+  # native chooser to fall back on. Pressing the shade field's white corner is what proves
+  # `on_tap_at` reports WHERE the press landed; Cancel then puts the tint back.
+  - tap: { id: vector-tint-composed }
+  - wait_idle:
+  - assert_visible: { id: color-picker-panel }
+  - assert_visible: { id: color-picker-shade }
+  - assert_visible: { id: color-picker-hue }
+  - assert_visible: { id: color-picker-presets }
+  - assert_text: { id: color-picker-value, text: "#e86a3c" }
+  - tap: { id: color-picker-cancel }
+  - wait_idle:
   - screenshot:
       name: resources
       title: { en: "Resources", fr: "Ressources", ar: "الموارد", zh-CN: "资源" }
@@ -1017,8 +1044,15 @@ flow:
   # are read from the piece crates' backend arms and will be corrected by the first CI run that
   # disagrees — the failure names the kind.
   - assert_no_placeholders:
-      only_on: [macos-appkit, android-mdc, linux-gtk, linux-qt, macos-qt, windows-xaml]
+      only_on: [macos-appkit, linux-gtk, linux-qt, macos-qt, windows-xaml]
       allow: []
+  # Android ships no color chooser in the framework, in Material, or in AndroidX, so the Resources
+  # page's `.native()` well has nothing to realize and draws the placeholder on purpose — with a
+  # banner beside it saying so, and Day's COMPOSED panel next to it working normally
+  # (docs/colorpicker.md). Same story on harmony-arkui below.
+  - assert_no_placeholders:
+      only_on: [android-mdc]
+      allow: [day.piece.colorpicker]
   # iOS has no native combo-box control, so the piece ships no uikit arm; the showcase renders an
   # explanatory note beside the placeholder (apps/showcase/src/pages/controls.rs).
   - assert_no_placeholders:
@@ -1046,8 +1080,8 @@ flow:
               day.piece.webview]
   - assert_no_placeholders:
       only_on: [harmony-arkui]
-      allow: [day.piece.activity, day.piece.combobox, day.piece.media, day.piece.searchfield,
-              day.piece.webview]
+      allow: [day.piece.activity, day.piece.colorpicker, day.piece.combobox, day.piece.media,
+              day.piece.searchfield, day.piece.webview]
   # (measured on web-dom) — media() landed as a <video>, so it is deliberately NOT listed here.
   - assert_no_placeholders:
       only_on: [web-dom]

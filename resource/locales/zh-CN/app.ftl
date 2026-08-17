@@ -835,3 +835,7 @@ layout_fit_scroll = 滚动
 layout_count_label = 组件数
 layout_item = 项目 { $n }
 layout_item_wide = 项目 { $n }（较宽）
+
+vectors_alias_note = 一个普通 SVG 被要求使用粗体：它没有字重轴，因此别名会回退到基础图形，而不是什么都不画。
+vectors_pick_tint = 选择着色
+vectors_tint_idioms = 两个取色控件，一个绑定颜色：前者打开平台自带的取色器，后者打开 Day 自己绘制的面板——在每个目标上都是同一个取色器。

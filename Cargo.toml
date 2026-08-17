@@ -66,6 +66,9 @@ day-piece-combobox = { git = "https://github.com/daybrite/day.git" }
 day-piece-rating = { git = "https://github.com/daybrite/day.git" }
 day-piece-pullrefresh = { git = "https://github.com/daybrite/day.git" }
 day-piece-datetime = { git = "https://github.com/daybrite/day.git" }
+# The color picker (docs/colorpicker.md): the Resources page opens it in BOTH idioms — the
+# platform's own chooser, and Day's composed panel, which is the same picker on every target.
+day-piece-colorpicker = { git = "https://github.com/daybrite/day.git" }
 # Tweaks (docs/tweaks.md): packaged per-toolkit configuration of built-in pieces.
 day-tweak-button-bezel = { git = "https://github.com/daybrite/day.git" }
 # The Apple toolkit crates directly, for the Tweaks page's INLINE `.appkit(…)`/`.uikit(…)`

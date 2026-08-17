@@ -842,3 +842,7 @@ layout_fit_scroll = Défilement
 layout_count_label = Composants
 layout_item = Élément { $n }
 layout_item_wide = Élément { $n } (plus large)
+
+vectors_alias_note = Un SVG simple auquel on demande la graisse Grasse : il n'a pas d'axe de graisse, donc l'alias revient au glyphe de base au lieu de ne rien dessiner.
+vectors_pick_tint = Choisir une teinte
+vectors_tint_idioms = Deux sélecteurs de couleur, une seule couleur liée : le premier ouvre le sélecteur de la plateforme, le second ouvre le panneau que Day dessine lui-même — le même sélecteur sur chaque cible.
