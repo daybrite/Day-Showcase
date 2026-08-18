@@ -584,7 +584,7 @@ crash_empty = Aucun rapport pour l'instant. Déclenchez un plantage, puis relanc
 
 # Page Zones de texte
 nav_textareas = Zones de texte
-textareas_caption = Un éditeur multiligne natif avec des attributs modifiable, sélectionnable et correction orthographique en direct (selon la boîte à outils).
+textareas_caption = Deux éditeurs multilignes : la vue de texte enrichi de la plateforme sur un document mis en forme, et la zone de texte native simple en dessous.
 textareas_editor_section = Éditeur
 textareas_seed_section = Remplir avec
 textareas_attrs_section = Attributs
@@ -595,6 +595,32 @@ textareas_editable = Modifiable
 textareas_selectable = Sélectionnable
 textareas_spellcheck = Correction orthographique
 textareas_sample_short = Une courte note. Modifiez-la, ou insérez un texte plus long ou structuré avec les boutons ci-dessous.
+
+# Éditeur de texte enrichi (docs/texteditor.md)
+textareas_styled_section = Éditeur enrichi
+textareas_toolbar_section = Mise en forme
+textareas_export_section = Import et export
+textareas_text_color = Couleur du texte
+textareas_align = Alignement
+textareas_align_natural = Naturel
+textareas_align_center = Centré
+textareas_align_trailing = À la fin
+textareas_doc_note = Note
+textareas_doc_code = Code
+textareas_doc_empty = Vide
+textareas_placeholder = Commencez à écrire, ou choisissez un document ci-dessus.
+textareas_inspector = Sélection { $start }–{ $end } · { $marks } · taille ×{ $scale }
+textareas_export_markdown = Markdown
+textareas_export_html = HTML
+textareas_export_rtf = RTF
+textareas_import = Relire
+textareas_select_word = Sélectionner un mot
+textareas_no_selection = aucune sélection
+textareas_mark_bold = gras
+textareas_mark_italic = italique
+textareas_mark_underline = souligné
+textareas_mark_strike = barré
+textareas_mark_plain = simple
 sensor_permission = Accès aux mouvements
 perm_request = Demander
 perm_open_settings = Ouvrir les réglages

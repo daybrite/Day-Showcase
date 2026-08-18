@@ -578,7 +578,7 @@ crash_empty = 暂无崩溃报告。触发一次崩溃，然后重新启动即可
 
 # 文本区域页面
 nav_textareas = 文本区域
-textareas_caption = 原生多行编辑器，具有可实时切换的可编辑、可选择和拼写检查属性（取决于工具包支持）。
+textareas_caption = 两种多行编辑器：平台原生的富文本视图（编辑带格式的文档），以及下方的纯文本区域。
 textareas_editor_section = 编辑器
 textareas_seed_section = 填充为
 textareas_attrs_section = 属性
@@ -589,6 +589,32 @@ textareas_editable = 可编辑
 textareas_selectable = 可选择
 textareas_spellcheck = 拼写检查
 textareas_sample_short = 一段简短的备注。可以直接编辑，或用下面的按钮填入更长的或带格式的文本。
+
+# 富文本编辑器 (docs/texteditor.md)
+textareas_styled_section = 富文本编辑器
+textareas_toolbar_section = 格式
+textareas_export_section = 导入与导出
+textareas_text_color = 文字颜色
+textareas_align = 对齐
+textareas_align_natural = 自然
+textareas_align_center = 居中
+textareas_align_trailing = 末端
+textareas_doc_note = 笔记
+textareas_doc_code = 代码
+textareas_doc_empty = 空白
+textareas_placeholder = 开始输入，或在上方选择一个文档。
+textareas_inspector = 选区 { $start }–{ $end } · { $marks } · 字号 ×{ $scale }
+textareas_export_markdown = Markdown
+textareas_export_html = HTML
+textareas_export_rtf = RTF
+textareas_import = 读回
+textareas_select_word = 选择一个词
+textareas_no_selection = 未选择内容
+textareas_mark_bold = 粗体
+textareas_mark_italic = 斜体
+textareas_mark_underline = 下划线
+textareas_mark_strike = 删除线
+textareas_mark_plain = 无格式
 sensor_permission = 运动权限
 perm_request = 请求
 perm_open_settings = 打开设置

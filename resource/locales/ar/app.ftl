@@ -595,7 +595,7 @@ crash_empty = لا يوجد تقرير عطل بعد. أحدِث عطلاً ثم
 
 # صفحة مناطق النص
 nav_textareas = مناطق النص
-textareas_caption = محرّر متعدّد الأسطر أصلي بسمات قابلة للتحرير والتحديد والتدقيق الإملائي مباشرةً (حسب دعم مجموعة الأدوات).
+textareas_caption = محرران متعددا الأسطر: عرض النص المنسق الخاص بالمنصة فوق مستند منسق، ومنطقة النص الأصلية البسيطة تحته.
 textareas_editor_section = المحرّر
 textareas_seed_section = تعبئة بـ
 textareas_attrs_section = السمات
@@ -606,6 +606,32 @@ textareas_editable = قابل للتحرير
 textareas_selectable = قابل للتحديد
 textareas_spellcheck = التدقيق الإملائي
 textareas_sample_short = ملاحظة قصيرة. عدّلها، أو أدرج نصًا أطول أو منسّقًا بالأزرار أدناه.
+
+# محرر النص المنسق (docs/texteditor.md)
+textareas_styled_section = محرر منسق
+textareas_toolbar_section = التنسيق
+textareas_export_section = الاستيراد والتصدير
+textareas_text_color = لون النص
+textareas_align = المحاذاة
+textareas_align_natural = طبيعية
+textareas_align_center = وسط
+textareas_align_trailing = النهاية
+textareas_doc_note = ملاحظة
+textareas_doc_code = شيفرة
+textareas_doc_empty = فارغ
+textareas_placeholder = ابدأ الكتابة، أو اختر مستندًا من الأعلى.
+textareas_inspector = التحديد { $start }–{ $end } · { $marks } · الحجم ×{ $scale }
+textareas_export_markdown = ماركداون
+textareas_export_html = HTML
+textareas_export_rtf = RTF
+textareas_import = إعادة القراءة
+textareas_select_word = تحديد كلمة
+textareas_no_selection = لا يوجد تحديد
+textareas_mark_bold = عريض
+textareas_mark_italic = مائل
+textareas_mark_underline = تحته خط
+textareas_mark_strike = يتوسطه خط
+textareas_mark_plain = عادي
 sensor_permission = الوصول إلى الحركة
 perm_request = طلب
 perm_open_settings = فتح الإعدادات

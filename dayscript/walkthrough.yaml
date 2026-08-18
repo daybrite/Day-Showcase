@@ -499,6 +499,15 @@ flow:
   - input: { id: prefs-field, text: "overwritten" }
   - tap: { id: prefs-load }
   - assert_text: { id: prefs-value, text: "day-remembers" }
+  # Clear removes the KEY, so the run hands the prefs store back the way it found it — and
+  # `prefs::remove` gets covered alongside the set and get above, which nothing else exercised.
+  # Loading afterwards is what proves the removal reached STORAGE: "cleared" is only what the
+  # button wrote to the label, while "nothing stored yet" is the store itself answering.
+  - tap: { id: prefs-clear }
+  - assert_text: { id: prefs-status, key: prefs_cleared }
+  - tap: { id: prefs-load }
+  - assert_text: { id: prefs-status, key: prefs_missing }
+  - assert_text: { id: prefs-value, key: prefs_empty }
   - assert_visible: { id: haptics-supported }
   - tap: { id: haptics-medium }
   # `#haptics-last-played` is `tr("haptics-last-played")` — a localized string, so assert by
@@ -757,10 +766,44 @@ flow:
   - assert_visible: { id: textareas-editor }
   - tap: { id: ta-seed-markdown }
   - wait_idle:
+
+  # The STYLED editor (docs/texteditor.md) — the platform's rich-text view over the same
+  # `StyledText` a label renders. Everything below is Day's own state: the toolbar reads and
+  # writes the bound document, so what it asserts is true on all nine targets.
+  - assert_visible: { id: styled-editor }
+  - assert_visible: { id: ed-inspector }
   - screenshot:
       name: textareas
       title: { en: "Text areas", fr: "Zones de texte", ar: "مناطق النص", zh-CN: "文本区域" }
       source: src/pages/text_areas.rs
+  # Formatting with NO selection sets the typing style, which is what the next character takes.
+  # The inspector reads it back out of the document, so this drives the whole round trip.
+  - tap: { id: ed-bold }
+  - wait_idle:
+  - tap: { id: ed-italic }
+  - wait_idle:
+  # The three documents. `Code` is the live-highlighting one: the page re-tokenizes on every
+  # text change and pushes fresh runs, which patches ATTRIBUTES rather than replacing the
+  # document — so the caret survives, and the editor keeps its content.
+  - select: { id: ed-document, index: 1 }
+  - wait_idle:
+  - assert_visible: { id: styled-editor }
+  - screenshot:
+      name: textareas-code
+      title: { en: "Live syntax highlighting", fr: "Coloration syntaxique en direct", ar: "تلوين نحوي حي", zh-CN: "实时语法高亮" }
+      source: src/pages/text_areas.rs
+  # Export and read back. Every format is lossy in its own way (docs/texteditor.md); what this
+  # pins is that the button produces text and the import parses it back into a document.
+  - tap: { id: ed-export-md }
+  - wait_idle:
+  - tap: { id: ed-import }
+  - wait_idle:
+  - assert_visible: { id: styled-editor }
+  - select: { id: ed-document, index: 0 }
+  - wait_idle:
+  - tap: { id: ed-export-html }
+  - wait_idle:
+  - assert_visible: { id: ed-export-out }
 
   # Toolbars (docs/toolbars.md): the MAIN WINDOW's own toolbar, so the assertions read the
   # page's live bindings rather than any on-page widget. `toolbar:` drives an item through the
@@ -886,6 +929,17 @@ flow:
       name: toolbars
       title: { en: "Toolbars", fr: "Barres d'outils", ar: "أشرطة الأدوات", zh-CN: "工具栏" }
       source: src/pages/toolbars.rs
+  # Unstar now that the shot has it. The starred set is written through to prefs
+  # (`showcase.starred`, src/commands.rs), so a run that ENDS starred is a run that changed the
+  # machine: the next launch opens with Toolbars sorted to the top of the sidebar, and every
+  # screenshot taken after this page carries that reordered sidebar. `on: false` is a desired
+  # STATE rather than a flip — the item's action compares it against `checked`
+  # (src/pages/toolbars.rs) — so it restores whether or not the page is currently starred, and it
+  # completes the surface matrix: starred from the toolbar, unstarred and restarred from the menu,
+  # unstarred from the toolbar.
+  - toolbar: { item: cmd-star, on: false, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - wait_idle:
+  - assert_text: { id: toolbar-star-state, key: toolbar_off, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
 
   # Tweaks (docs/tweaks.md): packaged per-toolkit native configuration of built-in pieces, plus
   # NativeRef liveness — unmounting the Tweaked Piece clears the ref (asserted via Fluent keys

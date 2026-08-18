@@ -585,7 +585,7 @@ crash_empty = No crash report yet. Trigger a crash, then relaunch to see it here
 
 # Text Areas page
 nav_textareas = Text areas
-textareas_caption = A native multi-line editor with live editable, selectable, and spell-check attributes (toolkit-permitting).
+textareas_caption = Two multi-line editors: the platform's rich-text view over a styled document, and the plain native text area beneath it.
 textareas_editor_section = Editor
 textareas_seed_section = Seed with
 textareas_attrs_section = Attributes
@@ -596,6 +596,32 @@ textareas_editable = Editable
 textareas_selectable = Selectable
 textareas_spellcheck = Spell-check
 textareas_sample_short = A short note. Edit it, or seed longer or structured text with the buttons below.
+
+# Styled text editor (docs/texteditor.md)
+textareas_styled_section = Styled editor
+textareas_toolbar_section = Formatting
+textareas_export_section = Import and export
+textareas_text_color = Text color
+textareas_align = Alignment
+textareas_align_natural = Natural
+textareas_align_center = Center
+textareas_align_trailing = Trailing
+textareas_doc_note = Note
+textareas_doc_code = Code
+textareas_doc_empty = Empty
+textareas_placeholder = Start typing, or pick a document above.
+textareas_inspector = Selection { $start }–{ $end } · { $marks } · size ×{ $scale }
+textareas_export_markdown = Markdown
+textareas_export_html = HTML
+textareas_export_rtf = RTF
+textareas_import = Read back
+textareas_select_word = Select a word
+textareas_no_selection = nothing selected
+textareas_mark_bold = bold
+textareas_mark_italic = italic
+textareas_mark_underline = underline
+textareas_mark_strike = strikethrough
+textareas_mark_plain = plain
 sensor_permission = Motion access
 perm_request = Request
 perm_open_settings = Open Settings

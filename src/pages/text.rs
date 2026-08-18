@@ -1,7 +1,7 @@
 use day::prelude::*;
 use day_piece_datetime::{DayDate, date_picker};
 
-use crate::palette::{SKY, TEAL, VIOLET};
+use crate::palette::{AMBER, SKY, TEAL, VIOLET};
 use crate::widgets::page_trailing;
 
 /// Typography playground: every semantic text style (mapped to the platform's native styles + Dynamic
@@ -365,7 +365,15 @@ fn rich(on: bool) -> AnyPiece {
         .strikethrough("~~strikethrough~~")
         .text(", and ")
         .colored("colour", TEAL)
-        .text(", which markdown has no syntax for. Links are runs as well: they render, but ")
+        .text(", ")
+        .underline("underline")
+        .text(", ")
+        .highlight("highlight", AMBER)
+        .text(" and a ")
+        .sized("relative size", 1.4)
+        .text(
+            ", which markdown has no syntax for. A relative size scales the semantic style, so it              still follows the reader's text-size setting. Links are runs as well: they render,              but ",
+        )
         .text("nothing opens them yet.")
         .build();
     section((
