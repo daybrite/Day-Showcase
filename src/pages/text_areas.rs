@@ -332,7 +332,7 @@ fn styled_sections() -> AnyPiece {
         row((
             button(crate::res::str::textareas_select_word())
                 .action(move || {
-                    let range = doc.with_untracked(|d| first_word(&d.text));
+                    let range = doc.with_untracked(|d| word_past_first_break(&d.text));
                     sel.set(range);
                 })
                 .id("ed-select-word"),
@@ -424,15 +424,19 @@ fn styled_sections() -> AnyPiece {
     column((toolbar, editor, export)).any()
 }
 
-/// The byte range of the document's first word — what the "Select a word" button selects. Any
-/// document has one, in any script, which is what makes the walkthrough's assertion the same on
-/// every backend.
-fn first_word(text: &str) -> std::ops::Range<usize> {
-    let start = text
+/// The byte range of the first word AFTER the document's first line break — what the "Select a
+/// word" button selects.
+///
+/// Past a line break on purpose. A backend that rebuilds its view to restyle has to put the
+/// selection back by offset, and the web arm's two offset directions once disagreed by one byte
+/// per line above the selection — a bug the first line of the document cannot show.
+fn word_past_first_break(text: &str) -> std::ops::Range<usize> {
+    let from = text.find('\n').map(|i| i + 1).unwrap_or(0);
+    let start = text[from..]
         .char_indices()
         .find(|(_, c)| c.is_alphanumeric())
-        .map(|(i, _)| i)
-        .unwrap_or(0);
+        .map(|(i, _)| from + i)
+        .unwrap_or(from);
     let end = text[start..]
         .char_indices()
         .find(|(_, c)| !c.is_alphanumeric())

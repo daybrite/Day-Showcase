@@ -776,6 +776,19 @@ flow:
       name: textareas
       title: { en: "Text areas", fr: "Zones de texte", ar: "مناطق النص", zh-CN: "文本区域" }
       source: src/pages/text_areas.rs
+  # A restyle must leave the selection on the SAME characters. The web arm rebuilds its whole
+  # element to apply attributes, so it has to put the selection back by offset — and when its two
+  # offset directions disagreed, a bolded word came back shifted by one character per line above
+  # it. The readout says which characters are selected, so this asserts it on every backend.
+  - tap: { id: ed-select-word }
+  - wait_idle:
+  - assert_text: { id: ed-selection-text, text: "The" }
+  - tap: { id: ed-bold }
+  - wait_idle:
+  - assert_text: { id: ed-selection-text, text: "The" }
+  - tap: { id: ed-bold }
+  - wait_idle:
+
   # Formatting with NO selection sets the typing style, which is what the next character takes.
   # The inspector reads it back out of the document, so this drives the whole round trip.
   - tap: { id: ed-bold }
