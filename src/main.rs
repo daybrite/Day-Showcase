@@ -12,6 +12,7 @@ fn main() {
             min_size: Some(day::prelude::Size::new(640.0, 480.0)),
             // The App menu / About show "Showcase", not the toolkit-tagged window title.
             app_name: Some("Showcase".into()),
+            ..Default::default()
         },
         showcase::root,
     );

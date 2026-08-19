@@ -237,6 +237,7 @@ pub fn root() -> AnyPiece {
             size: Size::new(520.0, 420.0),
             min_size: None,
             app_name: None,
+            ..Default::default()
         },
         pages::preferences_window,
     );
