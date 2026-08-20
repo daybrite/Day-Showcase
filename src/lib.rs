@@ -602,11 +602,8 @@ fn window_root(primary: bool) -> AnyPiece {
     nav.id("nav")
 }
 
-// Mobile / embedded entries (DESIGN.md §17.4): the iOS and macOS Runners bind `day_main`,
-// DayBridge binds the `Java_…` natives, the HarmonyOS ArkTS host binds `day_arkui_start`, and
-// the web host page binds `day_dom_main`. Every macro emits nothing off its own target.
-day::ios_main!("Day Showcase", root);
-day::macos_main!("Day Showcase", root);
-day::android_main!(root);
-day::arkui_main!(root);
-day::web_main!("Day Showcase", root);
+// The mobile / embedded entry point (DESIGN.md §17.4): the iOS and macOS Runners bind `day_main`,
+// DayBridge binds the `Java_…` natives, the HarmonyOS ArkTS host binds `day_arkui_start`, and the
+// web host page binds `day_dom_main`. One macro expands to all of them, and to nothing at all on a
+// plain cargo desktop build, where src/main.rs is the entry instead.
+day::day_main!("Day Showcase", root);
