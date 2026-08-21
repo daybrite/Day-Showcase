@@ -38,11 +38,11 @@ pub(crate) fn text_page() -> AnyPiece {
 /// section: `.selectable()` on a container only reaches the text within on backends whose
 /// selection affordance cascades (docs/text.md) — per-label is what works everywhere.
 fn sel(on: bool, p: impl Piece) -> AnyPiece {
-    if on { p.selectable() } else { p.any() }
+    if on { p.selectable().any() } else { p.any() }
 }
 
 /// The page body, built for one Selectable state (the `when` arms above rebuild it on flip).
-fn sections(on: bool, md: Signal<String>) -> AnyPiece {
+fn sections(on: bool, md: Signal<String>) -> impl Piece{
     // A style name (localized) rendered IN its own style — a self-documenting type specimen.
     // The dayscript id keeps the stable English style id regardless of locale.
     fn specimen(on: bool, id: &'static str, name: LocalizedText, f: Font) -> AnyPiece {
@@ -337,7 +337,7 @@ fn sections(on: bool, md: Signal<String>) -> AnyPiece {
         selectable,
         baseline(),
     ))
-    .any()
+    
 }
 
 /// Styled RUNS inside one wrapping paragraph (docs/text-runs.md): emphasis, code, colour and a
@@ -350,7 +350,7 @@ fn sections(on: bool, md: Signal<String>) -> AnyPiece {
 /// pipeline does not do yet.
 ///
 /// A banner marks the backends that render the text plain; `Cap::TextRuns` answers for it.
-fn rich(on: bool) -> AnyPiece {
+fn rich(on: bool) -> impl Piece{
     // The sample names each style with its markdown spelling and renders it that way, so the
     // supported set reads off the label itself.
     let (text, runs) = TextBuilder::new()
@@ -381,7 +381,7 @@ fn rich(on: bool) -> AnyPiece {
         sel(on, label(text).runs(runs).id("text-runs")),
     ))
     .title(crate::res::str::text_runs_section())
-    .any()
+    
 }
 
 /// Inline markdown parsed at RUN TIME (docs/markdown.md): a text area the user edits, and a
@@ -391,7 +391,7 @@ fn rich(on: bool) -> AnyPiece {
 /// the same path a translated string or a value off the network takes. The sample seeds a link,
 /// which makes the backing on iOS a text view from the start (docs/text-runs.md); tapping it
 /// reports through `.on_link()`, which here shows the target rather than opening it.
-fn markdown_live(on: bool, md: Signal<String>) -> AnyPiece {
+fn markdown_live(on: bool, md: Signal<String>) -> impl Piece{
     let opened = Signal::new(String::new());
     section((
         sel(
@@ -418,7 +418,7 @@ fn markdown_live(on: bool, md: Signal<String>) -> AnyPiece {
         ),
     ))
     .title(crate::res::str::text_markdown_section())
-    .any()
+    
 }
 
 /// Baseline alignment (docs/baseline.md), with a toggle that turns it off so the difference is
@@ -432,7 +432,7 @@ fn markdown_live(on: bool, md: Signal<String>) -> AnyPiece {
 ///
 /// These use `row(..).align(..)` rather than `labeled`, which is baseline-aligned with no way to
 /// opt out: the point here is to show both states side by side in time.
-fn baseline() -> AnyPiece {
+fn baseline() -> impl Piece{
     let aligned = Signal::new(true);
     let qty = Signal::new("12".to_string());
     let due = Signal::new(DayDate::new(2026, 3, 9).expect("valid demo date"));
@@ -455,12 +455,12 @@ fn baseline() -> AnyPiece {
         ),
     ))
     .title(crate::res::str::text_baseline_section())
-    .any()
+    
 }
 
 /// The three demo rows at one alignment (the `when` arms above rebuild them on flip). The ids
 /// carry the alignment so a dayscript can tell the two states apart.
-fn baseline_rows(align: VAlign, qty: Signal<String>, due: Signal<DayDate>) -> AnyPiece {
+fn baseline_rows(align: VAlign, qty: Signal<String>, due: Signal<DayDate>) -> impl Piece{
     let tag = match align {
         VAlign::FirstBaseline => "baseline",
         _ => "centered",
@@ -498,5 +498,5 @@ fn baseline_rows(align: VAlign, qty: Signal<String>, due: Signal<DayDate>) -> An
     ))
     .spacing(10.0)
     .align(HAlign::Leading)
-    .any()
+    
 }

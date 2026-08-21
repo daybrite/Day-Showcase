@@ -59,10 +59,13 @@ pub fn install_lifecycle_handlers() {
 
     let note = |phase: day::Lifecycle| {
         move || {
-            // stdout, not stderr: this is a trace of normal operation, and day-android routes
-            // fd 1 to logcat at INFO and fd 2 at ERROR — on stderr every phase would surface as
-            // `E Day` and drown the log level out as a filter.
-            println!("day lifecycle: {}", phase.name());
+            // `info!`, because a lifecycle phase is normal operation (docs/logging.md). This was
+            // a `println!` for a reason worth recording: day-android maps fd 1 to logcat INFO and
+            // fd 2 to ERROR, so `eprintln!` made every phase surface as `E Day` and drowned the
+            // level out as a filter. Choosing stdout to mean "info" is exactly the workaround a
+            // logging level replaces — and the line now reaches the browser console too, where
+            // `println!` was silently dropped.
+            info!("lifecycle: {}", phase.name());
             lifecycle_log().set(phase.name().into());
         }
     };
@@ -492,7 +495,7 @@ fn destinations() -> Vec<Dest> {
 /// independently; app-global state (menu log, lifecycle log, controls prefs) is shared.
 /// Only the PRIMARY shell joins the route namespace — secondary windows are `.local()`
 /// (docs/navigation.md), so `navigate()`/dayscript keep driving the primary unambiguously.
-fn window_root(primary: bool) -> AnyPiece {
+fn window_root(primary: bool) -> impl Piece{
     // Remember the last-opened section across launches (docs/navigation.md). Web only, matching
     // this app's prefs policy (controls.rs): a browser reload is normal life on the web, so the
     // store is installed there and the top-level selector's `.restore` persists the section;

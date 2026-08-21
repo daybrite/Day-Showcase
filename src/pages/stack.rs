@@ -31,7 +31,7 @@ impl Route for Drill {
 /// path. Pushing a detail appends a typed value to the path; Day reconciles the native
 /// UINavigationController / AdwNavigationView / back-stack; the native back button writes the
 /// pop back into the path.
-pub(crate) fn stack_page() -> AnyPiece {
+pub(crate) fn stack_page() -> impl Piece{
     fn push(path: Signal<Vec<Drill>>) {
         let mut v = path.get_untracked();
         let n = v.len() as u32 + 1;
@@ -163,7 +163,7 @@ pub(crate) fn stack_page() -> AnyPiece {
 }
 
 /// The page's motif: three offset cards, drawn as one canvas leaf — a stack you can see.
-fn stack_glyph() -> AnyPiece {
+fn stack_glyph() -> impl Piece{
     shape_group([
         rounded_rectangle(8.0).fill(SKY).at(0.16, 0.0, 0.68, 0.42),
         rounded_rectangle(8.0)
@@ -176,7 +176,7 @@ fn stack_glyph() -> AnyPiece {
 
 /// The path so far, one numbered dot per level in the sunrise ramp's order — each push adds
 /// a dot, each pop removes one, mirroring the `Vec<Drill>` behind the native stack.
-fn depth_dots(depth: u32) -> AnyPiece {
+fn depth_dots(depth: u32) -> impl Piece{
     let dots: Vec<AnyPiece> = (1..=depth)
         .map(|n| {
             zstack((
@@ -191,5 +191,5 @@ fn depth_dots(depth: u32) -> AnyPiece {
             .any()
         })
         .collect();
-    row(PieceVec(dots)).spacing(6.0).any()
+    row(PieceVec(dots)).spacing(6.0)
 }

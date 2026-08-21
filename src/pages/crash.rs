@@ -18,7 +18,7 @@ use crate::widgets::page;
 /// three buttons ended up three different sizes, each sized by how long its sentence happened to
 /// be. Stacked, the sentence gets the full width to wrap into and every button is the same size as
 /// every other, on a phone and on a desktop alike.
-fn crash_action(explanation: String, action: impl Piece + 'static) -> AnyPiece {
+fn crash_action(explanation: String, action: impl Piece + 'static) -> impl Piece{
     column((
         label(explanation).font(Font::Footnote),
         AnyPiece::new(action).grow_w(),
@@ -26,7 +26,7 @@ fn crash_action(explanation: String, action: impl Piece + 'static) -> AnyPiece {
     .spacing(6.0)
     .align(HAlign::Leading)
     .grow_w()
-    .any()
+    
 }
 
 pub(crate) fn crash_page() -> AnyPiece {

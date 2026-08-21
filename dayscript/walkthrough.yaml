@@ -410,6 +410,94 @@ flow:
   - assert_text: { id: model-caption, key: model_caption, args: { count: 224 } }
   - toggle: { id: model-filter, value: false }
   - assert_text: { id: model-caption, key: model_caption, args: { count: 300 } }
+  # Persistence (docs/persistence.md): the store above is loaded from a ModelContainer on every
+  # native target — the readout names the SQLite file — and insert/edit/delete below fold to one
+  # INSERT, one UPDATE and one DELETE through the change log. The web build stays in memory, so
+  # the file-name assert skips dom.
+  - assert_visible: { id: model-storage }
+  - assert_text: { id: model-storage, key: model_storage_file, args: { file: "showcase-model.db" }, skip_on: [dom] }
+  - tap: { id: model-add }
+  - assert_text: { id: model-caption, key: model_caption, args: { count: 301 } }
+  - assert_text: { id: model-selected, key: model_selected, args: { title: "Task 301" } }
+  - input: { id: model-name, text: "Persisted row" }
+  - assert_text: { id: model-selected, key: model_selected, args: { title: "Persisted row" } }
+  - tap: { id: model-delete }
+  - assert_text: { id: model-caption, key: model_caption, args: { count: 300 } }
+  - assert_text: { id: model-selected, key: model_selected_none }
+  # Undo (docs/model.md): the change log read backward. The deleted row comes back WHOLE —
+  # data included — as one unit; redo re-deletes it. The label readout carries the same string
+  # the native Edit menu title interpolates ("remove" resolved to "Remove").
+  - assert_text: { id: model-undo-label, text: "Remove" }
+  - tap: { id: model-undo }
+  - assert_text: { id: model-caption, key: model_caption, args: { count: 301 } }
+  - tap: { id: model-redo }
+  - assert_text: { id: model-caption, key: model_caption, args: { count: 300 } }
+  # The redone unit is back on top of the undo stack — same label, ready to undo again.
+  - assert_text: { id: model-undo-label, text: "Remove" }
+
+  # Live queries (docs/persistence.md): 10,000 rows behind a typed query kept current
+  # incrementally. Counts are arithmetic from the deterministic seed: "0042" appears in
+  # exactly one title, every seventh row is starred (1428 of 10000), and id 42 is one of them.
+  - navigate: { route: query }
+  - assert_route: { route: query }
+  - assert_visible: { id: query-title }
+  - assert_text: { id: query-caption, key: query_caption, args: { count: 10000, total: 10000 } }
+  - toggle: { id: query-filter, value: true }
+  - assert_text: { id: query-caption, key: query_caption, args: { count: 1428, total: 10000 } }
+  - toggle: { id: query-filter, value: false }
+  - input: { id: query-search, text: "0042" }
+  - assert_text: { id: query-caption, key: query_caption, args: { count: 1, total: 10000 } }
+  - select: { id: query-list, index: 0 }
+  - assert_text: { id: query-selected, key: query_selected, args: { title: "Electric Harbor Light 0042" } }
+  # Row identity across a filter flip: the SAME keyed row stays on screen, same selection.
+  - toggle: { id: query-filter, value: true }
+  - assert_text: { id: query-caption, key: query_caption, args: { count: 1, total: 10000 } }
+  - assert_visible: { id: "query-row:42" }
+  - assert_text: { id: query-selected, key: query_selected, args: { title: "Electric Harbor Light 0042" } }
+  - toggle: { id: query-filter, value: false }
+  - assert_visible: { id: "query-row:42" }
+  - screenshot:
+      name: query
+      title: { en: "Query", fr: "Requête", ar: "الاستعلام", zh-CN: "查询" }
+      caption: { en: "A live query over 10,000 rows.", fr: "Une requête en direct sur 10 000 lignes.", ar: "استعلام مباشر على 10000 صف.", zh-CN: "对一万行的实时查询。" }
+      source: src/pages/query.rs
+  # An edit that moves a row ACROSS the predicate, both directions, while the query watches.
+  - input: { id: query-search, text: "0043" }
+  - assert_text: { id: query-caption, key: query_caption, args: { count: 1, total: 10000 } }
+  - select: { id: query-list, index: 0 }
+  - tap: { id: query-star }
+  - toggle: { id: query-filter, value: true }
+  # wait_for, not assert_visible: the reload realizes cells on the host's next layout pass
+  # (Android defers notifyDataSetChanged), so the row's keyed id lands a beat later.
+  - wait_for: { id: "query-row:43" }
+  - assert_text: { id: query-caption, key: query_caption, args: { count: 1, total: 10000 } }
+  - tap: { id: query-star }
+  - assert_text: { id: query-caption, key: query_caption, args: { count: 0, total: 10000 } }
+  - toggle: { id: query-filter, value: false }
+  - input: { id: query-search, text: "" }
+  - assert_text: { id: query-caption, key: query_caption, args: { count: 10000, total: 10000 } }
+  - assert_visible: { id: query-evals, skip_on: [dom] }
+  # FTS5 through the generated shadow index (native only — web has no SQLite). The same term
+  # answers identically through substring and MATCH; FTS-only syntax then narrows further.
+  # 1250 = every eighth title is "Electric …"; 313 of those also carry a Harbor token.
+  - input: { id: query-search, text: "electric", skip_on: [dom] }
+  - assert_text: { id: query-caption, key: query_caption, args: { count: 1250, total: 10000 }, skip_on: [dom] }
+  - toggle: { id: query-fts, value: true, skip_on: [dom] }
+  - assert_text: { id: query-caption, key: query_caption, args: { count: 1250, total: 10000 }, skip_on: [dom] }
+  - input: { id: query-search, text: "electric AND harbor", skip_on: [dom] }
+  - assert_text: { id: query-caption, key: query_caption, args: { count: 313, total: 10000 }, skip_on: [dom] }
+  - toggle: { id: query-fts, value: false, skip_on: [dom] }
+  - input: { id: query-search, text: "", skip_on: [dom] }
+  # The R*Tree viewport: a 16-degree latitude band of the deterministic pin grid holds 1600
+  # pins; starred-only narrows it to 229.
+  - toggle: { id: query-viewport, value: true, skip_on: [dom] }
+  - set_value: { id: query-lat, value: 20, skip_on: [dom] }
+  - assert_text: { id: query-caption, key: query_caption, args: { count: 1600, total: 10000 }, skip_on: [dom] }
+  - toggle: { id: query-filter, value: true, skip_on: [dom] }
+  - assert_text: { id: query-caption, key: query_caption, args: { count: 229, total: 10000 }, skip_on: [dom] }
+  - toggle: { id: query-filter, value: false, skip_on: [dom] }
+  - toggle: { id: query-viewport, value: false, skip_on: [dom] }
+  - assert_text: { id: query-caption, key: query_caption, args: { count: 10000, total: 10000 } }
 
   - navigate: { route: localization }
   - assert_route: { route: localization }
@@ -878,6 +966,14 @@ flow:
   - tap: { id: toolbar-seed-search, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - tap: { id: toolbar-clear-search, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - toolbar: { item: cmd-record, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - wait_idle:
+  # Stopping JUMPS to Scripting (commands.rs): the script you just recorded is on that page, and
+  # leaving the user wherever they happened to be reads as the recording having gone nowhere. The
+  # jump is not itself recorded — `record::stop()` unhooks the nav observer before it runs.
+  - assert_route: { route: scripting, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  # Back to the bar for the rest of this section. The transport readout and the two taps the
+  # replay below re-dispatches all live on the Toolbars page, so the playback has to run there.
+  - navigate: { route: toolbars, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - wait_idle:
   - assert_text: { id: toolbar-transport, key: toolbar_transport_idle, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   # Play ↔ Pause ↔ Resume on one item: the title and icon follow the run.

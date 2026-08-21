@@ -5,7 +5,7 @@ use day_piece_map::map;
 /// A native map view (day-piece-map, an EXTERNAL standalone piece) — Apple platforms only. Preset
 /// buttons recenter the map live via a bound coordinate `Signal` (a `Center` patch to the native
 /// `MKMapView`). The map fills its `.frame`, and a marker pins the initial Boston center.
-pub(crate) fn map_page() -> AnyPiece {
+pub(crate) fn map_page() -> impl Piece{
     const BOSTON: (f64, f64) = (42.3601, -71.0589);
     const PARIS: (f64, f64) = (48.8566, 2.3522);
     let center = Signal::new(BOSTON);

@@ -19,11 +19,11 @@ pub(crate) fn resources_page() -> AnyPiece {
 /// file / Assets.car / R.drawable / …). One asset rendered under each content mode shows what
 /// Fit (default), Fill, and Stretch each do to a non-square frame.
 fn image_section() -> impl Piece {
-    fn mode(label_text: LocalizedText, img: AnyPiece) -> AnyPiece {
+    fn mode(label_text: LocalizedText, img: impl Piece) -> impl Piece{
         column((img, label(label_text).font(Font::Caption)))
             .spacing(6.0)
             .align(HAlign::Center)
-            .any()
+            
     }
     section((
         image(crate::res::images::day_logo).frame(96.0, 96.0),
@@ -306,10 +306,12 @@ fn vectors_section() -> impl Piece {
                 let (step, room) = slot.get();
                 let px = step as f64 * 8.0;
                 let art = vector(gv::tiger).frame(px, px).id("vector-tiger");
+                // Two different piece types, one branch each: `Either` keeps both concrete
+                // instead of boxing whichever arm this row takes.
                 if px <= room as f64 {
-                    column((art,)).align(HAlign::Center).grow_w()
+                    Either::Left(column((art,)).align(HAlign::Center).grow_w())
                 } else {
-                    scroll(art).horizontal().grow_w()
+                    Either::Right(scroll(art).horizontal().grow_w())
                 }
             },
         ),
@@ -325,8 +327,8 @@ fn vectors_section() -> impl Piece {
 }
 
 /// One glyph of the tint ladder, at the fixed size that row has always used.
-fn t(g: day::VectorName, c: Color) -> AnyPiece {
-    vector(g).tint(c).frame(28.0, 28.0).any()
+fn t(g: day::VectorName, c: Color) -> impl Piece{
+    vector(g).tint(c).frame(28.0, 28.0)
 }
 
 /// Roughly the width the section card leaves the tiger at the window's current width class —

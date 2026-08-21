@@ -12,13 +12,13 @@ day::routes! {
 /// UITabBarController / GtkNotebook / QTabWidget / Android tab strip. Each pane holds live
 /// controls whose signals are owned by the PAGE, not the pane — switch away and back and the
 /// state is still there, which is the point the panes make.
-pub(crate) fn tabs_page() -> AnyPiece {
-    fn pane(
+pub(crate) fn tabs_page() -> impl Piece{
+    fn pane<P1: Piece>(
         title: LocalizedText,
         body: LocalizedText,
         content_id: &'static str,
-        extra: AnyPiece,
-    ) -> AnyPiece {
+        extra: P1,
+    ) -> impl Piece + use<P1>{
         column((
             label(title).font(Font::Title),
             label(body).id(content_id),
@@ -27,7 +27,7 @@ pub(crate) fn tabs_page() -> AnyPiece {
         .spacing(12.0)
         .align(HAlign::Leading)
         .padding(20.0)
-        .any()
+        
     }
     let tab = Signal::new(Tab::One);
     // Page-scope state, one signal set per pane: the panes read/write these across tab switches.
@@ -88,13 +88,13 @@ pub(crate) fn tabs_page() -> AnyPiece {
         )
         .id("demo-tabs")
         .any();
-    column((main,)).grow().any()
+    column((main,)).grow()
 }
 
 /// Data-driven tabs (docs/navigation.md): the tab set comes from a signal, so the Add/Remove
 /// buttons grow and shrink the native tab strip live. String keys, with `.destination` building
 /// each dynamic tab's page.
-fn dynamic_tabs_demo() -> AnyPiece {
+fn dynamic_tabs_demo() -> impl Piece{
     let tabs = Signal::new(vec!["alpha".to_string(), "beta".to_string()]);
     let current = Signal::new("alpha".to_string());
     let (add, remove) = (tabs, tabs);
@@ -137,12 +137,12 @@ fn dynamic_tabs_demo() -> AnyPiece {
     .align(HAlign::Leading)
     .padding(16.0)
     .frame(560.0, 220.0)
-    .any()
+    
 }
 
 /// Overview: a counter whose signal outlives the pane — count a few clicks, switch tabs, and
 /// come back to the same number.
-fn overview_extra(clicks: Signal<i64>) -> AnyPiece {
+fn overview_extra(clicks: Signal<i64>) -> impl Piece{
     column((
         row((
             button(crate::res::str::decrement())
@@ -160,12 +160,12 @@ fn overview_extra(clicks: Signal<i64>) -> AnyPiece {
     ))
     .spacing(12.0)
     .align(HAlign::Leading)
-    .any()
+    
 }
 
 /// Details: the addressing facts for this tab, as a quiet card. The values are route keys —
 /// data, not prose — so they stay raw.
-fn details_extra() -> AnyPiece {
+fn details_extra() -> impl Piece{
     column((
         labeled(
             crate::res::str::tab_detail_route(),
@@ -179,11 +179,11 @@ fn details_extra() -> AnyPiece {
     .spacing(8.0)
     .align(HAlign::Leading)
     .modifier(Card)
-    .any()
+    
 }
 
 /// Settings: two toggles bound to page-scope signals — flip one, tour the other tabs, return.
-fn settings_extra(badges: Signal<bool>, sounds: Signal<bool>) -> AnyPiece {
+fn settings_extra(badges: Signal<bool>, sounds: Signal<bool>) -> impl Piece{
     column((
         labeled(
             crate::res::str::tab_set_badges(),
@@ -197,5 +197,5 @@ fn settings_extra(badges: Signal<bool>, sounds: Signal<bool>) -> AnyPiece {
     ))
     .spacing(8.0)
     .align(HAlign::Leading)
-    .any()
+    
 }

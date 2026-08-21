@@ -168,7 +168,7 @@ fn bench_signals() -> (Signal<f64>, Signal<f64>) {
 /// macos-appkit and ios-uikit builds) — a segmented picker hosting the Day-native benchmark and
 /// its SwiftUI twin as tabs. Everywhere else, just the Day-native benchmark: the picker never
 /// exists, so the swiftui piece is never built and no placeholder can realize.
-pub(crate) fn benchmark_page() -> AnyPiece {
+pub(crate) fn benchmark_page() -> impl Piece{
     let (seed, count) = bench_signals();
 
     let body: AnyPiece = if day_piece_swiftui::support() == Support::Native {
@@ -214,13 +214,13 @@ pub(crate) fn benchmark_page() -> AnyPiece {
     .align(HAlign::Leading)
     .padding(16.0)
     .grow()
-    .any()
+    
 }
 
 /// The Day-native benchmark: the parameter controls above, the patchwork filling everything below
 /// — the Day-Bench Grids page, with the heading hoisted into the page shell. The signals come
 /// from [`bench_signals`], so the parameters survive tab switches and page revisits.
-fn day_native(seed: Signal<f64>, count: Signal<f64>) -> AnyPiece {
+fn day_native(seed: Signal<f64>, count: Signal<f64>) -> impl Piece{
     let rows = move || pack(seed.get() as u32, count.get() as usize);
 
     column((
@@ -282,6 +282,7 @@ fn day_native(seed: Signal<f64>, count: Signal<f64>) -> AnyPiece {
                             .fill(cell_color(t.index))
                             .grow()
                             .grid_span(t.span as usize)
+                            .any()
                     })
                     .collect(),
             ))
@@ -294,7 +295,7 @@ fn day_native(seed: Signal<f64>, count: Signal<f64>) -> AnyPiece {
     .spacing(10.0)
     .align(HAlign::Leading)
     .grow()
-    .any()
+    
 }
 
 /// The SwiftUI twin, hosted natively (docs/swiftui.md). Its sliders and row readout live in
@@ -302,7 +303,7 @@ fn day_native(seed: Signal<f64>, count: Signal<f64>) -> AnyPiece {
 /// closures so a locale switch re-forms them live (the row templates are `%d`-style because the
 /// count is on the Swift side). `.state_key` keeps the hosting view across tab switches and page
 /// revisits, so the sliders hold their values like the Day tab's global signals do.
-fn swiftui_pane() -> AnyPiece {
+fn swiftui_pane() -> impl Piece{
     crate::swiftui::BenchGridsView(
         || crate::res::str::bench_parameters().format(),
         || crate::res::str::bench_seed().format(),
@@ -313,7 +314,7 @@ fn swiftui_pane() -> AnyPiece {
     .state_key("bench-grids")
     .grow()
     .id("bench-swiftui")
-    .any()
+    
 }
 
 #[cfg(test)]

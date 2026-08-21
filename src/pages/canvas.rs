@@ -494,7 +494,7 @@ fn gauge_section() -> impl Piece {
 
 /// A VU-style segment meter: twelve bottom-anchored bars in a rising ramp, lit up to the
 /// level — teal through amber into coral at the top of the scale, the unlit tail dimmed.
-fn led_meter(level: Signal<f64>) -> AnyPiece {
+fn led_meter(level: Signal<f64>) -> impl Piece{
     canvas(move |d, size| {
         const N: usize = 12;
         let gap = (size.width * 0.012).clamp(3.0, 8.0);
@@ -548,7 +548,7 @@ fn mix(a: Color, b: Color, t: f64) -> Color {
 /// ground line, and a sky gradient whose light follows the sun: night indigo over an amber
 /// glow at dawn, blue over haze at noon, dusk purple over coral at sunset. All geometry
 /// derives from the laid-out size.
-fn sunrise_meter(level: Signal<f64>) -> AnyPiece {
+fn sunrise_meter(level: Signal<f64>) -> impl Piece{
     canvas(move |d, size| {
         let frac = (level.get() / 100.0).clamp(0.0, 1.0);
         let horizon_y = size.height - 24.0;
@@ -680,7 +680,7 @@ fn compose_section() -> impl Piece {
             .spacing(4.0)
             .align(HAlign::Leading)
             .modifier(Card),
-            badge(3, rounded_rectangle(10.0).fill(SLATE).frame(48.0, 48.0)),
+            badge(3, rounded_rectangle(10.0).fill(SLATE).frame(48.0, 48.0).any()),
         ))
         .spacing(20.0),
         // 3) ButtonStyle — a FilledButtonStyle button next to a plain one for contrast.
@@ -697,7 +697,7 @@ fn compose_section() -> impl Piece {
             label(crate::res::str::compose_env_value())
                 .font(Font::Headline)
                 .color(tint)
-                .id("compose-env-value")
+                .id("compose-env-value").any()
         }),
     ))
     .title(crate::res::str::nav_compose())

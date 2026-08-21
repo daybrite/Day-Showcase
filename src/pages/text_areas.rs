@@ -52,14 +52,14 @@ buffer, a XAML `RichEditBox`, the ArkTS `RichEditor`, and a `contenteditable` el
 /// the point is to show that re-styling does not disturb the caret.
 const CODE: &str = "\
 // A counter, in Day.
-fn counter() -> AnyPiece {
+fn counter() -> impl Piece{
     let n = Signal::new(0);
     column((
         label(move || format!(\"Count: {}\", n.get())),
         button(\"Add one\").action(move || n.update(|v| *v += 1)),
     ))
     .spacing(8.0)
-    .any()
+    
 }";
 
 /// Which document the styled editor is showing.
@@ -457,7 +457,7 @@ fn style_button(
     sel: Signal<std::ops::Range<usize>>,
     typing: Signal<RunStyle>,
     f: impl Fn(&mut RunStyle) + Copy + 'static,
-) -> AnyPiece {
+) -> impl Piece{
     button(title)
         .action(move || {
             let range = sel.get_untracked();
@@ -469,7 +469,7 @@ fn style_button(
             }
         })
         .id(id)
-        .any()
+        
 }
 
 // ---------------------------------------------------------------------------

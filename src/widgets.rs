@@ -19,7 +19,7 @@ pub(crate) fn battery_line() -> LocalizedText {
 /// The arc dial: a 270° track sweep with the value centred — RESPONSIVE, drawing a centred
 /// square dial scaled to whatever size the caller lays it out at (the canvas re-records on
 /// `FrameChanged`). Size it with `.height`/`.grow_w` (or `.frame`) at the call site.
-pub(crate) fn gauge(value: Signal<f64>) -> AnyPiece {
+pub(crate) fn gauge(value: Signal<f64>) -> impl Piece{
     canvas(move |d, size| {
         let side = size.width.min(size.height);
         if side <= 20.0 {
@@ -123,7 +123,7 @@ pub(crate) fn page(
     title: LocalizedText,
     title_id: &'static str,
     caption: Option<LocalizedText>,
-    body: AnyPiece,
+    body: impl Piece,
 ) -> AnyPiece {
     page_inner(
         title,
@@ -142,8 +142,8 @@ pub(crate) fn page_trailing(
     title: LocalizedText,
     title_id: &'static str,
     caption: Option<LocalizedText>,
-    trailing: AnyPiece,
-    body: AnyPiece,
+    trailing: impl Piece,
+    body: impl Piece,
 ) -> AnyPiece {
     page_inner(
         title,
@@ -162,19 +162,19 @@ pub(crate) fn page_wide(
     title: LocalizedText,
     title_id: &'static str,
     caption: Option<LocalizedText>,
-    body: AnyPiece,
+    body: impl Piece,
 ) -> AnyPiece {
     page_inner(title, title_id, caption, None, body, None)
 }
 
-fn page_inner(
+fn page_inner<P1: Piece>(
     title: LocalizedText,
     title_id: &'static str,
     caption: Option<LocalizedText>,
     trailing: Option<AnyPiece>,
-    body: AnyPiece,
+    body: P1,
     max_width: Option<f64>,
-) -> AnyPiece {
+) -> impl Piece + use<P1>{
     let head = heading(title, title_id, caption);
     let head = match trailing {
         // The corner slot: beside the heading where the big in-content title renders. On
@@ -206,7 +206,7 @@ fn page_inner(
             .grow_w()
             .padding(20.0),
     )
-    .any()
+    
 }
 
 /// A numeric readout that does not resize as its value changes.
@@ -225,7 +225,7 @@ pub(crate) fn numeric_readout(
     text: impl Fn() -> String + 'static,
     widest: &'static str,
     id: &'static str,
-) -> AnyPiece {
+) -> impl Piece{
     // Both halves of the problem: `tabular` stops the digits shifting inside the box (`1` is
     // narrower than `8`), `reserving` stops the box itself resizing when the digit count changes.
     // `.tabular()` is a Label builder method, so it comes before the Decorate modifiers.
@@ -332,7 +332,7 @@ pub(crate) fn support_note(support: Support) -> AnyPiece {
 ///
 /// `size_class()` is a tracked read (docs/size-classes.md), so this re-lays out when the window
 /// crosses a breakpoint — a rotation, a foldable opening, a desktop window dragged narrow.
-pub(crate) fn action_result(action: AnyPiece, result: AnyPiece) -> AnyPiece {
+pub(crate) fn action_result(action: impl Piece, result: impl Piece) -> AnyPiece {
     let compact = day::size_class()
         .map(|c| c.width == WidthClass::Compact)
         .unwrap_or(false);

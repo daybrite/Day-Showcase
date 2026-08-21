@@ -172,7 +172,7 @@ pub(crate) fn screenshot() -> Command {
                 let png = match day::window_image().capture() {
                     Ok(bytes) => bytes,
                     Err(e) => {
-                        eprintln!("day-showcase: window image failed: {e}");
+                        warn!("window image capture failed: {e}");
                         return;
                     }
                 };

@@ -126,3 +126,8 @@ platform = "16.0"
 [package.metadata.day.macos]
 swift-packages = [{ path = "swiftui", products = ["ShowcaseSwiftUI"] }]
 platform = "13.0"
+
+# The Model page persists through a real SQLite container on every native target; the web build
+# stays in memory (rusqlite has no place in the wasm binary), so the engine is target-gated.
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+day = { git = "https://github.com/daybrite/day.git", features = ["model", "persistence"] }

@@ -17,7 +17,7 @@ use crate::widgets::heading;
 /// resolves it to a position at press time, so the jump follows the row through a shuffle.
 const TARGET_ROW: i64 = 100;
 
-pub(crate) fn list_page() -> AnyPiece {
+pub(crate) fn list_page() -> impl Piece{
     // A real Vec of row numbers (not a derived range): drag-to-reorder rotates it, shuffle
     // permutes it, and the refresh paths append to it — the order is app-owned state.
     let rows: Signal<Vec<i64>> = Signal::new((1..=500).collect());
@@ -218,7 +218,7 @@ pub(crate) fn list_page() -> AnyPiece {
     .spacing(10.0)
     .align(HAlign::Leading)
     .padding(16.0)
-    .any()
+    
 }
 
 /// Fisher–Yates over a hand-rolled xorshift64 (no rand dependency; the seed is fixed and
