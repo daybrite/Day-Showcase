@@ -272,25 +272,21 @@ fn day_native(seed: Signal<f64>, count: Signal<f64>) -> AnyPiece {
         .height(PARAMS_HEIGHT),
         // The patchwork. Every tile grows on both axes, so the grid resolves columns by the
         // flexible share and stretches rows into the leftover height — it fills the pane exactly.
-        grid((each(
-            rows,
-            |r: &Row| r.key,
-            |slot| {
-                let tiles = slot.get().tiles;
-                grid_row(PieceVec(
-                    tiles
-                        .into_iter()
-                        .map(|t| {
-                            rounded_rectangle(3.0)
-                                .fill(cell_color(t.index))
-                                .grow()
-                                .grid_span(t.span as usize)
-                        })
-                        .collect(),
-                ))
-                .any()
-            },
-        ),))
+        grid((each(items(rows, |r: &Row| r.key), |slot| {
+            let tiles = slot.get().tiles;
+            grid_row(PieceVec(
+                tiles
+                    .into_iter()
+                    .map(|t| {
+                        rounded_rectangle(3.0)
+                            .fill(cell_color(t.index))
+                            .grow()
+                            .grid_span(t.span as usize)
+                    })
+                    .collect(),
+            ))
+            .any()
+        }),))
         .spacing(2.0)
         .grow()
         .id("bench-grid"),

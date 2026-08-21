@@ -385,6 +385,32 @@ flow:
   # SAME bundle + formatter as the labels, so the expected strings are locale-correct by
   # construction (ar gets zero/two/few/many plurals and Arabic date patterns, fr narrow-NBSP
   # grouping, zh CLDR date patterns).
+  # The observable model (docs/model.md): a Store<Keyed<Task>> drives the recycling list
+  # directly. The editor and the mirror label bind the SELECTED row's fields through the store,
+  # so asserting the mirror after typing proves the round trip without reaching into a recycled
+  # cell; hiding done rows re-runs only the key projection.
+  - navigate: { route: model }
+  - assert_route: { route: model }
+  - assert_visible: { id: model-title }
+  - assert_text: { id: model-caption, key: model_caption, args: { count: 300 } }
+  - assert_text: { id: model-selected, key: model_selected_none }
+  - select: { id: model-list, index: 0 }
+  - assert_text: { id: model-selected, key: model_selected, args: { title: "Task 1" } }
+  - input: { id: model-name, text: "Renamed task" }
+  - assert_text: { id: model-selected, key: model_selected, args: { title: "Renamed task" } }
+  - screenshot:
+      name: model
+      title: { en: "Model", fr: "Modèle", ar: "النموذج", zh-CN: "模型" }
+      source: src/pages/model.rs
+  # Filtering: 75 of the 300 seeds are done (every fourth); hiding them changes the projection.
+  - toggle: { id: model-filter, value: true }
+  - assert_text: { id: model-caption, key: model_caption, args: { count: 225 } }
+  # Marking the selected task done removes it from the filtered projection too.
+  - toggle: { id: model-done, value: true }
+  - assert_text: { id: model-caption, key: model_caption, args: { count: 224 } }
+  - toggle: { id: model-filter, value: false }
+  - assert_text: { id: model-caption, key: model_caption, args: { count: 300 } }
+
   - navigate: { route: localization }
   - assert_route: { route: localization }
   - assert_visible: { id: localization-title }

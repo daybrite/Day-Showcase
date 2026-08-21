@@ -86,6 +86,15 @@ list_shuffle = Shuffle
 list_reset = Reset
 list_delete = Delete
 
+nav_model = Model
+model_caption = { $count } rows shown — the list is driven straight by the store
+model_cost = observing { $paths } paths · { $nodes } interned nodes — flat while you scroll
+model_hide_done = Hide done
+model_selected = Selected: { $title }
+model_selected_none = Nothing selected
+model_add = Add Task
+model_delete = Delete Selected
+
 webview_url_hint = Enter a URL
 webview_go = Go
 webview_back = Back

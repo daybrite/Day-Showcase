@@ -147,8 +147,7 @@ pub(crate) fn list_page() -> AnyPiece {
         pull_to_refresh(
             refreshing,
             list(
-                move || rows.get(),
-                |n: &i64| *n,
+                items(move || rows.get(), |n: &i64| *n),
                 |row: ItemSlot<i64, i64>| {
                     // The target row wears the warm accent so "Scroll to item 100" visibly
                     // lands on it wherever a shuffle has moved it; the rest keep the

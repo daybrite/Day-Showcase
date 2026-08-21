@@ -82,6 +82,15 @@ list_shuffle = 打乱顺序
 list_reset = 重置
 list_delete = 删除
 
+nav_model = 模型
+model_caption = 显示 { $count } 行 — 列表由存储直接驱动
+model_cost = 正在观察 { $paths } 条路径 · { $nodes } 个驻留节点 — 滚动时保持不变
+model_hide_done = 隐藏已完成
+model_selected = 已选：{ $title }
+model_selected_none = 未选择
+model_add = 添加任务
+model_delete = 删除所选
+
 webview_url_hint = 输入网址
 webview_go = 前往
 webview_back = 后退

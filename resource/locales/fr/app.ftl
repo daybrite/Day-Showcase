@@ -86,6 +86,15 @@ list_shuffle = Mélanger
 list_reset = Réinitialiser
 list_delete = Supprimer
 
+nav_model = Modèle
+model_caption = { $count } lignes affichées — la liste est pilotée par le store
+model_cost = { $paths } chemins observés · { $nodes } nœuds internés — stable pendant le défilement
+model_hide_done = Masquer les terminées
+model_selected = Sélection : { $title }
+model_selected_none = Aucune sélection
+model_add = Ajouter une tâche
+model_delete = Supprimer la sélection
+
 webview_url_hint = Saisir une URL
 webview_go = Aller
 webview_back = Précédent

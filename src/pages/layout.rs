@@ -88,8 +88,7 @@ fn fit_section() -> impl Piece {
 /// the row is the exhibit.
 fn demo_row(count: Signal<i64>, fit: RowFit) -> impl Piece {
     row((each(
-        move || (1..=count.get()).collect::<Vec<_>>(),
-        |n: &i64| *n,
+        items(move || (1..=count.get()).collect::<Vec<_>>(), |n: &i64| *n),
         |slot: ItemSlot<i64, i64>| {
             // Every third button carries a longer label ON PURPOSE. With labels of one width
             // Wrap and Even columns produce the same picture — correctly, but the page would

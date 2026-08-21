@@ -90,6 +90,15 @@ list_shuffle = خلط
 list_reset = إعادة الضبط
 list_delete = حذف
 
+nav_model = النموذج
+model_caption = { $count } صفوف معروضة — القائمة تعمل مباشرة من المخزن
+model_cost = { $paths } مسارات مراقبة · { $nodes } عقد محفوظة — ثابتة أثناء التمرير
+model_hide_done = إخفاء المنجزة
+model_selected = المحدد: { $title }
+model_selected_none = لا شيء محدد
+model_add = إضافة مهمة
+model_delete = حذف المحدد
+
 webview_url_hint = أدخل عنوان URL
 webview_go = انتقال
 webview_back = رجوع

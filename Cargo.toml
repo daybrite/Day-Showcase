@@ -46,7 +46,7 @@ crate-type = ["rlib"]
 day-build = { git = "https://github.com/daybrite/day.git" }
 
 [dependencies]
-day = { git = "https://github.com/daybrite/day.git" }
+day = { git = "https://github.com/daybrite/day.git", features = ["model"] }
 # Consent-first crash reporting (docs/break.md) — the Crash Reporting page arms it and shows the
 # previous run's report. Optional in general; here it demonstrates the whole flow. Its consent UI
 # (`ui` feature, on by default) is built from ordinary pieces, so no per-backend wiring is needed.

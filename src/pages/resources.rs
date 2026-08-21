@@ -147,8 +147,7 @@ fn vectors_section() -> impl Piece {
         // Still rebuilt through `each`, keyed on the weight and size the pickers hold, because
         // both change what each glyph IS rather than how it is laid out.
         each(
-            move || vec![(weight.get(), size.get())],
-            |k| *k,
+            items(move || vec![(weight.get(), size.get())], |k| *k),
             move |slot| {
                 let (w, s) = slot.get();
                 let px = GLYPH_SIZES[s.min(GLYPH_SIZES.len() - 1)];
@@ -299,8 +298,10 @@ fn vectors_section() -> impl Piece {
         // breakpoint changes which of the two arrangements applies, and a key that ignored it
         // would leave a resized window showing the wrong one.
         each(
-            move || vec![((zoom.get() / 8.0).round() as i64, tiger_room() as i64)],
-            |k| *k,
+            items(
+                move || vec![((zoom.get() / 8.0).round() as i64, tiger_room() as i64)],
+                |k| *k,
+            ),
             move |slot| {
                 let (step, room) = slot.get();
                 let px = step as f64 * 8.0;

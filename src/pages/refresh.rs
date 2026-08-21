@@ -70,8 +70,11 @@ pub(crate) fn refresh_page() -> AnyPiece {
             refreshing,
             scroll(
                 column((each(
-                    move || (1..=items.get()).rev().collect::<Vec<i64>>(),
-                    |i| *i,
+                    // Qualified: the local `items` SIGNAL shadows the row-source helper.
+                    day::prelude::items(
+                        move || (1..=items.get()).rev().collect::<Vec<i64>>(),
+                        |i: &i64| *i,
+                    ),
                     |slot: ItemSlot<i64, i64>| {
                         label(move || crate::res::str::refresh_row(slot.get()).format())
                             .padding(Insets::symmetric(12.0, 8.0))

@@ -306,8 +306,10 @@ fn voice_section(mix: Mix) -> impl Piece {
         // The first match in the SAME list the combo offers — a value, or an em-dash.
         label(move || first_match(&query.get(), &voices.get())).id("search-result"),
         each(
-            move || filtered(&query.get(), &voices.get()),
-            |v: &String| v.clone(),
+            items(
+                move || filtered(&query.get(), &voices.get()),
+                |v: &String| v.clone(),
+            ),
             move |slot: ItemSlot<String, String>| label(slot.field(|v| v.clone())),
         ),
     ))

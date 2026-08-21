@@ -371,8 +371,7 @@ fn stress_demo() -> AnyPiece {
     let rows = Signal::new(100i64);
     let hot = Signal::new(0i64);
     let body = grid((each(
-        move || (0..rows.get()).collect::<Vec<i64>>(),
-        |r| *r,
+        items(move || (0..rows.get()).collect::<Vec<i64>>(), |r: &i64| *r),
         move |slot| {
             let r = slot.key();
             let mut cells: Vec<AnyPiece> = Vec::with_capacity(COLS as usize);
