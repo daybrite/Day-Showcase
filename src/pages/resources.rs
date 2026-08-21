@@ -13,17 +13,17 @@ pub(crate) fn resources_page() -> AnyPiece {
         Some(crate::res::str::resources_caption()),
         form((image_section(), vectors_section(), data_section())).any(),
     )
+    .any()
 }
 
 /// `image(res::images::…)` resolves by name through the backend's native image path (bundle
 /// file / Assets.car / R.drawable / …). One asset rendered under each content mode shows what
 /// Fit (default), Fill, and Stretch each do to a non-square frame.
 fn image_section() -> impl Piece {
-    fn mode(label_text: LocalizedText, img: impl Piece) -> impl Piece{
+    fn mode(label_text: LocalizedText, img: impl Piece) -> impl Piece {
         column((img, label(label_text).font(Font::Caption)))
             .spacing(6.0)
             .align(HAlign::Center)
-            
     }
     section((
         image(crate::res::images::day_logo).frame(96.0, 96.0),
@@ -327,7 +327,7 @@ fn vectors_section() -> impl Piece {
 }
 
 /// One glyph of the tint ladder, at the fixed size that row has always used.
-fn t(g: day::VectorName, c: Color) -> impl Piece{
+fn t(g: day::VectorName, c: Color) -> impl Piece {
     vector(g).tint(c).frame(28.0, 28.0)
 }
 

@@ -82,6 +82,7 @@ pub(crate) fn text_areas_page() -> AnyPiece {
             form((styled_sections(), editor, seed, attrs)).any()
         },
     )
+    .any()
 }
 
 // ---------------------------------------------------------------------------
@@ -176,7 +177,7 @@ fn plain_sections() -> (AnyPiece, AnyPiece, AnyPiece) {
 // The styled editor (docs/texteditor.md).
 // ---------------------------------------------------------------------------
 
-fn styled_sections() -> AnyPiece {
+fn styled_sections() -> impl Piece {
     let doc = Signal::new(StyledText::markdown(NOTE, Font::Body));
     let sel = Signal::new(0..0);
     let typing = Signal::new(RunStyle::plain(Font::Body));
@@ -457,7 +458,7 @@ fn style_button(
     sel: Signal<std::ops::Range<usize>>,
     typing: Signal<RunStyle>,
     f: impl Fn(&mut RunStyle) + Copy + 'static,
-) -> impl Piece{
+) -> impl Piece {
     button(title)
         .action(move || {
             let range = sel.get_untracked();
@@ -469,7 +470,6 @@ fn style_button(
             }
         })
         .id(id)
-        
 }
 
 // ---------------------------------------------------------------------------

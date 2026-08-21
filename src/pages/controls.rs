@@ -24,6 +24,7 @@ pub(crate) fn controls_page() -> AnyPiece {
         None,
         form((mix_section(mix), voice_section(mix))).any(),
     )
+    .any()
 }
 
 /// The page's shared state. Copy, so every section takes it by value and closures stay cheap.

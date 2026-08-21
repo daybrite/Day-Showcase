@@ -303,6 +303,7 @@ pub(crate) fn toolbars_page() -> AnyPiece {
         Some(crate::res::str::toolbars_caption()),
         form((readout_section(), controls_section(), vocabulary_section())).any(),
     )
+    .any()
 }
 
 /// What the bar is doing right now — the two-way bindings, read from the page.

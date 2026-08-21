@@ -19,7 +19,7 @@ pub(crate) fn battery_line() -> LocalizedText {
 /// The arc dial: a 270° track sweep with the value centred — RESPONSIVE, drawing a centred
 /// square dial scaled to whatever size the caller lays it out at (the canvas re-records on
 /// `FrameChanged`). Size it with `.height`/`.grow_w` (or `.frame`) at the call site.
-pub(crate) fn gauge(value: Signal<f64>) -> impl Piece{
+pub(crate) fn gauge(value: Signal<f64>) -> impl Piece {
     canvas(move |d, size| {
         let side = size.width.min(size.height);
         if side <= 20.0 {
@@ -89,7 +89,7 @@ pub(crate) fn heading(
     title: LocalizedText,
     title_id: &'static str,
     caption: Option<LocalizedText>,
-) -> AnyPiece {
+) -> impl Piece {
     let native_header = capability(Cap::NavHeader) == Support::Native;
     match (native_header, caption) {
         (true, Some(c)) => label(c).font(Font::Subheadline).id(title_id).any(),
@@ -124,7 +124,7 @@ pub(crate) fn page(
     title_id: &'static str,
     caption: Option<LocalizedText>,
     body: impl Piece,
-) -> AnyPiece {
+) -> impl Piece {
     page_inner(
         title,
         title_id,
@@ -144,12 +144,12 @@ pub(crate) fn page_trailing(
     caption: Option<LocalizedText>,
     trailing: impl Piece,
     body: impl Piece,
-) -> AnyPiece {
+) -> impl Piece {
     page_inner(
         title,
         title_id,
         caption,
-        Some(trailing),
+        Some(trailing.any()),
         body,
         Some(CONTENT_MAX_WIDTH),
     )
@@ -163,7 +163,7 @@ pub(crate) fn page_wide(
     title_id: &'static str,
     caption: Option<LocalizedText>,
     body: impl Piece,
-) -> AnyPiece {
+) -> impl Piece {
     page_inner(title, title_id, caption, None, body, None)
 }
 
@@ -174,7 +174,7 @@ fn page_inner<P1: Piece>(
     trailing: Option<AnyPiece>,
     body: P1,
     max_width: Option<f64>,
-) -> impl Piece + use<P1>{
+) -> impl Piece + use<P1> {
     let head = heading(title, title_id, caption);
     let head = match trailing {
         // The corner slot: beside the heading where the big in-content title renders. On
@@ -191,7 +191,7 @@ fn page_inner<P1: Piece>(
                 row((head, spacer(), t)).grow_w().any()
             }
         }
-        None => head,
+        None => head.any(),
     };
     let content = column((head, body)).spacing(16.0).align(HAlign::Leading);
     let content = match max_width {
@@ -206,7 +206,6 @@ fn page_inner<P1: Piece>(
             .grow_w()
             .padding(20.0),
     )
-    
 }
 
 /// A numeric readout that does not resize as its value changes.
@@ -225,7 +224,7 @@ pub(crate) fn numeric_readout(
     text: impl Fn() -> String + 'static,
     widest: &'static str,
     id: &'static str,
-) -> impl Piece{
+) -> impl Piece {
     // Both halves of the problem: `tabular` stops the digits shifting inside the box (`1` is
     // narrower than `8`), `reserving` stops the box itself resizing when the digit count changes.
     // `.tabular()` is a Label builder method, so it comes before the Decorate modifiers.
@@ -315,7 +314,7 @@ pub(crate) fn support_banner(support: Support) -> Option<AnyPiece> {
 
 /// The banner as a form child: renders nothing at all where the feature works, so a section can
 /// carry it unconditionally as its first row.
-pub(crate) fn support_note(support: Support) -> AnyPiece {
+pub(crate) fn support_note(support: Support) -> impl Piece {
     match support_banner(support) {
         Some(banner) => banner,
         None => column(()).any(),
@@ -332,7 +331,7 @@ pub(crate) fn support_note(support: Support) -> AnyPiece {
 ///
 /// `size_class()` is a tracked read (docs/size-classes.md), so this re-lays out when the window
 /// crosses a breakpoint — a rotation, a foldable opening, a desktop window dragged narrow.
-pub(crate) fn action_result(action: impl Piece, result: impl Piece) -> AnyPiece {
+pub(crate) fn action_result(action: impl Piece, result: impl Piece) -> impl Piece {
     let compact = day::size_class()
         .map(|c| c.width == WidthClass::Compact)
         .unwrap_or(false);

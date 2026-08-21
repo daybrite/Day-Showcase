@@ -45,7 +45,7 @@ fn tasks() -> Store<Keyed<Task>> {
     })
 }
 
-pub(crate) fn model_page() -> impl Piece{
+pub(crate) fn model_page() -> AnyPiece {
     let store = tasks();
     let hide_done = Signal::new(false);
     let selected: Signal<Option<u64>> = Signal::new(None);
@@ -180,5 +180,5 @@ pub(crate) fn model_page() -> impl Piece{
     .spacing(10.0)
     .align(HAlign::Leading)
     .padding(16.0)
-    
+    .any()
 }

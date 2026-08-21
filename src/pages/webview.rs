@@ -62,7 +62,7 @@ fn embed_status() -> Signal<(u8, String)> {
 ///
 /// The JS console sits BELOW the tabs, outside both panes: each view carries its own bound
 /// [`JsHandle`], and Run evaluates against whichever tab is selected.
-pub(crate) fn webview_page() -> impl Piece{
+pub(crate) fn webview_page() -> AnyPiece {
     let tab = TAB.with(|c| *c.get_or_init(|| Signal::global(0usize)));
     let js_remote = JsHandle::new();
     let js_embedded = JsHandle::new();
@@ -86,7 +86,7 @@ pub(crate) fn webview_page() -> impl Piece{
     .spacing(10.0)
     .align(HAlign::Leading)
     .padding(16.0)
-    
+    .any()
 }
 
 /// The JS console, below both tabs: script in, JSON out, evaluated against WHICHEVER web view
@@ -95,7 +95,7 @@ pub(crate) fn webview_page() -> impl Piece{
 /// bound signal whenever the engine answers. Sized in LINES, not points, so the editors track
 /// the platform accessibility text scale (day-dom used to ignore the hints; it measures them
 /// now, docs/textarea.md).
-fn js_console(tab: Signal<usize>, js_remote: JsHandle, js_embedded: JsHandle) -> impl Piece{
+fn js_console(tab: Signal<usize>, js_remote: JsHandle, js_embedded: JsHandle) -> impl Piece {
     let (_, script, result) = state();
     let can_eval = eval_support() == Support::Native;
     row((
@@ -133,12 +133,11 @@ fn js_console(tab: Signal<usize>, js_remote: JsHandle, js_embedded: JsHandle) ->
             .id("webview-js-result"),
     ))
     .spacing(8.0)
-    
 }
 
 /// The Remote pane: URL bar + history controls over a session-retained view. The JS console
 /// lives below the tabs (`js_console`), bound here through `js`.
-fn remote_pane(js: JsHandle) -> impl Piece{
+fn remote_pane(js: JsHandle) -> impl Piece {
     let (url, _, _) = state();
     let go = Trigger::new();
     let back = Trigger::new();
@@ -209,7 +208,6 @@ fn remote_pane(js: JsHandle) -> impl Piece{
     .spacing(10.0)
     .align(HAlign::Leading)
     .grow()
-    
 }
 
 /// The bundled mini site (docs/webview.md): `resource/assets/web/minisite/**` ships with the app,
@@ -219,7 +217,7 @@ fn remote_pane(js: JsHandle) -> impl Piece{
 /// font specimens), so it ships in English only; the chrome around it localizes as usual. The
 /// shared JS console below the tabs evaluates in THIS view while the tab is selected, through
 /// the bound `js`.
-fn embedded_pane(js: JsHandle) -> impl Piece{
+fn embedded_pane(js: JsHandle) -> impl Piece {
     let status = embed_status();
     let arm = inline_support();
     let body: AnyPiece = if arm == Support::Unsupported {
@@ -266,5 +264,4 @@ fn embedded_pane(js: JsHandle) -> impl Piece{
     .spacing(10.0)
     .align(HAlign::Leading)
     .grow()
-    
 }

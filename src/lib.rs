@@ -205,7 +205,7 @@ pub fn install_crash_reporting() {
         .init();
 }
 
-pub fn root() -> AnyPiece {
+pub fn root() -> impl Piece {
     // Arm crash capture before the UI mounts so the Crash Reporting page's crashes are recorded.
     install_crash_reporting();
     // Narrate every action to the console for the app's whole life (§14.6) — the same lines the
@@ -495,7 +495,7 @@ fn destinations() -> Vec<Dest> {
 /// independently; app-global state (menu log, lifecycle log, controls prefs) is shared.
 /// Only the PRIMARY shell joins the route namespace — secondary windows are `.local()`
 /// (docs/navigation.md), so `navigate()`/dayscript keep driving the primary unambiguously.
-fn window_root(primary: bool) -> impl Piece{
+fn window_root(primary: bool) -> impl Piece {
     // Remember the last-opened section across launches (docs/navigation.md). Web only, matching
     // this app's prefs policy (controls.rs): a browser reload is normal life on the web, so the
     // store is installed there and the top-level selector's `.restore` persists the section;

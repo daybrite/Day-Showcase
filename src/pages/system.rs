@@ -20,6 +20,7 @@ pub(crate) fn system_page() -> AnyPiece {
         ))
         .any(),
     )
+    .any()
 }
 
 fn battery_section() -> impl Piece {
@@ -225,7 +226,7 @@ const CHART_SAMPLES: usize = 120;
 /// A battery is a picture of an object and mirrors with the layout; a time series is a chart whose
 /// x axis IS time, and time reads left-to-right in a chart regardless of the reading direction of
 /// the surrounding text.
-fn strip_chart(series: Signal<Vec<day_part_sensors::SensorReading>>) -> impl Piece{
+fn strip_chart(series: Signal<Vec<day_part_sensors::SensorReading>>) -> impl Piece {
     canvas(move |d, size| {
         if size.width <= 2.0 || size.height <= 2.0 {
             return;
@@ -275,7 +276,6 @@ fn strip_chart(series: Signal<Vec<day_part_sensors::SensorReading>>) -> impl Pie
         }
     })
     .height(56.0)
-    
 }
 
 /// A permission row: its live status, and a button that either asks or opens Settings.
@@ -476,7 +476,7 @@ fn device_section() -> impl Piece {
 
 /// Draw a battery on a canvas: rounded body + terminal nub, a level fill colored by band
 /// (red < 20% ≤ amber < 50% ≤ green), a lightning bolt when charging, and a percent caption.
-fn battery_view(level: Signal<f64>, charging: Signal<bool>) -> impl Piece{
+fn battery_view(level: Signal<f64>, charging: Signal<bool>) -> impl Piece {
     canvas(move |d, size| {
         if size.width <= 0.0 || size.height <= 0.0 {
             return;

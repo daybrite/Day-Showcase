@@ -226,6 +226,7 @@ pub(crate) fn menus_page() -> AnyPiece {
         ))
         .any(),
     )
+    .any()
 }
 
 /// The app-menu section: a live readout of the last action fired from the menu bar (or the

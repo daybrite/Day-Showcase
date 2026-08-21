@@ -54,7 +54,8 @@ pub(crate) fn grid_page() -> AnyPiece {
                 crate::res::vectors::grid_stress.clone(),
                 stress_demo,
             )
-            .id("grid-tabs").any()
+            .id("grid-tabs")
+            .any()
     } else {
         let path = Signal::new(Vec::<GridDemo>::new());
         let push = |demo: GridDemo| {
@@ -90,20 +91,23 @@ pub(crate) fn grid_page() -> AnyPiece {
             .any(),
         );
         stack(path, menu)
+            // Five arms, five types — past two, one erasure reads better than nested `Either`s.
             .destination(|demo: &GridDemo| match demo {
-                GridDemo::Basics => basics_demo(),
-                GridDemo::Sizing => sizing_demo(),
-                GridDemo::Spanning => spanning_demo(),
-                GridDemo::Composite => composite_demo(),
-                GridDemo::Stress => stress_demo(),
+                GridDemo::Basics => basics_demo().any(),
+                GridDemo::Sizing => sizing_demo().any(),
+                GridDemo::Spanning => spanning_demo().any(),
+                GridDemo::Composite => composite_demo().any(),
+                GridDemo::Stress => stress_demo().any(),
             })
-            .id("grid-stack").any()
+            .id("grid-stack")
+            .any()
     }
+    .any()
 }
 
 /// Shared sub-page scaffold: title + caption over scrollable padded content (the tabs.rs pane
 /// shape, plus scrolling so the stress page works everywhere).
-fn pane(title: LocalizedText, caption: LocalizedText, body: impl Piece) -> impl Piece{
+fn pane(title: LocalizedText, caption: LocalizedText, body: impl Piece) -> impl Piece {
     scroll(
         column((
             label(title).font(Font::Title),
@@ -114,19 +118,21 @@ fn pane(title: LocalizedText, caption: LocalizedText, body: impl Piece) -> impl 
         .align(HAlign::Leading)
         .padding(16.0),
     )
-    
 }
 
 /// Columns infer from rows; each column takes its widest cell's width. The `divider()` is a bare
 /// (non-row) child, so it spans the full grid.
-fn basics_demo() -> AnyPiece {
-    fn score_row(name: &'static str, wins: &'static str, points: &'static str) -> impl Piece + use<>{
+fn basics_demo() -> impl Piece {
+    fn score_row(
+        name: &'static str,
+        wins: &'static str,
+        points: &'static str,
+    ) -> impl Piece + use<> {
         grid_row((
             label(name),
             label(wins).grid_align(Alignment::Trailing),
             label(points).grid_align(Alignment::Trailing),
         ))
-        
     }
     pane(
         crate::res::str::grid_tab_basics(),
@@ -149,14 +155,15 @@ fn basics_demo() -> AnyPiece {
         .column_spacing(24.0)
         .row_spacing(6.0)
         .align(Alignment::Leading)
-        .id("grid-basics").any(),
+        .id("grid-basics")
+        .any(),
     )
 }
 
 /// One grid, three column behaviors: a fixed 80 pt column (`.width`), a content-sized column,
 /// and a flexible column (`.grow_w`) that takes whatever width is left.
-fn sizing_demo() -> AnyPiece {
-    fn bar(color: Color) -> impl Piece{
+fn sizing_demo() -> impl Piece {
+    fn bar(color: Color) -> impl Piece {
         capsule().fill(color).height(10.0).grow_w()
     }
     pane(
@@ -187,14 +194,15 @@ fn sizing_demo() -> AnyPiece {
         ))
         .spacing(10.0)
         .align(Alignment::Leading)
-        .id("grid-sizing").any(),
+        .id("grid-sizing")
+        .any(),
     )
 }
 
 /// A week planner: a full-width title, seven day columns, and event cells spanning two and
 /// three columns via `.grid_span` — with `spacer()` holding the empty day slots.
-fn spanning_demo() -> AnyPiece {
-    fn day_cells(from: u32) -> impl Piece{
+fn spanning_demo() -> impl Piece {
+    fn day_cells(from: u32) -> impl Piece {
         let cells: Vec<AnyPiece> = (from..from + 7)
             .map(|n| {
                 // Grid modifiers go LAST so the facts land on the outermost (width) wrapper.
@@ -207,7 +215,7 @@ fn spanning_demo() -> AnyPiece {
             .collect();
         grid_row(PieceVec(cells))
     }
-    fn event(text: LocalizedText, color: u32, span: usize) -> impl Piece{
+    fn event(text: LocalizedText, color: u32, span: usize) -> impl Piece {
         label(text)
             .font(Font::Footnote)
             // Explicit ink: the pill fills are pale, so the default label color would go
@@ -233,7 +241,8 @@ fn spanning_demo() -> AnyPiece {
         ))
         .spacing(8.0)
         .align(Alignment::Leading)
-        .id("grid-spanning").any(),
+        .id("grid-spanning")
+        .any(),
     )
 }
 
@@ -253,7 +262,7 @@ const BOLT: Color = Color {
 };
 
 /// A sun: eight `line` rays around a `circle` disc, flattened into ONE canvas leaf.
-fn sun_glyph(size: f64) -> impl Piece{
+fn sun_glyph(size: f64) -> impl Piece {
     let mut shapes = vec![circle().fill(SUN).at(0.28, 0.28, 0.44, 0.44)];
     for k in 0..8 {
         let (s, c) = (k as f64 * std::f64::consts::FRAC_PI_4).sin_cos();
@@ -269,7 +278,7 @@ fn sun_glyph(size: f64) -> impl Piece{
 }
 
 /// A storm cloud: rounded-rect body, two ellipse puffs, and a `polygon` lightning bolt.
-fn storm_glyph(size: f64) -> impl Piece{
+fn storm_glyph(size: f64) -> impl Piece {
     shape_group([
         rounded_rectangle(size * 0.09)
             .fill(CLOUD)
@@ -291,7 +300,7 @@ fn storm_glyph(size: f64) -> impl Piece{
 }
 
 /// A low→high range bar whose geometry derives from the laid-out width (`shape_group_fn`).
-fn range_bar(low: f64, high: f64, wmin: f64, wmax: f64) -> impl Piece{
+fn range_bar(low: f64, high: f64, wmin: f64, wmax: f64) -> impl Piece {
     shape_group_fn(move |size| {
         if size.width <= 0.0 || size.height <= 0.0 {
             return Vec::new();
@@ -322,7 +331,7 @@ fn range_bar(low: f64, high: f64, wmin: f64, wmax: f64) -> impl Piece{
 
 /// Shapes and grid together — the Day Skies forecast shape: content-sized day and temperature
 /// columns, glyph groups, and ONE flexible column (the range bar) taking the leftover width.
-fn composite_demo() -> AnyPiece {
+fn composite_demo() -> impl Piece {
     const DAYS: [(i64, bool, f64, f64); 5] = [
         (1, true, 14.0, 24.0),
         (2, true, 16.0, 27.0),
@@ -335,10 +344,11 @@ fn composite_demo() -> AnyPiece {
     let rows: Vec<AnyPiece> = DAYS
         .iter()
         .map(|&(n, sunny, low, high)| {
+            // Two drawn glyphs, two types: `Either` keeps both concrete.
             let glyph = if sunny {
-                sun_glyph(26.0)
+                Either::Left(sun_glyph(26.0))
             } else {
-                storm_glyph(26.0)
+                Either::Right(storm_glyph(26.0))
             };
             grid_row((
                 label(crate::res::str::grid_day_n(n)).grid_align(Alignment::Leading),
@@ -361,13 +371,14 @@ fn composite_demo() -> AnyPiece {
         grid(PieceVec(rows))
             .column_spacing(12.0)
             .row_spacing(8.0)
-            .id("grid-composite").any(),
+            .id("grid-composite")
+            .any(),
     )
 }
 
 /// An eager 100×8-cell grid (grows by 50 rows per tap) driven through `each`, with one
 /// signal-bound cell: bumping it exercises the single-dirty-cell relayout path.
-fn stress_demo() -> AnyPiece {
+fn stress_demo() -> impl Piece {
     const COLS: i64 = 8;
     let rows = Signal::new(100i64);
     let hot = Signal::new(0i64);
@@ -389,7 +400,8 @@ fn stress_demo() -> AnyPiece {
                         capsule()
                             .fill(if r % 2 == 0 { SKY } else { TEAL })
                             .height(8.0)
-                            .grow_w().any(),
+                            .grow_w()
+                            .any(),
                     );
                 } else {
                     cells.push(

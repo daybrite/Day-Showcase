@@ -27,6 +27,7 @@ pub(crate) fn services_page() -> AnyPiece {
         ))
         .any(),
     )
+    .any()
 }
 
 /// Text to speech (docs/bridge.md): day-part-speech is daybridge's reference part — one Rust API
@@ -187,7 +188,7 @@ fn haptic_button(
     h: Haptic,
     playing: Signal<bool>,
     last: Signal<String>,
-) -> impl Piece + use<>{
+) -> impl Piece + use<> {
     button(title)
         .bordered()
         // A single tap fired mid-song would land inside the rhythm and read as part of it, so every
@@ -572,7 +573,7 @@ fn song_button(
     tint: Color,
     playing: Signal<bool>,
     last: Signal<String>,
-) -> impl Piece + use<>{
+) -> impl Piece + use<> {
     // `.tint` is a Button method, so it comes before the Decorate modifiers; the grid modifier
     // goes last, per docs/grid.md's ordering rule.
     button(title)

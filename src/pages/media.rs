@@ -54,6 +54,7 @@ pub(crate) fn media_page() -> AnyPiece {
         Some(crate::res::str::media_caption()),
         body,
     )
+    .any()
 }
 
 /// A native Lottie animation (day-piece-lottie): a LottieAnimationView driven by airbnb's

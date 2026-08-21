@@ -82,4 +82,5 @@ pub(crate) fn about_page() -> AnyPiece {
             .align(HAlign::Leading)
             .any(),
     )
+    .any()
 }

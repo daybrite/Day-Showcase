@@ -28,6 +28,7 @@ pub(crate) fn dates_page() -> AnyPiece {
         .align(HAlign::Leading)
         .any(),
     )
+    .any()
 }
 
 /// The seed civil date. Seeded deterministically so the per-locale screenshot grid is

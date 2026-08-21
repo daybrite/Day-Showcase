@@ -9,7 +9,7 @@ use crate::widgets::heading;
 /// overshoot on AppKit/GTK) or the button sets it true; a `watch` starts a timed fake reload
 /// (`day::sleep`) whose `Setter`s append rows + end the refresh. The List page wraps its
 /// recycling `list()` the same way.
-pub(crate) fn refresh_page() -> impl Piece{
+pub(crate) fn refresh_page() -> AnyPiece {
     let refreshing = Signal::new(false);
     let items = Signal::new(8i64);
 
@@ -92,5 +92,5 @@ pub(crate) fn refresh_page() -> impl Piece{
     .spacing(10.0)
     .align(HAlign::Leading)
     .padding(16.0)
-    
+    .any()
 }

@@ -14,6 +14,7 @@ pub(crate) fn layout_page() -> AnyPiece {
         Some(crate::res::str::layout_caption()),
         form((fit_section(),)).any(),
     )
+    .any()
 }
 
 /// Stepper bounds: at least one component, and enough headroom that every policy visibly

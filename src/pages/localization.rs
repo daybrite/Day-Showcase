@@ -22,6 +22,7 @@ pub(crate) fn localization_page() -> AnyPiece {
         ))
         .any(),
     )
+    .any()
 }
 
 /// The live-locale demo: switching re-runs every `tr()`/`res::str` binding on the spot. Button

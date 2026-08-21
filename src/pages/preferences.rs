@@ -8,7 +8,7 @@ use day::prelude::*;
 
 use crate::res;
 
-pub(crate) fn preferences_window() -> impl Piece{
+pub(crate) fn preferences_window() -> impl Piece {
     scroll(
         column((
             label(res::str::prefs_window_title())
@@ -27,5 +27,4 @@ pub(crate) fn preferences_window() -> impl Piece{
         .align(HAlign::Leading)
         .padding(16.0),
     )
-    
 }

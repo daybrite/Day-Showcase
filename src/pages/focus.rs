@@ -12,6 +12,7 @@ pub(crate) fn focus_page() -> AnyPiece {
         Some(crate::res::str::focus_caption()),
         form((group_section(), bool_section(), probe_section())).any(),
     )
+    .any()
 }
 
 /// Which field of the group form owns focus (`None` = nobody).

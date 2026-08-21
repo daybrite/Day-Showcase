@@ -9,7 +9,7 @@ use crate::widgets::heading;
 // Tweaks (docs/tweaks.md): packaged per-toolkit configuration of BUILT-IN pieces. Each card shows
 // a stock piece beside its Tweaked Piece; the captions name the toolkits the tweak affects — on
 // every other toolkit the tweak is a documented no-op and the two sides look identical.
-pub(crate) fn tweaks_page() -> impl Piece{
+pub(crate) fn tweaks_page() -> AnyPiece {
     let free = Signal::new(50.0f64);
     let snapped = Signal::new(50.0f64);
     let ref_mounted = Signal::new(true);
@@ -167,13 +167,13 @@ pub(crate) fn tweaks_page() -> impl Piece{
         .align(HAlign::Leading)
         .padding(16.0),
     )
-    
+    .any()
 }
 
 /// The label-card sample for one Selectable state: `.selectable()` FIRST — it may REBUILD the
 /// backing (UIKit) — then the tweak, so it runs against the widget that ships and reports that
 /// widget's class (docs/tweaks.md "Conditional backings").
-fn tweaked_label(selectable: bool, seen: Signal<String>) -> impl Piece{
+fn tweaked_label(selectable: bool, seen: Signal<String>) -> impl Piece {
     let l = label(crate::res::str::tweaks_label_sample()).id("tweak-label-sample");
     let l = if selectable { l.selectable() } else { l };
     #[cfg(feature = "appkit")]

@@ -191,6 +191,7 @@ pub(crate) fn animation_page() -> AnyPiece {
         Some(crate::res::str::anim_caption()),
         body.any(),
     )
+    .any()
 }
 
 /// The box centred in a large stage that fills the page width. The box is a DIRECT child of the
@@ -198,7 +199,7 @@ pub(crate) fn animation_page() -> AnyPiece {
 /// transform moves it within the *stage's* bounds — the only clipping container above it. That's
 /// what lets it travel outside its own frame on the toolkits that clip children (Android/GTK/Qt),
 /// which AppKit/UIKit allow natively. The slider ranges keep it inside the stage on any screen.
-fn stage(s: Anim) -> impl Piece{
+fn stage(s: Anim) -> impl Piece {
     let (a_hue, a_offx, a_offy, a_scale, a_rot, a_op) =
         (s.a_hue, s.a_offx, s.a_offy, s.a_scale, s.a_rot, s.a_op);
     let box_view = label("")
@@ -237,7 +238,7 @@ fn action_button(
     color: Color,
     enabled: impl Fn() -> bool + Copy + 'static,
     on_tap: impl Fn() + 'static,
-) -> impl Piece{
+) -> impl Piece {
     row((spacer(), label(text).color(Color::WHITE).bold(), spacer()))
         .padding(Insets::symmetric(6.0, 12.0))
         .background(color)
