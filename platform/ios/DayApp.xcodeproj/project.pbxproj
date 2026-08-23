@@ -143,6 +143,7 @@
 			);
 			name = "Build Rust (day)";
 			outputPaths = (
+				"$(BUILT_PRODUCTS_DIR)/day/libdayapp.a",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -212,7 +213,7 @@
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				LIBRARY_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/day";
-				OTHER_LDFLAGS = "-lshowcase";
+				OTHER_LDFLAGS = "-Wl,-force_load,$(BUILT_PRODUCTS_DIR)/day/libdayapp.a";
 				PRODUCT_NAME = Showcase;
 			};
 			name = Debug;
@@ -225,7 +226,7 @@
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				LIBRARY_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/day";
-				OTHER_LDFLAGS = "-lshowcase";
+				OTHER_LDFLAGS = "-Wl,-force_load,$(BUILT_PRODUCTS_DIR)/day/libdayapp.a";
 				PRODUCT_NAME = Showcase;
 			};
 			name = Release;
