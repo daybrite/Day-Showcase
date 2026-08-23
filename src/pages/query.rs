@@ -158,7 +158,7 @@ mod engine {
     }
 }
 
-pub(crate) fn query_page() -> impl Piece{
+pub(crate) fn query_page() -> AnyPiece {
     let term = Signal::new(String::new());
     let starred = Signal::new(false);
     // The FTS/viewport controls exist only where the SQL engine drives the page.
@@ -316,7 +316,7 @@ pub(crate) fn query_page() -> impl Piece{
     .spacing(10.0)
     .align(HAlign::Leading)
     .padding(16.0)
-    
+    .any()
 }
 
 // Keep the wasm build honest about the one API difference.

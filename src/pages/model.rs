@@ -13,9 +13,22 @@ use crate::widgets::heading;
 /// The projection under the list reads exactly what the ORDER depends on (`done`, the filter),
 /// so a title keystroke cannot re-run it — and the cost readout at the top makes the
 /// observation tables themselves visible: scroll all you like, the counts stay flat.
-#[derive(Observable, Clone, Default, PartialEq)]
+///
+/// The same store is BACKED (docs/persistence.md): natively it belongs to a `ModelContainer`
+/// over a real SQLite file, so each edit folds to one statement at the turn's end. Undo inverts
+/// that very change log, which is why undoing a delete is one `INSERT` of the row it carried
+/// rather than a snapshot restore. (The scene itself is reseeded per launch — see
+/// [`open_backing`] for why a demo wants that.)
+///
+/// `Model` where there is a database, `Observable` where there is not: the web build keeps the
+/// rows in memory (rusqlite has no place in a wasm binary) and the page is otherwise identical —
+/// undo included, since the stack lives in day-model and a plain store undoes the same way.
+#[cfg_attr(not(target_arch = "wasm32"), derive(Model))]
+#[cfg_attr(target_arch = "wasm32", derive(Observable))]
+#[derive(Clone, Default, PartialEq)]
+#[model(table = "tasks")]
 pub(crate) struct Task {
-    #[obs(key)]
+    #[model(id)]
     pub id: u32,
     pub title: String,
     pub done: bool,
@@ -23,30 +36,111 @@ pub(crate) struct Task {
 
 const SEED: u32 = 300;
 
+/// The database the rows live in, under the app's data directory. Named in the readout: a demo
+/// that claims persistence should say where it put your rows.
+#[cfg(not(target_arch = "wasm32"))]
+const DB_FILE: &str = "showcase-model.db";
+
+/// How deep this page's history goes. Generous for a demo — the point is that nothing here is
+/// a special case, and a hundred units cost nothing until they exist.
+const UNDO_LEVELS: usize = 100;
+
+/// The rows, the history over them, and where they are kept — opened once per process.
+struct Backing {
+    store: Store<Keyed<Task>>,
+    stack: day::model::UndoStack,
+    /// The file the rows live in, or `None` when they live in memory: the web build, and a
+    /// native open that FAILED — in which case the readout says so rather than naming a file
+    /// nothing is being written to.
+    file: Option<String>,
+}
+
 thread_local! {
-    static TASKS: OnceCell<Store<Keyed<Task>>> = const { OnceCell::new() };
+    static BACKING: OnceCell<Backing> = const { OnceCell::new() };
+}
+
+/// The seed scene: 300 rows, deterministic, so the walkthrough's counts are arithmetic.
+/// Titles are user DATA, not chrome — seeded plain so the asserts hold across locale variants
+/// (the Day-Rise seed precedent).
+fn seed_rows() -> Vec<Task> {
+    (1..=SEED)
+        .map(|n| Task {
+            id: n,
+            title: format!("Task {n}"),
+            done: n % 4 == 0,
+        })
+        .collect()
+}
+
+/// A store with the seed already in it and a history that starts empty — the memory arrangement,
+/// which the web always takes and a native build falls back to.
+fn memory_backing() -> Backing {
+    let store = Store::new(Keyed::new(seed_rows()));
+    let stack = day::model::UndoStack::new(UNDO_LEVELS);
+    stack.watch(store);
+    Backing {
+        store,
+        stack,
+        file: None,
+    }
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+fn open_backing() -> Backing {
+    // Seeded on every open, not only an empty one: this is a DEMO, and the page it opens has to
+    // be the same page each time — the walkthrough asserts exact titles and counts, and its eight
+    // themed/localized variants run one after another against this very file. What the container
+    // is here to show is the machinery (one statement per edit, the change log driving undo, the
+    // real file behind it), which is unaffected by starting from a known scene. An app keeping
+    // the user's work would drop this line and seed only when the table comes up empty.
+    let opened = Sqlite::app_data(DB_FILE)
+        .and_then(|driver| ModelContainer::open(driver, schema![Task]))
+        .map(|container| {
+            let store = container.store::<Task>();
+            store.update("seed", |k| *k = Keyed::new(seed_rows()));
+            // AFTER the seed: opening a file for the first time is not an edit the user can undo.
+            let stack = container.undo(UNDO_LEVELS);
+            Backing {
+                store,
+                stack,
+                file: Some(DB_FILE.to_string()),
+            }
+        });
+    match opened {
+        Ok(backing) => backing,
+        Err(e) => {
+            // A demo with no rows teaches nothing, so this degrades to memory — loudly, and with
+            // the readout telling the truth about where the rows now are.
+            warn!("model page: {DB_FILE} unavailable ({e}) — keeping rows in memory");
+            memory_backing()
+        }
+    }
+}
+
+#[cfg(target_arch = "wasm32")]
+fn open_backing() -> Backing {
+    memory_backing()
+}
+
+fn with_backing<T>(f: impl FnOnce(&Backing) -> T) -> T {
+    BACKING.with(|c| f(c.get_or_init(open_backing)))
 }
 
 fn tasks() -> Store<Keyed<Task>> {
-    TASKS.with(|c| {
-        *c.get_or_init(|| {
-            Store::new(Keyed::new(
-                (1..=SEED)
-                    .map(|n| Task {
-                        id: n,
-                        // Titles are user DATA, not chrome — seeded plain so walkthrough
-                        // asserts hold across locale variants (the Day-Rise seed precedent).
-                        title: format!("Task {n}"),
-                        done: n % 4 == 0,
-                    })
-                    .collect(),
-            ))
-        })
-    })
+    with_backing(|b| b.store)
+}
+
+/// The history over [`tasks`] — the page's buttons and the platform's own Edit menu drive the
+/// same one.
+fn history() -> day::model::UndoStack {
+    with_backing(|b| b.stack.clone())
 }
 
 pub(crate) fn model_page() -> AnyPiece {
     let store = tasks();
+    // The Edit menu declares MenuRole::Undo/Redo (menus.rs); this is what puts something behind
+    // them — the stock item retitles itself "Undo Remove" and ⌘Z lands here (docs/persistence.md).
+    day::install_undo(&history());
     let hide_done = Signal::new(false);
     let selected: Signal<Option<u64>> = Signal::new(None);
 
@@ -93,19 +187,34 @@ pub(crate) fn model_page() -> AnyPiece {
         })
         .font(Font::Footnote)
         .id("model-cost"),
+        // Where the rows actually are. The file name is the honest part of a persistence demo:
+        // it is openable with any SQLite tool, and it is still there next launch.
+        label(move || match with_backing(|b| b.file.clone()) {
+            Some(file) => crate::res::str::model_storage_file(file).format(),
+            None => crate::res::str::model_storage_memory().format(),
+        })
+        .font(Font::Footnote)
+        .id("model-storage"),
         // The selected row's editor: two controls bound STRAIGHT to the store through the
         // element's field accessors — the mirror of what the row labels read, with no plumbing.
-        when(
-            move || selected.get().is_some(),
-            move || {
-                let id = selected.get_untracked().unwrap_or(0);
-                let it = tasks().elem(id);
+        //
+        // Keyed on the row, as a collection of nought-or-one, because the editor IS its row: an
+        // `Elem`'s field accessors name one key for the life of the subtree, so the selection
+        // moving from one row to the next has to build a new one. A `when` on "something is
+        // selected" would not — the condition is still true, so the arm it built for the FIRST
+        // selection stays mounted, and every later edit writes to whatever row that was.
+        each(
+            items(
+                move || selected.get().into_iter().collect::<Vec<u64>>(),
+                |id: &u64| *id,
+            ),
+            move |slot: ItemSlot<u64, u64>| {
+                let it = tasks().elem(slot.key());
                 row((
                     text_field(it.title()).id("model-name"),
                     toggle(it.done()).id("model-done"),
                 ))
                 .spacing(8.0)
-                .any()
             },
         ),
         // What is selected, read back OUT of the store — asserting this after typing into the
@@ -174,8 +283,29 @@ pub(crate) fn model_page() -> AnyPiece {
                     }
                 })
                 .id("model-delete"),
+            // One unit per turn, inverted out of the change log: the deleted row comes back
+            // WHOLE — data included — because the log's `Delete` carries it.
+            button(crate::res::str::model_undo())
+                .bordered()
+                .action(move || {
+                    history().undo();
+                })
+                .enabled(move || history().can_undo().get())
+                .id("model-undo"),
+            button(crate::res::str::model_redo())
+                .bordered()
+                .action(move || {
+                    history().redo();
+                })
+                .enabled(move || history().can_redo().get())
+                .id("model-redo"),
         ))
         .spacing(8.0),
+        // What one ⌘Z would take back, in the same words the native Edit menu interpolates into
+        // its own item — both read this signal, so they can never disagree.
+        label(move || history().undo_label().get())
+            .font(Font::Footnote)
+            .id("model-undo-label"),
     ))
     .spacing(10.0)
     .align(HAlign::Leading)

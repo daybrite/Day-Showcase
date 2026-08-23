@@ -347,6 +347,12 @@ pub(crate) fn record() -> Command {
         run: || {
             if day::record::is_recording() {
                 day::record::stop();
+                // Stopping lands the user ON the script they just recorded: it is the only
+                // surface that shows the buffer, and staying wherever the recording happened to
+                // end reads as the whole thing having gone nowhere. Ordered after `stop()`,
+                // which unhooks the nav observer — otherwise this jump would be the recording's
+                // last step, and replaying it would navigate away before the rest could run.
+                navigate_to(&Section::Scripting);
             } else {
                 crate::pages::scripting::record_into_buffer();
             }
