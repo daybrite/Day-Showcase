@@ -91,7 +91,7 @@ pub(crate) fn text_areas_page() -> AnyPiece {
 
 /// The plain editor and its two control sections — unchanged from the page this one grew out of,
 /// because `text_area` is still the right control for a chat composer or a commit message.
-fn plain_sections() -> (AnyPiece, AnyPiece, AnyPiece) {
+fn plain_sections() -> (impl Piece, impl Piece, impl Piece) {
     // What the running toolkit can actually honor — an unsupported attribute grays out its toggle.
     // `Emulated` counts as honored: the attribute behaves, it just isn't one native property behind
     // the scenes (XAML has no TextBox selection flag, so it collapses selections as they form).
@@ -125,8 +125,7 @@ fn plain_sections() -> (AnyPiece, AnyPiece, AnyPiece) {
         .min_lines(5)
         .max_lines(5)
         .id("textareas-editor"),))
-    .title(crate::res::str::textareas_editor_section())
-    .any();
+    .title(crate::res::str::textareas_editor_section());
 
     let seed = section((row((
         button(crate::res::str::textareas_seed_short())
@@ -141,8 +140,7 @@ fn plain_sections() -> (AnyPiece, AnyPiece, AnyPiece) {
             .id("ta-seed-markdown"),
     ))
     .spacing(8.0),))
-    .title(crate::res::str::textareas_seed_section())
-    .any();
+    .title(crate::res::str::textareas_seed_section());
 
     // Each toggle is disabled where the running toolkit can't honor the attribute (GTK can't stop
     // selection; GTK/Qt/ArkUI have no spell-check) — the `capability()` gating idiom. Editable also
@@ -167,8 +165,7 @@ fn plain_sections() -> (AnyPiece, AnyPiece, AnyPiece) {
                 .id("ta-spellcheck"),
         ),
     ))
-    .title(crate::res::str::textareas_attrs_section())
-    .any();
+    .title(crate::res::str::textareas_attrs_section());
 
     (editor, seed, attrs)
 }
