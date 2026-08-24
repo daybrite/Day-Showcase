@@ -1,9 +1,7 @@
 [package]
-name = "showcase"
-publish = false
+name = "Day-Showcase"
 version = "0.3.3"
 edition = "2024"
-rust-version = "1.89"
 license = "Apache-2.0"
 authors = ["Daybrite <hello@daybrite.dev>"]
 repository = "https://github.com/daybrite/Day-Showcase"
@@ -12,11 +10,6 @@ homepage = "https://daybrite.dev"
 # `resource/` on every build (§18.5) — dogfoods day-build; see build.rs and the `res` module in lib.rs.
 build = "build.rs"
 
-# Each backend line is JUST the `day/<backend>` toolkit. The Day CLI derives every standalone piece's
-# `<pkg>/<backend>` renderer feature from `[package.metadata.day.piece]` and unions it into the build
-# (Tier A.2) — so adding a piece is a plain git dependency below, with no per-backend
-# feature fan-out here. (Building with bare `cargo` still works: run through `day build` so the union
-# is applied, or add the piece features by hand.)
 [features]
 # Exactly one backend per binary (day/DESIGN.md §3.2). `default` picks the headless `mock` backend so
 # bare `cargo` / `cargo clippy` / rust-analyzer build out of the box; every real build goes

@@ -1,5 +1,6 @@
 {
   // Use the locally built day CLI (snappier than the cargo-run fallback the extension
   // would otherwise use inside this repo).
-  "day.cliPath": "/opt/src/github/skiptools/day/target/debug/day"
+  "day.cliPath": "/opt/src/github/skiptools/day/target/debug/day",
+  "day.verbose": true
 }
