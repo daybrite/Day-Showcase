@@ -5,6 +5,9 @@ schema = 1
 
 [app]
 id = "dev.daybrite.showcase"
+# The deep-link scheme this app SHIPPED (docs/deep-links.md). Left explicit because the
+# default is the id\'s last segment, which is not what this app published.
+scheme = "dayshowcase"
 title = "Day Showcase"
 build = 1
 targets = [
