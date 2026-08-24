@@ -20,5 +20,5 @@ dependencyResolutionManagement {
         }
     }
 }
-rootProject.name = "showcase"
+rootProject.name = "day-showcase"
 include(":app")
