@@ -32,6 +32,11 @@ mock = ["day/mock"]
 # would make every desktop build emit it too — and a Rust cdylib blows past the PE export cap
 # on the windows-gnu ABI (windows-gtk / windows-qt): "too many exported symbols, max 65535".
 [lib]
+# A CONSTANT name, not the package's. Every artifact Day stages is named after the LIB target —
+# `libdayapp.a` for the iOS/macOS staticlib, `libdayapp.so` for the Android cdylib, and the
+# `dayapp::` path `src/main.rs` imports — so none of them move when the package is renamed.
+# Renaming this app is a one-line edit to `[package] name` above (DESIGN.md §17.5).
+name = "dayapp"
 crate-type = ["rlib"]
 
 [build-dependencies]
@@ -95,9 +100,6 @@ day-piece-lottie = { git = "https://github.com/daybrite/day.git" }
 # backend and `day_piece_swiftui::support()` gates the UI, so no placeholder can ever realize.
 day-piece-swiftui = { git = "https://github.com/daybrite/day.git" }
 
-[[bin]]
-name = "day-showcase"
-path = "src/main.rs"
 
 # Its own workspace root, which is what `day new app` generates too. Without this, cloning the app
 # into a directory that is itself a cargo workspace — daybrite/day's CI checks it out inside the

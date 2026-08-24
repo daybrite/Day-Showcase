@@ -1,5 +1,6 @@
 # Store listing metadata that is NOT localized. The localized text lives in store/<locale>/.
-bundle-id = "dev.daybrite.showcase"
+# bundle-id: omitted on purpose — `day store` falls back to Day.toml [app] id, which is
+# the source of truth. Set it here only to publish under an id the app does not build with.
 apple-category = "DEVELOPER_TOOLS"
 copyright = "2026 Daybrite"
 contact-email = "hello@daybrite.dev"

@@ -1,6 +1,6 @@
 fn main() {
     // Register app-lifecycle handlers before launch so `WillLaunch` is captured (docs/lifecycle.md).
-    day_showcase::install_lifecycle_handlers();
+    dayapp::install_lifecycle_handlers();
     day::launch(
         day::WindowOptions {
             // Just the name: a debug build appends its own "(version/toolkit[/script])" tag
@@ -14,6 +14,6 @@ fn main() {
             app_name: Some("Showcase".into()),
             ..Default::default()
         },
-        day_showcase::root,
+        dayapp::root,
     );
 }
