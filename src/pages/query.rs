@@ -1,9 +1,9 @@
-//! Live queries (docs/persistence.md): ten thousand rows behind a typed query that stays
-//! current WITHOUT re-fetching. The search term and the star filter drive `query_fn`; edits to
-//! rows flow through the change log and move the result set incrementally — the evaluations
-//! readout shows what that costs (one row per relevant edit, zero for everything else), and
-//! the list receives row deltas it can animate instead of reloads. The web build keeps the
-//! same page over an in-memory projection.
+//! Live queries (docs/persistence.md): ten thousand rows behind a typed query the ENGINE
+//! answers — the query holds ids, and the list faults in only the rows it shows. The search
+//! term and the star filter drive `query_fn`; edits to rows flow through the change log, a
+//! change no predicate reads costs nothing, and the list receives row deltas it can animate
+//! instead of reloads. The residency readout shows the working set staying small under the
+//! ten-thousand-row table. The web build keeps the same page over an in-memory projection.
 
 use day::model::Op;
 use day::prelude::*;
@@ -92,7 +92,11 @@ mod engine {
                         // the reason in the one place a demo can.
                         panic!("query page container: {e}")
                     });
-                container.store::<Track>().update("seed", |k| *k = seed());
+                container.cache::<Track>().update("seed", |k| *k = seed());
+                let _ = container.save();
+                // The page's point: the table stays in SQLite and memory holds a working
+                // set. Cap the cache well under the row count so faulting is visible.
+                container.set_cache_limit(2_048);
                 container
             })
             .clone()
@@ -100,7 +104,7 @@ mod engine {
     }
 
     pub(super) fn store() -> Store<Keyed<Track>> {
-        container().store::<Track>()
+        container().cache::<Track>()
     }
 
     pub(super) fn query(
@@ -138,8 +142,9 @@ mod engine {
         })
     }
 
-    pub(super) fn evaluations(q: &day::persistence::Query<Track>) -> usize {
-        q.evaluations()
+    /// How many rows are resident right now — the working set behind the readout.
+    pub(super) fn resident() -> usize {
+        container().cache::<Track>().with_untracked(|k| k.len())
     }
 }
 
@@ -280,7 +285,8 @@ pub(crate) fn query_page() -> AnyPiece {
                 let q = q.clone();
                 label(move || {
                     let _ = q.count(); // re-render alongside the set
-                    crate::res::str::query_evals(engine::evaluations(&q) as i64).format()
+                    crate::res::str::query_resident(engine::resident() as i64, TOTAL as i64)
+                        .format()
                 })
                 .font(Font::Footnote)
                 .id("query-evals")

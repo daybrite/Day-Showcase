@@ -110,6 +110,7 @@ day::routes! {
         Grid => "grid",
         Layout => "layout",
         List => "list",
+        Tree => "tree",
         Model => "model",
         Query => "query",
         Refresh => "refresh",
@@ -167,6 +168,7 @@ impl Section {
             Section::Text => "src/pages/text.rs",
             Section::TextAreas => "src/pages/text_areas.rs",
             Section::Toolbars => "src/pages/toolbars.rs",
+            Section::Tree => "src/pages/tree.rs",
             Section::Tweaks => "src/pages/tweaks.rs",
             Section::WebView => "src/pages/webview.rs",
         }
@@ -481,6 +483,13 @@ fn destinations() -> Vec<Dest> {
             icon: res::vectors::nav_toolbars,
             tint: crate::palette::AMBER,
             page: toolbars_page,
+        },
+        Dest {
+            section: Section::Tree,
+            title: crate::res::str::nav_tree,
+            icon: res::vectors::nav_tree,
+            tint: Color::hex(0x8B5CF6),
+            page: tree_page,
         },
         Dest {
             section: Section::Tweaks,

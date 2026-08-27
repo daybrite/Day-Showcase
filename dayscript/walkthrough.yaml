@@ -380,6 +380,32 @@ flow:
   - tap: { id: list-reset }
   - assert_text: { id: list-order, key: list_order, args: { rows: "1,2,3,4,5" } }
 
+  # The tree piece (docs/tree.md): native on macOS/iOS/GTK, composed from day pieces on the
+  # other targets — one script either way, because `expand:`/`tree_move:` drive the same
+  # guard → commit seam a pointer does. A real drag and the per-row context menus are native
+  # gestures, verified by hand per docs/tree.md; dayscript also has no assert-this-step-fails
+  # form, so the Lock toggle's DENY verdict is exercised by pointer, not here.
+  - navigate: { route: tree }
+  - assert_route: { route: tree }
+  - assert_visible: { id: tree-title }
+  # Initial disclosure: src open, pages and docs closed — both directions one step away.
+  - wait_for: { id: tree-node-1 }
+  - wait_for: { id: tree-node-2 }
+  - assert_missing: { id: tree-node-5 }
+  - assert_text: { id: tree-count, key: tree_count, args: { count: 9 } }
+  - expand: { id: demo-tree, row: tree-node-4 }
+  - wait_for: { id: tree-node-5 }
+  # Cargo.toml re-files into src at position 0; the readout echoes the committed move.
+  - tree_move: { id: demo-tree, row: tree-node-9, parent: tree-node-1, index: 0 }
+  - assert_text: { id: tree-last-move, key: tree_move, args: { index: 0, name: "Cargo.toml", parent: "src" } }
+  - tap: { id: tree-expand-all }
+  - wait_for: { id: tree-node-8 }
+  - pause: { secs: 0.7 }
+  - screenshot:
+      name: tree
+      title: { en: "Tree", fr: "Arborescence", ar: "شجرة", zh-CN: "树" }
+      source: src/pages/tree.rs
+
   # Localization (docs/localization.md): live locale switching, icu4x NUMBER/DATETIME rendering,
   # CLDR plural categories, and collation-aware sorting. Key-based asserts resolve through the
   # SAME bundle + formatter as the labels, so the expected strings are locale-correct by

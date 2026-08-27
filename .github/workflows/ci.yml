@@ -24,7 +24,7 @@ jobs:
     with:
       targets: windows-xaml, macos-appkit, linux-gtk, linux-qt, ios-uikit, android-mdc, harmony-arkui, web-dom
       day-version: main
-      scripts: dayscript/walkthrough.yaml dayscript/speech.yaml
+      scripts: dayscript/walkthrough.yaml dayscript/speech.yaml dayscript/tree.yaml
       # The gallery's variant ids: one run per theme × locale, the same matrix day's own CI drives.
       themes: light dark
       locales: en fr ar zh-CN

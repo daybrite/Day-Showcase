@@ -96,7 +96,7 @@ model_storage_file = 行数据存于 { $file } — 每次编辑在回合结束�
 model_storage_memory = 此目标上行数据仅存于内存
 nav_query = 查询
 query_caption = { $total } 条曲目中有 { $count } 条匹配
-query_evals = 打开以来共 { $evals } 次谓词求值 — 编辑以增量方式移动结果集
+query_resident = 内存中驻留 { $resident } / { $total } 行 — 查询仅持有标识符，行按需加载
 query_starred = 仅显示星标
 query_selected = 已选：{ $title }
 query_selected_none = 未选择任何项
@@ -680,6 +680,33 @@ storage_idle = 尚未存储任何内容
 
 prefs_window_title = 偏好设置
 prefs_window_caption = 主题和语言应用于所有窗口，并在启动之间保留。
+
+# — Tree page (docs/tree.md) —
+nav_tree = 树
+tree_caption = 基于应用自有数据行的层级大纲：展开、选择、定位显示、拖动移动，以及每行的上下文菜单。
+tree_expand_all = 全部展开
+tree_collapse_all = 全部折叠
+tree_reveal = 定位到 tree.rs
+tree_add_file = 添加文件
+tree_multi = 多选
+tree_lock = 锁定 docs
+tree_hint = 将行拖到文件夹上即可移动，或使用该行的上下文菜单——锁定期间 docs 拒绝放置。
+tree_count = { $count ->
+   *[other] { $count } 个节点
+}
+tree_selection_none = 未选择任何内容
+tree_selection = { $count ->
+   *[other] 已选（{ $count }）：{ $names }
+}
+tree_move_none = 尚无移动
+tree_move = 已将 { $name } 移动到 { $parent } 的第 { $index } 位
+tree_move_append = 已将 { $name } 移动到 { $parent }
+tree_root = 根级
+tree_ctx_new_file = 新建文件
+tree_ctx_duplicate = 复制
+tree_ctx_move_up = 上移
+tree_ctx_move_down = 下移
+tree_ctx_delete = 删除
 
 # — Toolbars page (docs/toolbars.md) —
 nav_toolbars = 工具栏

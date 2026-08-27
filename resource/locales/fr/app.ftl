@@ -100,7 +100,7 @@ model_storage_file = Les lignes vivent dans { $file } — chaque modification de
 model_storage_memory = Les lignes restent en mémoire sur cette cible
 nav_query = Requête
 query_caption = { $count } morceaux sur { $total } correspondent
-query_evals = { $evals } évaluations de prédicat depuis l'ouverture — les modifications déplacent l'ensemble de façon incrémentale
+query_resident = { $resident } lignes résidentes sur { $total } — la requête ne détient que des identifiants, les lignes se chargent à la demande
 query_starred = Favoris uniquement
 query_selected = Sélection : { $title }
 query_selected_none = Aucune sélection
@@ -686,6 +686,35 @@ storage_idle = Rien d'enregistré pour l'instant
 
 prefs_window_title = Préférences
 prefs_window_caption = Le thème et la langue s'appliquent à toutes les fenêtres et sont conservés entre les lancements.
+
+# — Tree page (docs/tree.md) —
+nav_tree = Arborescence
+tree_caption = Un plan hiérarchique sur des lignes détenues par l'application : dépliage, sélection, révélation, glisser-déplacer et menus contextuels par ligne.
+tree_expand_all = Tout déplier
+tree_collapse_all = Tout replier
+tree_reveal = Révéler tree.rs
+tree_add_file = Ajouter un fichier
+tree_multi = Sélection multiple
+tree_lock = Verrouiller docs
+tree_hint = Glissez une ligne sur un dossier pour la déplacer, ou passez par son menu contextuel — tant que le verrou est actif, docs refuse les dépôts.
+tree_count = { $count ->
+    [one] { $count } nœud
+   *[other] { $count } nœuds
+}
+tree_selection_none = Aucune sélection
+tree_selection = { $count ->
+    [one] Sélection : { $names }
+   *[other] Sélection ({ $count }) : { $names }
+}
+tree_move_none = Aucun déplacement pour l'instant
+tree_move = { $name } déplacé dans { $parent } en position { $index }
+tree_move_append = { $name } déplacé dans { $parent }
+tree_root = la racine
+tree_ctx_new_file = Nouveau fichier
+tree_ctx_duplicate = Dupliquer
+tree_ctx_move_up = Monter
+tree_ctx_move_down = Descendre
+tree_ctx_delete = Supprimer
 
 # — Toolbars page (docs/toolbars.md) —
 nav_toolbars = Barres d'outils

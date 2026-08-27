@@ -1,0 +1,88 @@
+name: showcase-tree
+description: >-
+  The Tree page (docs/tree.md) end to end, wherever the piece exists — native (macOS, GTK,
+  iOS) or composed (web, qt, android, arkui, xaml). Disclosure, structure moves, reveal, the
+  move guard's Allow path and the multi-select rebuild all run through the portable
+  guard → commit rails, so this script is identical on every target. What it deliberately
+  does NOT cover: a real pointer drag, the per-row context menus (native gestures, checked
+  by hand per docs/tree.md), and the guard's Deny verdict — dayscript has no
+  assert-this-step-fails form, so the locked drop into docs is a pointer check too.
+flow:
+  - navigate: { route: tree }
+  - assert_route: { route: tree }
+  - wait_for: { id: tree-title }
+
+  # ---- Initial disclosure mirrors the seed: src open (its children visible), pages and
+  # docs closed (their children absent — a composed tree builds no hidden rows, a native
+  # one hides them; `assert_missing` holds either way) ----
+  - wait_for: { id: tree-node-1 }
+  - wait_for: { id: tree-node-2 }
+  - wait_for: { id: tree-node-4 }
+  - wait_for: { id: tree-node-7 }
+  - wait_for: { id: tree-node-9 }
+  - assert_missing: { id: tree-node-5 }
+  - assert_missing: { id: tree-node-8 }
+  - assert_text: { id: tree-count, key: tree_count, args: { count: 9 } }
+  - assert_text: { id: tree-selection, key: tree_selection_none }
+  - assert_text: { id: tree-last-move, key: tree_move_none }
+
+  # ---- Disclosure, both directions, through the chevron's own rail ----
+  - expand: { id: demo-tree, row: tree-node-4 }
+  - wait_for: { id: tree-node-5 }
+  - wait_for: { id: tree-node-6 }
+  - expand: { id: demo-tree, row: tree-node-4, expanded: false }
+  - assert_missing: { id: tree-node-5 }
+
+  # ---- Expand All / Collapse All write the SAME app-owned expansion signal ----
+  - tap: { id: tree-expand-all }
+  - wait_for: { id: tree-node-5 }
+  - wait_for: { id: tree-node-8 }
+  - tap: { id: tree-collapse-all }
+  - assert_missing: { id: tree-node-2 }
+  - assert_missing: { id: tree-node-8 }
+  - wait_for: { id: tree-node-1 }
+  - wait_for: { id: tree-node-7 }
+
+  # ---- Reveal: two collapsed ancestors above tree.rs open through the expansion signal,
+  # and the row scrolls into view ----
+  - tap: { id: tree-reveal }
+  - wait_for: { id: tree-node-5 }
+  - wait_for: { id: tree-node-2 }
+
+  # ---- A structure move: Cargo.toml into src at position 0. The readout echoes exactly
+  # what `on_move` was handed ----
+  - tree_move: { id: demo-tree, row: tree-node-9, parent: tree-node-1, index: 0 }
+  - assert_text: { id: tree-last-move, key: tree_move, args: { index: 0, name: "Cargo.toml", parent: "src" } }
+  - wait_for: { id: tree-node-9 }
+
+  # ---- The move guard: docs refuses drops while locked (the Deny path is a pointer
+  # check, above). Unlock, drop in — the target folder is CLOSED, so the moved row
+  # disappears into it and comes back when docs opens ----
+  - toggle: { id: tree-lock, value: false }
+  - tree_move: { id: demo-tree, row: tree-node-9, parent: tree-node-7 }
+  - assert_text: { id: tree-last-move, key: tree_move_append, args: { name: "Cargo.toml", parent: "docs" } }
+  - assert_missing: { id: tree-node-9 }
+  - expand: { id: demo-tree, row: tree-node-7 }
+  - wait_for: { id: tree-node-8 }
+  - wait_for: { id: tree-node-9 }
+  - toggle: { id: tree-lock, value: true }
+
+  # ---- Multi-select is a build-time option: the toggle swaps in a tree built with the
+  # other flag; rows and expansion persist because both arms read the same signals ----
+  - toggle: { id: tree-multi, value: true }
+  - wait_for: { id: tree-node-1 }
+  - wait_for: { id: tree-node-9 }
+  - toggle: { id: tree-multi, value: false }
+  - wait_for: { id: tree-node-1 }
+
+  # ---- Add File: no folder selected, so the new row lands at the root — and is selected,
+  # which the selection readout reports through the app's `on_selection` ----
+  - tap: { id: tree-add }
+  - wait_for: { id: tree-node-100 }
+  - assert_text: { id: tree-count, key: tree_count, args: { count: 10 } }
+  - assert_text: { id: tree-selection, key: tree_selection, args: { count: 1, names: "new-note.md" } }
+
+  - tap: { id: tree-expand-all }
+  - wait_for: { id: tree-node-5 }
+  - pause: 1
+  - screenshot: tree-final

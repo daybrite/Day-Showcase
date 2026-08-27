@@ -100,7 +100,7 @@ model_storage_file = Rows live in { $file } — each edit folds to SQL at the tu
 model_storage_memory = Rows live in memory on this target
 nav_query = Query
 query_caption = { $count } of { $total } tracks match
-query_evals = { $evals } predicate evaluations since open — edits move the set incrementally
+query_resident = { $resident } of { $total } rows resident — the query holds ids and rows fault in on demand
 query_starred = Starred only
 query_selected = Selected: { $title }
 query_selected_none = Nothing selected
@@ -688,6 +688,35 @@ storage_idle = Nothing stored yet
 # --- Preferences window (docs/windows.md) ---
 prefs_window_title = Preferences
 prefs_window_caption = Theme and language apply to every window and persist across launches.
+
+# — Tree page (docs/tree.md) —
+nav_tree = Tree
+tree_caption = A hierarchical outline over app-owned rows: expansion, selection, reveal, drag-to-move, and per-row context menus.
+tree_expand_all = Expand All
+tree_collapse_all = Collapse All
+tree_reveal = Reveal tree.rs
+tree_add_file = Add File
+tree_multi = Multi-select
+tree_lock = Lock docs
+tree_hint = Drag a row onto a folder to move it, or use its context menu — while the lock is on, docs refuses drops.
+tree_count = { $count ->
+    [one] { $count } node
+   *[other] { $count } nodes
+}
+tree_selection_none = Nothing selected
+tree_selection = { $count ->
+    [one] Selected: { $names }
+   *[other] Selected { $count }: { $names }
+}
+tree_move_none = No moves yet
+tree_move = Moved { $name } into { $parent } at { $index }
+tree_move_append = Moved { $name } into { $parent }
+tree_root = the root
+tree_ctx_new_file = New File
+tree_ctx_duplicate = Duplicate
+tree_ctx_move_up = Move Up
+tree_ctx_move_down = Move Down
+tree_ctx_delete = Delete
 
 # — Toolbars page (docs/toolbars.md) —
 nav_toolbars = Toolbars

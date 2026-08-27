@@ -104,7 +104,7 @@ model_storage_file = تعيش الصفوف في { $file } — كل تعديل ي
 model_storage_memory = تبقى الصفوف في الذاكرة على هذه المنصة
 nav_query = الاستعلام
 query_caption = { $count } من { $total } مقطوعة مطابقة
-query_evals = { $evals } تقييماً للشرط منذ الفتح — التعديلات تحرّك النتائج تدريجياً
+query_resident = { $resident } من { $total } صفوف في الذاكرة — الاستعلام يحمل المعرّفات فقط وتُحمّل الصفوف عند الطلب
 query_starred = المميزة فقط
 query_selected = المحدد: { $title }
 query_selected_none = لا شيء محدد
@@ -697,6 +697,38 @@ storage_idle = لا شيء مخزّن بعد
 
 prefs_window_title = الإعدادات
 prefs_window_caption = يُطبَّق المظهر واللغة على كل النوافذ ويُحفظان بين عمليات التشغيل.
+
+# — Tree page (docs/tree.md) —
+nav_tree = شجرة
+tree_caption = مخطط هرمي فوق صفوف يملكها التطبيق: توسيع، وتحديد، وكشف، وسحب للنقل، وقوائم سياقية لكل صف.
+tree_expand_all = توسيع الكل
+tree_collapse_all = طي الكل
+tree_reveal = إظهار tree.rs
+tree_add_file = إضافة ملف
+tree_multi = تحديد متعدد
+tree_lock = قفل docs
+tree_hint = اسحب صفًا إلى مجلد لنقله، أو استخدم قائمته السياقية — ما دام القفل مفعّلًا يرفض docs الإفلات.
+tree_count = { $count ->
+    [one] عقدة واحدة
+    [two] عقدتان
+    [few] { $count } عقد
+   *[other] { $count } عقدة
+}
+tree_selection_none = لا شيء محدد
+tree_selection = { $count ->
+    [one] المحدد: { $names }
+    [two] المحددان: { $names }
+   *[other] المحدد ({ $count }): { $names }
+}
+tree_move_none = لا نقل بعد
+tree_move = نُقل { $name } إلى { $parent } في الموضع { $index }
+tree_move_append = نُقل { $name } إلى { $parent }
+tree_root = الجذر
+tree_ctx_new_file = ملف جديد
+tree_ctx_duplicate = تكرار
+tree_ctx_move_up = نقل لأعلى
+tree_ctx_move_down = نقل لأسفل
+tree_ctx_delete = حذف
 
 # — Toolbars page (docs/toolbars.md) —
 nav_toolbars = أشرطة الأدوات

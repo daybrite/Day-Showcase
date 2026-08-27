@@ -16,8 +16,8 @@ build = "build.rs"
 # through `day build`, which passes `--no-default-features --features <backend>` (see day-cli), so the
 # mock default is stripped and never unifies with the selected backend.
 default = ["mock"]
-appkit = ["day/appkit", "dep:day-appkit", "day-tweak-button-bezel/appkit", "day-tweak-tooltip/appkit", "day-tweak-slider-tickmarks/appkit"]
-gtk = ["day/gtk", "day-tweak-tooltip/gtk", "day-tweak-slider-tickmarks/gtk"]
+appkit = ["day/appkit", "dep:day-appkit", "day-tweak-button-bezel/appkit", "day-tweak-tooltip/appkit", "day-tweak-slider-tickmarks/appkit", "day-tweak-tree-style/appkit"]
+gtk = ["day/gtk", "day-tweak-tooltip/gtk", "day-tweak-slider-tickmarks/gtk", "day-tweak-tree-style/gtk"]
 qt = ["day/qt", "day-tweak-slider-tickmarks/qt"]
 uikit = ["day/uikit", "dep:day-uikit"]
 mdc = ["day/mdc", "day-tweak-tooltip/mdc", "day-tweak-slider-tickmarks/mdc"]
@@ -78,6 +78,8 @@ day-appkit = { git = "https://github.com/daybrite/day.git", optional = true }
 day-uikit = { git = "https://github.com/daybrite/day.git", optional = true }
 day-tweak-tooltip = { git = "https://github.com/daybrite/day.git" }
 day-tweak-slider-tickmarks = { git = "https://github.com/daybrite/day.git" }
+# The Tree page's sidebar styling (docs/tweaks.md): native no-ops outside appkit/gtk.
+day-tweak-tree-style = { git = "https://github.com/daybrite/day.git" }
 day-piece-webview = { git = "https://github.com/daybrite/day.git" }
 day-piece-media = { git = "https://github.com/daybrite/day.git" }
 day-part-haptics = { git = "https://github.com/daybrite/day.git" }

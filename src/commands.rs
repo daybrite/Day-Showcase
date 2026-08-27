@@ -269,8 +269,25 @@ fn appearance_signal() -> Signal<String> {
         *c.get_or_init(|| {
             let s = Signal::global(Appearance::System.key().to_string());
             day::prefs::bind("showcase.appearance", s);
+            // The boot run (the Effect fires once at creation) applies only a RESTORED
+            // user choice. With no stored pref there is nothing to apply — the default is
+            // System, and applying `None` anyway would CLEAR whatever the launch already
+            // established: a forced `DAY_THEME` (day-appkit applies it as the NSApp
+            // override at startup; the env wins over persistence, day-piece-settings'
+            // `apply_startup` rule) or the Preferences window's own `showcase.theme`
+            // setting, which `apply_startup` applied just before this menu builds.
+            // `prefs::bind` restores synchronously above, so the first run is the only
+            // non-user one; a pick after boot always applies — user intent beats the
+            // environment once the app runs.
+            let forced = std::env::var("DAY_THEME").is_ok();
+            let stored = day::prefs::get("showcase.appearance").is_some();
+            let booted = std::cell::Cell::new(false);
             Effect::new(move || {
-                day::set_appearance(Appearance::from_key(&s.get()).override_dark());
+                let dark = Appearance::from_key(&s.get()).override_dark();
+                if !booted.replace(true) && (forced || !stored) {
+                    return;
+                }
+                day::set_appearance(dark);
             });
             s
         })

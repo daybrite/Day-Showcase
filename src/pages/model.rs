@@ -96,7 +96,12 @@ fn open_backing() -> Backing {
     let opened = Sqlite::app_data(DB_FILE)
         .and_then(|driver| ModelContainer::open(driver, schema![Task]))
         .map(|container| {
-            let store = container.store::<Task>();
+            // Reset the demo file before seeding: the lazy cache upserts what it holds and
+            // never infers deletions, so rows a previous run added are cleared explicitly.
+            container.with_connection(|conn| {
+                let _ = conn.execute("DELETE FROM tasks", &[]);
+            });
+            let store = container.cache::<Task>();
             store.update("seed", |k| *k = Keyed::new(seed_rows()));
             // AFTER the seed: opening a file for the first time is not an edit the user can undo.
             let stack = container.undo(UNDO_LEVELS);
