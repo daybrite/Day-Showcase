@@ -83,22 +83,75 @@ public struct BenchGridsView: View {
     let countLabel: String
     let rowsOne: String
     let rowsOther: String
+    /// The exact height of the Parameters block, passed from Rust (the page's PARAMS_HEIGHT)
+    /// so the patchwork below starts at the same y as the Day tab's — the pixel the two
+    /// implementations are compared at.
+    let paramsHeight: Double
 
     public init(
         parametersLabel: String,
         seedLabel: String,
         countLabel: String,
         rowsOne: String,
-        rowsOther: String
+        rowsOther: String,
+        paramsHeight: Double
     ) {
         self.parametersLabel = parametersLabel
         self.seedLabel = seedLabel
         self.countLabel = countLabel
         self.rowsOne = rowsOne
         self.rowsOther = rowsOther
+        self.paramsHeight = paramsHeight
     }
 
     private var rows: [Row] { pack(seed: UInt32(seed), count: Int(count)) }
+
+    /// The shared label-column width — the widest row label, measured via the preference below.
+    /// The Day tab's `labeled` does the same: every label sits trailing-aligned in one column
+    /// as wide as the widest, so the sliders all start at the same x.
+    @State private var labelColumn: CGFloat?
+
+    /// One parameter row, laid out exactly as the Day tab's `labeled(label, row(slider,
+    /// readout))`: the trailing-aligned label column, a 12pt gap (day-pieces' LABELED_GAP),
+    /// the slider, an 8pt gap, and a readout whose slot reserves the widest value so the
+    /// slider's right edge never shifts as digits change. No `step:` on the slider — on macOS
+    /// a stepped SwiftUI slider draws tick marks the Day slider doesn't have — so the binding
+    /// snaps to integers instead.
+    private func parameterRow(
+        _ label: String,
+        value: Binding<Double>,
+        in range: ClosedRange<Double>,
+        widest: String
+    ) -> some View {
+        HStack(spacing: 12) {
+            Text(label)
+                .fixedSize()
+                .background(GeometryReader { g in
+                    Color.clear.preference(key: LabelColumnKey.self, value: g.size.width)
+                })
+                .frame(width: labelColumn, alignment: .trailing)
+            HStack(spacing: 8) {
+                Slider(
+                    value: Binding(
+                        get: { value.wrappedValue },
+                        set: { value.wrappedValue = $0.rounded() }
+                    ),
+                    in: range
+                )
+                // The Day readout's `reserving`: the widest value sits hidden under the live
+                // one, so the slot holds its width — the value leading-aligned inside it, the
+                // way Day's Label sits in its reserved box.
+                ZStack(alignment: .leading) {
+                    Text(widest).hidden()
+                    Text("\(UInt32(value.wrappedValue))")
+                }
+                .monospacedDigit()
+            }
+        }
+        // The Day row's pitch: its slider row stands 21pt tall, and the section stacks rows
+        // 10pt apart — pinned so the two tabs' rows land on the same lines.
+        .frame(height: 21)
+    }
 
     public var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -111,24 +164,33 @@ public struct BenchGridsView: View {
             // trades that for dead space. The card must hug so the grid gets exactly the rest,
             // which is the geometry the Day tab lays out.
             GroupBox(parametersLabel) {
-                LabeledContent(seedLabel) {
-                    HStack(spacing: 8) {
-                        Slider(value: $seed, in: 0...999, step: 1)
-                        Text("\(UInt32(seed))")
+                // The Day section card's interior: rows on a 10pt pitch (its column spacing),
+                // the row-count line leading-aligned below the sliders.
+                VStack(alignment: .leading, spacing: 10) {
+                    parameterRow(seedLabel, value: $seed, in: 0...999, widest: "999")
+                    parameterRow(countLabel, value: $count, in: 0...2000, widest: "2000")
+                    HStack {
+                        Text(String(format: rows.count == 1 ? rowsOne : rowsOther, rows.count))
+                            .font(.footnote)
+                        Spacer()
                     }
                 }
-                LabeledContent(countLabel) {
-                    HStack(spacing: 8) {
-                        Slider(value: $count, in: 0...2000, step: 1)
-                        Text("\(UInt32(count))")
-                    }
-                }
-                HStack {
-                    Text(String(format: rows.count == 1 ? rowsOne : rowsOther, rows.count))
-                        .font(.footnote)
-                    Spacer()
-                }
+                .onPreferenceChange(LabelColumnKey.self) { labelColumn = $0 }
+                // Measured against the Day tab's card (its interior padding is 14pt; a
+                // GroupBox's own insets fall short of that by different amounts per edge).
+                .padding(.top, 11)
+                .padding(.leading, 13.5)
+                .padding(.trailing, 5.5)
+                // Greedy, so the CARD stretches to the fixed slot below rather than hugging
+                // and leaving slack under it — the Day tab's form fills its slot the same way.
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             }
+            // The SAME fixed height the Day tab reserves (its PARAMS_HEIGHT, passed through the
+            // initializer): the box hugs its content, the frame pins the SLOT, and the grid
+            // below therefore begins at the identical y under either tab. Top-aligned so any
+            // platform-to-platform slack in the box's natural height opens downward, never by
+            // re-centring the card.
+            .frame(maxWidth: .infinity, minHeight: paramsHeight, maxHeight: paramsHeight, alignment: .topLeading)
 
             // The patchwork. Every tile grows on both axes, so the grid resolves columns by the
             // flexible share and stretches rows into the leftover height — it fills the pane
@@ -148,5 +210,14 @@ public struct BenchGridsView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+    }
+}
+
+/// The widest parameter label, folded across the rows — how the two labels share one
+/// trailing-aligned column the way the Day form's shared label column does.
+private struct LabelColumnKey: PreferenceKey {
+    static let defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
     }
 }
