@@ -16,6 +16,12 @@ mod widgets;
 
 use crate::pages::*;
 
+// The mobile / embedded entry point (DESIGN.md §17.4): the iOS and macOS Runners bind `day_main`,
+// DayBridge binds the `Java_…` natives, the HarmonyOS ArkTS host binds `day_arkui_start`, and the
+// web host page binds `day_dom_main`. One macro expands to all of them, and to nothing at all on a
+// plain cargo desktop build, where src/main.rs is the entry instead.
+day::day_start!("Day Showcase", root);
+
 /// Typed constants for the files under `resource/`, generated at build time by `day-build` (§18.5):
 /// `res::images::<stem>`, `res::assets::<file>`, `res::fonts::<family>`. The showcase references its
 /// bundled resources through these, so a renamed/removed file is a compile error, not a runtime miss.
@@ -631,9 +637,3 @@ fn window_root(primary: bool) -> impl Piece {
     let nav = if primary { nav } else { nav.local() };
     nav.id("nav")
 }
-
-// The mobile / embedded entry point (DESIGN.md §17.4): the iOS and macOS Runners bind `day_main`,
-// DayBridge binds the `Java_…` natives, the HarmonyOS ArkTS host binds `day_arkui_start`, and the
-// web host page binds `day_dom_main`. One macro expands to all of them, and to nothing at all on a
-// plain cargo desktop build, where src/main.rs is the entry instead.
-day::day_main!("Day Showcase", root);
