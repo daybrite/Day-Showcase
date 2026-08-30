@@ -1,13 +1,13 @@
 //! Declarative animation (§8.4, docs/animation.md): one box driven by every animatable channel at
 //! once. The sliders/picker/stepper only **queue** target values; the buttons at the top commit
-//! them inside a single `with_animation`, so scale, rotation, opacity, offset, and colour animate
+//! them inside a single `with_animation`, so scale, rotation, opacity, offset, and color animate
 //! together with the chosen curve and duration.
 //!
 //! - **Animate!** — animate to the queued slider values.
 //! - **Randomize!** — set the sliders to random values, then animate.
 //! - **Reset** — set the sliders to their defaults, then animate.
 //!
-//! The Hue slider builds the box's colour with `Color::hsl` (HSL is accepted at every colour
+//! The Hue slider builds the box's color with `Color::hsl` (HSL is accepted at every color
 //! parameter). Animation is backend-executed: on the backends that map the seams the toolkit
 //! interpolates; elsewhere the value applies at commit.
 
@@ -231,7 +231,7 @@ fn stage(s: Anim) -> impl Piece {
 }
 
 /// A filled, tappable, equal-width action button (`.grow_w()` makes each take an equal share of the
-/// row), dimmed and inert while `enabled` reads false. Coloured directly so each reads distinctly.
+/// row), dimmed and inert while `enabled` reads false. Colored directly so each reads distinctly.
 fn action_button(
     id: &'static str,
     text: String,

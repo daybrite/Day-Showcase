@@ -728,8 +728,8 @@ flow:
   - assert_route: { route: resources }
   - assert_visible: { id: resources-numbers }
   - assert_visible: { id: resources-greeting }
-  # Full-colour vector art (docs/vectors.md): every other glyph here is a monochrome symbol that
-  # takes a tint, so this is the only step covering many-path authored-colour art. On android-mdc
+  # Full-color vector art (docs/vectors.md): every other glyph here is a monochrome symbol that
+  # takes a tint, so this is the only step covering many-path authored-color art. On android-mdc
   # it is a VectorDrawable rather than a raster. Driving the zoom REBUILDS the glyph at the new
   # size (see resources.rs), so this also covers that the art survives a resize on every backend.
   - assert_visible: { id: vector-tiger }
@@ -869,7 +869,7 @@ flow:
   - assert_visible: { id: text-font-bungee }
   - assert_visible: { id: text-font-specialelite }
   - assert_visible: { id: text-selectable }
-  # Styled runs (docs/text-runs.md): one label carrying bold/italic/code/strike/colour spans. The
+  # Styled runs (docs/text-runs.md): one label carrying bold/italic/code/strike/color spans. The
   # toggle below rebuilds it as a selectable backing, which on iOS is a different native class —
   # the swap has to carry the attributed text across.
   - assert_visible: { id: text-runs }

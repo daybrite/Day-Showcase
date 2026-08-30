@@ -508,8 +508,8 @@ fn haptics_section() -> impl Piece {
         ))
         .spacing(8.0),
         label(crate::res::str::haptics_songs_caption()).font(Font::Footnote),
-        // The songs get filled colours so they read as a different KIND of control from the single
-        // taps above. Each fill picks its own label colour: the three saturated ones take white,
+        // The songs get filled colors so they read as a different KIND of control from the single
+        // taps above. Each fill picks its own label color: the three saturated ones take white,
         // and AMBER takes `tinted_pale`, which swaps in INK text — white on a pale fill is the
         // contrast case that variant exists for.
         grid((
@@ -563,7 +563,7 @@ fn haptics_section() -> impl Piece {
     .title(crate::res::str::nav_haptics())
 }
 
-/// A coloured button that plays one haptic song.
+/// A colored button that plays one haptic song.
 #[allow(clippy::too_many_arguments)]
 fn song_button(
     id: &'static str,

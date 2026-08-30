@@ -241,7 +241,7 @@ pub(crate) fn numeric_readout(
 /// moment `grow_w` stretches a button to share a grid column — so this centres it. Everything
 /// here is plain composition (`padding`/`background`/`corner_radius`), so it needs no per-backend
 /// code and looks the same on all nine.
-/// A button fill in an arbitrary palette colour. The label colour is the platform's business:
+/// A button fill in an arbitrary palette color. The label color is the platform's business:
 /// `Button::tint` picks the readable one for the fill, so a pale amber gets dark text and a
 /// saturated rust gets white without the app choosing.
 pub(crate) fn tinted(color: Color) -> Color {
@@ -253,7 +253,7 @@ pub(crate) fn primary() -> Color {
     crate::palette::SKY
 }
 
-/// A supporting action that still deserves colour: a second, cooler voice next to [`primary`].
+/// A supporting action that still deserves color: a second, cooler voice next to [`primary`].
 pub(crate) fn secondary() -> Color {
     crate::palette::TEAL
 }

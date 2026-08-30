@@ -607,7 +607,7 @@ fn window_root(primary: bool) -> impl Piece {
                         menu_item(crate::res::str::show_source().format())
                             .action(move || open_source_of(section)),
                     ]);
-                // The marker itself: the app's own star, tinted the colour a star IS rather
+                // The marker itself: the app's own star, tinted the color a star IS rather
                 // than a theme accent (palette.rs AMBER).
                 if starred {
                     row.badge_icon(res::vectors::star.clone())

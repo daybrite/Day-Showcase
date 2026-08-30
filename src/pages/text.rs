@@ -271,7 +271,7 @@ fn sections(on: bool, md: Signal<String>) -> impl Piece {
     ))
     .title(crate::res::str::text_fonts_header());
 
-    // Links (docs/text.md): tappable accent-coloured text that opens a URL in the system browser
+    // Links (docs/text.md): tappable accent-colored text that opens a URL in the system browser
     // (or the mail client for `mailto:`) via the backend's `open_url`. `.color()` overrides the
     // default tint; `.font()` and `.bold()` style the run like a label. `.selectable()` on a
     // link is honored where the backend's link widget has a selection affordance, and is a
@@ -340,7 +340,7 @@ fn sections(on: bool, md: Signal<String>) -> impl Piece {
     ))
 }
 
-/// Styled RUNS inside one wrapping paragraph (docs/text-runs.md): emphasis, code, colour and a
+/// Styled RUNS inside one wrapping paragraph (docs/text-runs.md): emphasis, code, color and a
 /// strike, all in a single label. Composing several labels in a row looks similar on one line and
 /// then wraps wrongly, breaks selection, and reads as separate items to a screen reader, which is
 /// the reason this exists.
@@ -364,7 +364,7 @@ fn rich(on: bool) -> impl Piece {
         .text(", ")
         .strikethrough("~~strikethrough~~")
         .text(", and ")
-        .colored("colour", TEAL)
+        .colored("color", TEAL)
         .text(", ")
         .underline("underline")
         .text(", ")

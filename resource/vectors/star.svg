@@ -8,7 +8,7 @@ as a real vector on every backend instead of falling back to a raster (docs/vect
 
 Solid black on purpose: it is a TEMPLATE glyph. Every backend recolors it through the badge tint
 the app asks for, which is what lets the same file read as a yellow star in the sidebar and take
-the toolbar's own foreground colour when it is used there.
+the toolbar's own foreground color when it is used there.
 -->
 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
   <path fill="#000000" d="M12 2.5l2.94 5.96 6.58.96-4.76 4.64 1.12 6.55L12 17.52l-5.88 3.09 1.12-6.55L2.48 9.42l6.58-.96z"/>
