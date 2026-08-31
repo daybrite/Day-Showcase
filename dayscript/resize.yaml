@@ -1,0 +1,56 @@
+name: resize
+description: >
+  Real geometry across every width-class boundary (docs/size-classes.md). `size_class:` reports a
+  class the window is not at, which proves the resolver and nothing else; `resize:` moves the
+  pixels, so the platform's own adaptive container re-measures and the app really is laid out at
+  the size under test. Two things are asserted at every crossing — that the presentation changed,
+  and that what the app was holding survived it. A morph that silently drops the open section
+  passes a naive screenshot check and fails the only thing this feature promises.
+
+  Gated to android-mdc: no public API resizes a simulator scene, and the desktops have no runner
+  arm yet, so `resize:` FAILS there rather than passing a step that moved nothing.
+flow:
+  - wait_for: { id: nav }
+
+  # Open a page with state worth losing: the layout demo carries a live component count, so a
+  # rebuild that dropped app state would show up as the count resetting.
+  - navigate: { route: layout }
+  - assert_visible: { id: layout-demo }
+  - tap: { id: layout-add }
+  - tap: { id: layout-add }
+  - assert_visible: { id: layout-count }
+
+  # --- Compact: phone-shaped ------------------------------------------------------------------
+  # Android's idiomatic answer at this width is a bottom bar, and the sidebar page is not drawn
+  # at all — its rows ARE the chrome.
+  - resize: { width: 420, height: 900, only_on: [android-mdc] }
+  - assert_visible: { id: nav, only_on: [android-mdc] }
+  - assert_visible: { id: layout-demo, only_on: [android-mdc] }
+  - assert_visible: { id: layout-count, only_on: [android-mdc] }
+  - screenshot: { name: resize-compact, only_on: [android-mdc] }
+
+  # --- Medium: the rail in between -------------------------------------------------------------
+  - resize: { width: 700, height: 900, only_on: [android-mdc] }
+  - assert_visible: { id: nav, only_on: [android-mdc] }
+  - assert_visible: { id: layout-demo, only_on: [android-mdc] }
+  - screenshot: { name: resize-medium, only_on: [android-mdc] }
+
+  # --- Expanded: room for a sidebar beside the content -----------------------------------------
+  # SlidingPaneLayout decides at MEASURE time, so this is the platform re-presenting itself
+  # rather than Day pushing a presentation into it.
+  - resize: { width: 1100, height: 900, only_on: [android-mdc] }
+  - assert_visible: { id: nav, only_on: [android-mdc] }
+  - assert_visible: { id: layout-demo, only_on: [android-mdc] }
+  - assert_visible: { id: layout-count, only_on: [android-mdc] }
+  - screenshot: { name: resize-expanded, only_on: [android-mdc] }
+
+  # --- And back down, which is the direction that loses state ----------------------------------
+  # Narrowing keeps the selection: the detail becomes the top of the stack, where the user was.
+  - resize: { width: 420, height: 900, only_on: [android-mdc] }
+  - assert_visible: { id: layout-demo, only_on: [android-mdc] }
+  - assert_route: { route: layout, only_on: [android-mdc] }
+
+  # A forced size that outlives the steps it was written for follows the script into everything
+  # after it, so put the device back.
+  - resize: { restore: true, only_on: [android-mdc] }
+  - wait_for: { id: nav, only_on: [android-mdc] }

@@ -155,7 +155,6 @@ mod engine {
 mod engine {
     use super::{Track, seed};
     use day::prelude::*;
-    use std::cell::OnceCell;
 
     /// The demo's track store — one per APP (docs/state.md), like the container above.
     #[derive(Clone, Copy)]
