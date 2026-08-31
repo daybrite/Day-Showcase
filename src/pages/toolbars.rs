@@ -7,19 +7,12 @@
 //! nothing installs, and the page says so rather than drawing an imitation.
 
 use day::prelude::*;
-use std::cell::OnceCell;
 
 use crate::widgets::page;
 
-thread_local! {
-    /// App-global, not page-scoped: the toolbar is installed once for the window and outlives
-    /// every visit to this page, so its bindings must not die when the page pops.
-    static STATE: OnceCell<ToolbarDemo> = const { OnceCell::new() };
-}
-
 /// The signals the main window's toolbar is bound to.
 #[derive(Clone, Copy)]
-struct ToolbarDemo {
+pub(crate) struct ToolbarDemo {
     query: Signal<String>,
     starred: Signal<bool>,
     /// How many times a plain toolbar button has been pressed.
@@ -67,18 +60,25 @@ pub(crate) fn search_query() -> Signal<String> {
     state().query
 }
 
+impl Ambient for ToolbarDemo {
+    fn create() -> Self {
+        ToolbarDemo {
+            query: Signal::new(String::new()),
+            starred: Signal::new(false),
+            presses: Signal::new(0),
+            extra: Signal::new(false),
+            refresh_enabled: Signal::new(true),
+            last: Signal::new(String::new()),
+            theme: Signal::new(crate::commands::Appearance::System.index()),
+        }
+    }
+}
+
+/// The toolbar demo's own controls — PER WINDOW (docs/state.md), like the toolbar they drive.
 fn state() -> ToolbarDemo {
-    STATE.with(|c| {
-        *c.get_or_init(|| ToolbarDemo {
-            query: Signal::global(String::new()),
-            starred: Signal::global(false),
-            presses: Signal::global(0),
-            extra: Signal::global(false),
-            refresh_enabled: Signal::global(true),
-            last: Signal::global(String::new()),
-            theme: Signal::global(crate::commands::Appearance::System.index()),
-        })
-    })
+    ToolbarDemo::try_ambient()
+        .or_else(ToolbarDemo::focused)
+        .expect("no window is open")
 }
 
 /// Does this toolkit have a real toolbar?

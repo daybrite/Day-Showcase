@@ -13,34 +13,14 @@ use crate::widgets::heading;
 // new one every time). Same idiom as pages/scripting.rs.
 //
 // This is transient, not persisted: it lives as long as the process and is never written to disk.
-thread_local! {
-    static STATE: std::cell::OnceCell<(Signal<String>, Signal<String>, Signal<String>)> =
-        const { std::cell::OnceCell::new() };
-    // The Embedded tab's external-link readout: (kind, payload) where kind 0 = none yet,
-    // 1 = opened outside, 2 = intercepted in-app. Stored as data and FORMATTED in the label so a
-    // locale switch re-resolves the text.
-    static EMBED_STATUS: std::cell::OnceCell<Signal<(u8, String)>> =
-        const { std::cell::OnceCell::new() };
-    // The selected tab (0 = Remote, 1 = Embedded), hoisted so a revisit returns to the tab the
-    // user left — the pane content itself survives through each view's WebSession either way.
-    static TAB: std::cell::OnceCell<Signal<usize>> = const { std::cell::OnceCell::new() };
-}
 
 /// `(url, script, result)` — created once, reused by every visit to this page.
 fn state() -> (Signal<String>, Signal<String>, Signal<String>) {
-    STATE.with(|c| {
-        *c.get_or_init(|| {
-            (
-                Signal::global("https://daybrite.dev".to_string()),
-                Signal::global("document.title".to_string()),
-                Signal::global(String::new()),
-            )
-        })
-    })
+    crate::scene().web
 }
 
 fn embed_status() -> Signal<(u8, String)> {
-    EMBED_STATUS.with(|c| *c.get_or_init(|| Signal::global((0, String::new()))))
+    crate::scene().web_embed_status
 }
 
 /// A native web view (day-piece-webview, an EXTERNAL standalone piece), in two tabs:
@@ -63,7 +43,7 @@ fn embed_status() -> Signal<(u8, String)> {
 /// The JS console sits BELOW the tabs, outside both panes: each view carries its own bound
 /// [`JsHandle`], and Run evaluates against whichever tab is selected.
 pub(crate) fn webview_page() -> AnyPiece {
-    let tab = TAB.with(|c| *c.get_or_init(|| Signal::global(0usize)));
+    let tab = crate::scene().web_tab;
     let js_remote = JsHandle::new();
     let js_embedded = JsHandle::new();
     column((

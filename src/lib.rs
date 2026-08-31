@@ -6,7 +6,6 @@
 //! pieces shared by several pages live in [`widgets`].
 
 use day::prelude::*;
-use std::cell::OnceCell;
 
 mod commands;
 mod pages;
@@ -37,15 +36,85 @@ pub mod swiftui {
     include!(concat!(env!("OUT_DIR"), "/day_swiftui.rs"));
 }
 
-thread_local! {
-    /// The most recent app-lifecycle phase, shown live on the About page (docs/lifecycle.md).
-    static LIFECYCLE_LOG: OnceCell<Signal<String>> = const { OnceCell::new() };
-}
 pub(crate) fn lifecycle_log() -> Signal<String> {
-    // `global`, NOT `new`: the first read can come from inside a page scope (on desktop-split
-    // web the About page is the default detail), and a scope-owned signal would die with that
-    // page — the second About visit would read a disposed signal.
-    LIFECYCLE_LOG.with(|c| *c.get_or_init(|| Signal::global("—".into())))
+    LifecycleLog::app().0
+}
+
+/// Everything ONE WINDOW owns (docs/state.md): which page it is on, and the per-page editor
+/// state that belongs to a view rather than to the app.
+///
+/// The showcase deliberately keeps two tiers. App-wide (`Ambient::app`) are the things one
+/// process has one of — the lifecycle and menu logs, the SQLite container behind the Query page,
+/// the model store, and the persisted preferences (starred pages, appearance). Per-window are
+/// the ones a second window should get its own of: the sidebar selection, the scripting buffer,
+/// the toolbar demo's controls, the benchmark's parameters and the webview's fields.
+#[derive(Clone, Copy)]
+pub(crate) struct Scene {
+    /// The sidebar's selection — the app's own routing signal, hoisted so every surface can
+    /// READ it reactively (see `commands::section`).
+    pub(crate) section: Signal<Option<crate::Section>>,
+    /// The Scripting page's working buffer, its saved baseline, and the file it came from.
+    pub(crate) script_buf: Signal<String>,
+    pub(crate) script_baseline: Signal<String>,
+    pub(crate) script_file: Signal<Option<String>>,
+    /// The Benchmark page's `(scale, count)` parameters.
+    pub(crate) bench: (Signal<f64>, Signal<f64>),
+    /// The WebView page's `(url, script, result)`, its selected tab, and the embedded tab's
+    /// status.
+    pub(crate) web: (Signal<String>, Signal<String>, Signal<String>),
+    pub(crate) web_tab: Signal<usize>,
+    pub(crate) web_embed_status: Signal<(u8, String)>,
+}
+
+impl Ambient for Scene {
+    fn create() -> Self {
+        Scene {
+            section: Signal::new(
+                std::env::var("DAY_DEMO_ROUTE").ok().and_then(|r| {
+                    crate::Section::from_key(r.split(['/', '?']).next().unwrap_or(""))
+                }),
+            ),
+            script_buf: Signal::new(day::record::script()),
+            // Seeded to the initial buffer, so a page with nothing new is NOT dirty.
+            script_baseline: Signal::new(day::record::script()),
+            script_file: Signal::new(None),
+            bench: (
+                Signal::new(1.0),
+                Signal::new(crate::pages::benchmark::DEFAULT_COUNT),
+            ),
+            web: (
+                Signal::new("https://daybrite.dev".to_string()),
+                Signal::new("document.title".to_string()),
+                Signal::new(String::new()),
+            ),
+            web_tab: Signal::new(0usize),
+            web_embed_status: Signal::new((0, String::new())),
+        }
+    }
+}
+
+/// This window's `Scene` — the ambient one while a piece BUILDS, the FOCUSED window's when a
+/// command runs later from a handler that belongs to no scope (docs/state.md).
+pub(crate) fn scene() -> Scene {
+    try_scene().expect("no window is open, so there is no Scene to act on")
+}
+
+/// [`scene`] without the panic — for the app-wide surfaces (the menu bar) whose builders can be
+/// evaluated before any window has built, which is where the Android app-bar menu is lowered
+/// from. A command with no front window has nothing to act on and simply reports so.
+pub(crate) fn try_scene() -> Option<Scene> {
+    Scene::try_ambient().or_else(Scene::focused)
+}
+
+/// The most recent app-lifecycle phase, shown live on the About page (docs/lifecycle.md).
+/// App-wide: it records the APP's phases, not a window's.
+#[derive(Clone, Copy)]
+struct LifecycleLog(Signal<String>);
+
+impl Ambient for LifecycleLog {
+    fn create() -> Self {
+        LifecycleLog(Signal::new("—".into()))
+    }
 }
 
 /// Register app-lifecycle handlers (docs/lifecycle.md). Call this from `main` BEFORE `day::launch`
@@ -58,8 +127,11 @@ pub fn install_lifecycle_handlers() {
     use day::Lifecycle::*;
 
     // Idempotent: desktop calls this from `main` (to catch WillLaunch), mobile from `root`.
-    thread_local! { static INSTALLED: std::cell::Cell<bool> = const { std::cell::Cell::new(false) }; }
-    if INSTALLED.with(|c| c.replace(true)) {
+    // A run-once latch, not app state — `Once` says that directly.
+    static INSTALLED: std::sync::Once = std::sync::Once::new();
+    let mut first = false;
+    INSTALLED.call_once(|| first = true);
+    if !first {
         return;
     }
 
@@ -256,14 +328,7 @@ pub fn root() -> impl Piece {
         },
         pages::preferences_window,
     );
-    day::register_new_window(|| {
-        // Each window gets its own toolbar; the install targets the window being built.
-        pages::toolbars::install();
-        window_root(false)
-    });
-    install_app_menu();
-    // The main window's own toolbar (docs/toolbars.md) — the Toolbars page drives it.
-    pages::toolbars::install();
+    day::register_new_window(|| window_root(false));
     // Lifecycle handlers (docs/lifecycle.md). On mobile this is the registration point; on desktop
     // `main` already registered them before launch (to also catch WillLaunch) — the call is idempotent.
     install_lifecycle_handlers();
@@ -520,6 +585,24 @@ fn destinations() -> Vec<Dest> {
 /// Only the PRIMARY shell joins the route namespace — secondary windows are `.local()`
 /// (docs/navigation.md), so `navigate()`/dayscript keep driving the primary unambiguously.
 fn window_root(primary: bool) -> impl Piece {
+    // One `Scene` per window (docs/state.md): the sidebar selection, the scripting buffer, the
+    // toolbar demo's controls, the benchmark parameters and the webview's fields all belong to
+    // THIS window. What one process has one of — the logs, the SQLite container, the model
+    // store, the persisted preferences — stays app-wide behind `Ambient::app`.
+    Scene::scoped(move |_scene| {
+        crate::pages::toolbars::ToolbarDemo::scoped(move |_bar| window_body(primary))
+    })
+}
+
+fn window_body(primary: bool) -> impl Piece {
+    // Each window gets its own toolbar; the install targets the window being built
+    // (docs/toolbars.md), and its items read this window's `Scene`.
+    pages::toolbars::install();
+    // The app menu is ONE bar for the app, but its titles and enabled states read the front
+    // page — so it installs from inside a window's scope, once. Before any window exists there
+    // is no page to describe.
+    static MENU_ONCE: std::sync::Once = std::sync::Once::new();
+    MENU_ONCE.call_once(install_app_menu);
     // Remember the last-opened section across launches (docs/navigation.md). Web only, matching
     // this app's prefs policy (controls.rs): a browser reload is normal life on the web, so the
     // store is installed there and the top-level selector's `.restore` persists the section;

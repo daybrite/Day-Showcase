@@ -49,9 +49,18 @@ pub(crate) struct Command {
 // (deep links, dayscript, `current_route`) addresses a page by. A page that is renamed or dropped
 // simply stops matching, which is the right way for stale state to expire.
 
-thread_local! {
-    static STARRED: std::cell::OnceCell<Signal<String>> = const { std::cell::OnceCell::new() };
-    static SECTION: std::cell::OnceCell<Signal<Option<Section>>> = const { std::cell::OnceCell::new() };
+/// The persisted starred set — APP-wide (docs/state.md): a preference, the same in every window.
+#[derive(Clone, Copy)]
+struct Starred(Signal<String>);
+
+impl Ambient for Starred {
+    fn create() -> Self {
+        let s = Signal::new(String::new());
+        // Survives relaunch (docs/prefs.md). Registered once, with the signal, so every toggle
+        // from any surface is written through without the surfaces knowing.
+        day::prefs::bind("showcase.starred", s);
+        Starred(s)
+    }
 }
 
 /// The sidebar's selection — the app's own routing signal, hoisted so every surface can READ it
@@ -63,15 +72,7 @@ thread_local! {
 /// toolbar's star kept the previous page's on/off state until something else touched the starred
 /// set. Reading THIS signal is a tracked read, so navigating re-lowers the toolbar and the menu.
 pub(crate) fn section() -> Signal<Option<Section>> {
-    SECTION.with(|c| {
-        *c.get_or_init(|| {
-            Signal::global(
-                std::env::var("DAY_DEMO_ROUTE")
-                    .ok()
-                    .and_then(|r| Section::from_key(r.split(['/', '?']).next().unwrap_or(""))),
-            )
-        })
-    })
+    crate::scene().section
 }
 
 /// The starred set, created once and reused by every visit and every surface.
@@ -80,15 +81,7 @@ pub(crate) fn section() -> Signal<Option<Section>> {
 /// and the `OnceCell` keeps the SAME signal across rebuilds — calling `global` per build would
 /// mint a fresh one each time and the stars would vanish on the next navigation.
 pub(crate) fn starred() -> Signal<String> {
-    STARRED.with(|c| {
-        *c.get_or_init(|| {
-            let s = Signal::global(String::new());
-            // Survives relaunch (docs/prefs.md). Registered once, with the signal, so every
-            // toggle from any surface is written through without the surfaces knowing.
-            day::prefs::bind("showcase.starred", s);
-            s
-        })
-    })
+    Starred::app().0
 }
 
 /// Whether `section` is starred. A tracked read, so any surface calling it re-renders on change.
@@ -127,7 +120,11 @@ fn active_section() -> Option<Section> {
     // selected, exactly as `show_source` does — the desktop split shows the first row as its
     // default detail without selecting it, and a command that sat disabled on the page the user is
     // looking at would be wrong.
-    Some(section().get().unwrap_or(Section::About))
+    //
+    // `try_scene`, not `scene`: the menu bar is lowered from surfaces that can run before any
+    // window has built (the Android app-bar menu is applied from a posted task), and a command
+    // with no front window has nothing to act on rather than a reason to panic.
+    Some(crate::try_scene()?.section.get().unwrap_or(Section::About))
 }
 
 /// The Star command for the active page — "Star" when it is not starred, "Unstar" when it is.
@@ -255,8 +252,37 @@ impl Appearance {
     }
 }
 
-thread_local! {
-    static APPEARANCE: std::cell::OnceCell<Signal<String>> = const { std::cell::OnceCell::new() };
+/// The persisted appearance setting — APP-wide (docs/state.md): it drives
+/// `day::set_appearance`, a process-level override, so it is the app's choice not a window's.
+#[derive(Clone, Copy)]
+struct AppearanceSetting(Signal<String>);
+
+impl Ambient for AppearanceSetting {
+    fn create() -> Self {
+        let s = Signal::new(Appearance::System.key().to_string());
+        day::prefs::bind("showcase.appearance", s);
+        // The boot run (the Effect fires once at creation) applies only a RESTORED
+        // user choice. With no stored pref there is nothing to apply — the default is
+        // System, and applying `None` anyway would CLEAR whatever the launch already
+        // established: a forced `DAY_THEME` (day-appkit applies it as the NSApp
+        // override at startup; the env wins over persistence, day-piece-settings'
+        // `apply_startup` rule) or the Preferences window's own `showcase.theme`
+        // setting, which `apply_startup` applied just before this menu builds.
+        // `prefs::bind` restores synchronously above, so the first run is the only
+        // non-user one; a pick after boot always applies — user intent beats the
+        // environment once the app runs.
+        let forced = std::env::var("DAY_THEME").is_ok();
+        let stored = day::prefs::get("showcase.appearance").is_some();
+        let booted = std::cell::Cell::new(false);
+        Effect::new(move || {
+            let dark = Appearance::from_key(&s.get()).override_dark();
+            if !booted.replace(true) && (forced || !stored) {
+                return;
+            }
+            day::set_appearance(dark);
+        });
+        AppearanceSetting(s)
+    }
 }
 
 /// The persisted appearance setting, applied to the running app whenever it changes.
@@ -265,33 +291,7 @@ thread_local! {
 /// `set_appearance`: whoever writes the signal — a toolbar toggle, a menu item, a restored
 /// preference — the override lands the same way.
 fn appearance_signal() -> Signal<String> {
-    APPEARANCE.with(|c| {
-        *c.get_or_init(|| {
-            let s = Signal::global(Appearance::System.key().to_string());
-            day::prefs::bind("showcase.appearance", s);
-            // The boot run (the Effect fires once at creation) applies only a RESTORED
-            // user choice. With no stored pref there is nothing to apply — the default is
-            // System, and applying `None` anyway would CLEAR whatever the launch already
-            // established: a forced `DAY_THEME` (day-appkit applies it as the NSApp
-            // override at startup; the env wins over persistence, day-piece-settings'
-            // `apply_startup` rule) or the Preferences window's own `showcase.theme`
-            // setting, which `apply_startup` applied just before this menu builds.
-            // `prefs::bind` restores synchronously above, so the first run is the only
-            // non-user one; a pick after boot always applies — user intent beats the
-            // environment once the app runs.
-            let forced = std::env::var("DAY_THEME").is_ok();
-            let stored = day::prefs::get("showcase.appearance").is_some();
-            let booted = std::cell::Cell::new(false);
-            Effect::new(move || {
-                let dark = Appearance::from_key(&s.get()).override_dark();
-                if !booted.replace(true) && (forced || !stored) {
-                    return;
-                }
-                day::set_appearance(dark);
-            });
-            s
-        })
-    })
+    AppearanceSetting::app().0
 }
 
 /// The mode in force. A tracked read, so a surface rendering the group re-lowers when it changes.

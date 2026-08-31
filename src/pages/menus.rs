@@ -1,22 +1,25 @@
 use day::prelude::*;
-use std::cell::OnceCell;
 
 use crate::widgets::page;
 
-thread_local! {
-    /// The last menu action fired — shared between the app menu (installed in `root`) and this
-    /// page so both demonstrate action dispatch. Created lazily inside the reactive runtime.
-    static MENU_LOG: OnceCell<Signal<String>> = const { OnceCell::new() };
+/// The last menu action fired — shared between the app menu and this page, so both demonstrate
+/// action dispatch. App-wide (docs/state.md): it records what the app's ONE menu bar did.
+#[derive(Clone, Copy)]
+struct MenuLog(Signal<String>);
+
+impl Ambient for MenuLog {
+    fn create() -> Self {
+        // An em dash, not an empty string: the readout is a label, and an empty one has no
+        // frame at all — which is a walkthrough failure rather than a blank line.
+        MenuLog(Signal::new("—".into()))
+    }
 }
 
 fn menu_log() -> Signal<String> {
-    // `global`, NOT `new` — the same reason lifecycle_log gives in lib.rs. The OnceCell hands
-    // this signal out for the life of the thread, but the first `get_or_init` runs inside
-    // whichever scope happened to reach it first (the menus page's readout, or the app menu
-    // rebuilt while a page is current). A scope-owned signal dies with that scope, and every
-    // later read panics on a disposed signal — which is what wedges the walkthrough's second
-    // and subsequent variants, since the first one creates the scope that the rest outlive.
-    MENU_LOG.with(|c| *c.get_or_init(|| Signal::global("—".into())))
+    // App-scoped, not page-scoped: the readout and the app menu both reach it, and a
+    // scope-owned signal would die with whichever page created it — which is what wedged the
+    // walkthrough's second and subsequent variants.
+    MenuLog::app().0
 }
 
 /// The application menu bar (native NSMenu / GtkPopoverMenuBar / QMenuBar; app-bar overflow on Android;

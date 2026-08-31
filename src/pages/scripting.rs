@@ -8,15 +8,10 @@ const DEFAULT_DELAY: &str = "0.25";
 // Global page state (Signal::global outlives the page's rebuilds), so navigating away and back
 // preserves the working script, the baseline it was last saved/loaded at (for the dirty check that
 // gates Save), and which file on disk it maps to (an in-place Save vs a prompt for a new name).
-thread_local! {
-    static BUF: std::cell::OnceCell<Signal<String>> = const { std::cell::OnceCell::new() };
-    static BASELINE: std::cell::OnceCell<Signal<String>> = const { std::cell::OnceCell::new() };
-    static CURRENT_FILE: std::cell::OnceCell<Signal<Option<String>>> = const { std::cell::OnceCell::new() };
-}
 /// The working script. `pub(crate)` because the toolbar's transport and the App menu record into
 /// and play from THIS buffer (commands.rs): one recording, whichever surface starts it.
 pub(crate) fn buf_signal() -> Signal<String> {
-    BUF.with(|c| *c.get_or_init(|| Signal::global(day::record::script())))
+    crate::scene().script_buf
 }
 
 /// The per-step playback delay, in seconds — persisted by the page's own field, and read here so
@@ -32,33 +27,43 @@ fn configured_delay_secs() -> f64 {
 
 /// Start recording into the shared buffer, excluding the page's own controls. The one place that
 /// knows how this app records, so the page button and the toolbar cannot start it differently.
+/// The working buffer of the FRONT window, or `None` before any window has built — the app
+/// menu's transport items are lowered from surfaces that can run that early (docs/state.md).
+fn try_buf() -> Option<Signal<String>> {
+    crate::try_scene().map(|s| s.script_buf)
+}
+
 pub(crate) fn record_into_buffer() {
+    let Some(buf) = try_buf() else { return };
     day::record::exclude_prefix("scripting-");
-    day::record::start_into(buf_signal());
+    day::record::start_into(buf);
 }
 
 /// Is there a script to play — recorded, loaded or hand-typed?
 pub(crate) fn has_script() -> bool {
-    buf_signal().with(|t| day::record::is_playable(t))
+    try_buf().is_some_and(|b| b.with(|t| day::record::is_playable(t)))
 }
 
 /// Play the shared buffer at the page's configured delay.
 pub(crate) fn play_buffer() {
-    let _ = day::record::play_with_delay(&buf_signal().get_untracked(), configured_delay_secs());
+    let Some(buf) = try_buf() else { return };
+    let _ = day::record::play_with_delay(&buf.get_untracked(), configured_delay_secs());
 }
 
 /// Throw the recording away: the recorder's own steps AND the buffer the surfaces read.
 pub(crate) fn clear_buffer() {
     day::record::clear();
-    buf_signal().set(String::new());
+    if let Some(buf) = try_buf() {
+        buf.set(String::new());
+    }
 }
 fn baseline_signal() -> Signal<String> {
     // Seeded to the initial buffer, so a page with nothing new is NOT dirty (Save disabled); a
     // recording or an edit then diverges from it and enables Save.
-    BASELINE.with(|c| *c.get_or_init(|| Signal::global(day::record::script())))
+    crate::scene().script_baseline
 }
 fn current_file_signal() -> Signal<Option<String>> {
-    CURRENT_FILE.with(|c| *c.get_or_init(|| Signal::global(None)))
+    crate::scene().script_file
 }
 
 /// The Scripting page (DESIGN.md §14.6): record your own taps and navigation into a replayable

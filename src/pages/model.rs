@@ -1,5 +1,3 @@
-use std::cell::OnceCell;
-
 use day::model::Op;
 use day::prelude::*;
 
@@ -55,8 +53,15 @@ struct Backing {
     file: Option<String>,
 }
 
-thread_local! {
-    static BACKING: OnceCell<Backing> = const { OnceCell::new() };
+/// The Model page's backing store — one per APP (docs/state.md): the demo's data, shared by
+/// every window the way one document is.
+#[derive(Clone)]
+struct BackingStore(std::rc::Rc<Backing>);
+
+impl Ambient for BackingStore {
+    fn create() -> Self {
+        BackingStore(std::rc::Rc::new(open_backing()))
+    }
 }
 
 /// The seed scene: 300 rows, deterministic, so the walkthrough's counts are arithmetic.
@@ -128,7 +133,7 @@ fn open_backing() -> Backing {
 }
 
 fn with_backing<T>(f: impl FnOnce(&Backing) -> T) -> T {
-    BACKING.with(|c| f(c.get_or_init(open_backing)))
+    f(&BackingStore::app().0)
 }
 
 fn tasks() -> Store<Keyed<Task>> {

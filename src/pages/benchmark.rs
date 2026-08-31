@@ -150,7 +150,7 @@ fn pack(seed: u32, count: usize) -> Vec<Row> {
 
 /// Tiles the page opens with. Deliberately modest: the slider reaches 2000, and a benchmark that
 /// cannot cold-start on its slowest target is not a benchmark. Sweep up from here.
-const DEFAULT_COUNT: f64 = 48.0;
+pub(crate) const DEFAULT_COUNT: f64 = 48.0;
 
 // --- The page ---
 
@@ -159,11 +159,7 @@ const DEFAULT_COUNT: f64 = 48.0;
 /// SwiftUI side through its `.state_key` (the retained hosting view keeps the `@State`). Guarded
 /// like `lifecycle_log` in lib.rs: `Signal::global` on every build would mint a fresh pair.
 fn bench_signals() -> (Signal<f64>, Signal<f64>) {
-    use std::cell::OnceCell;
-    thread_local! {
-        static PARAMS: OnceCell<(Signal<f64>, Signal<f64>)> = const { OnceCell::new() };
-    }
-    PARAMS.with(|c| *c.get_or_init(|| (Signal::global(1.0), Signal::global(DEFAULT_COUNT))))
+    crate::scene().bench
 }
 
 /// The Benchmark page: heading, then — where `day_piece_swiftui::support()` is Native (the

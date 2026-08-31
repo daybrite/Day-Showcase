@@ -77,15 +77,15 @@ fn seed() -> Keyed<Track> {
 mod engine {
     use super::{Track, seed};
     use day::prelude::*;
-    use std::cell::OnceCell;
 
-    thread_local! {
-        static CONTAINER: OnceCell<ModelContainer> = const { OnceCell::new() };
-    }
+    /// The demo's SQLite container — one per APP (docs/state.md): a database handle, shared by
+    /// every window the way one file is.
+    #[derive(Clone)]
+    struct Db(ModelContainer);
 
-    pub(super) fn container() -> ModelContainer {
-        CONTAINER.with(|c| {
-            c.get_or_init(|| {
+    impl Ambient for Db {
+        fn create() -> Self {
+            Db({
                 let container = ModelContainer::open(Sqlite::memory(), schema![Track])
                     .unwrap_or_else(|e| {
                         // A memory database failing to open leaves nothing to demo; surface
@@ -99,8 +99,11 @@ mod engine {
                 container.set_cache_limit(2_048);
                 container
             })
-            .clone()
-        })
+        }
+    }
+
+    pub(super) fn container() -> ModelContainer {
+        Db::app().0
     }
 
     pub(super) fn store() -> Store<Keyed<Track>> {
@@ -154,12 +157,18 @@ mod engine {
     use day::prelude::*;
     use std::cell::OnceCell;
 
-    thread_local! {
-        static TRACKS: OnceCell<Store<Keyed<Track>>> = const { OnceCell::new() };
+    /// The demo's track store — one per APP (docs/state.md), like the container above.
+    #[derive(Clone, Copy)]
+    struct Tracks(Store<Keyed<Track>>);
+
+    impl Ambient for Tracks {
+        fn create() -> Self {
+            Tracks(Store::new(seed()))
+        }
     }
 
     pub(super) fn store() -> Store<Keyed<Track>> {
-        TRACKS.with(|c| *c.get_or_init(|| Store::new(seed())))
+        Tracks::app().0
     }
 }
 
