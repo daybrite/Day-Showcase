@@ -31,16 +31,14 @@ jobs:
       # The gallery's variant ids: one run per theme × locale, the same matrix day's own CI drives.
       themes: light dark
       locales: en fr ar zh-CN
-      # `android-devices` is deliberately unset, so android-mdc runs its dayscripts once on a
-      # phone. The reason the tablet legs were dropped in 2026-08 no longer holds — the gallery
-      # carries a device column per profile now, which is why the iPad above came back — but a
-      # second Android job costs this repo about 19 minutes a run, and that is a bill worth
-      # choosing rather than inheriting. To take it:
-      #   android-devices: |
-      #     device=pixel_5,      os=36, orientation=portrait
-      #     device=pixel_tablet, os=36, orientation=landscape, slug=tablet
-      # The first profile stays primary (it packs, and keeps the plain screenshots-<target>
-      # artifact); the second uploads screenshots-<target>-<slug> for the gallery to pick up.
+      # The same two form factors on Android. The tablet legs were dropped in 2026-08 because the
+      # gallery had no column to put them in; it carries one per device profile now, which is what
+      # brought both the iPad above and this tablet back. The first profile stays primary (it packs,
+      # and keeps the plain screenshots-<target> artifact); the second uploads
+      # screenshots-<target>-<slug> for the gallery to pick up.
+      android-devices: |
+        device=pixel_5,      os=36, orientation=portrait
+        device=pixel_tablet, os=36, orientation=landscape, slug=tablet
       app-id: dev.daybrite.showcase
       deploy-web: true
       # Tag builds sign and notarize the .dmg in a job that checks out nothing and runs only
