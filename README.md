@@ -70,10 +70,21 @@ covers the full workflow: changing a day crate and its showcase demonstration in
 
 ## Run it
 
-Day compiles one backend per binary, so pick a target when you build or launch:
+To build it yourself rather than download it, `day launch --git` clones this repo, compiles it for
+your desktop, and runs it — no checkout needed:
 
 ```sh
-day doctor                                   # check toolchains
+cargo install day-cli
+day doctor                                                    # what's installed, what's missing
+day launch --git https://github.com/daybrite/Day-Showcase.git
+```
+
+`day doctor` prints the fix for anything it can't find. `day launch --git` prints where it put the
+checkout, so you can `cd` there and edit the code.
+
+From inside a clone, pick a target — Day compiles one backend per binary:
+
+```sh
 day launch -p macos-appkit                   # build + run
 day launch -p ios-uikit                      # needs a booted Simulator
 JAVA_HOME=$(brew --prefix openjdk@21)/libexec/openjdk.jdk/Contents/Home \
