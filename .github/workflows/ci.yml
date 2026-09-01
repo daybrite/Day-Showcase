@@ -26,8 +26,8 @@ jobs:
       day-version: main
       scripts: dayscript/walkthrough.yaml dayscript/speech.yaml dayscript/tree.yaml
       ios-devices: |
-        device=iPhone,           os=iOS 26, orientation=portrait
-        device=iPad Pro 13-inch, os=iOS 26, orientation=landscape, slug=ipad
+        device=iPhone,           orientation=portrait
+        device=iPad Pro 13-inch, orientation=landscape, slug=ipad
       # The gallery's variant ids: one run per theme × locale, the same matrix day's own CI drives.
       themes: light dark
       locales: en fr ar zh-CN
