@@ -31,14 +31,14 @@ jobs:
       # The gallery's variant ids: one run per theme × locale, the same matrix day's own CI drives.
       themes: light dark
       locales: en fr ar zh-CN
-      # No device profiles, so ios-uikit and android-mdc each run their dayscripts once, on a
-      # phone (the first iPhone simulator / pixel_5). The tablet runs are gone (2026-08): they
-      # delivered no screenshots, and daybrite/day's gallery.config.mjs dropped both tablet
-      # columns, so the iPad leg was spending ~19 minutes a run producing nothing.
-      #
-      # To bring a tablet back — as its own parallel job now, not extra minutes on the phone job:
-      #   ios-profiles: "iPhone, iPad Pro=ipad"
-      #   android-profiles: "pixel_5, pixel_tablet=tablet"
+      # `android-devices` is deliberately unset, so android-mdc runs its dayscripts once on a
+      # phone. The reason the tablet legs were dropped in 2026-08 no longer holds — the gallery
+      # carries a device column per profile now, which is why the iPad above came back — but a
+      # second Android job costs this repo about 19 minutes a run, and that is a bill worth
+      # choosing rather than inheriting. To take it:
+      #   android-devices: |
+      #     device=pixel_5,      os=36, orientation=portrait
+      #     device=pixel_tablet, os=36, orientation=landscape, slug=tablet
       # The first profile stays primary (it packs, and keeps the plain screenshots-<target>
       # artifact); the second uploads screenshots-<target>-<slug> for the gallery to pick up.
       app-id: dev.daybrite.showcase
