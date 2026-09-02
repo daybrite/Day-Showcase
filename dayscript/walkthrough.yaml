@@ -1509,17 +1509,21 @@ flow:
   - assert_no_placeholders:
       only_on: [macos-gtk]
       allow: [day.piece.webview]
-  # The MinGW (windows-gnu) builds lose piece renderer registrations: the linker drops a linkme
-  # static whose codegen unit exports nothing else referenced — the dead-strip gamble DESIGN.md
-  # §8.2 records — and which crates survive is link-order luck (combobox and searchfield register
-  # on the gtk build today, none on qt). windows-xaml links with MSVC, which keeps `#[used]`
-  # statics, and stays in the zero-placeholder group above. These are the sets measured in CI;
-  # shrink them when registration is made dead-strip-proof. webview is additionally absent by
-  # design on windows-gtk (no WebKitGTK 6 for MinGW).
+  # The MinGW (windows-gnu) builds used to lose piece renderer registrations: the linker drops a
+  # linkme static whose codegen unit exports nothing else referenced — the dead-strip gamble
+  # DESIGN.md §8.2 records — and which crates survived was link-order luck (combobox and
+  # searchfield registered on the gtk build, none on qt, and the stepper joined the missing
+  # 2026-09). Since 2026-09 `day build` links the two MinGW targets with `--no-gc-sections`
+  # (day-cli/src/ops.rs): COFF has no retain flag for a `#[used]` static, so the collector was
+  # dropping the registration sections. These sets are the ones measured BEFORE that, kept
+  # until a green CI run shows which entries can go. windows-xaml
+  # links with MSVC, which keeps `#[used]` statics, and stays in the zero-placeholder group
+  # above. webview is additionally absent by design on windows-gtk (no WebKitGTK 6 for MinGW).
   - assert_no_placeholders:
       only_on: [windows-qt]
       allow: [day.piece.activity, day.piece.colorpicker, day.piece.combobox, day.piece.datepicker,
-              day.piece.media, day.piece.searchfield, day.piece.timepicker, day.piece.webview]
+              day.piece.media, day.piece.searchfield, day.piece.stepper, day.piece.timepicker,
+              day.piece.webview]
   - assert_no_placeholders:
       only_on: [windows-gtk]
       allow: [day.piece.activity, day.piece.datepicker, day.piece.media, day.piece.timepicker,
