@@ -1,5 +1,4 @@
 use day::prelude::*;
-use day_piece_rating::{Card, badge, rating};
 
 use crate::palette::{AMBER, AZURE, CORAL, INK, RUST, SKY, SLATE, TEAL, VIOLET};
 use crate::widgets::{gauge, page_wide};
@@ -18,7 +17,6 @@ pub(crate) fn canvas_page() -> AnyPiece {
             paths_section(),
             gradients_section(),
             gauge_section(),
-            compose_section(),
         ))
         .any(),
     )
@@ -641,69 +639,4 @@ fn sunrise_meter(level: Signal<f64>) -> impl Piece {
             .value(format!("{:.0}", level.get_untracked()))
     })
     .id("gauge-sunrise")
-}
-
-fn compose_section() -> impl Piece {
-    // A shared rating signal, driven by tapping stars. Its count is mirrored into a text field:
-    // `bind` pushes each newly-tapped value into `rating_text`, so tapping a star updates the field.
-    let stars = Signal::new(3usize);
-    let rating_text = Signal::new(stars.get().to_string());
-    bind(
-        move || stars.get(),
-        move |n: &usize| rating_text.set(n.to_string()),
-    );
-    // A custom ambient value flowed via `with_environment` and read back by a descendant.
-    #[derive(Clone, Copy)]
-    struct Accent(Color);
-    let accent = TEAL;
-
-    section((
-        label(crate::res::str::compose_caption()).font(Font::Footnote),
-        // 1) Interactive star rating (canvas-polygon compose piece): tap a star, and the text
-        //    field beside it updates with the count (the `bind` above drives it).
-        labeled(
-            crate::res::str::compose_rating_label(),
-            rating(stars).id("compose-rating"),
-        ),
-        labeled(
-            crate::res::str::compose_rating_count(),
-            text_field(rating_text)
-                .placeholder(crate::res::str::compose_rating_placeholder())
-                .id("compose-rating-value"),
-        ),
-        // 2) Card modifier — a reusable surface wrapping arbitrary content — plus the badge
-        //    overlay (a numbered pill on an icon's top-trailing corner).
-        row((
-            column((
-                label(crate::res::str::compose_card_title()).font(Font::Headline),
-                label(crate::res::str::compose_card_body()),
-            ))
-            .spacing(4.0)
-            .align(HAlign::Leading)
-            .modifier(Card),
-            badge(
-                3,
-                rounded_rectangle(10.0).fill(SLATE).frame(48.0, 48.0).any(),
-            ),
-        ))
-        .spacing(20.0),
-        // 3) ButtonStyle — a FilledButtonStyle button next to a plain one for contrast.
-        row((
-            button(crate::res::str::compose_plain_btn()).id("compose-plain-btn"),
-            button(crate::res::str::compose_styled_btn())
-                .tint(SKY)
-                .id("compose-styled-btn"),
-        ))
-        .spacing(12.0),
-        // 4) Ambient environment flow — a descendant tints itself from the provided Accent.
-        with_environment(Accent(accent), || {
-            let tint = environment::<Accent>().map(|a| a.0).unwrap_or(Color::BLACK);
-            label(crate::res::str::compose_env_value())
-                .font(Font::Headline)
-                .color(tint)
-                .id("compose-env-value")
-                .any()
-        }),
-    ))
-    .title(crate::res::str::nav_compose())
 }

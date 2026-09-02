@@ -173,7 +173,7 @@ fn vectors_section() -> impl Piece {
                     gv::nav_localization,
                     gv::nav_media,
                     gv::nav_menus,
-                    gv::nav_refresh,
+                    gv::nav_network,
                     gv::nav_resources,
                     gv::nav_scripting,
                     gv::nav_services,

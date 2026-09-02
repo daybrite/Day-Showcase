@@ -59,6 +59,7 @@ day-part-location = { git = "https://github.com/daybrite/day.git" }
 day-part-clipboard = { git = "https://github.com/daybrite/day.git" }
 day-part-network = { git = "https://github.com/daybrite/day.git" }
 day-piece-combobox = { git = "https://github.com/daybrite/day.git" }
+day-piece-stepper = { git = "https://github.com/daybrite/day.git" }
 # A COMPOSE piece (pure composition — no native code, no cargo features): a plain dep, available on
 # every backend for free. No per-backend feature wiring above, the composition-first payoff.
 day-piece-rating = { git = "https://github.com/daybrite/day.git" }

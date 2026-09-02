@@ -19,7 +19,6 @@ pub(crate) mod menus;
 pub(crate) mod model;
 pub(crate) mod preferences;
 pub(crate) mod query;
-pub(crate) mod refresh;
 pub(crate) mod resources;
 pub(crate) mod scripting;
 pub(crate) mod services;
@@ -47,15 +46,16 @@ pub(crate) use list::list_page;
 pub(crate) use localization::localization_page;
 #[cfg(any(target_os = "macos", target_os = "ios"))]
 pub(crate) use map::map_page;
+#[cfg(any(target_os = "ios", target_os = "android"))]
+pub(crate) use media::lottie_page;
 pub(crate) use media::media_page;
 pub(crate) use menus::{install_app_menu, menus_page};
 pub(crate) use model::model_page;
 pub(crate) use preferences::preferences_window;
 pub(crate) use query::query_page;
-pub(crate) use refresh::refresh_page;
 pub(crate) use resources::resources_page;
 pub(crate) use scripting::scripting_page;
-pub(crate) use services::services_page;
+pub(crate) use services::{files_page, network_page, notify_page, speech_page};
 pub(crate) use stack::stack_page;
 pub(crate) use system::system_page;
 pub(crate) use tabs::tabs_page;

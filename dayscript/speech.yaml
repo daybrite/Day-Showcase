@@ -10,11 +10,14 @@ description: >
   bridged calls without wedging the UI.
 flow:
   - wait_for: { id: nav }
-  - navigate: { route: services }
-  - assert_route: { route: services }
+  - navigate: { route: speech }
+  - assert_route: { route: speech }
   # The support label is the part's own answer for this target — Native, Emulated, or Unsupported.
   - wait_for: { id: speech-support }
-  - screenshot: { name: speech }
+  - screenshot:
+      name: speech
+      title: { en: "Speech", fr: "Voix", ar: "الكلام", zh-CN: "语音" }
+      source: src/pages/services.rs
   # Empty means "speak the localized sample the placeholder shows"; typing overrides it.
   - input: { id: speech-text, text: "Day speaks through the bridge." }
   - tap: { id: speech-speak }

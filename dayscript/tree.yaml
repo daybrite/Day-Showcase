@@ -85,4 +85,7 @@ flow:
   - tap: { id: tree-expand-all }
   - wait_for: { id: tree-node-5 }
   - pause: 1
-  - screenshot: tree-final
+  - screenshot:
+      name: tree-final
+      title: { en: "Tree · after the moves", fr: "Arbre · après les déplacements", ar: "الشجرة · بعد النقل", zh-CN: "树 · 移动之后" }
+      source: src/pages/tree.rs

@@ -9,38 +9,92 @@ counter_value = { $count ->
 decrement = −
 increment = +
 name_placeholder = اسمك
-value_label = القيمة
-progress_label = التقدّم
-flavor_label = النكهة
 flavor_placeholder = اكتب نكهة أو اخترها
 flavor_add = إضافة
-flavor_ios_note = لا يوفر iOS عنصر مربع تحرير وسرد، لذا يعرض Day عنصرًا نائبًا هنا.
-history_entry = أصبح العدّاد { $value }
 nav_controls = عناصر التحكّم
+controls_caption = كل عناصر التحكّم التي يوفّرها Day، عائلةً عائلة، كلٌّ منها مرتبط بحالة حيّة تُقرأ مجدّدًا أسفل الصفحة.
+ctl_buttons = الأزرار
+ctl_press = اضغط
+ctl_plain = عادي
+ctl_bordered = بإطار
+ctl_prominent = بارز
+ctl_tinted = ملوّن
+ctl_destructive = تدميري
+ctl_disabled = معطّل
+ctl_link = رابط
+ctl_link_text = daybrite.dev
+ctl_presses = الضغطات
+ctl_switches = المفاتيح والمنزلقات
+ctl_toggle = مفتاح
+ctl_slider = منزلق
+ctl_stepped = منزلق بدرجات
+ctl_stepper = عدّاد
+ctl_composed_stepper = عدّاد مركّب
+ctl_progress = التقدّم
+ctl_activity = النشاط
+ctl_spinner = مؤشّر الانتظار
+ctl_text_entry = إدخال النص
+ctl_text_field = حقل نص
+ctl_search_field = حقل بحث
+ctl_combo_box = صندوق مركّب
+ctl_combo_note = لا تملك هذه المجموعة عنصر صندوق مركّب، لذا يعرض Day بديلًا هنا.
+ctl_text_area = منطقة نص
+ctl_notes_placeholder = بضعة أسطر من الملاحظات
+ctl_pickers = المنتقيات
+ctl_date = التاريخ
+ctl_time = الوقت
+ctl_color = اللون
+ctl_indicators = المؤشّرات والتركيب
+ctl_rating = التقييم
+ctl_badge = الشارة
+ctl_gauge = المقياس
+ctl_divider = الفاصل
+ctl_state = الحالة
+ctl_on = مفعّل
+ctl_off = معطّل
+ctl_crates_note = العدّاد والصندوق المركّب وحقل البحث ومنتقيات التاريخ والوقت واللون والتقييم والنشاط تأتي من حزمها الخاصة؛ وكل ما عداها من day-pieces.
 nav_menus = القوائم والحوارات
 nav_text = النص
 nav_battery = البطارية
 nav_sensors = المستشعرات
 nav_clipboard = الحافظة
-nav_network = الشبكة
 nav_media = الوسائط
-nav_compose = التركيب
+nav_compose = البطاقات والبيئة
 nav_files = الملفات
 nav_tabs = علامات التبويب
 nav_stack = المكدّس
 nav_layout = التخطيط
+layout_stacks_section = الصفوف والأعمدة والطبقات
+layout_align_label = المحاذاة
+layout_align_top = أعلى
+layout_align_center = وسط
+layout_align_bottom = أسفل
+layout_layered = متعدّد الطبقات
+layout_scroll_section = التمرير
+layout_scroll_top = التمرير إلى الأعلى
+layout_scroll_end = التمرير إلى النهاية
+layout_size_section = فئات الحجم
+layout_size_width = العرض
+layout_size_height = الارتفاع
 nav_list = القائمة
-nav_refresh = تحديث
-refresh_caption = اسحب القائمة للأسفل — أو استخدم الزر — لإعادة التحميل
-refresh_status_idle = خامل
-refresh_status_refreshing = جارٍ التحديث…
-refresh_now = حدّث الآن
 refresh_tier_native = السحب للتحديث: أصلي
 refresh_tier_emulated = السحب للتحديث: محاكى
-refresh_row = عنصر { $n }
+layout_row = عنصر { $n }
 nav_webview = عرض الويب
 nav_lottie = Lottie
+lottie_playback_section = التشغيل
 nav_about = حول
+
+# Sidebar group headers (lib.rs `Group`): the sections the destinations sit under.
+group_starred = المفضّلة
+group_overview = نظرة عامة
+group_controls = عناصر التحكّم
+group_layout = التخطيط
+group_navigation = التنقّل والواجهة
+group_data = البيانات
+group_graphics = الرسوميات والوسائط
+group_platform = المنصة
+group_app = التطبيق والأدوات
 
 shapes_kinds = الأنواع
 gradients_title = التدرجات اللونية
@@ -67,13 +121,8 @@ date_picked = التاريخ المختار
 time_picked = الوقت المختار
 
 compose_caption = قطع تركيبية بحتة — بلا شيفرة أصلية ولا ميزات cargo، وتعمل على كل واجهة خلفية مباشرة.
-compose_rating_label = تقييم بالنجوم
-compose_rating_count = النجوم المحدّدة:
-compose_rating_placeholder = ١–٥
 compose_card_title = سطح قابل لإعادة الاستخدام
 compose_card_body = حشوة + خلفية + زوايا مستديرة، تُطبَّق كمُعدِّل.
-compose_plain_btn = عادي
-compose_styled_btn = ممتلئ
 compose_env_value = ملوَّن باللون المميّز المُمرَّر
 list_add = أضف ١٠٠
 list_caption = { $count } صف — تُبنى الخلايا المرئية فقط
@@ -303,7 +352,6 @@ resources_caption = صورة تُحمَّل بالاسم من مورد مضمَ�
 vectors_title = المتجهات
 vectors_note = رموز الشريط الجانبي من resource/vectors/ — ملف SVG لكل أيقونة، مستقل عن الدقة على كل واجهة خلفية.
 vectors_tints = التلوين
-vectors_scene = رسم ملوّن بالكامل
 vectors_zoom = التكبير
 vectors_scene_note = ملف SVG واحد من 240 مسارًا، يُعاد رسمه من المتجه عند كل درجة تكبير بدل تكبيره — تبقى الحواف حادة عند أي حجم. على أندرويد يُشحن بصيغة VectorDrawable لا كصورة نقطية.
 vectors_weights = الأوزان
@@ -321,12 +369,10 @@ deviceinfo_no = لا
 deviceinfo_refresh = تحديث
 
 # --- day-piece-activity ---
-activity_animating = يتحرّك
 activity_on = يدور
 activity_off = متوقف
 
 # --- day-piece-searchfield ---
-nav_search = البحث
 search_clear = مسح
 
 # --- day-piece-map ---
@@ -363,15 +409,19 @@ tweaks_label_class = الفئة الأصلية: { $class }
 # — merged section pages (design overhaul) —
 nav_canvas = اللوحة والأشكال
 nav_system = الجهاز والمستشعرات
-nav_services = خدمات المنصة
-controls_basics = الأساسيات
+nav_network_http = الشبكة وHTTP
+network_caption = ما تقوله المنصة عن الاتصال، ثم HTTP عبر مكدّسها الخاص: الوكلاء وVPN وTLS مشمولة.
+network_status_section = الاتصال
+nav_notify_badge = الإشعارات والشارة
+nav_speech_haptics = الكلام واللمس
+speech_haptics_caption = الجزءان اللذان يخاطبان الشخص: صوت المنصة ومحرّكها اللمسي.
+nav_files_storage = الملفات والتخزين
+files_storage_caption = الحافظة، والتفضيلات بالمفتاح والقيمة، ومنتقيات الملفات الأصلية، ومخزن ملفات خاص بالتطبيق.
 canvas_caption = أشكال وتحويلات وإيماءات وقطع الطبقة التركيبية — كلها تُرسم عبر اللوحة.
 paths_title = المسارات والحدود والاقتصاص
 canvas_gauge = مقياس اللوحة
 gauge_value_label = القيمة
 system_caption = قطع حالة الجهاز بلا واجهة: البطارية والاتصال ومستشعرات الحركة وهوية الجهاز.
-services_caption = قطع «التعامل مع نظام التشغيل» بلا واجهة: HTTP والحافظة والتفضيلات والاهتزاز اللمسي ومنتقيات الملفات.
-subscribe_label = اشتراك
 
 # — data strings localized for the walkthrough locales (option lists, specimen rows) —
 chocolate = شوكولاتة
@@ -438,7 +488,6 @@ about_id = معرّف التطبيق
 about_os = النظام
 about_model = الطراز
 about_locale = اللغة
-history_hint = اضغط + أو − أعلاه وسيظهر كل تغيير هنا.
 
 # صفحة التركيز (docs/focus.md)
 nav_focus = التركيز
@@ -591,7 +640,6 @@ text_baseline_unit = عنصرًا
 text_baseline_total = الإجمالي
 text_baseline_currency = دولار
 text_baseline_due = تاريخ الاستحقاق
-text_baseline_unsupported = لا تُبلّغ هذه المجموعة عن خطوط أساس للنص، لذا تبقى هذه الصفوف موسّطة.
 text_links_caption = انقر رابطًا لفتحه في متصفح النظام.
 text_link_icons_label = رموز Material على Google Fonts
 text_link_mail_label = راسل الفريق
@@ -617,7 +665,7 @@ crash_clear = مسح التقارير
 crash_empty = لا يوجد تقرير عطل بعد. أحدِث عطلاً ثم أعِد التشغيل لرؤيته هنا.
 
 # صفحة مناطق النص
-nav_textareas = مناطق النص
+nav_textareas = تحرير النص
 textareas_caption = محرران متعددا الأسطر: عرض النص المنسق الخاص بالمنصة فوق مستند منسق، ومنطقة النص الأصلية البسيطة تحته.
 textareas_editor_section = المحرّر
 textareas_seed_section = تعبئة بـ
@@ -732,7 +780,7 @@ tree_ctx_delete = حذف
 
 # — Toolbars page (docs/toolbars.md) —
 nav_toolbars = أشرطة الأدوات
-toolbars_caption = شريط أدوات النافذة نفسها، ضمن الهيكل الأصلي للمنصة — ‏NSToolbar على macOS، وAdwHeaderBar على GNOME، وQToolBar على KDE، وCommandBar على Windows. انظر إلى أعلى هذه النافذة؛ عناصر التحكّم أدناه هي التي تقوده.
+toolbars_caption = شريط أدوات النافذة نفسها، ضمن الهيكل الأصلي للمنصة — ‏NSToolbar على macOS، وAdwHeaderBar على GNOME، وQToolBar على KDE، وCommandBar على Windows. انظر إلى أعلى هذه النافذة، أو إلى حافتها السفلية على الهاتف؛ عناصر التحكّم أدناه هي التي تقوده.
 toolbar_unsupported = لا تملك مجموعة الأدوات هذه شريط أدوات للنافذة، لذا لم يُثبَّت شيء. الهاتف يضع هذه الأوامر داخل المحتوى بدلًا من ذلك.
 toolbar_readout_title = ما الذي يفعله شريط الأدوات
 toolbar_controls_title = قيادته من هنا
@@ -740,7 +788,6 @@ toolbar_vocabulary_title = مفردات العناصر
 # Item labels — these appear IN the toolbar, so they stay short.
 toolbar_sidebar = الشريط الجانبي
 toolbar_new = نافذة جديدة
-toolbar_star = نجمة
 toolbar_menu = المزيد
 toolbar_menu_open_scripting = فتح صفحة البرمجة النصية
 toolbar_menu_copy_script = نسخ البرنامج النصي
@@ -817,7 +864,6 @@ notify_importance_high = عالية
 notify_importance_urgent = عاجلة
 notify_sound = تشغيل صوت
 notify_badge = عدد الشارة
-notify_route = يفتح النقر
 notify_post = نشر
 notify_cancel = إلغاء الكل
 notify_status_idle = لم يُنشر شيء بعد
@@ -871,8 +917,6 @@ badge_status_text = تم تعيين الشارة إلى "beta"
 
 # The Controls page mixer: one shared state, many editors.
 mix_custom = مخصص
-mix_untitled = مزيج بلا عنوان
-mix_summary = {$name} · {$preset} عند {$level}٪
 voice_search_placeholder = تصفية النكهات…
 
 # Context-menu demos (menus page): the message-list rows and the media card.
@@ -926,7 +970,7 @@ vectors_live_tint = تلوين حي
 vectors_cycle_tint = تبديل
 
 # Layout page (docs/size-classes.md "Row fit policies")
-layout_caption = كيف يتصرّف صف واحد من الأزرار وفق كل سياسة ملاءمة عندما تكون النافذة أضيق منه.
+layout_caption = الصفوف والأعمدة والطبقات؛ وكيف يتصرّف صفّ من الأزرار تحت كل سياسة ملاءمة؛ والبطاقات ولون التمييز المحيط؛ وتمرير بسيط مع أهداف؛ وفئات حجم النافذة الحالية.
 layout_note = اختر سياسة ثم أضف مكوّنات حتى يضيق الصف بها. «قصّ» يترك البقية خارج الشاشة (وتسجّلها إصدارات التصحيح)، و«التفاف» ينتقل إلى أسطر جديدة بعرض كل زر، و«أعمدة متساوية» تحاذي تلك الأسطر في شبكة، و«عمود» يكدّس عموديًا عند العرض المضغوط، و«تمرير» يبقي سطرًا واحدًا قابلًا للسحب. على سطح المكتب، ضيّق النافذة لترى «عمود» يعمل.
 layout_row_section = ملاءمة الصف
 layout_fit_label = السياسة

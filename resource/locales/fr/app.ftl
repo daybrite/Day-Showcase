@@ -6,38 +6,92 @@ counter_value = { $count ->
 decrement = −
 increment = +
 name_placeholder = Votre nom
-value_label = Valeur
-progress_label = Progression
-flavor_label = Parfum
 flavor_placeholder = Saisissez ou choisissez un parfum
 flavor_add = Ajouter
-flavor_ios_note = iOS n'a pas de contrôle combo box, Day affiche donc un espace réservé ici.
-history_entry = le compteur est passé à { $value }
 nav_controls = Contrôles
+controls_caption = Tous les contrôles fournis par Day, famille par famille, chacun lié à un état vivant et relu au bas de la page.
+ctl_buttons = Boutons
+ctl_press = Appuyer
+ctl_plain = Simple
+ctl_bordered = Bordé
+ctl_prominent = Mis en avant
+ctl_tinted = Teinté
+ctl_destructive = Destructif
+ctl_disabled = Désactivé
+ctl_link = Lien
+ctl_link_text = daybrite.dev
+ctl_presses = Appuis
+ctl_switches = Interrupteurs et curseurs
+ctl_toggle = Interrupteur
+ctl_slider = Curseur
+ctl_stepped = Curseur à crans
+ctl_stepper = Incrémenteur
+ctl_composed_stepper = Incrémenteur composé
+ctl_progress = Progression
+ctl_activity = Activité
+ctl_spinner = Indicateur
+ctl_text_entry = Saisie de texte
+ctl_text_field = Champ de texte
+ctl_search_field = Champ de recherche
+ctl_combo_box = Liste déroulante
+ctl_combo_note = Cette boîte à outils n'a pas de liste déroulante éditable, Day affiche donc un substitut ici.
+ctl_text_area = Zone de texte
+ctl_notes_placeholder = Quelques lignes de notes
+ctl_pickers = Sélecteurs
+ctl_date = Date
+ctl_time = Heure
+ctl_color = Couleur
+ctl_indicators = Indicateurs et composition
+ctl_rating = Note
+ctl_badge = Badge
+ctl_gauge = Jauge
+ctl_divider = Séparateur
+ctl_state = État
+ctl_on = Activé
+ctl_off = Désactivé
+ctl_crates_note = L'incrémenteur, la liste déroulante, le champ de recherche, les sélecteurs de date, d'heure et de couleur, la note et l'activité viennent de leurs propres crates ; tout le reste est day-pieces.
 nav_menus = Menus et dialogues
 nav_text = Texte
 nav_battery = Batterie
 nav_sensors = Capteurs
 nav_clipboard = Presse-papiers
-nav_network = Réseau
 nav_media = Média
-nav_compose = Composition
+nav_compose = Cartes et environnement
 nav_files = Fichiers
 nav_tabs = Onglets
 nav_stack = Pile
 nav_layout = Disposition
+layout_stacks_section = Rangées, colonnes et couches
+layout_align_label = Alignement
+layout_align_top = Haut
+layout_align_center = Centre
+layout_align_bottom = Bas
+layout_layered = Superposé
+layout_scroll_section = Défilement
+layout_scroll_top = Défiler vers le haut
+layout_scroll_end = Défiler vers la fin
+layout_size_section = Classes de taille
+layout_size_width = Largeur
+layout_size_height = Hauteur
 nav_list = Liste
-nav_refresh = Actualiser
-refresh_caption = Tirez le flux vers le bas — ou utilisez le bouton — pour recharger
-refresh_status_idle = Inactif
-refresh_status_refreshing = Actualisation…
-refresh_now = Actualiser maintenant
 refresh_tier_native = Tirer pour actualiser : natif
 refresh_tier_emulated = Tirer pour actualiser : émulé
-refresh_row = Élément { $n }
+layout_row = Élément { $n }
 nav_webview = Vue Web
 nav_lottie = Lottie
+lottie_playback_section = Lecture
 nav_about = À propos
+
+# Sidebar group headers (lib.rs `Group`): the sections the destinations sit under.
+group_starred = Favoris
+group_overview = Aperçu
+group_controls = Contrôles
+group_layout = Disposition
+group_navigation = Navigation et interface
+group_data = Données
+group_graphics = Graphismes et médias
+group_platform = Plateforme
+group_app = Application et outils
 
 shapes_kinds = Types
 gradients_title = Dégradés
@@ -64,13 +118,8 @@ date_picked = Date choisie
 time_picked = Heure choisie
 
 compose_caption = Pièces de pure composition — sans code natif, sans fonctionnalités cargo, sur tous les backends gratuitement.
-compose_rating_label = Note en étoiles
-compose_rating_count = Étoiles sélectionnées :
-compose_rating_placeholder = 1–5
 compose_card_title = Surface réutilisable
 compose_card_body = Marge + arrière-plan + coins arrondis, appliqués comme Modificateur.
-compose_plain_btn = Simple
-compose_styled_btn = Rempli
 compose_env_value = Teinté par l'accent fourni
 list_add = Ajouter 100
 list_caption = { $count } lignes — seules les cellules visibles sont créées
@@ -296,7 +345,6 @@ resources_caption = Une image chargée par nom depuis une ressource, avec accès
 vectors_title = Vecteurs
 vectors_note = Les glyphes de la barre latérale, issus de resource/vectors/ — un SVG par icône, indépendant de la résolution sur chaque backend.
 vectors_tints = Teintes
-vectors_scene = Illustration en couleurs
 vectors_zoom = Zoom
 vectors_scene_note = Un SVG de 240 tracés, redessiné à partir du vecteur à chaque palier de zoom plutôt qu'agrandi — les contours restent nets à toute taille. Sur Android, il est livré en VectorDrawable, pas en image matricielle.
 vectors_weights = Graisses
@@ -314,12 +362,10 @@ deviceinfo_no = non
 deviceinfo_refresh = Actualiser
 
 # --- day-piece-activity ---
-activity_animating = Animation
 activity_on = En rotation
 activity_off = Arrêté
 
 # --- day-piece-searchfield ---
-nav_search = Recherche
 search_clear = Effacer
 
 # --- day-piece-map ---
@@ -356,15 +402,19 @@ tweaks_label_class = Classe native : { $class }
 # — merged section pages (design overhaul) —
 nav_canvas = Canevas et formes
 nav_system = Appareil et capteurs
-nav_services = Services système
-controls_basics = Essentiels
+nav_network_http = Réseau et HTTP
+network_caption = Ce que la plateforme dit de la connectivité, puis HTTP par sa propre pile : proxys, VPN et TLS compris.
+network_status_section = Connectivité
+nav_notify_badge = Notifications et badge
+nav_speech_haptics = Voix et haptique
+speech_haptics_caption = Les deux parties qui s'adressent à la personne : la voix de la plateforme et son moteur haptique.
+nav_files_storage = Fichiers et stockage
+files_storage_caption = Le presse-papiers, les préférences clé-valeur, les sélecteurs de fichiers natifs et un stockage de fichiers propre à l'application.
 canvas_caption = Formes, transformations, gestes et widgets composés — tous dessinés via le canevas.
 paths_title = Tracés, contours et découpe
 canvas_gauge = Jauge canevas
 gauge_value_label = Valeur
 system_caption = Les modules d'état de l'appareil : batterie, connectivité, capteurs et identité.
-services_caption = Les modules « agir avec l'OS » : HTTP, presse-papiers, préférences, haptique et fichiers.
-subscribe_label = S'abonner
 
 # — data strings localized for the walkthrough locales (option lists, specimen rows) —
 chocolate = chocolat
@@ -431,7 +481,6 @@ about_id = Identifiant
 about_os = Système
 about_model = Modèle
 about_locale = Langue
-history_hint = Touchez + ou − ci-dessus : chaque changement s’affiche ici.
 
 # Page Focus (docs/focus.md)
 nav_focus = Focus
@@ -580,7 +629,6 @@ text_baseline_unit = articles
 text_baseline_total = Total
 text_baseline_currency = USD
 text_baseline_due = Échéance
-text_baseline_unsupported = Cette boîte à outils ne fournit aucune ligne de base ; ces lignes restent centrées.
 text_links_caption = Touchez un lien pour l'ouvrir dans le navigateur du système.
 text_link_icons_label = Material Symbols sur Google Fonts
 text_link_mail_label = Écrire à l'équipe
@@ -606,7 +654,7 @@ crash_clear = Effacer les rapports
 crash_empty = Aucun rapport pour l'instant. Déclenchez un plantage, puis relancez pour le voir ici.
 
 # Page Zones de texte
-nav_textareas = Zones de texte
+nav_textareas = Édition de texte
 textareas_caption = Deux éditeurs multilignes : la vue de texte enrichi de la plateforme sur un document mis en forme, et la zone de texte native simple en dessous.
 textareas_editor_section = Éditeur
 textareas_seed_section = Remplir avec
@@ -718,7 +766,7 @@ tree_ctx_delete = Supprimer
 
 # — Toolbars page (docs/toolbars.md) —
 nav_toolbars = Barres d'outils
-toolbars_caption = La barre d'outils de la fenêtre elle-même, dans l'habillage natif de la plateforme — un NSToolbar sur macOS, l'AdwHeaderBar sur GNOME, une QToolBar sur KDE, une CommandBar sur Windows. Regardez en haut de cette fenêtre ; les contrôles ci-dessous la pilotent.
+toolbars_caption = La barre d'outils de la fenêtre elle-même, dans l'habillage natif de la plateforme — un NSToolbar sur macOS, l'AdwHeaderBar sur GNOME, une QToolBar sur KDE, une CommandBar sur Windows. Regardez en haut de cette fenêtre, ou le long de son bord inférieur sur un téléphone ; les contrôles ci-dessous la pilotent.
 toolbar_unsupported = Cette boîte à outils n'a pas de barre d'outils de fenêtre ; rien n'a donc été installé. Sur téléphone, ces commandes vont dans le contenu.
 toolbar_readout_title = Ce que fait la barre d'outils
 toolbar_controls_title = La piloter depuis ici
@@ -726,7 +774,6 @@ toolbar_vocabulary_title = Le vocabulaire des éléments
 # Item labels — these appear IN the toolbar, so they stay short.
 toolbar_sidebar = Barre latérale
 toolbar_new = Nouvelle fenêtre
-toolbar_star = Étoile
 toolbar_menu = Plus
 toolbar_menu_open_scripting = Ouvrir la page Scripts
 toolbar_menu_copy_script = Copier le script
@@ -799,7 +846,6 @@ notify_importance_high = Élevée
 notify_importance_urgent = Urgente
 notify_sound = Émettre un son
 notify_badge = Nombre sur la pastille
-notify_route = Le tap ouvre
 notify_post = Publier
 notify_cancel = Tout annuler
 notify_status_idle = Rien n'a encore été publié
@@ -853,8 +899,6 @@ badge_status_text = Pastille définie sur « beta »
 
 # The Controls page mixer: one shared state, many editors.
 mix_custom = Personnalisé
-mix_untitled = Mixage sans titre
-mix_summary = {$name} · {$preset} à {$level} %
 voice_search_placeholder = Filtrer les parfums…
 
 # Context-menu demos (menus page): the message-list rows and the media card.
@@ -908,7 +952,7 @@ vectors_live_tint = Teinte dynamique
 vectors_cycle_tint = Changer
 
 # Layout page (docs/size-classes.md "Row fit policies")
-layout_caption = Comment une même rangée de boutons se comporte selon chaque politique d'ajustement quand la fenêtre est trop étroite.
+layout_caption = Rangées, colonnes et couches ; le comportement d'une rangée de boutons sous chaque politique d'ajustement ; cartes et accent ambiant ; un défilement simple avec cibles ; et les classes de taille de la fenêtre.
 layout_note = Choisissez une politique, puis ajoutez des composants jusqu'à ce que la rangée manque de place. Rognage laisse la fin sortir de l'écran (les builds de débogage le signalent), Retour à la ligne passe à la ligne à la largeur de chaque bouton, Colonnes égales aligne ces lignes en grille, Colonne empile en largeur compacte, Défilement garde une seule ligne à faire glisser. Sur un ordinateur, rétrécissez la fenêtre pour voir Colonne s'activer.
 layout_row_section = Ajustement de rangée
 layout_fit_label = Politique

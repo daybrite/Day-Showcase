@@ -1,78 +1,113 @@
 use day::prelude::*;
 use day_piece_activity::activity;
+use day_piece_colorpicker::color_picker;
 use day_piece_combobox::combo_box;
+use day_piece_datetime::{DayDate, DayTime, date_picker, time_picker};
+use day_piece_rating::{badge, rating};
 use day_piece_searchfield::search_field;
+use day_piece_stepper::stepper;
 
 use crate::widgets::{gauge, page};
 
-/// Every core control on one page, all of them wired to ONE small piece of shared state.
+/// Every control Day ships, on one page, family by family: the reference a reader scrolls
+/// when they ask "does Day have a…". One `labeled` row per control, named after the control,
+/// and every control bound to live state — the State section at the foot reads it all back,
+/// which is what proves the bindings. The composition-tier pieces and the external control
+/// crates (stepper, combo box, search field, date and time pickers, color picker, rating,
+/// activity) sit beside the built-ins and are named at the foot of the page.
 ///
-/// The page is a tiny mixer. `level` is the number the whole page is about: a slider sets it, a
-/// pair of stepper buttons nudges it, a preset picker snaps it, and a progress bar, a gauge, and a
-/// readout all report it — six controls over a single `Signal<f64>`, which is the point. `preset`
-/// is bound to three native picker stylings at once, so moving any one moves the other two. `on`
-/// gates the lot.
-///
-/// The earlier version of this page was eight unrelated demos, each with a private signal: it
-/// showed what the controls look like but never what binding them to the same state does. Nothing
-/// here is a mock — every value round-trips through the native widget.
+/// Where one value can feed several controls it does: the slider, the stepped slider, the
+/// progress bar and the gauge share `level`, and a preset snaps it, so moving one moves the
+/// rest — the one idea kept from the page's earlier life as a six-control mixer.
 pub(crate) fn controls_page() -> AnyPiece {
-    let mix = Mix::new();
+    let st = Catalog::new();
     page(
         crate::res::str::nav_controls(),
         "controls-title",
-        None,
-        form((mix_section(mix), voice_section(mix))).any(),
+        Some(crate::res::str::controls_caption()),
+        form((
+            buttons_section(st),
+            switches_section(st),
+            text_section(st),
+            pickers_section(st),
+            indicators_section(st),
+            state_section(st),
+        ))
+        .any(),
     )
     .any()
 }
 
-/// The page's shared state. Copy, so every section takes it by value and closures stay cheap.
+/// The page's state. Copy, so every section takes it by value and closures stay cheap.
 #[derive(Clone, Copy)]
-struct Mix {
-    /// What the mix is called. A text field edits it; the summary line reads it.
-    name: Signal<String>,
-    /// The number the page is about, 0–100. Written by the slider, the steppers, and the presets;
-    /// read by the progress bar, the gauge, the readout, and the summary.
-    level: Signal<f64>,
-    /// Which preset is selected, bound to all three picker stylings at once.
-    preset: Signal<usize>,
-    /// The master switch. Off dims every editor and stops the activity indicator.
+struct Catalog {
+    /// The master switch: dims and disables the controls that take a value.
     on: Signal<bool>,
+    /// The number the slider, the progress bar and the gauge share, 0–100.
+    level: Signal<f64>,
+    /// The stepped slider's own value. Not `level`: a native scale with a step snaps any value
+    /// written to it and writes the snapped one back, so sharing the signal would let this
+    /// control round the plain slider's 42 down to 40 (GTK does exactly that).
+    steps: Signal<f64>,
+    /// The stepper's count.
+    count: Signal<f64>,
+    /// How many times any button was pressed.
+    presses: Signal<u32>,
+    /// The text field.
+    name: Signal<String>,
+    /// The search field's query, over the combo box's list.
+    query: Signal<String>,
     /// The combo box's text — a value that may or may not be in the list.
     voice: Signal<String>,
+    /// The text area.
+    notes: Signal<String>,
+    /// Which preset is selected, bound to all three picker stylings at once.
+    preset: Signal<usize>,
+    date: Signal<DayDate>,
+    time: Signal<DayTime>,
+    color: Signal<Color>,
+    stars: Signal<usize>,
 }
 
 /// The level each preset snaps to. Presets reuse the existing size_* strings, so the three picker
 /// stylings stay localized without inventing a parallel vocabulary.
 const PRESET_LEVELS: [f64; 3] = [25.0, 60.0, 90.0];
 
-impl Mix {
+impl Catalog {
     fn new() -> Self {
-        let mix = Mix {
-            name: Signal::new(String::new()),
-            level: Signal::new(60.0),
-            preset: Signal::new(1usize),
+        let st = Catalog {
             on: Signal::new(true),
+            level: Signal::new(60.0),
+            steps: Signal::new(60.0),
+            count: Signal::new(3.0),
+            presses: Signal::new(0),
+            name: Signal::new(String::new()),
+            query: Signal::new(String::new()),
             voice: Signal::new(String::new()),
+            notes: Signal::new(String::new()),
+            preset: Signal::new(1usize),
+            // Fixed seeds, so the walkthrough's screenshots reproduce.
+            date: Signal::new(DayDate::new(2026, 9, 1).unwrap_or_else(DayDate::today)),
+            time: Signal::new(DayTime::new(9, 30, 0).unwrap_or_else(DayTime::now)),
+            color: Signal::new(crate::palette::SKY),
+            stars: Signal::new(3usize),
         };
         // preset → level. `watch` rather than a binding: the arrow runs one way, so dragging the
         // slider off a preset leaves the preset alone (the readout then says "Custom") instead of
         // fighting the user for the signal.
         watch(
-            move || mix.preset.get(),
-            move |idx, _| mix.level.set(PRESET_LEVELS[(*idx).min(2)]),
+            move || st.preset.get(),
+            move |idx, _| st.level.set(PRESET_LEVELS[(*idx).min(2)]),
         );
-        // On the web a reload is part of normal life, so the mix survives it (docs/web.md).
-        // Native launches start fresh on purpose, and the walkthrough asserts that.
+        // On the web a reload is part of normal life, so the switch and the level survive it
+        // (docs/web.md). Native launches start fresh on purpose, and the walkthrough asserts that.
         #[cfg(target_arch = "wasm32")]
         {
-            day::prefs::bind("controls.name", mix.name);
-            day::prefs::bind("controls.level", mix.level);
-            day::prefs::bind("controls.preset", mix.preset);
-            day::prefs::bind("controls.on", mix.on);
+            day::prefs::bind("controls.level", st.level);
+            day::prefs::bind("controls.preset", st.preset);
+            day::prefs::bind("controls.on", st.on);
         }
-        mix
+        st
     }
 
     /// The localized preset names, resolved once (the locale is fixed for a run).
@@ -85,8 +120,7 @@ impl Mix {
     }
 
     /// What the level currently *is*, in preset terms: the preset's name when it sits exactly on
-    /// one, "Custom" the moment a slider or stepper moves it off. This is the derivation that
-    /// makes the shared state visible — two signals, one sentence.
+    /// one, "Custom" the moment a slider or stepper moves it off.
     fn preset_label(self) -> impl Fn() -> String {
         let names = Self::preset_names();
         move || {
@@ -98,179 +132,227 @@ impl Mix {
         }
     }
 
-    /// Nudge the level, clamped. Shared by both stepper buttons.
-    fn nudge(self, delta: f64) {
-        self.level.update(|v| *v = (*v + delta).clamp(0.0, 100.0));
+    fn press(self) {
+        self.presses.update(|p| *p += 1);
+    }
+
+    /// Everything below the master switch dims when it is off — the one visual cue that the
+    /// toggle governs the controls that take a value.
+    fn dim(self) -> impl Fn() -> f64 {
+        move || if self.on.get() { 1.0 } else { 0.45 }
     }
 }
 
-/// The mix itself: the summary, the gauge, and every editor that writes `level`.
-fn mix_section(mix: Mix) -> impl Piece {
-    let preset_label = mix.preset_label();
-    // One line that reads all of the shared state at once, so a change anywhere is visible here.
-    let summary = {
-        let preset_label = mix.preset_label();
-        move || {
-            let name = mix.name.with(|n| {
-                if n.is_empty() {
-                    crate::res::str::mix_untitled().format()
-                } else {
-                    n.clone()
-                }
-            });
-            // The generated accessor takes the message's variables alphabetically (level, name,
-            // preset), NOT in the order they appear in the sentence.
-            crate::res::str::mix_summary(format!("{:.0}", mix.level.get()), name, preset_label())
-                .format()
-        }
-    };
-    // Everything below the switch dims when the mix is off — the one visual cue that the master
-    // toggle governs the rest of the page.
-    let dim = move || if mix.on.get() { 1.0 } else { 0.45 };
-
+/// The button in each of its styles. Every one counts a press, so the readout beside them
+/// proves each fired — the styles are presentation, the action is one.
+fn buttons_section(st: Catalog) -> impl Piece {
+    let press = crate::res::str::ctl_press;
     section((
-        label(summary)
-            .font(Font::Headline)
-            .tabular()
-            .id("mix-summary"),
-        row((
-            gauge(mix.level).frame(120.0, 120.0),
-            column((
-                labeled(
-                    crate::res::str::subscribe_label(),
-                    toggle(mix.on).id("subscribe-toggle"),
-                ),
-                labeled(
-                    crate::res::str::picker_selected(),
-                    label(preset_label).id("picker-value"),
-                ),
-                labeled(
-                    crate::res::str::progress_label(),
-                    progress(move || mix.level.get() / 100.0)
-                        .id("volume-progress")
-                        .a11y(|a| a.role(Role::Meter).label("Mix level")),
-                ),
-                labeled(
-                    crate::res::str::activity_animating(),
-                    // Wrapped: the trailing column is narrow enough on a phone that
-                    // "Spinning" broke mid-word beside the spinner — as a whole word on its
-                    // own line it stays readable (docs/size-classes.md "Row fit policies").
-                    row((
-                        activity()
-                            .animating(move || mix.on.get() && mix.level.get() > 0.0)
-                            .id("activity-spinner"),
-                        label(move || {
-                            if mix.on.get() {
-                                crate::res::str::activity_on()
-                            } else {
-                                crate::res::str::activity_off()
-                            }
-                            .format()
-                        })
-                        .id("activity-status"),
-                    ))
-                    .spacing(8.0)
-                    .fit(RowFit::Wrap { run_spacing: 8.0 }),
-                ),
-            ))
-            .spacing(8.0)
-            .align(HAlign::Leading)
-            .grow_w()
-            .opacity(dim),
-        ))
-        .spacing(16.0),
-        // — the editors, all writing the same `level` —
+        labeled(
+            crate::res::str::ctl_plain(),
+            button(press()).action(move || st.press()).id("btn-plain"),
+        ),
+        labeled(
+            crate::res::str::ctl_bordered(),
+            button(press())
+                .bordered()
+                .action(move || st.press())
+                .id("btn-bordered"),
+        ),
+        labeled(
+            crate::res::str::ctl_prominent(),
+            button(press())
+                .prominent()
+                .action(move || st.press())
+                .id("btn-prominent"),
+        ),
+        labeled(
+            crate::res::str::ctl_tinted(),
+            button(press())
+                .tint(crate::widgets::primary())
+                .action(move || st.press())
+                .id("btn-tinted"),
+        ),
+        labeled(
+            crate::res::str::ctl_destructive(),
+            button(press())
+                .tint(crate::widgets::danger())
+                .action(move || st.press())
+                .id("btn-destructive"),
+        ),
+        labeled(
+            crate::res::str::ctl_disabled(),
+            button(press())
+                .enabled(false)
+                .action(move || st.press())
+                .id("btn-disabled"),
+        ),
+        labeled(
+            crate::res::str::ctl_link(),
+            link(crate::res::str::ctl_link_text(), "https://daybrite.dev").id("ctl-link"),
+        ),
+        labeled(
+            crate::res::str::ctl_presses(),
+            crate::widgets::numeric_readout(
+                move || st.presses.get().to_string(),
+                "888",
+                "btn-presses",
+            ),
+        ),
+    ))
+    .title(crate::res::str::ctl_buttons())
+}
+
+/// The value controls, most of them over ONE number: the slider writes `level`, the progress
+/// bar reports it, and the switch above gates the lot; the stepped slider keeps a value of its
+/// own (see `Catalog::steps`).
+/// The stepper (day-piece-stepper: an NSStepper field, a GtkSpinButton, a QDoubleSpinBox, and
+/// a composed field elsewhere) keeps its own count, shown twice — once native where the
+/// toolkit has one, once composed — so the two idioms sit side by side.
+fn switches_section(st: Catalog) -> impl Piece {
+    let dim = st.dim();
+    section((
+        labeled(
+            crate::res::str::ctl_toggle(),
+            toggle(st.on).id("subscribe-toggle"),
+        ),
         column((
-            text_field(mix.name)
-                .placeholder(crate::res::str::name_placeholder())
-                .id("name-field"),
             labeled(
-                crate::res::str::value_label(),
+                crate::res::str::ctl_slider(),
                 row((
-                    // The two steppers are the same control pointing opposite ways, so they take
-                    // the same styling: tinting only one of them made it read as the primary
-                    // action of the row, which is not true — neither is.
-                    button(crate::res::str::decrement())
-                        .enabled(move || mix.on.get())
-                        .action(move || mix.nudge(-5.0))
-                        .id("decrement-button"),
-                    slider(mix.level).range(0.0..=100.0).id("volume-slider"),
-                    button(crate::res::str::increment())
-                        .enabled(move || mix.on.get())
-                        .action(move || mix.nudge(5.0))
-                        .id("increment-button"),
+                    slider(st.level).range(0.0..=100.0).id("volume-slider"),
                     // Reserves the width of "100" so the row stops reflowing as the value
                     // changes under the slider being dragged.
                     crate::widgets::numeric_readout(
-                        move || format!("{:.0}", mix.level.get()),
+                        move || format!("{:.0}", st.level.get()),
                         "100",
                         "volume-value",
                     ),
                 ))
                 .spacing(8.0),
             ),
+            labeled(
+                crate::res::str::ctl_stepped(),
+                row((
+                    slider(st.steps)
+                        .range(0.0..=100.0)
+                        .step(10.0)
+                        .id("stepped-slider"),
+                    crate::widgets::numeric_readout(
+                        move || format!("{:.0}", st.steps.get()),
+                        "100",
+                        "stepped-value",
+                    ),
+                ))
+                .spacing(8.0),
+            ),
+            labeled(
+                crate::res::str::ctl_stepper(),
+                row((
+                    stepper(st.count)
+                        .range(0.0..=10.0)
+                        .step(1.0)
+                        .decimals(0)
+                        .id("stepper-field"),
+                    crate::widgets::numeric_readout(
+                        move || format!("{:.0}", st.count.get()),
+                        "88",
+                        "stepper-value",
+                    ),
+                ))
+                .spacing(8.0),
+            ),
+            labeled(
+                crate::res::str::ctl_composed_stepper(),
+                stepper(st.count)
+                    .range(0.0..=10.0)
+                    .step(1.0)
+                    .decimals(0)
+                    .composed()
+                    .key("stepper-composed"),
+            ),
+            labeled(
+                crate::res::str::ctl_progress(),
+                progress(move || st.level.get() / 100.0)
+                    .id("volume-progress")
+                    .a11y(|a| a.role(Role::Meter).label("Level")),
+            ),
+            labeled(
+                crate::res::str::ctl_activity(),
+                row((
+                    activity()
+                        .animating(move || st.on.get() && st.level.get() > 0.0)
+                        .id("activity-spinner"),
+                    label(move || {
+                        if st.on.get() {
+                            crate::res::str::activity_on()
+                        } else {
+                            crate::res::str::activity_off()
+                        }
+                        .format()
+                    })
+                    .id("activity-status"),
+                ))
+                .spacing(8.0)
+                .fit(RowFit::Wrap { run_spacing: 8.0 }),
+            ),
+            labeled(crate::res::str::ctl_spinner(), spinner().id("ctl-spinner")),
         ))
         .spacing(8.0)
         .opacity(dim),
-        // The same `preset` signal in three native stylings (docs/picker.md), directly under the
-        // slider that shares its state: selecting in any one moves the other two, and — through
-        // the watch in `Mix::new` — snaps the level, which the slider, gauge and progress bar
-        // report at once. They sat in a section of their own with a sentence explaining that
-        // relationship; put under the slider they demonstrate it instead.
-        picker_rows(mix).opacity(dim),
     ))
-    .title(crate::res::str::controls_basics())
+    .title(crate::res::str::ctl_switches())
 }
 
-/// The three picker stylings, all bound to `preset`.
-fn picker_rows(mix: Mix) -> impl Piece {
-    let names = Mix::preset_names();
-    column((
-        labeled(
-            crate::res::str::picker_segmented(),
-            picker(names.iter().cloned(), mix.preset)
-                .segmented()
-                .id("picker-segmented"),
-        ),
-        labeled(
-            crate::res::str::picker_menu(),
-            picker(names.iter().cloned(), mix.preset)
-                .menu()
-                .id("picker-menu"),
-        ),
-        labeled(
-            crate::res::str::picker_inline(),
-            picker(names.iter().cloned(), mix.preset)
-                .inline()
-                .id("picker-inline"),
-        ),
-    ))
-    .spacing(8.0)
-}
-
-/// The combo box and the search field over ONE list: search filters what the rows show, the combo
-/// selects from the same collection, and Add grows it for both.
-fn voice_section(mix: Mix) -> impl Piece {
+/// Text entry: the field, the search field over the combo box's list, the combo box itself
+/// (day-piece-combobox; a placeholder where the toolkit has no such control), and the plain
+/// text area.
+fn text_section(st: Catalog) -> impl Piece {
     let voices = Signal::new(vec![
         crate::res::str::vanilla().format(),
         crate::res::str::chocolate().format(),
         crate::res::str::pistachio().format(),
     ]);
-    let query = Signal::new(String::new());
     section((
         labeled(
-            crate::res::str::flavor_label(),
-            // The bound value reads BELOW the field, not at the end of the row. On the same row it
-            // grew with every keystroke and pushed Add sideways as you typed — the control you are
-            // aiming at moving while you type is a bad enough jolt to be worth a whole row.
+            crate::res::str::ctl_text_field(),
+            text_field(st.name)
+                .placeholder(crate::res::str::name_placeholder())
+                .id("name-field"),
+        ),
+        labeled(
+            crate::res::str::ctl_search_field(),
             column((
                 row((
-                    combo_box(voices, mix.voice)
+                    search_field(st.query)
+                        .placeholder(crate::res::str::voice_search_placeholder())
+                        .id("search-input"),
+                    button(crate::res::str::search_clear())
+                        .bordered()
+                        .action(move || st.query.set(String::new()))
+                        .id("search-clear"),
+                ))
+                .spacing(8.0),
+                // The first match in the SAME list the combo offers — a value, or an em-dash.
+                label(move || first_match(&st.query.get(), &voices.get()))
+                    .font(Font::Footnote)
+                    .id("search-result"),
+            ))
+            .spacing(4.0)
+            .align(HAlign::Leading),
+        ),
+        labeled(
+            crate::res::str::ctl_combo_box(),
+            // The bound value reads BELOW the field, not at the end of the row: on the same row
+            // it grew with every keystroke and pushed Add sideways as you typed.
+            column((
+                row((
+                    combo_box(voices, st.voice)
                         .placeholder(crate::res::str::flavor_placeholder())
                         .id("flavor-combo"),
                     button(crate::res::str::flavor_add())
                         .action(move || {
-                            let typed = mix.voice.get_untracked();
+                            let typed = st.voice.get_untracked();
                             if !typed.is_empty() && !voices.get_untracked().contains(&typed) {
                                 voices.update(|v| v.push(typed));
                             }
@@ -279,42 +361,189 @@ fn voice_section(mix: Mix) -> impl Piece {
                         .id("flavor-add"),
                 ))
                 .spacing(8.0),
-                // iOS has no native combo-box control and the piece carries no uikit renderer
-                // (docs/combobox.md) — day renders its placeholder leaf in the row above, and
-                // this note sits right beside it, where a phone user actually looks. `when`
-                // rather than `#[cfg]` because an attribute cannot gate one tuple element.
+                // No combo-box arm on iOS, HarmonyOS or the web (docs/combobox.md): day renders
+                // its placeholder leaf in the row above, and this note sits right beside it.
+                // `when` rather than `#[cfg]` because an attribute cannot gate one tuple element.
                 when(
-                    || cfg!(target_os = "ios"),
-                    || label(crate::res::str::flavor_ios_note()).font(Font::Footnote),
+                    || {
+                        cfg!(any(
+                            target_os = "ios",
+                            target_env = "ohos",
+                            target_arch = "wasm32"
+                        ))
+                    },
+                    || label(crate::res::str::ctl_combo_note()).font(Font::Footnote),
                 ),
-                label(move || mix.voice.get())
+                label(move || st.voice.get())
                     .font(Font::Footnote)
                     .id("flavor-value"),
             ))
             .spacing(4.0)
             .align(HAlign::Leading),
         ),
-        row((
-            search_field(query)
-                .placeholder(crate::res::str::voice_search_placeholder())
-                .id("search-input"),
-            button(crate::res::str::search_clear())
-                .bordered()
-                .action(move || query.set(String::new()))
-                .id("search-clear"),
-        ))
-        .spacing(8.0),
-        // The first match in the SAME list the combo offers — a value, or an em-dash.
-        label(move || first_match(&query.get(), &voices.get())).id("search-result"),
-        each(
-            items(
-                move || filtered(&query.get(), &voices.get()),
-                |v: &String| v.clone(),
-            ),
-            move |slot: ItemSlot<String, String>| label(slot.field(|v| v.clone())),
+        labeled(
+            crate::res::str::ctl_text_area(),
+            text_area(st.notes)
+                .placeholder(crate::res::str::ctl_notes_placeholder())
+                .min_lines(3)
+                .max_lines(3)
+                .id("notes-area"),
         ),
     ))
-    .title(crate::res::str::nav_search())
+    .title(crate::res::str::ctl_text_entry())
+}
+
+/// Pickers: the built-in picker in its three stylings over ONE selection (docs/picker.md),
+/// then the date, time and color pickers from their crates. The date and time pickers appear
+/// here compact; the inline calendar has the Date & time page to itself.
+fn pickers_section(st: Catalog) -> impl Piece {
+    let names = Catalog::preset_names();
+    let preset_label = st.preset_label();
+    let dim = st.dim();
+    section((
+        column((
+            labeled(
+                crate::res::str::picker_segmented(),
+                picker(names.iter().cloned(), st.preset)
+                    .segmented()
+                    .id("picker-segmented"),
+            ),
+            labeled(
+                crate::res::str::picker_menu(),
+                picker(names.iter().cloned(), st.preset)
+                    .menu()
+                    .id("picker-menu"),
+            ),
+            labeled(
+                crate::res::str::picker_inline(),
+                picker(names.iter().cloned(), st.preset)
+                    .inline()
+                    .id("picker-inline"),
+            ),
+            labeled(
+                crate::res::str::picker_selected(),
+                label(preset_label).id("picker-value"),
+            ),
+        ))
+        .spacing(8.0)
+        .opacity(dim),
+        labeled(
+            crate::res::str::ctl_date(),
+            date_picker(st.date).compact().id("ctl-date"),
+        ),
+        labeled(
+            crate::res::str::ctl_time(),
+            time_picker(st.time).compact().id("ctl-time"),
+        ),
+        // Native chooser or a composed one per toolkit (docs/colorpicker.md) — never a banner:
+        // there is no target where it does not work, only which picker differs.
+        labeled(
+            crate::res::str::ctl_color(),
+            color_picker(st.color).id("ctl-color"),
+        ),
+    ))
+    .title(crate::res::str::ctl_pickers())
+}
+
+/// Indicators and the composition tier: the star rating (canvas polygons), a badge overlay, the
+/// arc gauge over the shared level, and the divider.
+fn indicators_section(st: Catalog) -> impl Piece {
+    section((
+        labeled(
+            crate::res::str::ctl_rating(),
+            row((
+                rating(st.stars).id("compose-rating"),
+                crate::widgets::numeric_readout(
+                    move || st.stars.get().to_string(),
+                    "5",
+                    "rating-value",
+                ),
+            ))
+            .spacing(8.0),
+        ),
+        labeled(
+            crate::res::str::ctl_badge(),
+            badge(
+                3,
+                rounded_rectangle(10.0)
+                    .fill(crate::palette::SLATE)
+                    .frame(48.0, 48.0)
+                    .any(),
+            )
+            .id("ctl-badge"),
+        ),
+        labeled(
+            crate::res::str::ctl_gauge(),
+            gauge(st.level).frame(120.0, 120.0),
+        ),
+        labeled(crate::res::str::ctl_divider(), divider().id("ctl-divider")),
+    ))
+    .title(crate::res::str::ctl_indicators())
+}
+
+/// Every bound value, read back. Scrolling here is the walkthrough's second screenshot, and the
+/// row values are what its assertions check after driving the controls above.
+fn state_section(st: Catalog) -> impl Piece {
+    let readout =
+        |text: fn() -> LocalizedText, value: Box<dyn Fn() -> String>, id: &'static str| {
+            labeled(text(), label(value).tabular().id(id))
+        };
+    section((
+        readout(
+            crate::res::str::ctl_toggle,
+            Box::new(move || {
+                if st.on.get() {
+                    crate::res::str::ctl_on()
+                } else {
+                    crate::res::str::ctl_off()
+                }
+                .format()
+            }),
+            "state-toggle",
+        ),
+        readout(
+            crate::res::str::ctl_slider,
+            Box::new(move || format!("{:.0}", st.level.get())),
+            "state-level",
+        ),
+        readout(
+            crate::res::str::ctl_stepper,
+            Box::new(move || format!("{:.0}", st.count.get())),
+            "state-count",
+        ),
+        readout(
+            crate::res::str::ctl_text_field,
+            Box::new(move || st.name.get()),
+            "state-name",
+        ),
+        readout(
+            crate::res::str::ctl_date,
+            Box::new(move || st.date.get().to_string()),
+            "state-date",
+        ),
+        readout(
+            crate::res::str::ctl_time,
+            Box::new(move || st.time.get().to_string()),
+            "state-time",
+        ),
+        readout(
+            crate::res::str::ctl_color,
+            Box::new(move || st.color.get().to_hex_string()),
+            "state-color",
+        ),
+        readout(
+            crate::res::str::ctl_rating,
+            Box::new(move || st.stars.get().to_string()),
+            "state-rating",
+        ),
+        readout(
+            crate::res::str::ctl_presses,
+            Box::new(move || st.presses.get().to_string()),
+            "state-presses",
+        ),
+        label(crate::res::str::ctl_crates_note()).font(Font::Footnote),
+    ))
+    .title(crate::res::str::ctl_state())
 }
 
 /// Case-insensitive substring match; an empty query matches everything.
@@ -322,18 +551,11 @@ fn matches(query: &str, item: &str) -> bool {
     query.is_empty() || item.to_lowercase().contains(&query.to_lowercase())
 }
 
-fn filtered(query: &str, items: &[String]) -> Vec<String> {
-    items
-        .iter()
-        .filter(|i| matches(query, i))
-        .cloned()
-        .collect()
-}
-
 /// The first item matching `query` (a data value), or an em-dash when none match.
 fn first_match(query: &str, items: &[String]) -> String {
-    filtered(query, items)
-        .into_iter()
-        .next()
+    items
+        .iter()
+        .find(|i| matches(query, i))
+        .cloned()
         .unwrap_or_else(|| "\u{2014}".to_string())
 }

@@ -79,6 +79,14 @@ pub(crate) fn list_page() -> AnyPiece {
         label(move || crate::res::str::list_caption(rows.get().len() as i64).format())
             .tabular()
             .id("list-caption"),
+        // The tier this backend realizes for the pull (docs/pullrefresh.md): native on the
+        // phones and HarmonyOS, an elastic overshoot on the desktops — CI-visible documentation.
+        label(match day_piece_pullrefresh::support() {
+            Support::Native => crate::res::str::refresh_tier_native(),
+            _ => crate::res::str::refresh_tier_emulated(),
+        })
+        .font(Font::Footnote)
+        .id("list-tier"),
         // Programmatic scrolling + order controls, merged from the old Scrolling page: the
         // buttons drive the RECYCLING list (scroll-to-row realizes virtualized rows), and
         // Shuffle/Reset permute the backing Vec — animated as native row moves where the

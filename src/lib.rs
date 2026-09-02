@@ -191,14 +191,17 @@ day::routes! {
         Tree => "tree",
         Model => "model",
         Query => "query",
-        Refresh => "refresh",
         Tabs => "tabs",
         Stack => "stack",
         Media => "media",
+        Lottie => "lottie",
         WebView => "webview",
         Menus => "menus",
         System => "system",
-        Services => "services",
+        Network => "network",
+        Notify => "notify",
+        Speech => "speech",
+        Files => "files",
         Scripting => "scripting",
         Resources => "resources",
         Tweaks => "tweaks",
@@ -234,12 +237,15 @@ impl Section {
             Section::Localization => "src/pages/localization.rs",
             Section::Map => "src/pages/map.rs",
             Section::Media => "src/pages/media.rs",
+            Section::Lottie => "src/pages/media.rs",
             Section::Menus => "src/pages/menus.rs",
             Section::Query => "src/pages/query.rs",
-            Section::Refresh => "src/pages/refresh.rs",
             Section::Resources => "src/pages/resources.rs",
             Section::Scripting => "src/pages/scripting.rs",
-            Section::Services => "src/pages/services.rs",
+            Section::Network => "src/pages/services.rs",
+            Section::Notify => "src/pages/services.rs",
+            Section::Speech => "src/pages/services.rs",
+            Section::Files => "src/pages/services.rs",
             Section::Stack => "src/pages/stack.rs",
             Section::System => "src/pages/system.rs",
             Section::Tabs => "src/pages/tabs.rs",
@@ -337,6 +343,55 @@ pub fn root() -> impl Piece {
 
 /// One sidebar destination: the row's title and icon, and the page it opens.
 ///
+/// The sidebar's groups, in the order the sidebar shows them: what a page is made of, how
+/// pages are arranged, how the app moves between them, what it holds, what it draws, what the
+/// OS gives it, and the tooling around the app. One tint per group (palette.rs): on the
+/// toolkits whose nav rows ignore section headers and show one flat list, the tint is the only
+/// grouping signal a row carries, so neighbouring groups never share a hue family.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum Group {
+    Overview,
+    Controls,
+    Layout,
+    Navigation,
+    Data,
+    Graphics,
+    Platform,
+    App,
+}
+
+impl Group {
+    /// The header the sidebar shows over the group's first row — a `res::str` accessor, not a
+    /// resolved `String`, so it re-resolves on every derive and follows a locale switch.
+    fn title(self) -> fn() -> day::LocalizedText {
+        match self {
+            Group::Overview => crate::res::str::group_overview,
+            Group::Controls => crate::res::str::group_controls,
+            Group::Layout => crate::res::str::group_layout,
+            Group::Navigation => crate::res::str::group_navigation,
+            Group::Data => crate::res::str::group_data,
+            Group::Graphics => crate::res::str::group_graphics,
+            Group::Platform => crate::res::str::group_platform,
+            Group::App => crate::res::str::group_app,
+        }
+    }
+
+    /// The group's icon tint: high-chroma mid-value hues, since a pastel reads as washed out
+    /// on a glyph this small (docs/vectors.md).
+    fn tint(self) -> Color {
+        match self {
+            Group::Overview => crate::palette::SKY,
+            Group::Controls => crate::palette::TEAL,
+            Group::Layout => crate::palette::SKY,
+            Group::Navigation => crate::palette::VIOLET,
+            Group::Data => crate::palette::AMBER,
+            Group::Graphics => crate::palette::CORAL,
+            Group::Platform => crate::palette::RUST,
+            Group::App => crate::palette::SLATE,
+        }
+    }
+}
+
 /// `Clone` because `.items(…)` re-derives the list on every query keystroke; the fields are a
 /// key, two fn pointers and a name, so a clone is cheap.
 ///
@@ -346,237 +401,289 @@ pub fn root() -> impl Piece {
 #[derive(Clone)]
 struct Dest {
     section: Section,
+    group: Group,
     /// The generated `res::str` accessor, not a resolved `String`: the title has to be
     /// re-resolved on every derive so the rows re-title (and re-filter) on a locale switch.
     title: fn() -> day::LocalizedText,
     /// A `resource/vectors/` glyph (docs/vectors.md): resolution-independent, staged per backend
     /// as whatever its nav rows load natively (VectorDrawable / catalog entry / raster cache).
     icon: day::VectorName,
-    /// This destination's icon tint — a vivid categorical cycle, anchored on the identity
-    /// palette (palette.rs) where a brand color fits: high-chroma mid-value hues, with
-    /// neighbouring rows never in the same hue family. The chroma matters — pastel or
-    /// near-neutral tints read as washed out on a glyph this small (docs/vectors.md).
-    tint: Color,
     page: fn() -> AnyPiece,
 }
 
-/// Every destination, in the order the sidebar shows them — ALPHABETICAL by the US-English
-/// display title. Keep it that way when adding a page. About is both alphabetically first and
-/// the desktop split's default detail (the split selects the first row when nothing is chosen).
+/// One derived sidebar row: a destination and, on the first row of each group, the header
+/// the selector opens above it.
+#[derive(Clone)]
+struct Row {
+    dest: Dest,
+    header: Option<fn() -> day::LocalizedText>,
+}
+
+/// Every destination, in the order the sidebar shows them: by group (see [`Group`]), and
+/// within a group from the general to the specialised. About is both first and the desktop
+/// split's default detail (the split selects the first row when nothing is chosen).
+///
+/// A page whose central feature this target cannot run is not listed at all — a target with
+/// no toolbar has nothing to show on a Toolbars page — while a section inside a page that the
+/// target cannot run keeps its banner (support.rs). Two of the four such pages are decided at
+/// compile time because their crates carry no runtime probe (Map, Lottie), two at runtime.
 fn destinations() -> Vec<Dest> {
-    vec![
-        Dest {
-            section: Section::About,
-            title: crate::res::str::nav_about,
-            icon: res::vectors::nav_about,
-            tint: crate::palette::SKY,
-            page: about_page,
-        },
-        Dest {
-            section: Section::Animation,
-            title: crate::res::str::nav_animation,
-            icon: res::vectors::nav_animation,
-            tint: Color::hex(0x06B6D4),
-            page: animation_page,
-        },
-        Dest {
-            section: Section::Benchmark,
-            title: crate::res::str::nav_benchmark,
-            icon: res::vectors::nav_benchmark,
-            tint: Color::hex(0xF97316),
-            page: benchmark_page,
-        },
-        Dest {
-            section: Section::Canvas,
-            title: crate::res::str::nav_canvas,
-            icon: res::vectors::nav_canvas,
-            tint: crate::palette::AMBER,
-            page: canvas_page,
-        },
-        Dest {
-            section: Section::Controls,
-            title: crate::res::str::nav_controls,
-            icon: res::vectors::nav_controls,
-            tint: Color::hex(0x16A34A),
-            page: controls_page,
-        },
-        Dest {
-            section: Section::CrashReporting,
-            title: crate::res::str::nav_crash,
-            icon: res::vectors::nav_crash,
-            tint: Color::hex(0x84CC16),
-            page: crash_page,
-        },
-        Dest {
-            section: Section::Dates,
-            title: crate::res::str::nav_dates,
-            icon: res::vectors::nav_dates,
-            tint: Color::hex(0xEAB308),
-            page: dates_page,
-        },
-        Dest {
-            section: Section::System,
-            title: crate::res::str::nav_system,
-            icon: res::vectors::nav_system,
-            tint: Color::hex(0x6366F1),
-            page: system_page,
-        },
-        Dest {
-            section: Section::Focus,
-            title: crate::res::str::nav_focus,
-            icon: res::vectors::nav_focus,
-            tint: Color::hex(0x14B8A6),
-            page: focus_page,
-        },
-        Dest {
-            section: Section::Grid,
-            title: crate::res::str::nav_grid,
-            icon: res::vectors::nav_grid,
-            tint: Color::hex(0xA855F7),
-            page: grid_page,
-        },
-        Dest {
-            section: Section::Layout,
-            title: crate::res::str::nav_layout,
-            icon: res::vectors::nav_layout,
-            tint: Color::hex(0x2563EB),
-            page: layout_page,
-        },
-        Dest {
-            section: Section::List,
-            title: crate::res::str::nav_list,
-            icon: res::vectors::nav_list,
-            tint: Color::hex(0xEF4444),
-            page: list_page,
-        },
-        Dest {
-            section: Section::Model,
-            title: crate::res::str::nav_model,
-            icon: res::vectors::nav_model,
-            tint: Color::hex(0x7C3AED),
-            page: model_page,
-        },
-        Dest {
-            section: Section::Localization,
-            title: crate::res::str::nav_localization,
-            icon: res::vectors::nav_localization,
-            tint: Color::hex(0xEC4899),
-            page: localization_page,
-        },
+    use crate::res::vectors;
+    use Group::*;
+    let d = |group: Group,
+             section: Section,
+             title: fn() -> day::LocalizedText,
+             icon: day::VectorName,
+             page: fn() -> AnyPiece| Dest {
+        section,
+        group,
+        title,
+        icon,
+        page,
+    };
+    let mut all = vec![
+        d(
+            Overview,
+            Section::About,
+            crate::res::str::nav_about,
+            vectors::nav_about,
+            about_page,
+        ),
+        d(
+            Controls,
+            Section::Controls,
+            crate::res::str::nav_controls,
+            vectors::nav_controls,
+            controls_page,
+        ),
+        d(
+            Controls,
+            Section::Text,
+            crate::res::str::nav_text,
+            vectors::nav_text,
+            text_page,
+        ),
+        d(
+            Controls,
+            Section::TextAreas,
+            crate::res::str::nav_textareas,
+            vectors::nav_textareas,
+            text_areas_page,
+        ),
+        d(
+            Controls,
+            Section::Dates,
+            crate::res::str::nav_dates,
+            vectors::nav_dates,
+            dates_page,
+        ),
+        d(
+            Controls,
+            Section::Focus,
+            crate::res::str::nav_focus,
+            vectors::nav_focus,
+            focus_page,
+        ),
+        d(
+            Layout,
+            Section::Layout,
+            crate::res::str::nav_layout,
+            vectors::nav_layout,
+            layout_page,
+        ),
+        d(
+            Layout,
+            Section::Grid,
+            crate::res::str::nav_grid,
+            vectors::nav_grid,
+            grid_page,
+        ),
+        d(
+            Navigation,
+            Section::Stack,
+            crate::res::str::nav_stack,
+            vectors::nav_stack,
+            stack_page,
+        ),
+        d(
+            Navigation,
+            Section::Tabs,
+            crate::res::str::nav_tabs,
+            vectors::nav_tabs,
+            tabs_page,
+        ),
+        d(
+            Navigation,
+            Section::Menus,
+            crate::res::str::nav_menus,
+            vectors::nav_menus,
+            menus_page,
+        ),
+        d(
+            Navigation,
+            Section::Toolbars,
+            crate::res::str::nav_toolbars,
+            vectors::nav_toolbars,
+            toolbars_page,
+        ),
+        d(
+            Data,
+            Section::List,
+            crate::res::str::nav_list,
+            vectors::nav_list,
+            list_page,
+        ),
+        d(
+            Data,
+            Section::Tree,
+            crate::res::str::nav_tree,
+            vectors::nav_tree,
+            tree_page,
+        ),
+        d(
+            Data,
+            Section::Model,
+            crate::res::str::nav_model,
+            vectors::nav_model,
+            model_page,
+        ),
+        d(
+            Data,
+            Section::Query,
+            crate::res::str::nav_query,
+            vectors::nav_query,
+            query_page,
+        ),
+        d(
+            Graphics,
+            Section::Canvas,
+            crate::res::str::nav_canvas,
+            vectors::nav_canvas,
+            canvas_page,
+        ),
+        d(
+            Graphics,
+            Section::Animation,
+            crate::res::str::nav_animation,
+            vectors::nav_animation,
+            animation_page,
+        ),
+        d(
+            Graphics,
+            Section::Resources,
+            crate::res::str::nav_resources,
+            vectors::nav_resources,
+            resources_page,
+        ),
+        d(
+            Graphics,
+            Section::Media,
+            crate::res::str::nav_media,
+            vectors::nav_media,
+            media_page,
+        ),
+        #[cfg(any(target_os = "ios", target_os = "android"))]
+        d(
+            Graphics,
+            Section::Lottie,
+            crate::res::str::nav_lottie,
+            vectors::nav_lottie,
+            lottie_page,
+        ),
         #[cfg(any(target_os = "macos", target_os = "ios"))]
-        Dest {
-            section: Section::Map,
-            title: crate::res::str::nav_map,
-            icon: res::vectors::nav_map,
-            tint: Color::hex(0x0EA5E9),
-            page: map_page,
-        },
-        Dest {
-            section: Section::Media,
-            title: crate::res::str::nav_media,
-            icon: res::vectors::nav_media,
-            tint: Color::hex(0xD946EF),
-            page: media_page,
-        },
-        Dest {
-            section: Section::Menus,
-            title: crate::res::str::nav_menus,
-            icon: res::vectors::nav_menus,
-            tint: Color::hex(0xF43F5E),
-            page: menus_page,
-        },
-        Dest {
-            section: Section::Services,
-            title: crate::res::str::nav_services,
-            icon: res::vectors::nav_services,
-            tint: Color::hex(0x10B981),
-            page: services_page,
-        },
-        Dest {
-            section: Section::Query,
-            title: crate::res::str::nav_query,
-            icon: res::vectors::nav_query,
-            tint: Color::hex(0xF59E0B),
-            page: query_page,
-        },
-        Dest {
-            section: Section::Refresh,
-            title: crate::res::str::nav_refresh,
-            icon: res::vectors::nav_refresh,
-            tint: crate::palette::VIOLET,
-            page: refresh_page,
-        },
-        Dest {
-            section: Section::Resources,
-            title: crate::res::str::nav_resources,
-            icon: res::vectors::nav_resources,
-            tint: crate::palette::CORAL,
-            page: resources_page,
-        },
-        Dest {
-            section: Section::Scripting,
-            title: crate::res::str::nav_scripting,
-            icon: res::vectors::nav_scripting,
-            tint: Color::hex(0x0D9488),
-            page: scripting_page,
-        },
-        Dest {
-            section: Section::Stack,
-            title: crate::res::str::nav_stack,
-            icon: res::vectors::nav_stack,
-            tint: crate::palette::RUST,
-            page: stack_page,
-        },
-        Dest {
-            section: Section::Tabs,
-            title: crate::res::str::nav_tabs,
-            icon: res::vectors::nav_tabs,
-            tint: crate::palette::SKY,
-            page: tabs_page,
-        },
-        Dest {
-            section: Section::Text,
-            title: crate::res::str::nav_text,
-            icon: res::vectors::nav_text,
-            tint: Color::hex(0x06B6D4),
-            page: text_page,
-        },
-        Dest {
-            section: Section::TextAreas,
-            title: crate::res::str::nav_textareas,
-            icon: res::vectors::nav_textareas,
-            tint: Color::hex(0xF97316),
-            page: text_areas_page,
-        },
-        Dest {
-            section: Section::Toolbars,
-            title: crate::res::str::nav_toolbars,
-            icon: res::vectors::nav_toolbars,
-            tint: crate::palette::AMBER,
-            page: toolbars_page,
-        },
-        Dest {
-            section: Section::Tree,
-            title: crate::res::str::nav_tree,
-            icon: res::vectors::nav_tree,
-            tint: Color::hex(0x8B5CF6),
-            page: tree_page,
-        },
-        Dest {
-            section: Section::Tweaks,
-            title: crate::res::str::nav_tweaks,
-            icon: res::vectors::nav_tweaks,
-            tint: Color::hex(0x16A34A),
-            page: tweaks_page,
-        },
-        Dest {
-            section: Section::WebView,
-            title: crate::res::str::nav_webview,
-            icon: res::vectors::nav_webview,
-            tint: Color::hex(0x84CC16),
-            page: webview_page,
-        },
-    ]
+        d(
+            Graphics,
+            Section::Map,
+            crate::res::str::nav_map,
+            vectors::nav_map,
+            map_page,
+        ),
+        d(
+            Graphics,
+            Section::WebView,
+            crate::res::str::nav_webview,
+            vectors::nav_webview,
+            webview_page,
+        ),
+        d(
+            Platform,
+            Section::System,
+            crate::res::str::nav_system,
+            vectors::nav_system,
+            system_page,
+        ),
+        d(
+            Platform,
+            Section::Network,
+            crate::res::str::nav_network_http,
+            vectors::nav_network,
+            network_page,
+        ),
+        d(
+            Platform,
+            Section::Notify,
+            crate::res::str::nav_notify_badge,
+            vectors::nav_notify,
+            notify_page,
+        ),
+        d(
+            Platform,
+            Section::Speech,
+            crate::res::str::nav_speech_haptics,
+            vectors::nav_speech,
+            speech_page,
+        ),
+        d(
+            Platform,
+            Section::Files,
+            crate::res::str::nav_files_storage,
+            vectors::nav_files,
+            files_page,
+        ),
+        d(
+            App,
+            Section::Localization,
+            crate::res::str::nav_localization,
+            vectors::nav_localization,
+            localization_page,
+        ),
+        d(
+            App,
+            Section::Scripting,
+            crate::res::str::nav_scripting,
+            vectors::nav_scripting,
+            scripting_page,
+        ),
+        d(
+            App,
+            Section::Tweaks,
+            crate::res::str::nav_tweaks,
+            vectors::nav_tweaks,
+            tweaks_page,
+        ),
+        d(
+            App,
+            Section::Benchmark,
+            crate::res::str::nav_benchmark,
+            vectors::nav_benchmark,
+            benchmark_page,
+        ),
+        d(
+            App,
+            Section::CrashReporting,
+            crate::res::str::nav_crash,
+            vectors::nav_crash,
+            crash_page,
+        ),
+    ];
+    // The runtime-decided omissions. Each answer is constant for a binary, so the tracked
+    // derive that calls this pays nothing for asking every time.
+    all.retain(|d| match d.section {
+        Section::Toolbars => capability(Cap::Toolbar) != Support::Unsupported,
+        Section::CrashReporting => crate::support::crash_reporting() != Support::Unsupported,
+        _ => true,
+    });
+    all
 }
 
 /// One showcase shell — the primary window's content, and (via `register_new_window`) each
@@ -654,27 +761,47 @@ fn window_body(primary: bool) -> impl Piece {
                 // TRACKED: reads the query AND (through `matches_search`) the locale, so the
                 // rows re-filter on a keystroke and re-title on a language switch.
                 let q = query.get();
-                let mut rows = destinations()
+                let rows: Vec<Dest> = destinations()
                     .into_iter()
                     .filter(|d| matches_search(&(d.title)().format(), &q))
-                    .collect::<Vec<_>>();
-                // Starred pages rise to the top, keeping their relative (alphabetical) order —
-                // a STABLE partition, so unstarring a page drops it back exactly where it was
-                // rather than shuffling the list. Reading `is_starred` here is what subscribes
-                // this derive to the starred set: a star from any surface re-orders the rows.
-                rows.sort_by_key(|d| !crate::commands::is_starred(d.section));
-                rows
+                    .collect();
+                // Starred pages leave their groups for a Starred section at the top — the
+                // way a feed reader keeps its smart feeds above the subscriptions — and keep
+                // their table order there. The rest keep table order under their group's
+                // header, which the first surviving row of each group carries, so a group
+                // whose rows the search filtered out disappears with them. Reading
+                // `is_starred` here is what subscribes this derive to the starred set.
+                let (starred, rest): (Vec<Dest>, Vec<Dest>) = rows
+                    .into_iter()
+                    .partition(|d| crate::commands::is_starred(d.section));
+                let mut out: Vec<Row> = Vec::with_capacity(starred.len() + rest.len());
+                let mut header: Option<fn() -> day::LocalizedText> =
+                    Some(crate::res::str::group_starred);
+                for dest in starred {
+                    out.push(Row {
+                        dest,
+                        header: header.take(),
+                    });
+                }
+                let mut last: Option<Group> = None;
+                for dest in rest {
+                    let header = (last != Some(dest.group)).then(|| dest.group.title());
+                    last = Some(dest.group);
+                    out.push(Row { dest, header });
+                }
+                out
             },
-            |d: &Dest| {
+            |r: &Row| {
                 // Each row's context menu (docs/menus.md): "Show Source" opens THIS row's
                 // page source on GitHub — the same handler surface as the toolbar button,
                 // but per destination, so no navigation is needed first. The label re-lowers
                 // localized on every derive (locale switches re-run this mapper).
+                let d = &r.dest;
                 let section = d.section;
                 let starred = crate::commands::is_starred(section);
                 let row = item(d.section, (d.title)())
                     .icon(d.icon.clone())
-                    .icon_tint(d.tint)
+                    .icon_tint(d.group.tint())
                     // Star/Unstar per ROW, so any page can be starred without navigating to it
                     // first — the same handler surface "Show Source" already uses here.
                     .context_menu(vec![
@@ -690,6 +817,12 @@ fn window_body(primary: bool) -> impl Piece {
                         menu_item(crate::res::str::show_source().format())
                             .action(move || open_source_of(section)),
                     ]);
+                // The group header rides the group's first row (docs/navigation.md): the
+                // selector opens a section there, and the flat-list toolkits ignore it.
+                let row = match r.header {
+                    Some(h) => row.section(h()),
+                    None => row,
+                };
                 // The marker itself: the app's own star, tinted the color a star IS rather
                 // than a theme accent (palette.rs AMBER).
                 if starred {

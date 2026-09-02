@@ -6,8 +6,8 @@ use crate::widgets::page_wide;
 /// A native media player (day-piece-media, an EXTERNAL standalone piece): AVPlayerView /
 /// AVPlayerViewController / QMediaPlayer+QVideoWidget / android.widget.VideoView / GtkVideo.
 /// Transport is imperative via `Trigger`s the piece watches; native chrome (where the toolkit
-/// has one) offers its own controls too. On iOS/Android a bundled Lottie animation
-/// (day-piece-lottie) joins the page.
+/// has one) offers its own controls too. The bundled Lottie animation has a page of its own
+/// ([`lottie_page`]) on the targets that can draw one.
 pub(crate) fn media_page() -> AnyPiece {
     let url = Signal::new(
         "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4".to_string(),
@@ -44,34 +44,41 @@ pub(crate) fn media_page() -> AnyPiece {
         .spacing(8.0),
     ))
     .title(crate::res::str::media_player_section());
-    #[cfg(any(target_os = "ios", target_os = "android"))]
-    let body = form((video, lottie_section())).any();
-    #[cfg(not(any(target_os = "ios", target_os = "android")))]
-    let body = form((video,)).any();
     page_wide(
         crate::res::str::nav_media(),
         "media-title",
         Some(crate::res::str::media_caption()),
-        body,
+        form((video,)).any(),
     )
     .any()
 }
 
-/// A native Lottie animation (day-piece-lottie): a LottieAnimationView driven by airbnb's
-/// lottie-ios (SwiftPM) / lottie-android (Gradle). Renders the bundled `hello.json`, looping.
+/// The bundled Lottie animation on its own page (day-piece-lottie, an EXTERNAL standalone
+/// piece): a LottieAnimationView driven by airbnb's lottie-ios (SwiftPM) / lottie-android
+/// (Gradle), rendering `resource/assets/hello.json` in a loop. The page exists only where the
+/// piece has an arm: the crate carries no `support()` and `Cap::Lottie` goes unanswered on
+/// every backend, so the target cfg is the gate, here and in lib.rs `destinations`.
 #[cfg(any(target_os = "ios", target_os = "android"))]
-fn lottie_section() -> impl Piece {
-    // Playback rate, bound two ways: the slider drives it and `.speed(speed)` pushes it to the
-    // native LottieAnimationView live (a `Speed` patch per change).
+pub(crate) fn lottie_page() -> AnyPiece {
+    // Playback rate, bound two ways: the slider (or a preset button) drives it and
+    // `.speed(speed)` pushes it to the native LottieAnimationView live (a `Speed` patch per
+    // change). Looping and autoplay are build-time properties of the view.
     let speed = Signal::new(1.0);
-    section((
-        label(crate::res::str::lottie_caption())
-            .font(Font::Footnote)
-            .id("lottie-caption"),
-        lottie("hello")
+    let preset = |label: &'static str, value: f64, id: &'static str| {
+        button(label)
+            .bordered()
+            .action(move || speed.set(value))
+            .id(id)
+    };
+    let stage = section((
+        column((lottie("hello")
+            .looping(true)
+            .autoplay(true)
             .speed(speed)
-            .frame(220.0, 220.0)
-            .id("lottie-view"),
+            .frame(280.0, 280.0)
+            .id("lottie-view"),))
+        .align(HAlign::Center)
+        .grow_w(),
         labeled(
             crate::res::str::lottie_speed(),
             row((
@@ -79,14 +86,31 @@ fn lottie_section() -> impl Piece {
                     .range(0.25..=3.0)
                     .step(0.25)
                     .id("lottie-speed-slider"),
-                label(move || format!("{:.2}×", speed.get()))
-                    .tabular()
-                    .id("lottie-speed-value"),
+                crate::widgets::numeric_readout(
+                    move || format!("{:.2}\u{d7}", speed.get()),
+                    "3.00\u{d7}",
+                    "lottie-speed-value",
+                ),
             ))
             .spacing(8.0),
         ),
+        // Presets: the same signal the slider writes, so a tap moves the slider and the
+        // readout together — and gives a script a deterministic value to assert.
+        row((
+            preset("\u{bd}\u{d7}", 0.5, "lottie-speed-half"),
+            preset("1\u{d7}", 1.0, "lottie-speed-one"),
+            preset("2\u{d7}", 2.0, "lottie-speed-double"),
+        ))
+        .spacing(8.0),
     ))
-    .title(crate::res::str::nav_lottie())
+    .title(crate::res::str::lottie_playback_section());
+    crate::widgets::page(
+        crate::res::str::nav_lottie(),
+        "lottie-title",
+        Some(crate::res::str::lottie_caption()),
+        form((stage,)).any(),
+    )
+    .any()
 }
 
 #[cfg(any(target_os = "ios", target_os = "android"))]

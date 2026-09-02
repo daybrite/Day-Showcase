@@ -1,8 +1,12 @@
 //! Which demos this target can actually run (docs/coverage-matrix.md).
 //!
-//! Every page stays on screen everywhere — a section that vanished on one platform would read as a
-//! bug in the showcase rather than as a fact about the platform — so a demo the target cannot run
-//! carries a banner instead ([`crate::widgets::support_note`]).
+//! Two rules, by granularity. A PAGE whose central feature the target cannot run is not in the
+//! sidebar at all (lib.rs `destinations`): a target with no toolbar has nothing to show on a
+//! Toolbars page, and a screenshot of the excuse helps nobody. A SECTION inside a page that the
+//! target cannot run stays on screen and carries a banner instead
+//! ([`crate::widgets::support_note`]): a visitor comparing two platforms in the gallery should see
+//! the same page with an honest note, since a section that vanished would read as a bug in the
+//! showcase rather than as a fact about the platform.
 //!
 //! **Ask the runtime wherever it can answer.** `capability(...)` and a part's own `available()` /
 //! `is_supported()` are the truth, they follow the framework as backends gain arms, and they

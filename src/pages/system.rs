@@ -13,7 +13,6 @@ pub(crate) fn system_page() -> AnyPiece {
         Some(crate::res::str::system_caption()),
         form((
             battery_section(),
-            network_section(),
             sensors_section(),
             location_section(),
             device_section(),
@@ -74,19 +73,6 @@ fn battery_section() -> impl Piece {
         .spacing(8.0),
     ))
     .title(crate::res::str::nav_battery())
-}
-
-fn network_section() -> impl Piece {
-    let reading = Signal::new(network_line().format());
-    section((row((
-        button(crate::res::str::network_refresh())
-            .bordered()
-            .action(move || reading.set(network_line().format()))
-            .id("network-refresh"),
-        label(move || reading.get()).id("network-reading"),
-    ))
-    .spacing(8.0),))
-    .title(crate::res::str::nav_network())
 }
 
 /// Live sensor readouts (docs/sensors.md). Each row subscribes with `day_part_sensors::watch`, whose
@@ -584,28 +570,6 @@ fn battery_view(level: Signal<f64>, charging: Signal<bool>) -> impl Piece {
     })
     .id("battery")
     .frame(260.0, 120.0)
-}
-
-/// The current connectivity snapshot as a localized line (Fluent; kind stays the API's enum
-/// debug form — it is a value, not prose).
-fn network_line() -> LocalizedText {
-    match day_part_network::status() {
-        Some(n) => {
-            if n.online {
-                crate::res::str::network_reading_online(
-                    match n.expensive {
-                        Some(true) => "yes",
-                        Some(false) => "no",
-                        None => "?",
-                    },
-                    format!("{:?}", n.kind),
-                )
-            } else {
-                crate::res::str::network_reading_offline()
-            }
-        }
-        None => crate::res::str::network_reading_none(),
-    }
 }
 
 /// Read the native device identity and format each field as a localized line:

@@ -3,38 +3,92 @@ counter_value = { $count } 次点击
 decrement = −
 increment = +
 name_placeholder = 你的名字
-value_label = 值
-progress_label = 进度
-flavor_label = 口味
 flavor_placeholder = 输入或选择口味
 flavor_add = 添加
-flavor_ios_note = iOS 没有组合框控件，Day 在此显示占位符。
-history_entry = 计数变为 { $value }
 nav_controls = 控件
+controls_caption = Day 提供的每一个控件，按家族排列，全部绑定到实时状态，并在页面底部回显。
+ctl_buttons = 按钮
+ctl_press = 按下
+ctl_plain = 普通
+ctl_bordered = 描边
+ctl_prominent = 突出
+ctl_tinted = 着色
+ctl_destructive = 危险操作
+ctl_disabled = 已禁用
+ctl_link = 链接
+ctl_link_text = daybrite.dev
+ctl_presses = 按下次数
+ctl_switches = 开关与滑块
+ctl_toggle = 开关
+ctl_slider = 滑块
+ctl_stepped = 分档滑块
+ctl_stepper = 步进器
+ctl_composed_stepper = 组合步进器
+ctl_progress = 进度
+ctl_activity = 活动指示
+ctl_spinner = 加载指示
+ctl_text_entry = 文本输入
+ctl_text_field = 文本框
+ctl_search_field = 搜索框
+ctl_combo_box = 组合框
+ctl_combo_note = 此工具包没有组合框控件，Day 在此显示占位符。
+ctl_text_area = 文本区域
+ctl_notes_placeholder = 几行备注
+ctl_pickers = 选择器
+ctl_date = 日期
+ctl_time = 时间
+ctl_color = 颜色
+ctl_indicators = 指示器与组合
+ctl_rating = 评分
+ctl_badge = 角标
+ctl_gauge = 仪表
+ctl_divider = 分隔线
+ctl_state = 状态
+ctl_on = 开
+ctl_off = 关
+ctl_crates_note = 步进器、组合框、搜索框、日期与时间选择器、颜色选择器、评分与活动指示来自各自的 piece crate；其余全部来自 day-pieces。
 nav_menus = 菜单与对话框
 nav_text = 文字
 nav_battery = 电池
 nav_sensors = 传感器
 nav_clipboard = 剪贴板
-nav_network = 网络
 nav_media = 媒体
-nav_compose = 组合
+nav_compose = 卡片与环境
 nav_files = 文件
 nav_tabs = 标签页
 nav_stack = 堆栈
 nav_layout = 布局
+layout_stacks_section = 行、列与层叠
+layout_align_label = 对齐
+layout_align_top = 顶部
+layout_align_center = 居中
+layout_align_bottom = 底部
+layout_layered = 层叠
+layout_scroll_section = 滚动
+layout_scroll_top = 滚动到顶部
+layout_scroll_end = 滚动到末尾
+layout_size_section = 尺寸类别
+layout_size_width = 宽度
+layout_size_height = 高度
 nav_list = 列表
-nav_refresh = 刷新
-refresh_caption = 下拉列表（或使用按钮）以重新加载
-refresh_status_idle = 空闲
-refresh_status_refreshing = 刷新中…
-refresh_now = 立即刷新
 refresh_tier_native = 下拉刷新：原生
 refresh_tier_emulated = 下拉刷新：模拟
-refresh_row = 第 { $n } 项
+layout_row = 第 { $n } 项
 nav_webview = 网页视图
 nav_lottie = Lottie
+lottie_playback_section = 播放
 nav_about = 关于
+
+# Sidebar group headers (lib.rs `Group`): the sections the destinations sit under.
+group_starred = 已加星标
+group_overview = 概览
+group_controls = 控件
+group_layout = 布局
+group_navigation = 导航与界面
+group_data = 数据
+group_graphics = 图形与媒体
+group_platform = 平台
+group_app = 应用与工具
 
 shapes_kinds = 种类
 gradients_title = 渐变
@@ -61,13 +115,8 @@ date_picked = 所选日期
 time_picked = 所选时间
 
 compose_caption = 纯组合部件——无原生代码、无 cargo 特性，每个后端都直接可用。
-compose_rating_label = 星级评分
-compose_rating_count = 已选星数：
-compose_rating_placeholder = 1–5
 compose_card_title = 可复用的表面
 compose_card_body = 内边距 + 背景 + 圆角，以 Modifier 的方式应用。
-compose_plain_btn = 普通
-compose_styled_btn = 填充
 compose_env_value = 使用提供的强调色着色
 list_add = 添加 100 行
 list_caption = { $count } 行——只构建可见的单元格
@@ -291,7 +340,6 @@ resources_caption = 按名称从打包资源加载的图片，以及对嵌入数
 vectors_title = 矢量图
 vectors_note = 侧边栏图标均来自 resource/vectors/ —— 每个图标一个 SVG，在所有后端都与分辨率无关。
 vectors_tints = 着色
-vectors_scene = 全彩插画
 vectors_zoom = 缩放
 vectors_scene_note = 一个包含 240 条路径的 SVG，每一级缩放都从矢量重新绘制而非放大位图——因此在任何尺寸下边缘都保持清晰。在 Android 上它以 VectorDrawable 形式发布，而不是位图。
 vectors_weights = 字重
@@ -309,12 +357,10 @@ deviceinfo_no = 否
 deviceinfo_refresh = 刷新
 
 # --- day-piece-activity ---
-activity_animating = 动画中
 activity_on = 旋转中
 activity_off = 已停止
 
 # --- day-piece-searchfield ---
-nav_search = 搜索
 search_clear = 清除
 
 # --- day-piece-map ---
@@ -351,15 +397,19 @@ tweaks_label_class = 原生类：{ $class }
 # — merged section pages (design overhaul) —
 nav_canvas = 画布与形状
 nav_system = 设备与传感器
-nav_services = 平台服务
-controls_basics = 基础
+nav_network_http = 网络与 HTTP
+network_caption = 先看平台报告的连接状态，再通过平台自身的协议栈发起 HTTP：代理、VPN 与 TLS 一并生效。
+network_status_section = 连接状态
+nav_notify_badge = 通知与角标
+nav_speech_haptics = 语音与触觉
+speech_haptics_caption = 与人对话的两个部件：平台的语音，以及它的触觉引擎。
+nav_files_storage = 文件与存储
+files_storage_caption = 剪贴板、键值偏好设置、原生文件选择器，以及应用专属的文件存储。
 canvas_caption = 形状、变换、手势和组合层部件——全部通过画布绘制。
 paths_title = 路径、描边与裁剪
 canvas_gauge = 画布仪表
 gauge_value_label = 数值
 system_caption = 无界面的设备状态部件：电池、网络连接、运动传感器和设备标识。
-services_caption = 无界面的"与操作系统交互"部件：HTTP、剪贴板、偏好设置、触感反馈和文件选择器。
-subscribe_label = 订阅
 
 # — data strings localized for the walkthrough locales (option lists, specimen rows) —
 chocolate = 巧克力
@@ -426,7 +476,6 @@ about_id = 应用 ID
 about_os = 系统
 about_model = 型号
 about_locale = 语言
-history_hint = 点按上方的 + 或 −，每次变化都会记录在这里。
 
 # 焦点页（docs/focus.md）
 nav_focus = 焦点
@@ -574,7 +623,6 @@ text_baseline_unit = 件
 text_baseline_total = 合计
 text_baseline_currency = 美元
 text_baseline_due = 到期
-text_baseline_unsupported = 此工具包不提供文字基线，因此这些行保持居中。
 text_links_caption = 点按链接即可在系统浏览器中打开。
 text_link_icons_label = Google Fonts 上的 Material Symbols
 text_link_mail_label = 给团队发邮件
@@ -600,7 +648,7 @@ crash_clear = 清除报告
 crash_empty = 暂无崩溃报告。触发一次崩溃，然后重新启动即可在此查看。
 
 # 文本区域页面
-nav_textareas = 文本区域
+nav_textareas = 文本编辑
 textareas_caption = 两种多行编辑器：平台原生的富文本视图（编辑带格式的文档），以及下方的纯文本区域。
 textareas_editor_section = 编辑器
 textareas_seed_section = 填充为
@@ -710,7 +758,7 @@ tree_ctx_delete = 删除
 
 # — Toolbars page (docs/toolbars.md) —
 nav_toolbars = 工具栏
-toolbars_caption = 窗口自己的工具栏，绘制在平台原生的窗口外壳里——macOS 上是 NSToolbar，GNOME 上是 AdwHeaderBar，KDE 上是 QToolBar，Windows 上是 CommandBar。看看本窗口顶部；下面的控件在驱动它。
+toolbars_caption = 窗口自己的工具栏，绘制在平台原生的窗口外壳里——macOS 上是 NSToolbar，GNOME 上是 AdwHeaderBar，KDE 上是 QToolBar，Windows 上是 CommandBar。看看本窗口顶部，手机上则在窗口底边；下面的控件在驱动它。
 toolbar_unsupported = 此工具包没有窗口工具栏，因此没有安装任何内容。手机会把这些命令放进页面内容里。
 toolbar_readout_title = 工具栏正在做什么
 toolbar_controls_title = 从这里驱动它
@@ -718,7 +766,6 @@ toolbar_vocabulary_title = 工具栏项的种类
 # Item labels — these appear IN the toolbar, so they stay short.
 toolbar_sidebar = 边栏
 toolbar_new = 新建窗口
-toolbar_star = 星标
 toolbar_menu = 更多
 toolbar_menu_open_scripting = 打开脚本页面
 toolbar_menu_copy_script = 复制脚本
@@ -790,7 +837,6 @@ notify_importance_high = 高
 notify_importance_urgent = 紧急
 notify_sound = 播放提示音
 notify_badge = 角标数字
-notify_route = 点按后打开
 notify_post = 发送
 notify_cancel = 全部取消
 notify_status_idle = 尚未发送任何通知
@@ -844,8 +890,6 @@ badge_status_text = 角标已设为 “beta”
 
 # The Controls page mixer: one shared state, many editors.
 mix_custom = 自定义
-mix_untitled = 未命名混音
-mix_summary = {$name} · {$preset}，{$level}%
 voice_search_placeholder = 筛选口味…
 
 # Context-menu demos (menus page): the message-list rows and the media card.
@@ -899,7 +943,7 @@ vectors_live_tint = 实时着色
 vectors_cycle_tint = 切换
 
 # Layout page (docs/size-classes.md "Row fit policies")
-layout_caption = 同一行按钮在窗口过窄时，各种适配策略下的表现。
+layout_caption = 行、列与层叠；一行按钮在各种适配策略下的表现；卡片与环境强调色；带目标的普通滚动；以及窗口当前的尺寸类别。
 layout_note = 选择一种策略，然后增加组件直到这一行放不下。裁剪让末尾超出屏幕（调试版本会记录），换行按各按钮自身宽度折到新行，等宽列把这些行对齐成网格，竖排在紧凑宽度下改为纵向堆叠，滚动保持可滑动的单行。在桌面上把窗口拖窄即可看到竖排生效。
 layout_row_section = 行适配
 layout_fit_label = 适配策略

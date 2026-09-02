@@ -58,47 +58,49 @@ pub(crate) fn stack_page() -> AnyPiece {
         }
     }
     let cover_open = Signal::new(Option::<CoverKey>::None);
-    let root = column((
-        stack_glyph(),
-        label(crate::res::str::stack_root_body()).id("stack-root"),
-        button(crate::res::str::stack_push())
-            .prominent()
-            .action(move || push(path))
-            .tint(crate::widgets::primary())
-            .id("stack-push"),
-        // An ABSOLUTE route with query params (docs/navigation.md), built typed: it anchors
-        // the enclosing selector at Section::Stack, resets this stack, pushes Item { id: 42 };
-        // the destination builder reads the ?hint= param via route_param().
-        nav_link_to(
-            crate::res::str::stack_link_42(),
-            route(&Section::Stack)
-                .then(&Drill::Item { id: 42 })
-                .param("hint", "linked"),
-        )
-        .id("stack-link"),
-        button(crate::res::str::stack_cover_button())
-            .action(move || cover_open.set(Some(CoverKey)))
-            .tint(crate::widgets::secondary())
-            .id("cover-present"),
-        cover(cover_open, move |_| {
-            column((
-                label(crate::res::str::cover_title())
-                    .font(Font::Title)
-                    .id("cover-title"),
-                label(crate::res::str::cover_body()),
-                button(crate::res::str::cover_dismiss())
-                    .prominent()
-                    .action(move || cover_open.set(None))
-                    .id("cover-dismiss"),
-            ))
-            .spacing(12.0)
-            .padding(24.0)
-            .any()
-        }),
-    ))
-    .spacing(12.0)
-    .align(HAlign::Leading)
-    .padding(16.0);
+    let root = scroll(
+        column((
+            stack_glyph(),
+            label(crate::res::str::stack_root_body()).id("stack-root"),
+            button(crate::res::str::stack_push())
+                .prominent()
+                .action(move || push(path))
+                .tint(crate::widgets::primary())
+                .id("stack-push"),
+            // An ABSOLUTE route with query params (docs/navigation.md), built typed: it anchors
+            // the enclosing selector at Section::Stack, resets this stack, pushes Item { id: 42 };
+            // the destination builder reads the ?hint= param via route_param().
+            nav_link_to(
+                crate::res::str::stack_link_42(),
+                route(&Section::Stack)
+                    .then(&Drill::Item { id: 42 })
+                    .param("hint", "linked"),
+            )
+            .id("stack-link"),
+            button(crate::res::str::stack_cover_button())
+                .action(move || cover_open.set(Some(CoverKey)))
+                .tint(crate::widgets::secondary())
+                .id("cover-present"),
+            cover(cover_open, move |_| {
+                column((
+                    label(crate::res::str::cover_title())
+                        .font(Font::Title)
+                        .id("cover-title"),
+                    label(crate::res::str::cover_body()),
+                    button(crate::res::str::cover_dismiss())
+                        .prominent()
+                        .action(move || cover_open.set(None))
+                        .id("cover-dismiss"),
+                ))
+                .spacing(12.0)
+                .padding(24.0)
+                .any()
+            }),
+        ))
+        .spacing(12.0)
+        .align(HAlign::Leading)
+        .padding(16.0),
+    );
     stack(path, root)
         .destination(move |d: &Drill| {
             // The typed value arrives parsed — match, don't split strings.
@@ -136,10 +138,12 @@ pub(crate) fn stack_page() -> AnyPiece {
                     .id("stack-deeper")
                     .any(),
             );
-            column(PieceVec(parts))
-                .spacing(12.0)
-                .align(HAlign::Leading)
-                .padding(16.0)
+            scroll(
+                column(PieceVec(parts))
+                    .spacing(12.0)
+                    .align(HAlign::Leading)
+                    .padding(16.0),
+            )
         })
         .on_back(move |req| {
             if dirty.get() {

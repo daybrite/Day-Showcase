@@ -19,14 +19,17 @@ pub(crate) fn tabs_page() -> AnyPiece {
         content_id: &'static str,
         extra: P1,
     ) -> impl Piece + use<P1> {
-        column((
-            label(title).font(Font::Title),
-            label(body).id(content_id),
-            extra,
-        ))
-        .spacing(12.0)
-        .align(HAlign::Leading)
-        .padding(20.0)
+        // Scrolled, so a phone in landscape (a Compact height) still reaches every row.
+        scroll(
+            column((
+                label(title).font(Font::Title),
+                label(body).id(content_id),
+                extra,
+            ))
+            .spacing(12.0)
+            .align(HAlign::Leading)
+            .padding(20.0),
+        )
     }
     let tab = Signal::new(Tab::One);
     // Page-scope state, one signal set per pane: the panes read/write these across tab switches.

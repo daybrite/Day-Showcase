@@ -2,7 +2,7 @@ name: haptics-shot
 description: The Haptics group — an equal-width grid of taps plus the colored song buttons.
 flow:
   - wait_for: { id: nav }
-  - navigate: { route: services }
+  - navigate: { route: speech }
   - wait_for: { id: haptics-supported }
   - scroll_to: { id: haptics-song-cascade }
   - screenshot: haptics-grid

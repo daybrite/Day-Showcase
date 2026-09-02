@@ -6,38 +6,92 @@ counter_value = { $count ->
 decrement = −
 increment = +
 name_placeholder = Your name
-value_label = Value
-progress_label = Progress
-flavor_label = Flavor
 flavor_placeholder = Type or pick a flavor
 flavor_add = Add
-flavor_ios_note = iOS has no combo box control, so Day shows a placeholder here.
-history_entry = count became { $value }
 nav_controls = Controls
+controls_caption = Every control Day ships, family by family, each bound to live state and read back at the foot of the page.
+ctl_buttons = Buttons
+ctl_press = Press
+ctl_plain = Plain
+ctl_bordered = Bordered
+ctl_prominent = Prominent
+ctl_tinted = Tinted
+ctl_destructive = Destructive
+ctl_disabled = Disabled
+ctl_link = Link
+ctl_link_text = daybrite.dev
+ctl_presses = Presses
+ctl_switches = Switches & sliders
+ctl_toggle = Toggle
+ctl_slider = Slider
+ctl_stepped = Stepped slider
+ctl_stepper = Stepper
+ctl_composed_stepper = Composed stepper
+ctl_progress = Progress
+ctl_activity = Activity
+ctl_spinner = Spinner
+ctl_text_entry = Text entry
+ctl_text_field = Text field
+ctl_search_field = Search field
+ctl_combo_box = Combo box
+ctl_combo_note = This toolkit has no combo box control, so Day shows a placeholder here.
+ctl_text_area = Text area
+ctl_notes_placeholder = A few lines of notes
+ctl_pickers = Pickers
+ctl_date = Date
+ctl_time = Time
+ctl_color = Color
+ctl_indicators = Indicators & composition
+ctl_rating = Rating
+ctl_badge = Badge
+ctl_gauge = Gauge
+ctl_divider = Divider
+ctl_state = State
+ctl_on = On
+ctl_off = Off
+ctl_crates_note = The stepper, combo box, search field, date and time pickers, color picker, rating and activity come from their own piece crates; everything else is day-pieces.
 nav_menus = Menus & dialogs
 nav_text = Text
 nav_battery = Battery
 nav_sensors = Sensors
 nav_clipboard = Clipboard
-nav_network = Network
 nav_media = Media
-nav_compose = Compose
+nav_compose = Cards & environment
 nav_files = Files
 nav_tabs = Tabs
 nav_stack = Stack
 nav_layout = Layout
+layout_stacks_section = Rows, columns & layers
+layout_align_label = Alignment
+layout_align_top = Top
+layout_align_center = Center
+layout_align_bottom = Bottom
+layout_layered = Layered
+layout_scroll_section = Scrolling
+layout_scroll_top = Scroll to top
+layout_scroll_end = Scroll to end
+layout_size_section = Size classes
+layout_size_width = Width
+layout_size_height = Height
 nav_list = List
-nav_refresh = Refresh
-refresh_caption = Pull the feed down — or use the button — to reload
-refresh_status_idle = Idle
-refresh_status_refreshing = Refreshing…
-refresh_now = Refresh now
 refresh_tier_native = Pull-to-refresh: native
 refresh_tier_emulated = Pull-to-refresh: emulated
-refresh_row = Item { $n }
+layout_row = Item { $n }
 nav_webview = Web View
 nav_lottie = Lottie
+lottie_playback_section = Playback
 nav_about = About
+
+# Sidebar group headers (lib.rs `Group`): the sections the destinations sit under.
+group_starred = Starred
+group_overview = Overview
+group_controls = Controls
+group_layout = Layout
+group_navigation = Navigation & chrome
+group_data = Data
+group_graphics = Graphics & media
+group_platform = Platform
+group_app = App & tooling
 
 shapes_kinds = Kinds
 gradients_title = Gradients
@@ -64,13 +118,8 @@ date_picked = Picked date
 time_picked = Picked time
 
 compose_caption = Pure-composition pieces — no native code, no cargo features, every backend for free.
-compose_rating_label = Star rating
-compose_rating_count = Stars selected:
-compose_rating_placeholder = 1–5
 compose_card_title = Reusable surface
 compose_card_body = Padding + background + rounded corners, applied as a Modifier.
-compose_plain_btn = Plain
-compose_styled_btn = Filled
 compose_env_value = Tinted by the provided accent
 list_add = Add 100
 list_caption = { $count } rows — only the visible cells are built
@@ -296,7 +345,6 @@ resources_caption = An image loaded by name from a bundled resource, plus random
 vectors_title = Vectors
 vectors_note = The sidebar's glyphs, drawn from resource/vectors/ — one SVG per icon, resolution-independent on every backend.
 vectors_tints = Tints
-vectors_scene = Full-color art
 vectors_zoom = Zoom
 vectors_scene_note = One 240-path SVG, redrawn from the vector at every zoom step rather than magnified — the edges stay crisp at any size. On Android it ships as a VectorDrawable, not a raster.
 vectors_weights = Weights
@@ -314,12 +362,10 @@ deviceinfo_no = no
 deviceinfo_refresh = Refresh
 
 # --- day-piece-activity ---
-activity_animating = Animating
 activity_on = Spinning
 activity_off = Stopped
 
 # --- day-piece-searchfield ---
-nav_search = Search
 search_clear = Clear
 
 # --- day-piece-map ---
@@ -356,15 +402,19 @@ tweaks_label_class = Native class: { $class }
 # — merged section pages (design overhaul) —
 nav_canvas = Canvas & shapes
 nav_system = Device & sensors
-nav_services = Platform services
-controls_basics = Basics
+nav_network_http = Network & HTTP
+network_caption = What the platform says about connectivity, then HTTP through its own stack: proxies, VPN and TLS included.
+network_status_section = Connectivity
+nav_notify_badge = Notifications & badge
+nav_speech_haptics = Speech & haptics
+speech_haptics_caption = The two parts that talk to the person: the platform's voice, and its haptic engine.
+nav_files_storage = Files & storage
+files_storage_caption = The clipboard, key-value preferences, the native file pickers, and an app-local file store.
 canvas_caption = Shapes, transforms, gestures, and composition-tier widgets — all drawn through the canvas.
 paths_title = Paths, strokes & clipping
 canvas_gauge = Canvas gauge
 gauge_value_label = Value
 system_caption = The headless device-state parts: battery, connectivity, motion sensors, and device identity.
-services_caption = The headless "do something with the OS" parts: HTTP, clipboard, preferences, haptics, and file pickers.
-subscribe_label = Subscribe
 
 # — data strings localized for the walkthrough locales (option lists, specimen rows) —
 chocolate = chocolate
@@ -431,7 +481,6 @@ about_id = App ID
 about_os = OS
 about_model = Model
 about_locale = Locale
-history_hint = Tap + or − above and each change lands here.
 
 # Focus page (docs/focus.md)
 nav_focus = Focus
@@ -581,7 +630,6 @@ text_baseline_unit = items
 text_baseline_total = Total
 text_baseline_currency = USD
 text_baseline_due = Due
-text_baseline_unsupported = This toolkit reports no text baselines, so these rows stay centered.
 text_links_caption = Tap a link to open it in the system browser.
 text_link_icons_label = Material Symbols on Google Fonts
 text_link_mail_label = Email the team
@@ -607,7 +655,7 @@ crash_clear = Clear reports
 crash_empty = No crash report yet. Trigger a crash, then relaunch to see it here.
 
 # Text Areas page
-nav_textareas = Text areas
+nav_textareas = Text editing
 textareas_caption = Two multi-line editors: the platform's rich-text view over a styled document, and the plain native text area beneath it.
 textareas_editor_section = Editor
 textareas_seed_section = Seed with
@@ -720,7 +768,7 @@ tree_ctx_delete = Delete
 
 # — Toolbars page (docs/toolbars.md) —
 nav_toolbars = Toolbars
-toolbars_caption = The window's own toolbar, in the platform's native chrome — an NSToolbar on macOS, the AdwHeaderBar on GNOME, a QToolBar on KDE, a CommandBar on Windows. Look at the top of this window; the controls below drive it.
+toolbars_caption = The window's own toolbar, in the platform's native chrome — an NSToolbar on macOS, the AdwHeaderBar on GNOME, a QToolBar on KDE, a CommandBar on Windows. Look at the top of this window, or along its bottom edge on a phone; the controls below drive it.
 toolbar_unsupported = This toolkit has no window toolbar, so nothing was installed. A phone puts these commands in the content instead.
 toolbar_readout_title = What the toolbar is doing
 toolbar_controls_title = Driving it from here
@@ -728,7 +776,6 @@ toolbar_vocabulary_title = The item vocabulary
 # Item labels — these appear IN the toolbar, so they stay short.
 toolbar_sidebar = Sidebar
 toolbar_new = New Window
-toolbar_star = Star
 toolbar_menu = More
 toolbar_menu_open_scripting = Open the Scripting page
 toolbar_menu_copy_script = Copy the script
@@ -801,7 +848,6 @@ notify_importance_high = High
 notify_importance_urgent = Urgent
 notify_sound = Play a sound
 notify_badge = Badge count
-notify_route = Tap opens
 notify_post = Post
 notify_cancel = Cancel all
 notify_status_idle = Nothing posted yet
@@ -855,8 +901,6 @@ badge_status_text = Badge set to "beta"
 
 # The Controls page mixer: one shared state, many editors.
 mix_custom = Custom
-mix_untitled = Untitled mix
-mix_summary = {$name} · {$preset} at {$level}%
 voice_search_placeholder = Filter flavors…
 
 # Context-menu demos (menus page): the message-list rows and the media card.
@@ -911,7 +955,7 @@ vectors_live_tint = Live tint
 vectors_cycle_tint = Cycle
 
 # Layout page (docs/size-classes.md "Row fit policies")
-layout_caption = How one row of buttons behaves under each fit policy when the window is too narrow for it.
+layout_caption = Rows, columns and layers; how one row of buttons behaves under each fit policy; cards and an ambient accent; a plain scroll with targets; and the size classes the window is in.
 layout_note = Pick a policy, then add components until the row runs out of room. Clip lets the tail fall offscreen (debug builds log it), Wrap breaks onto new lines at each button's own width, Even columns aligns those lines into a grid, Column stacks below compact width, Scroll keeps one swipeable line. On a desktop, drag the window narrower to watch Column engage.
 layout_row_section = Row fit
 layout_fit_label = Fit policy

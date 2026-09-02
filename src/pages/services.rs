@@ -9,19 +9,52 @@ use crate::widgets::page;
 /// one grouped form section each — text to speech (first: it is the daybridge reference, and the
 /// one demo you can hear), an HTTP fetch, clipboard round-trip, persisted preferences, haptic
 /// feedback, local notifications, and the native file pickers.
-pub(crate) fn services_page() -> AnyPiece {
+/// Network & HTTP: what the platform says about connectivity, then day-part-http through the
+/// platform's own HTTP stack — fetch, PATCH, a `Resource`, and a free-form URL check.
+pub(crate) fn network_page() -> AnyPiece {
     page(
-        crate::res::str::nav_services(),
-        "services-title",
-        Some(crate::res::str::services_caption()),
+        crate::res::str::nav_network_http(),
+        "network-title",
+        Some(crate::res::str::network_caption()),
+        form((network_section(), http_section())).any(),
+    )
+    .any()
+}
+
+/// Notifications & badge: a local notification through the OS, its permission, and the app
+/// icon's badge.
+pub(crate) fn notify_page() -> AnyPiece {
+    page(
+        crate::res::str::nav_notify_badge(),
+        "notify-page-title",
+        Some(crate::res::str::notify_caption()),
+        form((notify_section(), badge_section())).any(),
+    )
+    .any()
+}
+
+/// Speech & haptics: the two parts that talk to the person — the platform's voice and its
+/// haptic engine.
+pub(crate) fn speech_page() -> AnyPiece {
+    page(
+        crate::res::str::nav_speech_haptics(),
+        "speech-title",
+        Some(crate::res::str::speech_haptics_caption()),
+        form((speech_section(), haptics_section())).any(),
+    )
+    .any()
+}
+
+/// Files & storage: the clipboard, key-value preferences, the native file pickers, and the
+/// app-local file store (OPFS on the web).
+pub(crate) fn files_page() -> AnyPiece {
+    page(
+        crate::res::str::nav_files_storage(),
+        "files-title",
+        Some(crate::res::str::files_storage_caption()),
         form((
-            speech_section(),
-            http_section(),
             clipboard_section(),
             prefs_section(),
-            haptics_section(),
-            notify_section(),
-            badge_section(),
             files_section(),
             storage_section(),
         ))
@@ -1295,4 +1328,40 @@ fn storage_section() -> impl Piece {
         ),
     ))
     .title(crate::res::str::storage_title())
+}
+
+/// Connectivity (docs/network.md): online, metered, and the interface kind, read on demand.
+fn network_section() -> impl Piece {
+    let reading = Signal::new(network_line().format());
+    section((row((
+        button(crate::res::str::network_refresh())
+            .bordered()
+            .action(move || reading.set(network_line().format()))
+            .id("network-refresh"),
+        label(move || reading.get()).id("network-reading"),
+    ))
+    .spacing(8.0),))
+    .title(crate::res::str::network_status_section())
+}
+
+/// The current connectivity snapshot as a localized line (Fluent; kind stays the API's enum
+/// debug form — it is a value, not prose).
+fn network_line() -> LocalizedText {
+    match day_part_network::status() {
+        Some(n) => {
+            if n.online {
+                crate::res::str::network_reading_online(
+                    match n.expensive {
+                        Some(true) => "yes",
+                        Some(false) => "no",
+                        None => "?",
+                    },
+                    format!("{:?}", n.kind),
+                )
+            } else {
+                crate::res::str::network_reading_offline()
+            }
+        }
+        None => crate::res::str::network_reading_none(),
+    }
 }
