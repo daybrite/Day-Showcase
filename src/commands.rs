@@ -307,8 +307,10 @@ pub(crate) fn set_appearance(mode: Appearance) {
 /// One appearance mode as a command — `checked` is "this is the mode in force", which is what
 /// makes the three read as a radio group in a toolbar and a menu alike.
 ///
-/// Disabled where the toolkit cannot restyle itself (`Cap::Appearance`; today Qt, Android and
-/// ArkUI), so the affordance is visibly inert rather than silently doing nothing.
+/// Disabled where the toolkit cannot restyle itself (`Cap::Appearance`; today Qt and ArkUI, and
+/// Android below API 31), so the affordance is visibly inert rather than silently doing nothing.
+/// Android answers that capability from the DEVICE rather than for the backend, which is why this
+/// asks rather than testing the target.
 pub(crate) fn appearance_command(mode: Appearance) -> Command {
     match mode {
         Appearance::Light => Command {
