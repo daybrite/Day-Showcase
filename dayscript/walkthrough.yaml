@@ -273,10 +273,14 @@ flow:
   - navigate: { route: focus }
   - assert_route: { route: focus }
   - assert_visible: { id: focus-title }
-  # Programmatic request through the group signal: the "next" button starts the cycle at Name.
+  # Programmatic request through the group signal: the "next" button continues from the LAST
+  # focused field, and starts the cycle at Name only when nothing has held focus yet. GTK gives
+  # a freshly shown page an initial focus of its own — the first field, in the Arabic layout —
+  # which made "next" land on Email there (linux-gtk light-ar and dark-ar in CI). Clear first,
+  # so the cycle provably starts from nothing.
+  - tap: { id: focus-clear-button }
+  - wait_idle:
   - tap: { id: focus-next-button }
-  # Settle first: under xvfb the GTK focus move landed a beat after the tap once (linux-gtk,
-  # light-ar), and the assertion read the field before it had focus.
   - wait_idle:
   - assert_focused: { id: focus-name-field }
   - assert_text: { id: focus-current, key: focus_name_label }
