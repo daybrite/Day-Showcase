@@ -129,10 +129,88 @@ pub(crate) fn install() {
             // ── Appearance: one segmented control over one setting (commands.rs) ─────────
             appearance_item(s.theme),
             toolbar_separator(),
+            // "Show Source" (docs/toolbars.md): open the current page's source on GitHub — the
+            // desktop counterpart to the mobile nav-bar button (lib.rs `show_source`). It leads
+            // the page-command group (source, star, screenshot): all three act on the page that
+            // is showing, and it used to sit apart from them wearing an oversized bundled PNG.
+            // The SF symbol on Apple platforms and the desktop symbol sets; Android stages no
+            // glyph for a `Symbol`, so there the bundled image draws instead of the label.
+            if cfg!(target_os = "android") {
+                toolbar_button("tb-source", crate::res::str::show_source())
+                    .image(crate::res::images::show_source)
+            } else {
+                toolbar_button("tb-source", crate::res::str::show_source()).icon(Symbol::Code)
+            }
+            .tooltip(crate::res::str::show_source())
+            .action(crate::show_source),
+            // The Star command (commands.rs), not a demo toggle: it stars the page that is
+            // showing. The label, the pressed state and the enablement all come from the one
+            // `Command`, so this button, the App menu's item and the row's context menu can
+            // never disagree — and because they are read HERE, inside `toolbar_reactive`, a
+            // star from any of them re-lowers this bar with no wiring between them.
+            {
+                let star = crate::commands::star();
+                toolbar_toggle(star.id, (star.title)(), s.starred)
+                    .image(crate::res::vectors::star.clone())
+                    .enabled_when(star.enabled)
+                    .action(move || {
+                        // Honour the state the toggle was moved TO, rather than flipping blindly.
+                        // `toolbar_toggle` writes the requested value into the bound signal before
+                        // running this, so that signal IS the intent — and a toggle asked to turn
+                        // ON while the page is already starred must be a no-op, not an unstar.
+                        // Toggling regardless made the action depend on what happened to be
+                        // persisted from the last run: the walkthrough starred this page, and the
+                        // NEXT run's `on: true` silently unstarred it.
+                        if s.starred.get_untracked() != (star.checked)() {
+                            (star.run)();
+                        }
+                        note(s, crate::res::str::toolbar_last_star());
+                    })
+            },
+            // The Screenshot command (commands.rs) — the second real command on this bar, and
+            // the reason `Command` exists: declared once, rendered here and in the App menu.
+            {
+                let shot = crate::commands::screenshot();
+                // The one item the page can disable, so the targeted-patch demo has a subject:
+                // only this item changes, and a search in progress is undisturbed.
+                toolbar_button(shot.id, (shot.title)())
+                    .icon(Symbol::Camera)
+                    .enabled_when(move || s.refresh_enabled.get() && (shot.enabled)())
+                    .action(move || (shot.run)())
+            },
+            // A pull-down, built from the same entries the menu bar takes — the recorder's
+            // less-used commands, which do not each deserve a button.
+            toolbar_menu(
+                "tb-menu",
+                crate::res::str::toolbar_menu(),
+                vec![
+                    menu_item(crate::res::str::toolbar_menu_open_scripting().format()).action(
+                        move || {
+                            navigate_to(&crate::Section::Scripting);
+                            note(s, crate::res::str::toolbar_menu_open_scripting());
+                        },
+                    ),
+                    menu_item(crate::res::str::toolbar_menu_copy_script().format())
+                        .enabled(crate::pages::scripting::has_script())
+                        .action(move || {
+                            let ok = crate::pages::scripting::buf_signal()
+                                .with(|t| day_part_clipboard::set_text(t));
+                            if ok {
+                                note(s, crate::res::str::toolbar_menu_copy_script());
+                            }
+                        }),
+                    menu_separator(),
+                    menu_role(MenuRole::Copy),
+                ],
+            )
+            .icon(Symbol::More),
             // ── The recorder's transport (commands.rs, docs/agent.md) ────────────────────
             //
             // Record ↔ Stop, then Play ↔ Pause. Both drive the Scripting page's buffer, so a
             // recording started here is the script that page shows, and Play replays it.
+            // LAST, deliberately: a phone's bar folds its trailing items into an overflow
+            // menu, and these two are the ones to fold — the page commands above them are
+            // what a visitor reaches for.
             {
                 let rec = crate::commands::record();
                 // Stop is a standard Symbol; there is no standard "record", so the dot is a
@@ -175,89 +253,6 @@ pub(crate) fn install() {
                         note(s, what);
                     })
             },
-            // The one item the page can disable, so the targeted-patch demo still has a subject:
-            // only this item changes, and a search in progress is undisturbed.
-            {
-                let clear = crate::commands::clear_recording();
-                toolbar_button(clear.id, (clear.title)())
-                    .icon(Symbol::Delete)
-                    .enabled_when(move || s.refresh_enabled.get() && (clear.enabled)())
-                    .action(move || {
-                        // The title BEFORE running: pressing Record leaves the item reading
-                        // "Stop", and the readout is supposed to name what was invoked.
-                        let what = (clear.title)();
-                        (clear.run)();
-                        note(s, what);
-                    })
-            },
-            toolbar_separator(),
-            // "Show Source" (docs/toolbars.md): open the current page's source on GitHub — the
-            // desktop counterpart to the mobile nav-bar button (lib.rs `show_source`). It leads
-            // the page-command group (source, star, screenshot): all three act on the page that
-            // is showing, and it used to sit apart from them wearing an oversized bundled PNG.
-            toolbar_button("tb-source", crate::res::str::show_source())
-                .icon(Symbol::Code)
-                .tooltip(crate::res::str::show_source())
-                .action(crate::show_source),
-            // The Star command (commands.rs), not a demo toggle: it stars the page that is
-            // showing. The label, the pressed state and the enablement all come from the one
-            // `Command`, so this button, the App menu's item and the row's context menu can
-            // never disagree — and because they are read HERE, inside `toolbar_reactive`, a
-            // star from any of them re-lowers this bar with no wiring between them.
-            {
-                let star = crate::commands::star();
-                toolbar_toggle(star.id, (star.title)(), s.starred)
-                    .image(crate::res::vectors::star.clone())
-                    .enabled_when(star.enabled)
-                    .action(move || {
-                        // Honour the state the toggle was moved TO, rather than flipping blindly.
-                        // `toolbar_toggle` writes the requested value into the bound signal before
-                        // running this, so that signal IS the intent — and a toggle asked to turn
-                        // ON while the page is already starred must be a no-op, not an unstar.
-                        // Toggling regardless made the action depend on what happened to be
-                        // persisted from the last run: the walkthrough starred this page, and the
-                        // NEXT run's `on: true` silently unstarred it.
-                        if s.starred.get_untracked() != (star.checked)() {
-                            (star.run)();
-                        }
-                        note(s, crate::res::str::toolbar_last_star());
-                    })
-            },
-            // The Screenshot command (commands.rs) — the second real command on this bar, and
-            // the reason `Command` exists: declared once, rendered here and in the App menu.
-            {
-                let shot = crate::commands::screenshot();
-                toolbar_button(shot.id, (shot.title)())
-                    .icon(Symbol::Camera)
-                    .enabled_when(shot.enabled)
-                    .action(move || (shot.run)())
-            },
-            // A pull-down, built from the same entries the menu bar takes — the recorder's
-            // less-used commands, which do not each deserve a button.
-            toolbar_menu(
-                "tb-menu",
-                crate::res::str::toolbar_menu(),
-                vec![
-                    menu_item(crate::res::str::toolbar_menu_open_scripting().format()).action(
-                        move || {
-                            navigate_to(&crate::Section::Scripting);
-                            note(s, crate::res::str::toolbar_menu_open_scripting());
-                        },
-                    ),
-                    menu_item(crate::res::str::toolbar_menu_copy_script().format())
-                        .enabled(crate::pages::scripting::has_script())
-                        .action(move || {
-                            let ok = crate::pages::scripting::buf_signal()
-                                .with(|t| day_part_clipboard::set_text(t));
-                            if ok {
-                                note(s, crate::res::str::toolbar_menu_copy_script());
-                            }
-                        }),
-                    menu_separator(),
-                    menu_role(MenuRole::Copy),
-                ],
-            )
-            .icon(Symbol::More),
         ];
         if s.extra.get() {
             // The add/remove demonstration, and a real command: save a picture of the window

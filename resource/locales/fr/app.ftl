@@ -766,7 +766,7 @@ tree_ctx_delete = Supprimer
 
 # — Toolbars page (docs/toolbars.md) —
 nav_toolbars = Barres d'outils
-toolbars_caption = La barre d'outils de la fenêtre elle-même, dans l'habillage natif de la plateforme — un NSToolbar sur macOS, l'AdwHeaderBar sur GNOME, une QToolBar sur KDE, une CommandBar sur Windows. Regardez en haut de cette fenêtre, ou le long de son bord inférieur sur un téléphone ; les contrôles ci-dessous la pilotent.
+toolbars_caption = La barre d'outils de la fenêtre elle-même, dans l'habillage natif de la plateforme — un NSToolbar sur macOS, l'AdwHeaderBar sur GNOME, une QToolBar sur KDE, une CommandBar sur Windows. Regardez l'habillage de cette fenêtre : la barre du haut sur le bureau, l'iPad et l'iPhone, la barre sous la page sur Android ; les contrôles ci-dessous la pilotent.
 toolbar_unsupported = Cette boîte à outils n'a pas de barre d'outils de fenêtre ; rien n'a donc été installé. Sur téléphone, ces commandes vont dans le contenu.
 toolbar_readout_title = Ce que fait la barre d'outils
 toolbar_controls_title = La piloter depuis ici
@@ -806,7 +806,7 @@ toolbar_last_star = Étoile basculée
 toolbar_last_extra = Infos de version copiées
 # The page's own controls.
 toolbar_extra_label = Afficher l'élément Copier les infos
-toolbar_enabled_label = Élément Effacer activé
+toolbar_enabled_label = Capture d’écran activée
 toolbar_clear_search = Effacer la recherche
 toolbar_seed_search = Remplir la recherche
 toolbar_seed_text = barres d'outils

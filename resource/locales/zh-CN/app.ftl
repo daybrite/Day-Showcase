@@ -758,7 +758,7 @@ tree_ctx_delete = 删除
 
 # — Toolbars page (docs/toolbars.md) —
 nav_toolbars = 工具栏
-toolbars_caption = 窗口自己的工具栏，绘制在平台原生的窗口外壳里——macOS 上是 NSToolbar，GNOME 上是 AdwHeaderBar，KDE 上是 QToolBar，Windows 上是 CommandBar。看看本窗口顶部，手机上则在窗口底边；下面的控件在驱动它。
+toolbars_caption = 窗口自己的工具栏，绘制在平台原生的窗口外壳里——macOS 上是 NSToolbar，GNOME 上是 AdwHeaderBar，KDE 上是 QToolBar，Windows 上是 CommandBar。看看本窗口自己的外壳：桌面、iPad 和 iPhone 上是顶部工具栏，Android 上是页面下方的工具栏；下面的控件在驱动它。
 toolbar_unsupported = 此工具包没有窗口工具栏，因此没有安装任何内容。手机会把这些命令放进页面内容里。
 toolbar_readout_title = 工具栏正在做什么
 toolbar_controls_title = 从这里驱动它
@@ -797,7 +797,7 @@ toolbar_last_star = 已切换星标
 toolbar_last_extra = 已复制版本信息
 # The page's own controls.
 toolbar_extra_label = 显示“复制信息”项
-toolbar_enabled_label = 启用“清除录制”项
+toolbar_enabled_label = 已启用截图
 toolbar_clear_search = 清除搜索
 toolbar_seed_search = 填充搜索
 toolbar_seed_text = 工具栏

@@ -768,7 +768,7 @@ tree_ctx_delete = Delete
 
 # — Toolbars page (docs/toolbars.md) —
 nav_toolbars = Toolbars
-toolbars_caption = The window's own toolbar, in the platform's native chrome — an NSToolbar on macOS, the AdwHeaderBar on GNOME, a QToolBar on KDE, a CommandBar on Windows. Look at the top of this window, or along its bottom edge on a phone; the controls below drive it.
+toolbars_caption = The window's own toolbar, in the platform's native chrome — an NSToolbar on macOS, the AdwHeaderBar on GNOME, a QToolBar on KDE, a CommandBar on Windows. Look at this window's own chrome: the top bar on the desktop, iPad and iPhone, the bar under the page on Android; the controls below drive it.
 toolbar_unsupported = This toolkit has no window toolbar, so nothing was installed. A phone puts these commands in the content instead.
 toolbar_readout_title = What the toolbar is doing
 toolbar_controls_title = Driving it from here
@@ -808,7 +808,7 @@ toolbar_last_star = Star toggled
 toolbar_last_extra = Build info copied
 # The page's own controls.
 toolbar_extra_label = Show the Copy Info item
-toolbar_enabled_label = Clear recording enabled
+toolbar_enabled_label = Screenshot enabled
 toolbar_clear_search = Clear search
 toolbar_seed_search = Fill search
 toolbar_seed_text = toolbars

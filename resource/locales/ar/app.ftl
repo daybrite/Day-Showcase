@@ -780,7 +780,7 @@ tree_ctx_delete = حذف
 
 # — Toolbars page (docs/toolbars.md) —
 nav_toolbars = أشرطة الأدوات
-toolbars_caption = شريط أدوات النافذة نفسها، ضمن الهيكل الأصلي للمنصة — ‏NSToolbar على macOS، وAdwHeaderBar على GNOME، وQToolBar على KDE، وCommandBar على Windows. انظر إلى أعلى هذه النافذة، أو إلى حافتها السفلية على الهاتف؛ عناصر التحكّم أدناه هي التي تقوده.
+toolbars_caption = شريط أدوات النافذة نفسها، ضمن الهيكل الأصلي للمنصة — ‏NSToolbar على macOS، وAdwHeaderBar على GNOME، وQToolBar على KDE، وCommandBar على Windows. انظر إلى هيكل هذه النافذة نفسه: الشريط العلوي على سطح المكتب وiPad وiPhone، والشريط أسفل الصفحة على Android؛ عناصر التحكّم أدناه هي التي تقوده.
 toolbar_unsupported = لا تملك مجموعة الأدوات هذه شريط أدوات للنافذة، لذا لم يُثبَّت شيء. الهاتف يضع هذه الأوامر داخل المحتوى بدلًا من ذلك.
 toolbar_readout_title = ما الذي يفعله شريط الأدوات
 toolbar_controls_title = قيادته من هنا
@@ -824,7 +824,7 @@ toolbar_last_star = تبديل النجمة
 toolbar_last_extra = نُسخت معلومات الإصدار
 # The page's own controls.
 toolbar_extra_label = إظهار عنصر نسخ المعلومات
-toolbar_enabled_label = تفعيل عنصر المسح
+toolbar_enabled_label = لقطة الشاشة مفعّلة
 toolbar_clear_search = مسح البحث
 toolbar_seed_search = تعبئة البحث
 toolbar_seed_text = أشرطة الأدوات

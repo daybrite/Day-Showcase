@@ -833,14 +833,6 @@ fn window_body(primary: bool) -> impl Piece {
                 }
             },
         )
-        // "Show Source" as an upper-right nav-bar button on the toolkits with no window toolbar
-        // (the phones, HarmonyOS — docs/navigation.md); desktop shows it in the toolbar instead
-        // (pages/toolbars.rs). One handler for every page: it reads the live route.
-        .bar_action(
-            res::images::show_source,
-            crate::res::str::show_source(),
-            show_source,
-        )
         // Dynamic rows carry no page builder of their own — the key is looked up here.
         .destination(|key: &Option<Section>| match key {
             Some(sec) => destinations()
@@ -850,6 +842,19 @@ fn window_body(primary: bool) -> impl Piece {
                 .unwrap_or_else(|| column(()).any()),
             None => column(()).any(),
         });
+    // "Show Source" as an upper-right nav-bar button where there is no window toolbar to carry
+    // it (HarmonyOS, the web — docs/navigation.md); every other toolkit, the phones included,
+    // shows the same command in the toolbar (pages/toolbars.rs), and declaring both would draw
+    // two of it. One handler for every page: it reads the live route.
+    let nav = if capability(Cap::Toolbar) == Support::Unsupported {
+        nav.bar_action(
+            res::images::show_source,
+            crate::res::str::show_source(),
+            show_source,
+        )
+    } else {
+        nav
+    };
     let nav = if primary { nav } else { nav.local() };
     nav.id("nav")
 }

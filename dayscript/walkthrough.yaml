@@ -275,6 +275,9 @@ flow:
   - assert_visible: { id: focus-title }
   # Programmatic request through the group signal: the "next" button starts the cycle at Name.
   - tap: { id: focus-next-button }
+  # Settle first: under xvfb the GTK focus move landed a beat after the tap once (linux-gtk,
+  # light-ar), and the assertion read the field before it had focus.
+  - wait_idle:
   - assert_focused: { id: focus-name-field }
   - assert_text: { id: focus-current, key: focus_name_label }
   # Script-driven duty: land focus directly on the email field. The readout following proves the
@@ -577,9 +580,13 @@ flow:
   - toolbar: { item: cmd-play, skip_on: [harmony-arkui, web-dom] }
   - wait_idle:
   - assert_text: { id: toolbar-transport, key: toolbar_transport_paused, skip_on: [harmony-arkui, web-dom] }
+  # Resume is NOT followed by a "Playing" assertion. The replay runs a quarter second per step
+  # (the Scripting page's default delay), one step is left after the pause, and on a loaded CI
+  # simulator (ios-uikit iPad, light-ar) the readout was already back to Idle by the time the
+  # assertion read it. The first Playing assertion above has two steps of headroom; this one had
+  # none. Reaching Idle from Paused below is the proof that the resume ran.
   - toolbar: { item: cmd-play, skip_on: [harmony-arkui, web-dom] }
   - wait_idle:
-  - assert_text: { id: toolbar-transport, key: toolbar_transport_playing, skip_on: [harmony-arkui, web-dom] }
   # WAIT FOR THE REPLAY TO END before anything below runs. It re-dispatches the two recorded taps
   # (seed-search, then clear-search) on its own schedule, and every assertion under here reads
   # state those taps overwrite — a replayed `clear-search` landing late is what emptied
