@@ -688,7 +688,6 @@ flow:
   # (day-piece-pullrefresh): a synthetic toggle begins a reload that adds 100 rows and ends itself.
   - navigate: { route: list }
   - assert_route: { route: list }
-  - assert_visible: { id: list-title }
   # The tier line (docs/pullrefresh.md) says whether the pull is native or emulated here — it
   # differs per backend, so presence only.
   - assert_visible: { id: list-tier }
@@ -765,7 +764,6 @@ flow:
   # form, so the Lock toggle's DENY verdict is exercised by pointer, not here.
   - navigate: { route: tree }
   - assert_route: { route: tree }
-  - assert_visible: { id: tree-title }
   # Initial disclosure: src open, pages and docs closed — both directions one step away.
   - wait_for: { id: tree-node-1 }
   - wait_for: { id: tree-node-2 }
@@ -790,7 +788,6 @@ flow:
   # cell; hiding done rows re-runs only the key projection.
   - navigate: { route: model }
   - assert_route: { route: model }
-  - assert_visible: { id: model-title }
   - assert_text: { id: model-caption, key: model_caption, args: { count: 300 } }
   - assert_text: { id: model-selected, key: model_selected_none }
   - select: { id: model-list, index: 0 }
@@ -839,7 +836,6 @@ flow:
   # exactly one title, every seventh row is starred (1428 of 10000), and id 42 is one of them.
   - navigate: { route: query }
   - assert_route: { route: query }
-  - assert_visible: { id: query-title }
   - assert_text: { id: query-caption, key: query_caption, args: { count: 10000, total: 10000 } }
   - toggle: { id: query-filter, value: true }
   - assert_text: { id: query-caption, key: query_caption, args: { count: 1428, total: 10000 } }
@@ -1063,7 +1059,7 @@ flow:
   # x86_64 engine. (measured on the API-18 x86_64 emulator, docs/harmonyos.md)
   - navigate: { route: webview, skip_on: [harmony-arkui] }
   - assert_route: { route: webview, skip_on: [harmony-arkui] }
-  - assert_visible: { id: webview-title, skip_on: [harmony-arkui] }
+  - assert_visible: { id: webview-tab, skip_on: [harmony-arkui] }
   # web-dom embeds an <iframe>, so history is unreachable and the page says so (docs/webview.md).
   # Only that backend renders the footnote; everywhere else the piece reports Support::Native.
   - assert_visible: { id: webview-note, only_on: [web-dom] }

@@ -81,10 +81,25 @@ pub(crate) fn gauge(value: Signal<f64>) -> impl Piece {
 /// Standard page scaffold (the showcase design pass): a title + optional caption header over a
 /// scrollable, consistently padded content column. Every page uses it, so typography, spacing,
 /// and scrolling behave identically across the app.
+/// A piece that mounts nothing.
+///
+/// `when` with no `otherwise` and a condition that never holds is Day's way of spelling an absent
+/// subtree (§4.3), and absent is what this needs to be: a column holding a zero-size label still
+/// spaces around it, leaving a gap where the caller meant to put nothing at all.
+pub(crate) fn nothing() -> impl Piece {
+    when(|| false, spacer)
+}
+
 /// A page's title heading. When the native nav shows the destination title in its own header
-/// (`Cap::NavHeader` — e.g. the Windows NavigationView), the big in-content title is redundant, so
-/// it is dropped: the caption (or, lacking one, a de-emphasized title) carries the `title_id` so
-/// scripts/tests still find the anchor. Elsewhere it renders the usual `Font::Title` + caption.
+/// (`Cap::NavHeader` — the phones, and the Windows NavigationView), the big in-content title is
+/// redundant, so it is dropped and the caption takes its place, carrying the `title_id`.
+///
+/// A page with NO caption then has nothing left to say, and draws nothing: the heading used to
+/// render the title again in `Font::Subheadline` purely so a script had an anchor to assert, which
+/// put "About" under a nav bar already reading "About" — the same word twice, on every such page.
+/// The scripts assert the page's own content instead (`assert_route` proves the destination), so
+/// the anchor is not worth the duplicate. Elsewhere — the desktops, where nothing else names the
+/// destination — it renders the usual `Font::Title` + caption.
 pub(crate) fn heading(
     title: LocalizedText,
     title_id: &'static str,
@@ -93,7 +108,7 @@ pub(crate) fn heading(
     let native_header = capability(Cap::NavHeader) == Support::Native;
     match (native_header, caption) {
         (true, Some(c)) => label(c).font(Font::Subheadline).id(title_id).any(),
-        (true, None) => label(title).font(Font::Subheadline).id(title_id).any(),
+        (true, None) => nothing().any(),
         (false, Some(c)) => column((
             label(title).font(Font::Title).id(title_id),
             label(c).font(Font::Footnote),

@@ -10,7 +10,6 @@ description: >-
 flow:
   - navigate: { route: tree }
   - assert_route: { route: tree }
-  - wait_for: { id: tree-title }
 
   # ---- Initial disclosure mirrors the seed: src open (its children visible), pages and
   # docs closed (their children absent — a composed tree builds no hidden rows, a native
