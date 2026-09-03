@@ -1,6 +1,6 @@
 [package]
 name = "day-showcase"
-version = "0.3.3"
+version = "0.4.0"
 edition = "2024"
 license = "Apache-2.0"
 authors = ["Daybrite <hello@daybrite.dev>"]
