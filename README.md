@@ -6,7 +6,7 @@ Android, Windows, Linux, HarmonyOS, and the web. The switch on the Controls page
 on iPhone, a `MaterialSwitch` on Android, and an `NSSwitch` on a Mac.
 
 <p align="center">
-  <img src="https://showcase.daybrite.dev/gallery/macos-appkit/light/controls.png" width="760" alt="The Controls page on macOS">
+  <kbd><img src="https://showcase.daybrite.dev/gallery/macos-appkit/light/controls.png" width="760" alt="The Controls page on macOS"></kbd>
 </p>
 
 ## Run it in one command
@@ -51,10 +51,10 @@ central feature a platform cannot run is left out of that platform's sidebar; a 
 platform cannot run stays, with a note.
 
 <p align="center">
-  <img src="https://showcase.daybrite.dev/gallery/ios-uikit/iphone/light/home.png" width="200" alt="The home list on iPhone">
-  <img src="https://showcase.daybrite.dev/gallery/ios-uikit/iphone/light/controls.png" width="200" alt="Controls on iPhone">
-  <img src="https://showcase.daybrite.dev/gallery/ios-uikit/iphone/light/canvas.png" width="200" alt="Canvas and shapes on iPhone">
-  <img src="https://showcase.daybrite.dev/gallery/ios-uikit/iphone/light/tree.png" width="200" alt="The tree piece on iPhone">
+  <kbd><img src="https://showcase.daybrite.dev/gallery/ios-uikit/iphone/light/home.png" width="200" alt="The home list on iPhone"></kbd>
+  <kbd><img src="https://showcase.daybrite.dev/gallery/ios-uikit/iphone/light/controls.png" width="200" alt="Controls on iPhone"></kbd>
+  <kbd><img src="https://showcase.daybrite.dev/gallery/ios-uikit/iphone/light/canvas.png" width="200" alt="Canvas and shapes on iPhone"></kbd>
+  <kbd><img src="https://showcase.daybrite.dev/gallery/ios-uikit/iphone/light/tree.png" width="200" alt="The tree piece on iPhone"></kbd>
 </p>
 
 - **Controls, Text, Text areas, Focus.** Buttons, toggles, sliders, pickers, and fields, each bound
@@ -75,8 +75,8 @@ Every screen is translated into English, French, Arabic, and Simplified Chinese.
 language at runtime lays every screen out again, mirrored for Arabic.
 
 <p align="center">
-  <img src="https://showcase.daybrite.dev/gallery/macos-appkit/light-ar/localization.png" width="360" alt="The Localization page in Arabic on macOS">
-  <img src="https://showcase.daybrite.dev/gallery/macos-appkit/dark/home.png" width="360" alt="The home page in dark mode on macOS">
+  <kbd><img src="https://showcase.daybrite.dev/gallery/macos-appkit/light-ar/localization.png" width="360" alt="The Localization page in Arabic on macOS"></kbd>
+  <kbd><img src="https://showcase.daybrite.dev/gallery/macos-appkit/dark/home.png" width="360" alt="The home page in dark mode on macOS"></kbd>
 </p>
 
 ## The same code on every platform
@@ -87,11 +87,11 @@ every target, in both themes and all four locales, and the captures it takes are
 
 | Windows · XAML | Linux · GTK | Linux · Qt |
 |:---:|:---:|:---:|
-| <img src="https://showcase.daybrite.dev/gallery/windows-xaml/light/list.png" width="300" alt="List on Windows"> | <img src="https://showcase.daybrite.dev/gallery/linux-gtk/light/list.png" width="300" alt="List on GTK"> | <img src="https://showcase.daybrite.dev/gallery/linux-qt/light/list.png" width="300" alt="List on Qt"> |
+| <kbd><img src="https://showcase.daybrite.dev/gallery/windows-xaml/light/list.png" width="300" alt="List on Windows"></kbd> | <kbd><img src="https://showcase.daybrite.dev/gallery/linux-gtk/light/list.png" width="300" alt="List on GTK"></kbd> | <kbd><img src="https://showcase.daybrite.dev/gallery/linux-qt/light/list.png" width="300" alt="List on Qt"></kbd> |
 
 | Web · DOM | Android · Material | HarmonyOS · ArkUI |
 |:---:|:---:|:---:|
-| <img src="https://showcase.daybrite.dev/gallery/web-dom/light/menus.png" width="300" alt="Menus and dialogs in the browser"> | <img src="https://showcase.daybrite.dev/gallery/android-mdc/pixel-5/light/menus.png" width="150" alt="Menus and dialogs on Android"> | <img src="https://showcase.daybrite.dev/gallery/harmony-arkui/light/menus.png" width="150" alt="Menus and dialogs on HarmonyOS"> |
+| <kbd><img src="https://showcase.daybrite.dev/gallery/web-dom/light/menus.png" width="300" alt="Menus and dialogs in the browser"></kbd> | <kbd><img src="https://showcase.daybrite.dev/gallery/android-mdc/pixel-5/light/menus.png" width="150" alt="Menus and dialogs on Android"></kbd> | <kbd><img src="https://showcase.daybrite.dev/gallery/harmony-arkui/light/menus.png" width="150" alt="Menus and dialogs on HarmonyOS"></kbd> |
 
 ## Build from a clone
 
