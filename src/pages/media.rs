@@ -60,6 +60,15 @@ pub(crate) fn media_page() -> AnyPiece {
 /// every backend, so the target cfg is the gate, here and in lib.rs `destinations`.
 #[cfg(any(target_os = "ios", target_os = "android"))]
 pub(crate) fn lottie_page() -> AnyPiece {
+    // Which bundled animation plays: the picker writes it, `lottie(closure)` reads it and swaps
+    // the native view's file live (a `Name` patch), and the facts panel reads it too. Pin jump
+    // opens the page (LOTTIE_DEFAULT): the liveliest of the set at a glance.
+    let selected = Signal::new(LOTTIE_DEFAULT);
+    let name = move || {
+        LOTTIE_ANIMATIONS[selected.get().min(LOTTIE_ANIMATIONS.len() - 1)]
+            .0
+            .to_string()
+    };
     // Playback rate, bound two ways: the slider (or a preset button) drives it and
     // `.speed(speed)` pushes it to the native LottieAnimationView live (a `Speed` patch per
     // change). Looping and autoplay are build-time properties of the view.
@@ -71,7 +80,23 @@ pub(crate) fn lottie_page() -> AnyPiece {
             .id(id)
     };
     let stage = section((
-        column((lottie("hello")
+        labeled(
+            crate::res::str::lottie_animation(),
+            picker(
+                [
+                    crate::res::str::lottie_anim_hello().format(),
+                    crate::res::str::lottie_anim_hamburger().format(),
+                    crate::res::str::lottie_anim_heart().format(),
+                    crate::res::str::lottie_anim_watermelon().format(),
+                    crate::res::str::lottie_anim_pin().format(),
+                    crate::res::str::lottie_anim_logo().format(),
+                ],
+                selected,
+            )
+            .menu()
+            .id("lottie-animation"),
+        ),
+        column((lottie(name)
             .looping(true)
             .autoplay(true)
             .speed(speed)
@@ -108,8 +133,77 @@ pub(crate) fn lottie_page() -> AnyPiece {
         crate::res::str::nav_lottie(),
         "lottie-title",
         Some(crate::res::str::lottie_caption()),
-        form((stage,)).any(),
+        form((stage, lottie_facts(selected))).any(),
     )
+    .any()
+}
+
+/// The bundled animations the Lottie page offers: the name `lottie()` loads by (a `/` path under
+/// `resource/assets/`), and the file's text for the facts panel. `hello.json` is hand-authored;
+/// the rest are Airbnb's samples (resource/assets/lottie/README.md). The picker's order.
+#[cfg(any(target_os = "ios", target_os = "android"))]
+const LOTTIE_DEFAULT: usize = 4; // pin jump
+
+#[cfg(any(target_os = "ios", target_os = "android"))]
+const LOTTIE_ANIMATIONS: [(&str, &str); 6] = [
+    ("hello", include_str!("../../resource/assets/hello.json")),
+    (
+        "lottie/hamburger-arrow",
+        include_str!("../../resource/assets/lottie/hamburger-arrow.json"),
+    ),
+    (
+        "lottie/heart",
+        include_str!("../../resource/assets/lottie/heart.json"),
+    ),
+    (
+        "lottie/watermelon",
+        include_str!("../../resource/assets/lottie/watermelon.json"),
+    ),
+    (
+        "lottie/pin-jump",
+        include_str!("../../resource/assets/lottie/pin-jump.json"),
+    ),
+    (
+        "lottie/lottie-logo",
+        include_str!("../../resource/assets/lottie/lottie-logo.json"),
+    ),
+];
+
+/// The selected file read by the piece's headless `model` module: the same bytes the native view
+/// plays, so the page states each animation's length beside it and the walkthrough asserts the
+/// reader's answers inside the iOS and Android builds. Every row follows the picker.
+#[cfg(any(target_os = "ios", target_os = "android"))]
+fn lottie_facts(selected: Signal<usize>) -> AnyPiece {
+    use day_piece_lottie::LottieModel;
+    let fact = move |pick: fn(&LottieModel) -> String| {
+        move || {
+            let text = LOTTIE_ANIMATIONS[selected.get().min(LOTTIE_ANIMATIONS.len() - 1)].1;
+            match LottieModel::parse(text) {
+                Ok(model) => pick(&model),
+                Err(e) => e.to_string(),
+            }
+        }
+    };
+    section((
+        labeled(
+            crate::res::str::lottie_model_frames(),
+            label(fact(|m| format!("{} @ {} fps", m.frames(), m.frame_rate)))
+                .id("lottie-model-frames"),
+        ),
+        labeled(
+            crate::res::str::lottie_model_duration(),
+            label(fact(|m| format!("{:.1} s", m.duration_secs()))).id("lottie-model-duration"),
+        ),
+        labeled(
+            crate::res::str::lottie_model_layers(),
+            label(fact(|m| m.layers.len().to_string())).id("lottie-model-layers"),
+        ),
+        labeled(
+            crate::res::str::lottie_model_issues(),
+            label(fact(|m| m.verify().len().to_string())).id("lottie-model-issues"),
+        ),
+    ))
+    .title(crate::res::str::lottie_model_section())
     .any()
 }
 

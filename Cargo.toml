@@ -96,8 +96,14 @@ day-piece-activity = { git = "https://github.com/daybrite/day.git" }
 day-piece-searchfield = { git = "https://github.com/daybrite/day.git" }
 day-piece-map = { git = "https://github.com/daybrite/day.git" }
 # day-piece-lottie is iOS/Android only; the front-end compiles everywhere but the `lottie` page is
-# `#[cfg]`-gated to those targets. Its backend features are enabled only in `uikit`/`mdc`.
-day-piece-lottie = { git = "https://github.com/daybrite/day.git" }
+# `#[cfg]`-gated to those targets. Its backend features are enabled only in `uikit`/`mdc`. The
+# first piece in its OWN repository: a bare git line like day's, so Cargo.lock picks one day
+# revision for the whole graph (day/DESIGN.md §15.2). `day patch --local ../day-piece-lottie`
+# builds against a checkout of it.
+# day-piece-lottie = { git = "https://github.com/daybrite/day-piece-lottie.git" }
+# TEMPORARY (local verification before daybrite/day-piece-lottie has its first commit on GitHub;
+# cargo must load a git source even when a [patch] replaces it). Restore the line above this one.
+day-piece-lottie = { path = "../day-piece-lottie" }
 # SwiftUI embedding (docs/swiftui.md): hosts the swiftui/ package's views on the Benchmark page.
 # Apple-native only, but a plain dep with no cfg anywhere — the front-end compiles on every
 # backend and `day_piece_swiftui::support()` gates the UI, so no placeholder can ever realize.

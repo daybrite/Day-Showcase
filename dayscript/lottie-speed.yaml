@@ -6,6 +6,26 @@ flow:
   - assert_route: { route: lottie }
   - assert_visible: { id: lottie-view }
   - assert_visible: { id: lottie-speed-slider }
+  # The piece's headless reader, answering inside this build from the same file the view plays.
+  - assert_text: { id: lottie-model-frames, text: "93 @ 30 fps" }
+  - assert_text: { id: lottie-model-duration, text: "3.1 s" }
+  - assert_text: { id: lottie-model-layers, text: "9" }
+  - assert_text: { id: lottie-model-issues, text: "0" }
+  # The picker swaps the bundled file under the same view (a Name patch), and the facts follow.
+  - select: { id: lottie-animation, index: 2 }
+  - assert_text: { id: lottie-model-frames, text: "116 @ 60 fps" }
+  - assert_text: { id: lottie-model-duration, text: "1.9 s" }
+  - assert_text: { id: lottie-model-layers, text: "18" }
+  - assert_text: { id: lottie-model-issues, text: "0" }
+  - pause: { secs: 1.0 }
+  - screenshot: lottie-heart
+  - select: { id: lottie-animation, index: 0 }
+  - assert_text: { id: lottie-model-frames, text: "60 @ 30 fps" }
+  - pause: { secs: 1.0 }
+  - screenshot: lottie-square
+  # Back to the page's default, pin jump.
+  - select: { id: lottie-animation, index: 4 }
+  - assert_text: { id: lottie-model-frames, text: "93 @ 30 fps" }
   # Default speed is 1.0.
   - assert_text: { id: lottie-speed-value, text: "1.00×" }
   - screenshot: lottie-1x
