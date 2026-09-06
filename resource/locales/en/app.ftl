@@ -944,7 +944,7 @@ cmd_pause = Pause
 cmd_resume = Resume
 cmd_clear_recording = Clear Recording
 menu_appearance = Appearance
-menu_record = Record
+menu_script = Script
 cmd_star = Star
 cmd_unstar = Unstar
 

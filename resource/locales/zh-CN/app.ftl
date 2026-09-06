@@ -933,7 +933,7 @@ cmd_pause = 暂停
 cmd_resume = 继续
 cmd_clear_recording = 清除录制
 menu_appearance = 外观
-menu_record = 录制
+menu_script = 脚本
 cmd_star = 收藏
 cmd_unstar = 取消收藏
 

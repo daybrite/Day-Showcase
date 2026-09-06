@@ -942,7 +942,7 @@ cmd_pause = Pause
 cmd_resume = Reprendre
 cmd_clear_recording = Effacer l'enregistrement
 menu_appearance = Apparence
-menu_record = Enregistrement
+menu_script = Script
 cmd_star = Suivre
 cmd_unstar = Ne plus suivre
 

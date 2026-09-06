@@ -556,17 +556,19 @@ flow:
   - toolbar: { item: tb-theme, index: 1, skip_on: [mdc, arkui, dom, qt] }
   - wait_idle:
   - assert_text: { id: toolbar-appearance, key: cmd_appearance_system, skip_on: [mdc, arkui, dom, qt] }
-  # The recorder's transport (docs/agent.md), driven from the bar it lives in. Record two taps that
+  # The recorder's transport (docs/agent.md), driven from the SCRIPT MENU it lives in — it acts on
+  # the app's recording rather than on any page, so it earns no room on a page's bar. Record two
+  # taps that
   # stay on THIS page — a replay that navigated away would take the readout with it — then stop,
   # play, pause, resume. `tb-new` is deliberately not exercised: it opens a second window, whose
   # chrome would then sit behind every later screenshot in the run.
   - assert_text: { id: toolbar-transport, key: toolbar_transport_idle, skip_on: [harmony-arkui, web-dom] }
-  - toolbar: { item: cmd-record, skip_on: [harmony-arkui, web-dom] }
+  - menu: { key: cmd_record, path: [menu_script], skip_on: [harmony-arkui, web-dom] }
   - wait_idle:
   - assert_text: { id: toolbar-transport, key: toolbar_transport_recording, skip_on: [harmony-arkui, web-dom] }
   - tap: { id: toolbar-seed-search, skip_on: [harmony-arkui, web-dom] }
   - tap: { id: toolbar-clear-search, skip_on: [harmony-arkui, web-dom] }
-  - toolbar: { item: cmd-record, skip_on: [harmony-arkui, web-dom] }
+  - menu: { key: cmd_stop_recording, path: [menu_script], skip_on: [harmony-arkui, web-dom] }
   - wait_idle:
   # Stopping JUMPS to Scripting (commands.rs): the script you just recorded is on that page, and
   # leaving the user wherever they happened to be reads as the recording having gone nowhere. The
@@ -578,10 +580,10 @@ flow:
   - wait_idle:
   - assert_text: { id: toolbar-transport, key: toolbar_transport_idle, skip_on: [harmony-arkui, web-dom] }
   # Play ↔ Pause ↔ Resume on one item: the title and icon follow the run.
-  - toolbar: { item: cmd-play, skip_on: [harmony-arkui, web-dom] }
+  - menu: { key: cmd_play, path: [menu_script], skip_on: [harmony-arkui, web-dom] }
   - wait_idle:
   - assert_text: { id: toolbar-transport, key: toolbar_transport_playing, skip_on: [harmony-arkui, web-dom] }
-  - toolbar: { item: cmd-play, skip_on: [harmony-arkui, web-dom] }
+  - menu: { key: cmd_pause, path: [menu_script], skip_on: [harmony-arkui, web-dom] }
   - wait_idle:
   - assert_text: { id: toolbar-transport, key: toolbar_transport_paused, skip_on: [harmony-arkui, web-dom] }
   # Resume is NOT followed by a "Playing" assertion. The replay runs a quarter second per step
@@ -589,7 +591,7 @@ flow:
   # simulator (ios-uikit iPad, light-ar) the readout was already back to Idle by the time the
   # assertion read it. The first Playing assertion above has two steps of headroom; this one had
   # none. Reaching Idle from Paused below is the proof that the resume ran.
-  - toolbar: { item: cmd-play, skip_on: [harmony-arkui, web-dom] }
+  - menu: { key: cmd_resume, path: [menu_script], skip_on: [harmony-arkui, web-dom] }
   - wait_idle:
   # WAIT FOR THE REPLAY TO END before anything below runs. It re-dispatches the two recorded taps
   # (seed-search, then clear-search) on its own schedule, and every assertion under here reads
@@ -604,10 +606,10 @@ flow:
   - toolbar: { item: day.search, key: nav_toolbars, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   # The star is the shared Star COMMAND (src/commands.rs), not a demo toggle: it stars whichever
   # page is showing — here, Toolbars — and the page's own readout mirrors its state.
-  - toolbar: { item: cmd-star, on: true, skip_on: [harmony-arkui, web-dom] }
+  - toolbar: { item: tb-star, on: true }
   - wait_idle:
   - assert_text: { id: toolbar-query, key: nav_toolbars, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
-  - assert_text: { id: toolbar-star-state, key: toolbar_on, skip_on: [harmony-arkui, web-dom] }
+  - assert_text: { id: toolbar-star-state, key: toolbar_on }
   # One command, four surfaces (docs/menus.md, docs/toolbars.md): the App menu's item carries the
   # state in its TITLE, so with this page starred it must now read "Unstar" — invoking it unstars,
   # and the toolbar's own readout follows without the two knowing about each other. `key:` rather
@@ -675,9 +677,9 @@ flow:
   # (src/pages/toolbars.rs) — so it restores whether or not the page is currently starred, and it
   # completes the surface matrix: starred from the toolbar, unstarred and restarred from the menu,
   # unstarred from the toolbar.
-  - toolbar: { item: cmd-star, on: false, skip_on: [harmony-arkui, web-dom] }
+  - toolbar: { item: tb-star, on: false }
   - wait_idle:
-  - assert_text: { id: toolbar-star-state, key: toolbar_off, skip_on: [harmony-arkui, web-dom] }
+  - assert_text: { id: toolbar-star-state, key: toolbar_off }
 
   # ---------------------------------------------------------------------------------------------
   # Data

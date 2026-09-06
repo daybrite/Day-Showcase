@@ -259,24 +259,12 @@ impl Section {
     }
 }
 
-/// Open the source of the page currently showing on GitHub, pinned to this build's ref (a release
-/// tag, else `main`). Both the desktop toolbar button and the mobile nav-bar button call this —
-/// it reads the live route, so one handler serves every page (docs/navigation.md). With nothing
-/// selected (the desktop split's default) it falls back to About, which is that default detail.
-pub(crate) fn show_source() {
-    let section = current_route()
-        .as_deref()
-        .and_then(|r| r.split(['/', '?']).next())
-        .filter(|s| !s.is_empty())
-        .and_then(Section::from_key)
-        .unwrap_or(Section::About);
-    open_source_of(section);
-}
-
-/// Open one section's source on GitHub — the sidebar rows' context-menu "Show Source"
-/// (docs/menus.md) names its own section, so a right-click / long-press on ANY row works
-/// without navigating there first; the toolbar/nav-bar button resolves the live route
-/// through [`show_source`] instead.
+/// Open one section's source on GitHub, pinned to this build's ref (a release tag, else `main`).
+///
+/// Every caller names its own section: the sidebar rows' context-menu "Show Source"
+/// (docs/menus.md) so a right-click on ANY row works without navigating there first, and the
+/// page's own toolbar button (pages/toolbars.rs) because a page-declared command knows which page
+/// it is on. Nothing here reads the live route.
 pub(crate) fn open_source_of(section: Section) {
     open_url(&format!(
         "{SOURCE_REPO}/blob/{SOURCE_REF}/{}",
@@ -702,9 +690,7 @@ fn window_root(primary: bool) -> impl Piece {
 }
 
 fn window_body(primary: bool) -> impl Piece {
-    // Each window gets its own toolbar; the install targets the window being built
-    // (docs/toolbars.md), and its items read this window's `Scene`.
-    pages::toolbars::install();
+
     // The app menu is ONE bar for the app, but its titles and enabled states read the front
     // page — so it installs from inside a window's scope, once. Before any window exists there
     // is no page to describe.
@@ -833,28 +819,30 @@ fn window_body(primary: bool) -> impl Piece {
                 }
             },
         )
-        // Dynamic rows carry no page builder of their own — the key is looked up here.
+        // Dynamic rows carry no page builder of their own — the key is looked up here. Each
+        // page carries the three commands that act on IT (docs/toolbars.md), so they arrive and
+        // leave with the page and every one of them knows its own section without asking the
+        // route.
         .destination(|key: &Option<Section>| match key {
-            Some(sec) => destinations()
-                .into_iter()
-                .find(|d| d.section == *sec)
-                .map(|d| (d.page)())
-                .unwrap_or_else(|| column(()).any()),
+            Some(sec) => {
+                let sec = *sec;
+                destinations()
+                    .into_iter()
+                    .find(|d| d.section == sec)
+                    .map(|d| {
+                        (d.page)()
+                            .toolbar(move || pages::toolbars::page_commands(sec))
+                            .any()
+                    })
+                    .unwrap_or_else(|| column(()).any())
+            }
             None => column(()).any(),
         });
-    // "Show Source" as an upper-right nav-bar button where there is no window toolbar to carry
-    // it (HarmonyOS, the web — docs/navigation.md); every other toolkit, the phones included,
-    // shows the same command in the toolbar (pages/toolbars.rs), and declaring both would draw
-    // two of it. One handler for every page: it reads the live route.
-    let nav = if capability(Cap::Toolbar) == Support::Unsupported {
-        nav.bar_action(
-            res::images::show_source,
-            crate::res::str::show_source(),
-            show_source,
-        )
-    } else {
-        nav
-    };
+    // The window's own commands ride THIS HOST's chrome (docs/toolbars.md): the sidebar column
+    // where the presentation has one, the root list's bar when it collapses. No capability probe
+    // — a contribution always has a chrome to land on, so the fallback branch this used to carry
+    // for HarmonyOS and the web is gone.
+    let nav = nav.toolbar(pages::toolbars::window_items());
     let nav = if primary { nav } else { nav.local() };
     nav.id("nav")
 }

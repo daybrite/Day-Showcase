@@ -154,11 +154,13 @@ fn build_app_menu() -> Vec<MenuEntry> {
             ],
         )
         .bar_role(MenuBarRole::View),
-        // A menu of its own for the recorder (docs/agent.md): it is neither a File nor a View
-        // command, and burying a transport in another menu is how it stops being found. No
-        // `bar_role` — there is no standard slot for it, so it takes an ordinary custom menu.
+        // A menu of its own for the recorder and the scripting page (docs/agent.md): neither a
+        // File nor a View command, and burying a transport in another menu is how it stops being
+        // found. No `bar_role` — there is no standard slot for it, so it takes an ordinary custom
+        // menu. It is the ONLY home for these commands: they act on the app's recording, not on
+        // any page, so they earn no room on a page's bar.
         sub_menu(
-            crate::res::str::menu_record().format(),
+            crate::res::str::menu_script().format(),
             vec![
                 // ⌘⇧R / ⌘⇧P: the recording pair, shifted clear of View ▸ Reload (⌘R) and the
                 // platform's Print (⌘P). Both TITLES carry their state, so one item is
@@ -189,6 +191,16 @@ fn build_app_menu() -> Vec<MenuEntry> {
                 menu_item(crate::res::str::toolbar_menu_open_scripting().format()).action(|| {
                     navigate_to(&crate::Section::Scripting);
                 }),
+                {
+                    // Moved off the toolbar with the transport: it acts on the recording, and
+                    // the Script menu is where the recording lives now.
+                    menu_item(crate::res::str::toolbar_menu_copy_script().format())
+                        .enabled(crate::pages::scripting::has_script())
+                        .action(|| {
+                            crate::pages::scripting::buf_signal()
+                                .with(|t| day_part_clipboard::set_text(t));
+                        })
+                },
             ],
         ),
     ]

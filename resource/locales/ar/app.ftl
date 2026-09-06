@@ -960,7 +960,7 @@ cmd_pause = إيقاف مؤقت
 cmd_resume = استئناف
 cmd_clear_recording = مسح التسجيل
 menu_appearance = المظهر
-menu_record = التسجيل
+menu_script = سكربت
 cmd_star = تمييز بنجمة
 cmd_unstar = إزالة النجمة
 
