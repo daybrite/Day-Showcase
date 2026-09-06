@@ -703,6 +703,11 @@ flow:
   # On a phone the editor is a pushed page; pop back so the list's commands are on the bar.
   - nav_back: { only_on: [uikit, mdc] }
   - wait_idle: { only_on: [uikit, mdc] }
+  # On a wide window nothing was pushed, so that back left the SECTION instead (the split's
+  # detail is the section itself there); come back to it before driving the pane's commands.
+  # A no-op where the back popped the editor onto the list, which is already this route.
+  - navigate: { route: content-list, only_on: [uikit, mdc] }
+  - wait_for: { id: item-list, only_on: [uikit, mdc] }
   # The pane's own commands (docs/toolbars.md): the filter hides finished items, and Add opens a
   # new row for editing straight away. Driven with the list showing, like Day-Rise's demo.
   - toolbar: { item: tb-show-done, on: false, skip_on: [arkui] }

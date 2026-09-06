@@ -745,7 +745,14 @@ fn window_body(primary: bool) -> impl Piece {
         // The pushed detail's bar title on a phone: the open item's name on the Content List
         // page (live, as the scaffold titles its editor), the section's own title elsewhere.
         .detail_title(move || match section.get() {
-            Some(Section::ContentList) => pages::content_list::detail_title(items),
+            // The open item's name, live; the section's own title while nothing is open (the
+            // scaffold's fallback names ITS section, which is not this app's).
+            Some(Section::ContentList) => {
+                match items.selected.get().and_then(|id| items.find(id)) {
+                    Some(item) if !item.name.is_empty() => item.name,
+                    _ => crate::res::str::nav_content_list().format(),
+                }
+            }
             Some(sec) => destinations()
                 .into_iter()
                 .find(|d| d.section == sec)

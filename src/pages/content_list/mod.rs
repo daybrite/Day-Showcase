@@ -17,10 +17,14 @@ mod detail;
 // unread rather than edited out of the generated copy.
 #[allow(dead_code)]
 mod model;
+// The scaffold titles its pushed editor after its own Navigate section when no item is open;
+// `lib.rs` titles this app's after the Content List section instead, so the generated
+// `detail_title` is carried unread like `Scene::section` above.
+#[allow(dead_code)]
 mod navigate;
 
 pub(crate) use model::Scene;
-pub(crate) use navigate::{detail_title, item_list_pane};
+pub(crate) use navigate::item_list_pane;
 
 day::routes! {
     /// The scaffold's sections, as the copied model expects them: it opens a fresh scene on
