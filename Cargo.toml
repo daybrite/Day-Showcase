@@ -51,8 +51,11 @@ day = { git = "https://github.com/daybrite/day.git", features = ["model"] }
 day-break = { git = "https://github.com/daybrite/day.git" }
 # A HEADLESS capability crate (no UI Piece): app Rust code calls day_part_battery::status() directly.
 day-part-battery = { git = "https://github.com/daybrite/day.git" }
-# daybridge's reference part (docs/bridge.md): one API, a different language per platform.
-day-part-speech = { git = "https://github.com/daybrite/day.git" }
+# daybridge's reference part (docs/bridge.md): one API, a different language per platform. The
+# first PART in its own repository, on the same terms as day-piece-lottie below: a bare git line,
+# so Cargo.lock picks one day revision for the whole graph. `day patch --local ../day-part-speech`
+# builds against a checkout of it.
+day-part-speech = { git = "https://github.com/daybrite/day-part-speech.git" }
 day-part-sensors = { git = "https://github.com/daybrite/day.git" }
 day-part-permissions = { git = "https://github.com/daybrite/day.git" }
 day-part-location = { git = "https://github.com/daybrite/day.git" }
