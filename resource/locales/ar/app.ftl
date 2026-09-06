@@ -798,9 +798,7 @@ toolbar_readout_title = ما الذي يفعله شريط الأدوات
 toolbar_controls_title = قيادته من هنا
 toolbar_vocabulary_title = مفردات العناصر
 # Item labels — these appear IN the toolbar, so they stay short.
-toolbar_sidebar = الشريط الجانبي
 toolbar_new = نافذة جديدة
-toolbar_menu = المزيد
 toolbar_menu_open_scripting = فتح صفحة البرمجة النصية
 toolbar_menu_copy_script = نسخ البرنامج النصي
 toolbar_extra_tooltip = نسخ مجموعة الأدوات والإصدار، لتقرير خلل
@@ -832,7 +830,6 @@ toolbar_transport_recording = جارٍ التسجيل
 toolbar_transport_playing = جارٍ التشغيل
 toolbar_transport_paused = مُوقَف مؤقتًا
 toolbar_last_new = نافذة جديدة
-toolbar_last_star = تبديل النجمة
 toolbar_last_extra = نُسخت معلومات الإصدار
 # The page's own controls.
 toolbar_extra_label = إظهار عنصر نسخ المعلومات

@@ -784,9 +784,7 @@ toolbar_readout_title = Ce que fait la barre d'outils
 toolbar_controls_title = La piloter depuis ici
 toolbar_vocabulary_title = Le vocabulaire des éléments
 # Item labels — these appear IN the toolbar, so they stay short.
-toolbar_sidebar = Barre latérale
 toolbar_new = Nouvelle fenêtre
-toolbar_menu = Plus
 toolbar_menu_open_scripting = Ouvrir la page Scripts
 toolbar_menu_copy_script = Copier le script
 toolbar_extra_tooltip = Copier la boîte à outils et la version, pour un rapport de bogue
@@ -814,7 +812,6 @@ toolbar_transport_recording = Enregistrement
 toolbar_transport_playing = Lecture
 toolbar_transport_paused = En pause
 toolbar_last_new = Nouvelle fenêtre
-toolbar_last_star = Étoile basculée
 toolbar_last_extra = Infos de version copiées
 # The page's own controls.
 toolbar_extra_label = Afficher l'élément Copier les infos

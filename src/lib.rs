@@ -690,7 +690,6 @@ fn window_root(primary: bool) -> impl Piece {
 }
 
 fn window_body(primary: bool) -> impl Piece {
-
     // The app menu is ONE bar for the app, but its titles and enabled states read the front
     // page — so it installs from inside a window's scope, once. Before any window exists there
     // is no page to describe.

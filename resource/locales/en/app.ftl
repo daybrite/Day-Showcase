@@ -786,9 +786,7 @@ toolbar_readout_title = What the toolbar is doing
 toolbar_controls_title = Driving it from here
 toolbar_vocabulary_title = The item vocabulary
 # Item labels — these appear IN the toolbar, so they stay short.
-toolbar_sidebar = Sidebar
 toolbar_new = New Window
-toolbar_menu = More
 toolbar_menu_open_scripting = Open the Scripting page
 toolbar_menu_copy_script = Copy the script
 toolbar_extra_tooltip = Copy the toolkit and version, for a bug report
@@ -816,7 +814,6 @@ toolbar_transport_recording = Recording
 toolbar_transport_playing = Playing
 toolbar_transport_paused = Paused
 toolbar_last_new = New window
-toolbar_last_star = Star toggled
 toolbar_last_extra = Build info copied
 # The page's own controls.
 toolbar_extra_label = Show the Copy Info item

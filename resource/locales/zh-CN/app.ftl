@@ -776,9 +776,7 @@ toolbar_readout_title = 工具栏正在做什么
 toolbar_controls_title = 从这里驱动它
 toolbar_vocabulary_title = 工具栏项的种类
 # Item labels — these appear IN the toolbar, so they stay short.
-toolbar_sidebar = 边栏
 toolbar_new = 新建窗口
-toolbar_menu = 更多
 toolbar_menu_open_scripting = 打开脚本页面
 toolbar_menu_copy_script = 复制脚本
 toolbar_extra_tooltip = 复制工具包与版本，便于提交缺陷报告
@@ -805,7 +803,6 @@ toolbar_transport_recording = 录制中
 toolbar_transport_playing = 播放中
 toolbar_transport_paused = 已暂停
 toolbar_last_new = 新建窗口
-toolbar_last_star = 已切换星标
 toolbar_last_extra = 已复制版本信息
 # The page's own controls.
 toolbar_extra_label = 显示“复制信息”项
