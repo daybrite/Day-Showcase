@@ -193,6 +193,7 @@ day::routes! {
         Query => "query",
         Tabs => "tabs",
         Stack => "stack",
+        ContentList => "content-list",
         Media => "media",
         Lottie => "lottie",
         WebView => "webview",
@@ -226,6 +227,7 @@ impl Section {
             Section::Animation => "src/pages/animation.rs",
             Section::Benchmark => "src/pages/benchmark.rs",
             Section::Canvas => "src/pages/canvas.rs",
+            Section::ContentList => "src/pages/content_list/mod.rs",
             Section::Controls => "src/pages/controls.rs",
             Section::CrashReporting => "src/pages/crash.rs",
             Section::Dates => "src/pages/dates.rs",
@@ -515,6 +517,13 @@ fn destinations() -> Vec<Dest> {
             toolbars_page,
         ),
         d(
+            Navigation,
+            Section::ContentList,
+            crate::res::str::nav_content_list,
+            vectors::nav_content_list,
+            content_list_page,
+        ),
+        d(
             Data,
             Section::List,
             crate::res::str::nav_list,
@@ -685,7 +694,15 @@ fn window_root(primary: bool) -> impl Piece {
     // THIS window. What one process has one of — the logs, the SQLite container, the model
     // store, the persisted preferences — stays app-wide behind `Ambient::app`.
     Scene::scoped(move |_scene| {
-        crate::pages::toolbars::ToolbarDemo::scoped(move |_bar| window_body(primary))
+        // The Content List page's document, filter and selection: the scaffold's own `Scene`,
+        // one per window like the showcase's, saved by the primary window only
+        // (src/pages/content_list/model.rs).
+        pages::content_list::Scene::scoped(move |items| {
+            if primary {
+                items.persist();
+            }
+            crate::pages::toolbars::ToolbarDemo::scoped(move |_bar| window_body(primary))
+        })
     })
 }
 
@@ -714,9 +731,28 @@ fn window_body(primary: bool) -> impl Piece {
     // "Searching"): a row survives when the query is a case-insensitive prefix of one of its
     // title's words, with the words found by the current locale's own segmentation.
     let query = pages::toolbars::search_query();
+    // The Content List page's list is this host's own content-list pane (docs/navigation.md):
+    // a third column on a desktop, the pushed middle layer on a phone, collapsed on every other
+    // page. Its commands ride the pane, so they come and go with it (docs/toolbars.md).
+    let items = pages::content_list::Scene::ambient();
     let nav = selector(section)
         .style(SelectorStyle::Sidebar)
         .title(crate::res::str::app_title())
+        .content_list(pages::content_list::item_list_pane)
+        .content_list_width(320.0)
+        .content_list_for(|k: &Option<Section>| matches!(k, Some(Section::ContentList)))
+        .detail_visible(items.detail_open)
+        // The pushed detail's bar title on a phone: the open item's name on the Content List
+        // page (live, as the scaffold titles its editor), the section's own title elsewhere.
+        .detail_title(move || match section.get() {
+            Some(Section::ContentList) => pages::content_list::detail_title(items),
+            Some(sec) => destinations()
+                .into_iter()
+                .find(|d| d.section == sec)
+                .map(|d| (d.title)().format())
+                .unwrap_or_default(),
+            None => crate::res::str::app_title().format(),
+        })
         // Search belongs to the surface it filters, not to the toolbar (docs/search.md). Day
         // resolves where to draw it: today the window's toolbar on every desktop, and — once the
         // size-class work lands — the navigation list itself on a window too narrow for a

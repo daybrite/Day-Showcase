@@ -983,3 +983,27 @@ vectors_alias_note = A plain SVG asked for Bold: it has no weight axis, so the a
 # The two color wells beside Cycle (docs/colorpicker.md).
 vectors_pick_tint = Pick a tint
 vectors_tint_idioms = Two color wells, one bound color: the first opens the platform's own chooser, the second opens the panel Day draws itself — the same picker on every target.
+
+# The Content List page (src/pages/content_list): the `day new` scaffold's own item list and
+# editor, so the keys below are the scaffold's, verbatim — the copied code reads them by name.
+nav_content_list = Content list
+nav_navigate = Navigate
+cmd_add = New Item
+cmd_delete = Delete
+cmd_done = Done
+cmd_show_done = Show Finished
+item_none = Select an item
+item_kind_note = Note
+item_kind_task = Task
+item_kind_idea = Idea
+section_basics = Basics
+section_details = Details
+section_notes = Notes
+field_name = Name
+field_name_hint = Name this item…
+field_count = Count
+field_date = Date
+field_kind = Kind
+field_done = Done
+field_rating = Rating
+field_color = Color

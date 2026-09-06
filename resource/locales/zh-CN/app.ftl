@@ -968,3 +968,27 @@ layout_item_wide = 项目 { $n }（较宽）
 vectors_alias_note = 一个普通 SVG 被要求使用粗体：它没有字重轴，因此别名会回退到基础图形，而不是什么都不画。
 vectors_pick_tint = 选择着色
 vectors_tint_idioms = 两个取色控件，一个绑定颜色：前者打开平台自带的取色器，后者打开 Day 自己绘制的面板——在每个目标上都是同一个取色器。
+
+# 内容列表页面（src/pages/content_list）：`day new` 脚手架自带的条目列表与编辑器，
+# 因此下面的键就是脚手架的键，原样保留——复制的代码按名称读取它们。
+nav_content_list = 内容列表
+nav_navigate = 导航
+cmd_add = 新建条目
+cmd_delete = 删除
+cmd_done = 完成
+cmd_show_done = 显示已完成
+item_none = 请选择一个条目
+item_kind_note = 笔记
+item_kind_task = 任务
+item_kind_idea = 想法
+section_basics = 基本信息
+section_details = 详情
+section_notes = 备注
+field_name = 名称
+field_name_hint = 为该条目命名…
+field_count = 数量
+field_date = 日期
+field_kind = 类型
+field_done = 完成
+field_rating = 评分
+field_color = 颜色

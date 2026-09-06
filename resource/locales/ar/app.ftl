@@ -995,3 +995,27 @@ layout_item_wide = عنصر { $n } (أعرض)
 vectors_alias_note = ملف SVG عادي طُلب منه الوزن العريض: لا يملك محور أوزان، لذا يعود الاسم البديل إلى الرمز الأساسي بدل ألا يرسم شيئًا.
 vectors_pick_tint = اختر لونًا
 vectors_tint_idioms = أداتا اختيار لون ولون واحد مرتبط: الأولى تفتح أداة النظام، والثانية تفتح اللوحة التي يرسمها Day بنفسه — نفس الأداة على كل هدف.
+
+# صفحة قائمة المحتوى (src/pages/content_list): قائمة العناصر والمحرّر من قالب `day new` نفسه،
+# لذا فالمفاتيح أدناه هي مفاتيح القالب كما هي — الكود المنسوخ يقرأها بالاسم.
+nav_content_list = قائمة المحتوى
+nav_navigate = التنقّل
+cmd_add = عنصر جديد
+cmd_delete = حذف
+cmd_done = تم
+cmd_show_done = إظهار المنجزة
+item_none = اختر عنصرًا
+item_kind_note = ملاحظة
+item_kind_task = مهمة
+item_kind_idea = فكرة
+section_basics = الأساسيات
+section_details = التفاصيل
+section_notes = ملاحظات
+field_name = الاسم
+field_name_hint = سمِّ هذا العنصر…
+field_count = العدد
+field_date = التاريخ
+field_kind = النوع
+field_done = منجز
+field_rating = التقييم
+field_color = اللون

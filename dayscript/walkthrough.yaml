@@ -681,6 +681,42 @@ flow:
   - wait_idle:
   - assert_text: { id: toolbar-star-state, key: toolbar_off }
 
+  # The Content List page (src/pages/content_list): the `day new` scaffold's own list and
+  # editor, as the host's content-list pane (docs/navigation.md) — a third column on a desktop,
+  # the pushed middle layer on a phone — shown on THIS page only, with the pane's Filter and Add
+  # and the editor's Done riding it (docs/toolbars.md). The steps mirror Day-Rise's demo.
+  - navigate: { route: content-list }
+  - assert_route: { route: content-list }
+  - wait_for: { id: item-list }
+  # Selecting a row opens it: beside the list on a desktop, pushed over it on a phone.
+  - select: { id: item-list, index: 0 }
+  - wait_for: { id: field-name }
+  - input: { id: field-name, text: "Written by the walkthrough" }
+  - tap: { id: field-count-inc }
+  - toggle: { id: field-done, value: true }
+  - assert_visible: { id: field-rating }
+  - screenshot:
+      name: content-list
+      title: { en: "Content list", fr: "Liste de contenu", ar: "قائمة المحتوى", zh-CN: "内容列表" }
+      caption: { en: "The scaffold's item list and editor as the host's own content-list pane.", fr: "La liste et l'éditeur du modèle, en volet de liste de contenu de l'hôte.", ar: "قائمة العناصر والمحرّر من القالب كجزء قائمة المحتوى الخاص بالمضيف.", zh-CN: "脚手架的条目列表与编辑器，作为宿主自己的内容列表窗格。" }
+      source: src/pages/content_list/mod.rs
+  # On a phone the editor is a pushed page; pop back so the list's commands are on the bar.
+  - nav_back: { only_on: [uikit, mdc] }
+  - wait_idle: { only_on: [uikit, mdc] }
+  # The pane's own commands (docs/toolbars.md): the filter hides finished items, and Add opens a
+  # new row for editing straight away. Driven with the list showing, like Day-Rise's demo.
+  - toolbar: { item: tb-show-done, on: false, skip_on: [arkui] }
+  - wait_idle:
+  - toolbar: { item: tb-show-done, on: true, skip_on: [arkui] }
+  - wait_idle:
+  - toolbar: { item: tb-add, skip_on: [arkui] }
+  - wait_idle:
+  - assert_visible: { id: field-name, skip_on: [arkui] }
+  # Leave the pane's commands proven to leave with it: the next page collapses the pane.
+  - nav_back: { only_on: [uikit, mdc] }
+  - wait_idle: { only_on: [uikit, mdc] }
+
+
   # ---------------------------------------------------------------------------------------------
   # Data
   # ---------------------------------------------------------------------------------------------

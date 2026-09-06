@@ -48,3 +48,16 @@ jobs:
       # input is what asks for signing, so a tag build FAILS if the material is missing rather than
       # quietly shipping a .dmg macOS refuses to open. Remove the input to release unsigned.
       signing-environment: release-signing
+
+  # The Content List page copies the `day new` scaffold's list, editor and model
+  # (scripts/template-sync.sh). A template change that is not mirrored here fails the build.
+  template-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: daybrite/day
+          ref: main
+          path: day-checkout
+      - run: scripts/template-sync.sh --check day-checkout

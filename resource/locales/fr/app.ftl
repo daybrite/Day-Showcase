@@ -977,3 +977,27 @@ layout_item_wide = Élément { $n } (plus large)
 vectors_alias_note = Un SVG simple auquel on demande la graisse Grasse : il n'a pas d'axe de graisse, donc l'alias revient au glyphe de base au lieu de ne rien dessiner.
 vectors_pick_tint = Choisir une teinte
 vectors_tint_idioms = Deux sélecteurs de couleur, une seule couleur liée : le premier ouvre le sélecteur de la plateforme, le second ouvre le panneau que Day dessine lui-même — le même sélecteur sur chaque cible.
+
+# La page Liste de contenu (src/pages/content_list) : la liste et l'éditeur du modèle `day new`,
+# donc les clés ci-dessous sont celles du modèle, telles quelles — le code copié les lit par nom.
+nav_content_list = Liste de contenu
+nav_navigate = Naviguer
+cmd_add = Nouvel élément
+cmd_delete = Supprimer
+cmd_done = Terminé
+cmd_show_done = Afficher les terminés
+item_none = Sélectionnez un élément
+item_kind_note = Note
+item_kind_task = Tâche
+item_kind_idea = Idée
+section_basics = Général
+section_details = Détails
+section_notes = Notes
+field_name = Nom
+field_name_hint = Nommez cet élément…
+field_count = Quantité
+field_date = Date
+field_kind = Type
+field_done = Terminé
+field_rating = Note
+field_color = Couleur
