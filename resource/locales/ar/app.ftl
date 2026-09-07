@@ -1019,3 +1019,26 @@ field_kind = النوع
 field_done = منجز
 field_rating = التقييم
 field_color = اللون
+
+# صفحة المؤشّرات (day/docs/cursor.md): المزخرف `.cursor()`، شكلًا شكلًا.
+nav_cursors = المؤشّرات
+cursors_caption = شكل المؤشّر فوق قطعة: مفردات واحدة ترسمها كل مجموعة أدوات من طقمها الخاص، وصيغة إغلاق تتبع حالتك.
+cursors_support_title = في مجموعة الأدوات هذه
+cursors_support_label = الدعم هنا
+cursors_native = أصلي
+cursors_emulated = محاكى (أقرب الأشكال)
+cursors_unsupported = غير مدعوم على هذا الهدف
+cursors_hint = حرّك المؤشّر فوق بلاطة فيتّخذ شكلها. شاشة اللمس لا تُظهر شيئًا، وهذا صحيح.
+cursors_shapes_title = أشكال المؤشّر
+cursors_drag_title = السحب والإفلات
+cursors_resize_title = تغيير الحجم والتكبير
+cursors_busy_title = مشغول
+cursors_reactive_title = صندوق واحد، أشكال كثيرة
+cursors_reactive_caption = يتلقّى الصندوق `cursor(closure)`: اختر شكلًا فيتغيّر المؤشّر فوقه دون إعادة بناء أي شيء.
+cursors_reactive_pick = الشكل
+cursors_nested_title = الأقرب من الأسلاف يفوز
+cursors_nested_caption = الصندوق الخارجي يطلب علامة تصويب، والبلاطة الداخلية يدًا؛ ومغادرة البلاطة تعيد علامة التصويب.
+cursors_nested_outer = علامة تصويب هنا
+cursors_nested_inner = يد هنا
+cursors_native_title = الخاصّة بمجموعة الأدوات هذه
+cursors_native_none = لا تسمّي مجموعة الأدوات هذه أشكالًا خارج الطقم المشترك.

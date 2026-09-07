@@ -992,3 +992,26 @@ field_kind = 类型
 field_done = 完成
 field_rating = 评分
 field_color = 颜色
+
+# 光标页（day/docs/cursor.md）：`.cursor()` 装饰器，逐个形状。
+nav_cursors = 光标
+cursors_caption = 指针悬停在部件上的形状：一套词汇，由每个工具包用自己的形状集绘制，另有一种闭包形式随你的状态而变。
+cursors_support_title = 在此工具包上
+cursors_support_label = 此处支持
+cursors_native = 原生
+cursors_emulated = 模拟（取最接近的形状）
+cursors_unsupported = 此目标不支持
+cursors_hint = 把指针移到任一方块上，它就会变成该形状。触摸屏不显示指针，这是正常的。
+cursors_shapes_title = 指针形状
+cursors_drag_title = 拖放
+cursors_resize_title = 调整大小与缩放
+cursors_busy_title = 忙碌
+cursors_reactive_title = 一个方块，多种形状
+cursors_reactive_caption = 方块使用 `cursor(闭包)`：选择一个形状，其上的指针随之改变，无需重建任何东西。
+cursors_reactive_pick = 形状
+cursors_nested_title = 最近的祖先优先
+cursors_nested_caption = 外层方块要求十字线，内层方块要求手形；离开内层方块后十字线恢复。
+cursors_nested_outer = 这里是十字线
+cursors_nested_inner = 这里是手形
+cursors_native_title = 本工具包独有
+cursors_native_none = 本工具包没有共享集之外的形状。

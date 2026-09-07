@@ -1,0 +1,29 @@
+name: cursors
+description: >
+  The Cursors page (day/docs/cursor.md): the `.cursor()` decorator drawn by this toolkit. A
+  script cannot see the pointer, so what it checks is what a script can: the page renders, the
+  support row carries the answer `Cap::Cursor` gives for this target, the reactive box follows
+  the picker, and the nested pair mounts. The shape itself is the acceptance test, and it needs
+  a person with a mouse.
+flow:
+  - wait_for: { id: nav }
+  - navigate: { route: cursors }
+  - assert_route: { route: cursors }
+  - wait_for: { id: cursors-support }
+  # AppKit, GTK, the DOM, and Android draw the shared set from their own shapes; Qt, XAML, and
+  # iPadOS map to a nearest shape or a pointer effect; ArkUI has no pointer API Day reaches.
+  - assert_text: { id: cursors-support, text: "Native", only_on: [appkit, gtk, dom, mdc] }
+  - assert_text: { id: cursors-support, text: "Emulated (nearest shapes)", only_on: [qt, xaml, uikit] }
+  - assert_text: { id: cursors-support, text: "Unsupported on this target", only_on: [arkui] }
+  - assert_visible: { id: cursor-shapes-pointer }
+  - assert_visible: { id: cursor-resize-ew-resize }
+  - screenshot:
+      name: cursors
+      title: { en: "Cursors", fr: "Curseurs", ar: "المؤشّرات", zh-CN: "光标" }
+      source: src/pages/cursors.rs
+  # The reactive box: the picker writes the signal, the closure re-runs, the label follows.
+  - select: { id: cursors-pick, index: 4 }
+  - assert_text: { id: cursors-reactive-box, text: "crosshair" }
+  - select: { id: cursors-pick, index: 6 }
+  - assert_text: { id: cursors-reactive-box, text: "grab" }
+  - assert_visible: { id: cursors-nested-inner }

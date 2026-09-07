@@ -1007,3 +1007,26 @@ field_kind = Kind
 field_done = Done
 field_rating = Rating
 field_color = Color
+
+# The Cursors page (day/docs/cursor.md): the `.cursor()` decorator, shape by shape.
+nav_cursors = Cursors
+cursors_caption = The pointer's shape over a piece: one vocabulary, drawn by each toolkit from its own set, and a closure form that follows your state.
+cursors_support_title = On this toolkit
+cursors_support_label = Support here
+cursors_native = Native
+cursors_emulated = Emulated (nearest shapes)
+cursors_unsupported = Unsupported on this target
+cursors_hint = Move the pointer over a tile and it takes that shape. A touch screen shows none, which is correct.
+cursors_shapes_title = Pointer shapes
+cursors_drag_title = Drag and drop
+cursors_resize_title = Resize and zoom
+cursors_busy_title = Busy
+cursors_reactive_title = One box, many shapes
+cursors_reactive_caption = The box takes `cursor(closure)`: pick a shape and the pointer over it changes without rebuilding anything.
+cursors_reactive_pick = Shape
+cursors_nested_title = Nearest ancestor wins
+cursors_nested_caption = The outer box asks for a crosshair, the inner tile for a hand; leaving the tile restores the crosshair.
+cursors_nested_outer = Crosshair out here
+cursors_nested_inner = A hand in here
+cursors_native_title = This toolkit's own
+cursors_native_none = This toolkit names no shapes beyond the shared set.

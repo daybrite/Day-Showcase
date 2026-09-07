@@ -1001,3 +1001,26 @@ field_kind = Type
 field_done = Terminé
 field_rating = Note
 field_color = Couleur
+
+# La page Curseurs (day/docs/cursor.md) : le décorateur `.cursor()`, forme par forme.
+nav_cursors = Curseurs
+cursors_caption = La forme du pointeur au-dessus d'une pièce : un seul vocabulaire, dessiné par chaque boîte à outils à partir de son propre jeu, et une forme fermée qui suit votre état.
+cursors_support_title = Sur cette boîte à outils
+cursors_support_label = Prise en charge ici
+cursors_native = Native
+cursors_emulated = Émulée (formes les plus proches)
+cursors_unsupported = Non prise en charge sur cette cible
+cursors_hint = Passez le pointeur sur une tuile et il prend cette forme. Un écran tactile n'en montre aucune, ce qui est normal.
+cursors_shapes_title = Formes du pointeur
+cursors_drag_title = Glisser-déposer
+cursors_resize_title = Redimensionner et zoomer
+cursors_busy_title = Occupé
+cursors_reactive_title = Une boîte, plusieurs formes
+cursors_reactive_caption = La boîte reçoit `cursor(fermeture)` : choisissez une forme et le pointeur change sans rien reconstruire.
+cursors_reactive_pick = Forme
+cursors_nested_title = L'ancêtre le plus proche l'emporte
+cursors_nested_caption = La boîte extérieure demande un réticule, la tuile intérieure une main ; en quittant la tuile, le réticule revient.
+cursors_nested_outer = Un réticule ici
+cursors_nested_inner = Une main ici
+cursors_native_title = Propres à cette boîte à outils
+cursors_native_none = Cette boîte à outils ne nomme aucune forme au-delà du jeu commun.
