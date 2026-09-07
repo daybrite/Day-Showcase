@@ -56,6 +56,12 @@ jobs:
       # DAY_APPLE_CERT_PASSWORD and DAY_IOS_PROFILE_B64 secrets.
       upload-ios: "true"
       ios-upload-lane: ios release
+      # The same for Google Play: the packed .aab goes to the production track as a completed
+      # release, which is Play's submission; Google reviews it and rolls it out on approval. Needs
+      # DAY_PLAY_JSON_KEY (the service-account JSON) beside the DAY_ANDROID_* keystore secrets,
+      # and the keystore must be the upload key Play App Signing was enrolled with.
+      upload-play: "true"
+      play-upload-lane: android release
 
   # The Content List page copies the `day new` scaffold's list, editor and model
   # (scripts/template-sync.sh). A template change that is not mirrored here fails the build.
