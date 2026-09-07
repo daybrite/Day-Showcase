@@ -426,6 +426,13 @@ canvas_caption = Shapes, transforms, gestures, and composition-tier widgets — 
 paths_title = Paths, strokes & clipping
 canvas_gauge = Canvas gauge
 gauge_value_label = Value
+canvas_text_title = Text & fonts
+canvas_font_label = Font
+canvas_font_default = System
+canvas_text_specimen = The quick brown fox jumps over the lazy dog
+canvas_text_bold = Bold
+canvas_text_italic = Italic
+canvas_text_bold_italic = Bold Italic
 system_caption = The headless device-state parts: battery, connectivity, motion sensors, and device identity.
 
 # — data strings localized for the walkthrough locales (option lists, specimen rows) —

@@ -433,6 +433,13 @@ canvas_caption = أشكال وتحويلات وإيماءات وقطع الطب�
 paths_title = المسارات والحدود والاقتصاص
 canvas_gauge = مقياس اللوحة
 gauge_value_label = القيمة
+canvas_text_title = النص والخطوط
+canvas_font_label = الخط
+canvas_font_default = النظام
+canvas_text_specimen = نص حكيم له سر قاطع وذو شأن عظيم
+canvas_text_bold = عريض
+canvas_text_italic = مائل
+canvas_text_bold_italic = عريض مائل
 system_caption = قطع حالة الجهاز بلا واجهة: البطارية والاتصال ومستشعرات الحركة وهوية الجهاز.
 
 # — data strings localized for the walkthrough locales (option lists, specimen rows) —

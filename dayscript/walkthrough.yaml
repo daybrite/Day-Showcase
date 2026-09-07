@@ -949,6 +949,11 @@ flow:
   - assert_route: { route: canvas }
   - assert_visible: { id: canvas-title }
   - set_value: { id: shapes-angle-slider, value: 45 }
+  # Canvas text in a chosen font (docs/fonts.md): the font menu lists the platform's families
+  # plus the bundled Pacifico it starts on; the list itself differs per platform, so the
+  # walkthrough proves the section mounts and leaves the face to the screenshot.
+  - wait_for: { id: canvas-text }
+  - wait_for: { id: canvas-font }
   # Accessibility (§13): diff the native AX tree against day's expectations. The gauge is a
   # canvas, so day applies role=Meter + a spoken label/value; the audit reads them back natively
   # (apple targets; gtk/qt report unsupported and skip). A full-tree audit follows.

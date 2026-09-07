@@ -421,6 +421,13 @@ canvas_caption = 形状、变换、手势和组合层部件——全部通过画
 paths_title = 路径、描边与裁剪
 canvas_gauge = 画布仪表
 gauge_value_label = 数值
+canvas_text_title = 文本与字体
+canvas_font_label = 字体
+canvas_font_default = 系统
+canvas_text_specimen = 敏捷的棕色狐狸跳过懒狗
+canvas_text_bold = 粗体
+canvas_text_italic = 斜体
+canvas_text_bold_italic = 粗斜体
 system_caption = 无界面的设备状态部件：电池、网络连接、运动传感器和设备标识。
 
 # — data strings localized for the walkthrough locales (option lists, specimen rows) —

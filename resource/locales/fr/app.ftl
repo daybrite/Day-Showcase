@@ -426,6 +426,13 @@ canvas_caption = Formes, transformations, gestes et widgets composés — tous d
 paths_title = Tracés, contours et découpe
 canvas_gauge = Jauge canevas
 gauge_value_label = Valeur
+canvas_text_title = Texte et polices
+canvas_font_label = Police
+canvas_font_default = Système
+canvas_text_specimen = Portez ce vieux whisky au juge blond qui fume
+canvas_text_bold = Gras
+canvas_text_italic = Italique
+canvas_text_bold_italic = Gras italique
 system_caption = Les modules d'état de l'appareil : batterie, connectivité, capteurs et identité.
 
 # — data strings localized for the walkthrough locales (option lists, specimen rows) —

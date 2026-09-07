@@ -14,6 +14,7 @@ pub(crate) fn canvas_page() -> AnyPiece {
         Some(crate::res::str::canvas_caption()),
         form((
             shapes_section(),
+            text_section(),
             paths_section(),
             gradients_section(),
             gauge_section(),
@@ -21,6 +22,115 @@ pub(crate) fn canvas_page() -> AnyPiece {
         .any(),
     )
     .any()
+}
+
+/// Canvas text in a chosen font (docs/fonts.md): a specimen line, the bold / italic / bold-italic
+/// faces, and a centered glyph, each framed by the box `measure_text` reports, so the anchor
+/// rule (a `Leading` anchor is the line box's top-leading corner) is visible. The menu lists
+/// every family `font_families()` knows — the platform's own plus the bundled ones — and
+/// starts on the bundled Pacifico, which is exactly the family no platform ships.
+fn text_section() -> impl Piece {
+    let mut families: Vec<String> = day::font_families()
+        .iter()
+        .map(|f| f.family.clone())
+        .collect();
+    if families.is_empty() {
+        // `Cap::FontList` = Unsupported: one entry, the platform's default face.
+        families.push(crate::res::str::canvas_font_default().format());
+    }
+    let default_ix = families.iter().position(|f| f == "Pacifico").unwrap_or(0);
+    let chosen = Signal::new(default_ix);
+    let names = families.clone();
+    let listed = !day::font_families().is_empty();
+    const H: f64 = 168.0;
+    section((
+        canvas(move |d, size| {
+            let family = names.get(chosen.get()).cloned().filter(|_| listed);
+            let font = |weight: Option<FontWeight>, italic: bool| CanvasFont {
+                family: family.clone(),
+                weight,
+                italic,
+            };
+            let frame = Color::rgba(0.5, 0.5, 0.55, 0.45);
+            // A line in the family, with its measured line box and a tick at the anchor.
+            let framed = |d: &mut Draw, text: &str, at: Point, size: f64, font: CanvasFont| {
+                let m = day::measure_text(text, size, &font);
+                d.stroke(
+                    Shape::Rect(Rect::new(at.x, at.y, m.width, m.height)),
+                    frame,
+                    1.0,
+                );
+                d.stroke(
+                    Shape::Line(
+                        Point::new(at.x, at.y + m.ascent),
+                        Point::new(at.x + m.width, at.y + m.ascent),
+                    ),
+                    Color::rgba(0.9, 0.3, 0.3, 0.55),
+                    1.0,
+                );
+                d.text(
+                    text,
+                    at,
+                    TextStyle {
+                        size,
+                        color: AZURE,
+                        anchor: TextAnchor::Leading,
+                        font,
+                    },
+                );
+                m
+            };
+            let specimen = crate::res::str::canvas_text_specimen().format();
+            let big = 28.0;
+            let m = framed(d, &specimen, Point::new(8.0, 8.0), big, font(None, false));
+            let y = 8.0 + m.height + 12.0;
+            let mut x = 8.0;
+            for (label, weight, italic) in [
+                (
+                    crate::res::str::canvas_text_bold().format(),
+                    Some(FontWeight::Bold),
+                    false,
+                ),
+                (crate::res::str::canvas_text_italic().format(), None, true),
+                (
+                    crate::res::str::canvas_text_bold_italic().format(),
+                    Some(FontWeight::Bold),
+                    true,
+                ),
+            ] {
+                let m = framed(d, &label, Point::new(x, y), 20.0, font(weight, italic));
+                x += m.width + 18.0;
+            }
+            // A centered glyph pair in a circle: the `Centered` anchor is the line box's center.
+            let r = 30.0;
+            let c = Point::new(size.width - r - 12.0, size.height - r - 10.0);
+            d.stroke(
+                Shape::Ellipse(Rect::new(c.x - r, c.y - r, 2.0 * r, 2.0 * r)),
+                CORAL,
+                2.0,
+            );
+            d.text(
+                "Aa",
+                c,
+                TextStyle {
+                    size: 26.0,
+                    color: CORAL,
+                    anchor: TextAnchor::Centered,
+                    font: font(None, false),
+                },
+            );
+        })
+        .height(H)
+        .grow_w()
+        .id("canvas-text"),
+        labeled(
+            crate::res::str::canvas_font_label(),
+            picker(families.iter().cloned(), chosen)
+                .menu()
+                .id("canvas-font"),
+        ),
+    ))
+    .title(crate::res::str::canvas_text_title())
 }
 
 /// Paths, stroke styles and clipping (docs/canvas.md): the primitives beyond rectangles and
