@@ -1,4 +1,4 @@
-# Day Showcase website (https://showcase.daybrite.dev/) — built by the shared build-day-app
+# Day Showcase website (https://showcase.daybrite.dev/) — built by the shared dayapp
 # workflow from the daybrite/daysite template. Content (name, description, screenshots,
 # downloads) comes from Day.toml, store/, and the release pipeline; this file holds only what
 # is genuinely site-specific.

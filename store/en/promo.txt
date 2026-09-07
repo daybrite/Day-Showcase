@@ -1,1 +1,1 @@
-Ten platform-toolkit pairs, one Rust codebase. Every control in this app is the platform's own — UIKit, Material, AppKit, GTK, Qt, XAML, ArkUI, or the DOM.
+Every page in Day Showcase is a live demo of one part of the Day framework, drawn with UIKit on this device, and its Rust source is one toolbar button away.

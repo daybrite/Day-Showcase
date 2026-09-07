@@ -1,1 +1,1 @@
-Dix paires plateforme-toolkit, une seule base Rust. Chaque contrôle appartient à la plateforme — UIKit, Material, AppKit, GTK, Qt, XAML, ArkUI ou le DOM.
+Chaque page de Day Showcase est une démo en direct d'une partie du framework Day, dessinée avec UIKit sur cet appareil ; son code Rust est à un bouton de la barre.

@@ -1,22 +1,17 @@
-Day Showcase is the catalog app for Day, a framework for writing apps in Rust that draw with each platform's own native widgets.
+Day Showcase is the demo app for Day, a framework for writing apps in Rust that draw with each platform's own toolkit. This build draws with UIKit. The same Rust code builds with Material on Android, AppKit on macOS, GTK and Qt on Linux, XAML on Windows, ArkUI on HarmonyOS, and the DOM in a browser.
 
-The switch on the Controls page is a UISwitch on iPhone, a MaterialSwitch on Android, and an NSSwitch on a Mac. One Rust codebase draws all three. There is no web view in between, and nothing on screen is custom-drawn.
+The app has 35 pages in eight groups, and each page is a working demo of one part of the framework. Every control on a page is bound to a value, and the readout under it changes as you use it.
 
-What's inside
+Controls: buttons, switches, sliders, steppers, pickers, text fields, a multi-line editor, date and time pickers, keyboard focus, and pointer cursors.
+Layout: rows, columns, and layers under each fit policy, and a grid with spanning cells.
+Navigation & chrome: a push stack, tabs, menus and dialogs, the window toolbar, and a content list that opens each item in an editor.
+Data: a list and a tree over live models, and queries against a local store.
+Graphics & media: shapes, paths, gradients, and transforms on a canvas, animation, Lottie playback, bundled resources, media playback, a map, and a web view.
+Platform: battery and connectivity, accelerometer, gyroscope, and magnetometer traces, HTTP requests, notifications and the app badge, speech and haptics, and files.
+App & tooling: localization, scripting, tweaks, a benchmark against SwiftUI, and crash reporting.
 
-• Controls — buttons, toggles, sliders, pickers, and text fields, each bound two ways to a signal
-• Text and text areas — styling, selection, and editing
-• Canvas & shapes — paths, gradients, transforms, and gestures
-• Grid, List, Tabs, and Stack — the native layout and navigation containers
-• Menus & dialogs, Toolbars, Preferences — the platform's own chrome
-• Date & time, Localization, Resources — formatting and assets that follow the system
-• Device & sensors — battery, connectivity, and live accelerometer, gyroscope, and magnetometer traces
-• Platform services, Focus, Animation, Web View, Map, Refresh, and Crash reporting
+The toolbar on every page has a code button that opens that page's Rust source on GitHub, so you can read the code beside the result. The star button pins a page to the top of the list, and the theme button switches the appearance.
 
-Every screen is translated into English, French, Arabic, and Simplified Chinese. Switching language at runtime lays every screen out again, mirrored for Arabic.
+The app is translated into English, French, Arabic, and Simplified Chinese. Switching the language on the Localization page rebuilds every page in place, and Arabic mirrors the layout. Every page works offline on first launch.
 
-Who it's for
-
-Developers evaluating Day, and anyone curious what a Rust app looks like when it uses the platform's real widgets. Every screen works on first launch — no account, no network connection.
-
-Day is open source. The code for every screen in this app is at github.com/daybrite/day.
+Day and this app are open source. The framework is at github.com/daybrite/day and the app's source is at github.com/daybrite/Day-Showcase.

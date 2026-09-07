@@ -1,1 +1,1 @@
-First public release. 24 screens covering every widget Day can draw, in English, French, Arabic, and Simplified Chinese.
+First App Store release. 35 pages in eight groups, from controls and layout to sensors and crash reporting, in English, French, Arabic, and Simplified Chinese.

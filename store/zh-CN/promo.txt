@@ -1,1 +1,1 @@
-十组平台－工具包组合，一份 Rust 代码。应用中的每个控件都是平台自己的——UIKit、Material、AppKit、GTK、Qt、XAML、ArkUI 或 DOM。
+Day Showcase 的每个页面都是 Day 框架某一部分的现场演示，在这台设备上由 UIKit 绘制，其 Rust 源码只需按一下工具栏按钮。

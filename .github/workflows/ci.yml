@@ -19,14 +19,14 @@ permissions:
 
 jobs:
   app:
-    uses: daybrite/actions/.github/workflows/build-day-app.yml@main
+    uses: daybrite/actions/.github/workflows/dayapp.yml@main
     secrets: inherit
     with:
       targets: windows-xaml, macos-appkit, linux-gtk, linux-qt, ios-uikit, android-mdc, harmony-arkui, web-dom
       day-version: main
       scripts: dayscript/walkthrough.yaml dayscript/speech.yaml dayscript/tree.yaml
       ios-devices: |
-        device=iPhone,           orientation=portrait
+        device=iPhone * Pro Max, orientation=portrait,  slug=iphone
         device=iPad Pro 13-inch, orientation=landscape, slug=ipad
       # The gallery's variant ids: one run per theme × locale, the same matrix day's own CI drives.
       themes: light dark
@@ -48,6 +48,14 @@ jobs:
       # input is what asks for signing, so a tag build FAILS if the material is missing rather than
       # quietly shipping a .dmg macOS refuses to open. Remove the input to release unsigned.
       signing-environment: release-signing
+      # A tag build also ships the iOS app: the packed .ipa goes to App Store Connect through the
+      # `release` lane `day store stage` writes from store/, which uploads the listing, waits for
+      # processing, and submits the version for review (docs/store.md). The release itself waits
+      # for the Release button in App Store Connect. Needs this repository's DAY_APPLE_TEAM,
+      # DAY_ASC_KEY_ID, DAY_ASC_ISSUER, DAY_ASC_KEY_B64, DAY_APPLE_CERT_P12,
+      # DAY_APPLE_CERT_PASSWORD and DAY_IOS_PROFILE_B64 secrets.
+      upload-ios: "true"
+      ios-upload-lane: ios release
 
   # The Content List page copies the `day new` scaffold's list, editor and model
   # (scripts/template-sync.sh). A template change that is not mirrored here fails the build.

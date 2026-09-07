@@ -1,1 +1,1 @@
-Le catalogue de widgets de Day : tous les contrôles natifs, une base Rust.
+Démos en direct du framework Day : des widgets natifs, une seule base Rust.

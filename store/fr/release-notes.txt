@@ -1,1 +1,1 @@
-Première version publique. 24 écrans couvrant tous les widgets que Day sait dessiner, en anglais, français, arabe et chinois simplifié.
+Première version sur l'App Store. 35 pages en huit groupes, des contrôles et de la mise en page jusqu'aux capteurs et aux rapports de plantage, en anglais, français, arabe et chinois simplifié.

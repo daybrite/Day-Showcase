@@ -1,1 +1,1 @@
-rust,native,ui,framework,widgets,cross-platform,developer,demo,uikit,material
+rust,native,ui,widgets,framework,cross-platform,uikit,demo,sample,developer,toolkit
