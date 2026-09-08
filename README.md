@@ -91,7 +91,7 @@ every target, in both themes and all four locales, and the captures it takes are
 
 | Web · DOM | Android · Material | HarmonyOS · ArkUI |
 |:---:|:---:|:---:|
-| <kbd><img src="https://showcase.daybrite.dev/gallery/web-dom/light/menus.png" width="300" alt="Menus and dialogs in the browser"></kbd> | <kbd><img src="https://showcase.daybrite.dev/gallery/android-mdc/pixel-5/light/menus.png" width="150" alt="Menus and dialogs on Android"></kbd> | <kbd><img src="https://showcase.daybrite.dev/gallery/harmony-arkui/light/menus.png" width="150" alt="Menus and dialogs on HarmonyOS"></kbd> |
+| <kbd><img src="https://showcase.daybrite.dev/gallery/web-dom/light/menus.png" width="300" alt="Menus and dialogs in the browser"></kbd> | <kbd><img src="https://showcase.daybrite.dev/gallery/android-mdc/phone/light/menus.png" width="150" alt="Menus and dialogs on Android"></kbd> | <kbd><img src="https://showcase.daybrite.dev/gallery/harmony-arkui/light/menus.png" width="150" alt="Menus and dialogs on HarmonyOS"></kbd> |
 
 ## Build from a clone
 
