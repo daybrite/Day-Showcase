@@ -28,22 +28,21 @@ jobs:
       # The gallery's variant ids: one run per theme × locale, the same matrix day's own CI drives.
       themes: light dark
       locales: en fr ar zh-CN
-      # Three Android legs for one run, to answer which panels the walkthrough survives. The
-      # android-mdc failure that stops it at the composed color picker — the guest freezing whole,
-      # adbd with it, no crash artifact — reproduces on the 1080x2400 phone panel and not on a
-      # tablet, and every sibling app passes on the same profile, so what is left to separate is
-      # the panel itself. `medium_phone` IS that panel: it and `pixel_7` generate identical AVDs
-      # apart from the manufacturer string. `pixel_5` is the 1080x2340 panel this app was green on
-      # for months. Whichever legs pass, the answer is on this run.
+      # The phone leg runs `pixel_5` rather than the shared workflow's generic `medium_phone`,
+      # which is `pixel_7`'s panel: 1080x2400 at 420 dpi, 2.59 Mpx. That is 2.5% more pixels than
+      # `pixel_5` and it is 2.5% too many. A headless runner rasterizes every one of them in
+      # software on two cores, and this app's Web view page loads the live daybrite.dev — 21 hero
+      # PNGs and 31 inline SVGs — which is what tips it: the guest freezes whole, adbd included,
+      # partway through the eight-variant matrix. `pixel_5` (2.53 Mpx) clears it, and the tablet
+      # clears it by more, since `day devices boot` halves any headless panel past three million
+      # pixels and `medium_tablet` comes back at 1280x800.
       #
-      # The phone stays FIRST so it keeps packing and keeps the unsuffixed
-      # `screenshots-android-mdc` artifact, and `slug=phone` holds the gallery path the README's
-      # Android capture links to. Three legs is three times the Android wall clock; drop the two
-      # that lose once this is settled.
+      # So this is a load ceiling, not a name: any profile at or above that panel will find it
+      # again. `small_phone` (720x1280, 0.92 Mpx) is the generic profile with room to spare if the
+      # naming matters more than the capture size later on.
       android-devices: |
-        device=medium_phone,  os=36, orientation=portrait,  slug=phone
+        device=pixel_5,       os=36, orientation=portrait,  slug=phone
         device=medium_tablet, os=36, orientation=landscape, slug=tablet
-        device=pixel_5,       os=36, orientation=portrait,  slug=pixel5
       app-id: dev.daybrite.showcase
       deploy-web: true
       # Tag builds sign and notarize the .dmg in a job that checks out nothing and runs only
