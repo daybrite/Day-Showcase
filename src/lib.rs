@@ -404,7 +404,7 @@ struct Dest {
 }
 
 /// One derived sidebar row: a destination and, on the first row of each group, the header
-/// the selector opens above it.
+/// the nav opens above it.
 #[derive(Clone)]
 struct Row {
     dest: Dest,
@@ -723,7 +723,7 @@ fn window_body(primary: bool) -> impl Piece {
     MENU_ONCE.call_once(install_app_menu);
     // Remember the last-opened section across launches (docs/navigation.md). Web only, matching
     // this app's prefs policy (controls.rs): a browser reload is normal life on the web, so the
-    // store is installed there and the top-level selector's `.restore` persists the section;
+    // store is installed there and the top-level nav's `.restore` persists the section;
     // native launches install no store, so `.restore` is a silent no-op and every run starts
     // fresh — which is what the walkthrough asserts.
     #[cfg(target_arch = "wasm32")]
@@ -744,8 +744,8 @@ fn window_body(primary: bool) -> impl Piece {
     // a third column on a desktop, the pushed middle layer on a phone, collapsed on every other
     // page. Its commands ride the pane, so they come and go with it (docs/toolbars.md).
     let items = pages::content_list::Scene::ambient();
-    let nav = selector(section)
-        .style(SelectorStyle::Sidebar)
+    let nav = nav(section)
+        .style(NavStyle::Sidebar)
         .title(crate::res::str::app_title())
         .content_list(pages::content_list::item_list_pane)
         .content_list_width(320.0)
@@ -855,7 +855,7 @@ fn window_body(primary: bool) -> impl Piece {
                             .action(move || open_source_of(section)),
                     ]);
                 // The group header rides the group's first row (docs/navigation.md): the
-                // selector opens a section there, and the flat-list toolkits ignore it.
+                // nav opens a section there, and the flat-list toolkits ignore it.
                 let row = match r.header {
                     Some(h) => row.section(h()),
                     None => row,

@@ -22,8 +22,8 @@ day::routes! {
 pub(crate) fn grid_page() -> AnyPiece {
     if capability(Cap::NavSplit) == Support::Native {
         let tab = Signal::new(GridDemo::Basics);
-        selector(tab)
-            .style(SelectorStyle::Tabs)
+        nav(tab)
+            .style(NavStyle::Tabs)
             .item_icon(
                 GridDemo::Basics,
                 crate::res::str::grid_tab_basics(),
@@ -90,7 +90,7 @@ pub(crate) fn grid_page() -> AnyPiece {
             .align(HAlign::Leading)
             .any(),
         );
-        stack(path, menu)
+        nav_stack(path, menu)
             // Five arms, five types — past two, one erasure reads better than nested `Either`s.
             .destination(|demo: &GridDemo| match demo {
                 GridDemo::Basics => basics_demo().any(),

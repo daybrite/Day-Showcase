@@ -123,7 +123,7 @@ pub(crate) fn window_items() -> impl Fn() -> Vec<ToolbarEntry> + 'static {
     // and the add/remove API is just a different list. It also re-lowers on a language change,
     // which is why the labels are `res::str` calls rather than captured Strings.
     //
-    // The sidebar toggle is NOT here. A `selector(Sidebar)` draws the platform's own, so the app
+    // The sidebar toggle is NOT here. A `nav(Sidebar)` draws the platform's own, so the app
     // declares nothing for it.
     move || {
         let mut items = vec![

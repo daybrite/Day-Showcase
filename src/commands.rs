@@ -8,7 +8,7 @@
 //! So a command is declared ONCE here as a [`Command`]: its id, the title for its current state,
 //! whether it is available, whether it is on, and what it does. Every surface renders the same
 //! struct. Because the title/enabled/checked members are read inside the surfaces' own reactive
-//! builders (`toolbar_reactive`, `app_menu_reactive`, the selector's `.items` mapper), touching
+//! builders (`toolbar_reactive`, `app_menu_reactive`, the nav's `.items` mapper), touching
 //! the state behind them re-lowers all four with no coordination code between them: the signal
 //! IS the coordination.
 //!

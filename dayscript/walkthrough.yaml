@@ -1,7 +1,7 @@
 name: showcase-walkthrough
 description: Navigate every destination, exercise every control, take localized screenshots
-  (DESIGN.md §14.1, docs/navigation.md). Top-level nav is a selector(Sidebar); tabs a
-  selector(Tabs); the stack section is a genuine push/pop stack bound to a path signal. Every
+  (DESIGN.md §14.1, docs/navigation.md). Top-level nav is a nav(Sidebar); tabs a
+  nav(Tabs); the stack section is a genuine push/pop stack bound to a path signal. Every
   page is a grouped form (docs/forms.md) of themed sections — menus & dialogs share one page.
   The flow walks the sidebar in its own order — Overview, Controls, Layout, Navigation & chrome,
   Data, Graphics & media, Platform, App & tooling — so the gallery reads like the app. Exactly
@@ -19,7 +19,7 @@ flow:
   # Overview
   # ---------------------------------------------------------------------------------------------
 
-  # Leaving via a route the stack doesn't own falls through to the enclosing selector.
+  # Leaving via a route the stack doesn't own falls through to the enclosing nav host.
   - navigate: { route: about }
   - assert_route: { route: about }
   - assert_visible: { id: about-text }
@@ -408,7 +408,7 @@ flow:
   - assert_visible: { id: stack-root }
   - tap: { id: stack-push }
   - assert_visible: { id: stack-detail }
-  # assert_route sees the FULL path: selector key + the stack's segments (docs/navigation.md).
+  # assert_route sees the FULL path: nav host key + the stack's segments (docs/navigation.md).
   - assert_route: { route: stack/1 }
   - screenshot:
       name: stack-detail
@@ -420,7 +420,7 @@ flow:
   - assert_route: { route: stack/1 }
   - nav_back:
   - assert_route: { route: stack }
-  # Absolute route with params: anchors the selector, resets the stack, pushes the segment;
+  # Absolute route with params: anchors the nav host, resets the stack, pushes the segment;
   # the destination reads ?hint= via route_param.
   - tap: { id: stack-link }
   - assert_route: { route: stack/item-42 }
@@ -453,10 +453,10 @@ flow:
   - tap: { id: cover-dismiss }
   - assert_visible: { id: stack-root }
 
-  # Native tabs (docs/tabs.md): a selector(Tabs) bound to a signal. Tab keys are routes, so
-  # navigate/assert_route select the active tab; the inner selector reports the innermost route.
+  # Native tabs (docs/tabs.md): a nav(Tabs) bound to a signal. Tab keys are routes, so
+  # navigate/assert_route select the active tab; the inner nav host reports the innermost route.
   - navigate: { route: tabs }
-  # Full-tree routes (docs/navigation.md): the selector key + the tab key.
+  # Full-tree routes (docs/navigation.md): the nav host key + the tab key.
   - assert_route: { route: tabs/one }
   - assert_visible: { id: tab-one-content }
   - assert_value: { id: demo-tabs, value: 0 }

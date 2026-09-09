@@ -12,7 +12,7 @@
 use day::prelude::*;
 
 mod detail;
-// The scaffold's `lib.rs` is the one consumer of `Scene::section` (its selector binds it);
+// The scaffold's `lib.rs` is the one consumer of `Scene::section` (its nav binds it);
 // this app routes with `crate::Section` and mounts only the page, so the field is carried
 // unread rather than edited out of the generated copy.
 #[allow(dead_code)]

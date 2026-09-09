@@ -7,7 +7,7 @@ day::routes! {
     enum Tab { One => "one", Two => "two", Three => "three" }
 }
 
-/// Native tabbed container (docs/tabs.md): a `selector` with `SelectorStyle::Tabs`, bound to a
+/// Native tabbed container (docs/tabs.md): a `nav` with `NavStyle::Tabs`, bound to a
 /// `Signal<Tab>` of the active tab (tabs always have a selection, so no `Option`). NSTabView /
 /// UITabBarController / GtkNotebook / QTabWidget / Android tab strip. Each pane holds live
 /// controls whose signals are owned by the PAGE, not the pane — switch away and back and the
@@ -42,8 +42,8 @@ pub(crate) fn tabs_page() -> AnyPiece {
     // size instead of scaled from a bitmap. Backends whose tab widget shows icons (iOS UITabBar,
     // the Android tab strip, QTabWidget) render them; text-only tab widgets (NSTabView,
     // GtkNotebook) ignore the icon and just show the label.
-    let main = selector(tab)
-        .style(SelectorStyle::Tabs)
+    let main = nav(tab)
+        .style(NavStyle::Tabs)
         .item_icon(
             Tab::One,
             crate::res::str::tab_one(),
@@ -123,8 +123,8 @@ fn dynamic_tabs_demo() -> impl Piece {
                 .id("dyn-tab-remove"),
         ))
         .spacing(8.0),
-        selector(current)
-            .style(SelectorStyle::Tabs)
+        nav(current)
+            .style(NavStyle::Tabs)
             .local()
             .items(move || tabs.get(), |k: &String| item(k.clone(), k.clone()))
             .destination(|k: &String| {

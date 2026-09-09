@@ -68,7 +68,7 @@ pub(crate) fn stack_page() -> AnyPiece {
                 .tint(crate::widgets::primary())
                 .id("stack-push"),
             // An ABSOLUTE route with query params (docs/navigation.md), built typed: it anchors
-            // the enclosing selector at Section::Stack, resets this stack, pushes Item { id: 42 };
+            // the enclosing nav at Section::Stack, resets this stack, pushes Item { id: 42 };
             // the destination builder reads the ?hint= param via route_param().
             nav_link_to(
                 crate::res::str::stack_link_42(),
@@ -101,7 +101,7 @@ pub(crate) fn stack_page() -> AnyPiece {
         .align(HAlign::Leading)
         .padding(16.0),
     );
-    stack(path, root)
+    nav_stack(path, root)
         .destination(move |d: &Drill| {
             // The typed value arrives parsed — match, don't split strings.
             let (title, depth) = match d {
