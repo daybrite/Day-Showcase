@@ -194,7 +194,7 @@ pub(crate) fn animation_page() -> AnyPiece {
     .any()
 }
 
-/// The box centred in a large stage that fills the page width. The box is a DIRECT child of the
+/// The box centered in a large stage that fills the page width. The box is a DIRECT child of the
 /// stage (no box-sized wrapper between them) and its `.transform` is the OUTERMOST modifier, so the
 /// transform moves it within the *stage's* bounds — the only clipping container above it. That's
 /// what lets it travel outside its own frame on the toolkits that clip children (Android/GTK/Qt),
@@ -217,7 +217,7 @@ fn stage(s: Anim) -> impl Piece {
             anchor_y: 0.5,
         })
         .id("anim-box");
-    // A zstack over the stage floor: a quiet rounded panel that sizes the stage, centres the box
+    // A zstack over the stage floor: a quiet rounded panel that sizes the stage, centers the box
     // (both axes), and is the box's only clipping parent, so the box travels freely within it.
     // The panel is a translucent neutral so it reads as a surface on both themes.
     let floor = shape_group([

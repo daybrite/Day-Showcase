@@ -171,7 +171,7 @@ pub(crate) fn benchmark_page() -> AnyPiece {
 
     let body: AnyPiece = if day_piece_swiftui::support() == Support::Native {
         let tab = Signal::new(0usize);
-        // The picker centres over the pane rather than hugging the leading edge: it names the two
+        // The picker centers over the pane rather than hugging the leading edge: it names the two
         // implementations being compared, so it reads as a title for the comparison below it.
         let picker_row = column((picker(
             [

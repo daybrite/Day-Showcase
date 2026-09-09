@@ -16,7 +16,7 @@ pub(crate) fn battery_line() -> LocalizedText {
     }
 }
 
-/// The arc dial: a 270° track sweep with the value centred — RESPONSIVE, drawing a centred
+/// The arc dial: a 270° track sweep with the value centered — RESPONSIVE, drawing a centered
 /// square dial scaled to whatever size the caller lays it out at (the canvas re-records on
 /// `FrameChanged`). Size it with `.height`/`.grow_w` (or `.frame`) at the call site.
 pub(crate) fn gauge(value: Signal<f64>) -> impl Piece {
@@ -133,11 +133,11 @@ pub(crate) fn heading(
     }
 }
 
-/// The widest a page's content column grows before it stops and centres instead.
+/// The widest a page's content column grows before it stops and centers instead.
 ///
 /// A desktop window is far wider than a comfortable reading measure, and a form stretched to
 /// 1900px reads as a spreadsheet: labels drift a screen away from the controls they name, and a
-/// row of buttons scatters. Capping the column and centring the remainder gives every page the
+/// row of buttons scatters. Capping the column and centering the remainder gives every page the
 /// same spine, on every window size and every platform — and it is what makes the screenshots
 /// look composed rather than merely wide.
 ///
@@ -226,7 +226,7 @@ fn page_inner<P1: Piece>(
         Some(w) => content.max_width(w).any(),
         None => content.any(),
     };
-    // The outer column is what centres: it grows to the scroll's width and aligns the capped
+    // The outer column is what centers: it grows to the scroll's width and aligns the capped
     // content column in the middle of it.
     scroll(
         column((content,))
@@ -263,10 +263,10 @@ pub(crate) fn numeric_readout(
 // Button styling (§5.2 Decorate + ButtonStyle)
 // ---------------------------------------------------------------------------
 
-/// A filled, centred button in one of the palette's colors.
+/// A filled, centered button in one of the palette's colors.
 ///
-/// `FilledButtonStyle` leaves the label at its natural position, which reads as off-centre the
-/// moment `grow_w` stretches a button to share a grid column — so this centres it. Everything
+/// `FilledButtonStyle` leaves the label at its natural position, which reads as off-center the
+/// moment `grow_w` stretches a button to share a grid column — so this centers it. Everything
 /// here is plain composition (`padding`/`background`/`corner_radius`), so it needs no per-backend
 /// code and looks the same on all nine.
 /// A button fill in an arbitrary palette color. The label color is the platform's business:
@@ -328,10 +328,10 @@ pub(crate) fn support_banner(support: Support) -> Option<AnyPiece> {
             label(text).font(Font::Footnote).color(color).grow_w(),
         ))
         .spacing(8.0)
-        // TOP, not centre. This sentence wraps to two or three lines on a narrow window, and a
-        // centred icon then sits BETWEEN them — the mark belongs beside the line the reader
+        // TOP, not center. This sentence wraps to two or three lines on a narrow window, and a
+        // centered icon then sits BETWEEN them — the mark belongs beside the line the reader
         // starts on. `VAlign::FirstBaseline` would not help: a vector has no text baseline, so a
-        // baseline row falls back to centring it (docs/baseline.md).
+        // baseline row falls back to centering it (docs/baseline.md).
         .align(VAlign::Top)
         .padding(10.0)
         .background(Color::rgba(color.r, color.g, color.b, 0.14))

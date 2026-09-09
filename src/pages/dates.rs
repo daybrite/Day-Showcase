@@ -60,7 +60,7 @@ fn date_section(date: Signal<DayDate>) -> impl Piece {
                     .id("date-bounded-value"),
             ))
             .spacing(8.0)
-            // The readout is half the picker's height, so centring it would leave its digits
+            // The readout is half the picker's height, so centering it would leave its digits
             // riding above the picker's — a control and the value it produces belong on one
             // line (docs/baseline.md).
             .align(VAlign::FirstBaseline),

@@ -53,7 +53,16 @@ fn text_section() -> impl Piece {
                 italic,
             };
             let frame = Color::rgba(0.5, 0.5, 0.55, 0.45);
-            // A line in the family, with its measured line box and a tick at the anchor.
+            let baseline_c = Color::rgba(0.9, 0.3, 0.3, 0.55);
+            let cap_c = Color::rgba(0.95, 0.65, 0.15, 0.75);
+            let ink_c = Color::rgba(0.35, 0.8, 0.55, 0.8);
+            // A line in the family under everything `measure_text` reports about it: the LINE BOX
+            // (grey — the typographic slot, identical for every string in this face at this size),
+            // the INK box (green — where the glyphs actually put marks), the baseline (red) and
+            // the cap line (amber). The three boxes only coincide for text that happens to fill
+            // its slot; a line of digits leaves the descender space empty, and the gap between
+            // grey and green is exactly why a chart's y labels need the cap line to look centered
+            // (docs/fonts.md).
             let framed = |d: &mut Draw, text: &str, at: Point, size: f64, font: CanvasFont| {
                 let m = day::measure_text(text, size, &font);
                 d.stroke(
@@ -62,11 +71,29 @@ fn text_section() -> impl Piece {
                     1.0,
                 );
                 d.stroke(
+                    Shape::Rect(Rect::new(
+                        at.x + m.ink.origin.x,
+                        at.y + m.ink.origin.y,
+                        m.ink.size.width,
+                        m.ink.size.height,
+                    )),
+                    ink_c,
+                    1.0,
+                );
+                d.stroke(
                     Shape::Line(
                         Point::new(at.x, at.y + m.ascent),
                         Point::new(at.x + m.width, at.y + m.ascent),
                     ),
-                    Color::rgba(0.9, 0.3, 0.3, 0.55),
+                    baseline_c,
+                    1.0,
+                );
+                d.stroke(
+                    Shape::Line(
+                        Point::new(at.x, at.y + m.ascent - m.cap_height),
+                        Point::new(at.x + m.width, at.y + m.ascent - m.cap_height),
+                    ),
+                    cap_c,
                     1.0,
                 );
                 d.text(
@@ -468,11 +495,11 @@ const DESIGN_W: f64 = 150.0;
 const DESIGN_H: f64 = 100.0;
 const DESIGN_RATIO: f64 = DESIGN_W / DESIGN_H;
 
-/// Run `f` in the [`DESIGN_W`] x [`DESIGN_H`] box, scaled UNIFORMLY to fit `size` and centred.
+/// Run `f` in the [`DESIGN_W`] x [`DESIGN_H`] box, scaled UNIFORMLY to fit `size` and centered.
 ///
 /// One scale factor for both axes is the whole point: the canvas is whatever size the row gives
 /// it, and every shape inside keeps the proportions it was drawn with rather than stretching.
-/// The canvas is asked to hold the same ratio, so in practice the fit is exact and the centring
+/// The canvas is asked to hold the same ratio, so in practice the fit is exact and the centering
 /// terms are zero — they matter only if a backend hands the canvas a differently-shaped box.
 fn in_design_box(d: &mut Draw, size: Size, f: impl FnOnce(&mut Draw)) {
     let s = (size.width / DESIGN_W)
@@ -487,7 +514,7 @@ fn in_design_box(d: &mut Draw, size: Size, f: impl FnOnce(&mut Draw)) {
     );
 }
 
-/// Rotate a gradient unit point about the box centre (0.5, 0.5) — the shared angle applied to
+/// Rotate a gradient unit point about the box center (0.5, 0.5) — the shared angle applied to
 /// every swatch's base geometry.
 fn spin(p: UnitPoint, deg: f64) -> UnitPoint {
     let (s, c) = deg.to_radians().sin_cos();
@@ -497,8 +524,8 @@ fn spin(p: UnitPoint, deg: f64) -> UnitPoint {
 
 /// Linear + radial gradients (docs/shapes.md §7): `.fill_linear`/`.fill_radial` on shape pieces.
 /// ONE angle slider drives the whole group — each swatch's closure re-records with its base
-/// geometry rotated by the shared signal (linear lines spin about the unit-box centre; radial
-/// centres orbit it).
+/// geometry rotated by the shared signal (linear lines spin about the unit-box center; radial
+/// centers orbit it).
 fn gradients_section() -> impl Piece {
     let angle = Signal::new(0.0f64);
     // Base geometry + stops per swatch, spun by the shared angle at record time.
@@ -515,7 +542,7 @@ fn gradients_section() -> impl Piece {
         move || RadialGradient::new(spin(center, angle.get()), radius, stops.clone())
     };
     // A 3×2 grid of width-flexible swatches (like the Kinds grid) — every swatch responds to
-    // the shared angle: linear lines spin about the unit-box centre, radial centres orbit it.
+    // the shared angle: linear lines spin about the unit-box center, radial centers orbit it.
     const H: f64 = 72.0;
     section((
         grid((
@@ -600,7 +627,7 @@ fn gradients_section() -> impl Piece {
 fn shapes_section() -> impl Piece {
     let angle = Signal::new(0.0f64);
     const H: f64 = 96.0;
-    // A Kinds cell: `make()`'s shape at `aspect` (height:width), centred, at a CONSTANT size
+    // A Kinds cell: `make()`'s shape at `aspect` (height:width), centered, at a CONSTANT size
     // independent of the shared rotation: a w × (w·aspect) box sweeps a circumcircle of
     // diameter w·√(1+aspect²), so capping that at the cell's short side fits every angle.
     // Reads `angle` inside the recorder, so the slider re-records live.
@@ -667,14 +694,14 @@ fn shapes_section() -> impl Piece {
                 // A multi-shape group in ONE canvas leaf (docs/shapes.md §3.6): a target —
                 // ring, disc, four tick lines — spun by rotating just the LINES (each line's
                 // spec spans the group's box, so `.rotate` orbits its endpoints about the
-                // centre); the centred ring and disc are rotation-invariant, and the figure
+                // center); the centered ring and disc are rotation-invariant, and the figure
                 // stays inside its circumcircle, so it needs no shrink-to-fit.
                 shape_group_fn(move |size| {
                     let a = angle.get();
                     let side = (size.width.min(size.height) - 8.0).max(1.0);
                     let (uw, uh) = (side / size.width, side / size.height);
                     let (ux, uy) = ((1.0 - uw) / 2.0, (1.0 - uh) / 2.0);
-                    // The disc's own unit rect, composed into the centred square box.
+                    // The disc's own unit rect, composed into the centered square box.
                     let (dx, dy) = (ux + 0.38 * uw, uy + 0.38 * uh);
                     vec![
                         circle().stroke(RUST, 4.0).inset(4.0).at(ux, uy, uw, uh),

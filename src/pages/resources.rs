@@ -332,7 +332,7 @@ fn t(g: day::VectorName, c: Color) -> impl Piece {
 }
 
 /// Roughly the width the section card leaves the tiger at the window's current width class —
-/// the point past which the art stops being centred and becomes a pannable strip instead.
+/// the point past which the art stops being centered and becomes a pannable strip instead.
 ///
 /// Day reports the window's width CLASS, not a measured width (docs/size-classes.md), so this is
 /// a per-class constant rather than a measurement. The read is tracked, so a window dragged

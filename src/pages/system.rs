@@ -37,7 +37,7 @@ fn battery_section() -> impl Piece {
         crate::widgets::support_note(crate::support::battery()),
         // Centred: the drawing is a fixed 260x120 box, so on any window wider than that it
         // would otherwise sit against the leading edge with a growing gap beside it. The column
-        // takes the full width (`grow_w`) and centres its one child inside it.
+        // takes the full width (`grow_w`) and centers its one child inside it.
         column((battery_view(level, charging),))
             .align(HAlign::Center)
             .grow_w(),
