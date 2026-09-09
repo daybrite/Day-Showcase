@@ -975,6 +975,11 @@ flow:
   # walkthrough proves the section mounts and leaves the face to the screenshot.
   - wait_for: { id: canvas-text }
   - wait_for: { id: canvas-font }
+  # Every `TextAnchor` placement on a crosshair (docs/canvas.md "Anchors"). The alignment is the
+  # BACKEND's, so this is a per-toolkit check that only a picture can make: the assert proves the
+  # canvas mounted, and the screenshot below is what catches a backend hanging the line box off
+  # the wrong edge. Twelve cells, three across by four down.
+  - wait_for: { id: canvas-anchors }
   # Accessibility (§13): diff the native AX tree against day's expectations. The gauge is a
   # canvas, so day applies role=Meter + a spoken label/value; the audit reads them back natively
   # (apple targets; gtk/qt report unsupported and skip). A full-tree audit follows.

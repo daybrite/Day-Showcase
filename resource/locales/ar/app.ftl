@@ -434,6 +434,7 @@ paths_title = المسارات والحدود والاقتصاص
 canvas_gauge = مقياس اللوحة
 gauge_value_label = القيمة
 canvas_text_title = النص والخطوط
+canvas_anchors_title = مراسي النص
 canvas_font_label = الخط
 canvas_font_default = النظام
 canvas_text_specimen = نص حكيم له سر قاطع وذو شأن عظيم

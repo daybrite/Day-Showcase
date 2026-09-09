@@ -427,6 +427,7 @@ paths_title = Tracés, contours et découpe
 canvas_gauge = Jauge canevas
 gauge_value_label = Valeur
 canvas_text_title = Texte et polices
+canvas_anchors_title = Ancrages du texte
 canvas_font_label = Police
 canvas_font_default = Système
 canvas_text_specimen = Portez ce vieux whisky au juge blond qui fume

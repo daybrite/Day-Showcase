@@ -15,6 +15,7 @@ pub(crate) fn canvas_page() -> AnyPiece {
         form((
             shapes_section(),
             text_section(),
+            anchors_section(),
             paths_section(),
             gradients_section(),
             gauge_section(),
@@ -74,7 +75,7 @@ fn text_section() -> impl Piece {
                     TextStyle {
                         size,
                         color: AZURE,
-                        anchor: TextAnchor::Leading,
+                        anchor: TextAnchor::LEADING,
                         font,
                     },
                 );
@@ -115,7 +116,7 @@ fn text_section() -> impl Piece {
                 TextStyle {
                     size: 26.0,
                     color: CORAL,
-                    anchor: TextAnchor::Centered,
+                    anchor: TextAnchor::CENTERED,
                     font: font(None, false),
                 },
             );
@@ -131,6 +132,108 @@ fn text_section() -> impl Piece {
         ),
     ))
     .title(crate::res::str::canvas_text_title())
+}
+
+/// Every `TextAnchor` placement, on a crosshair (docs/canvas.md "Anchors").
+///
+/// Twelve cells: the three `TextAlign` values across, the four `TextVAlign` values down. Each
+/// cell draws the point `at` as a crosshair and then hangs the same word on it, so what an anchor
+/// MEANS is the picture rather than a sentence — and a backend that gets one wrong shows it here
+/// immediately, which is the reason this is a page and not a doc example. The sample has both an
+/// ascender and a descender so `Baseline` and `Bottom` are told apart.
+///
+/// The placement names are API identifiers, shown verbatim like the Cursors page's `css_name`s;
+/// only the section title is localized.
+fn anchors_section() -> impl Piece {
+    const H: f64 = 232.0;
+    const SAMPLE: &str = "Agy";
+    section((canvas(|d, size| {
+        let muted = Color::rgba(0.5, 0.5, 0.55, 0.85);
+        let rule = Color::rgba(0.9, 0.3, 0.3, 0.5);
+        let caption = |d: &mut Draw, text: &str, at: Point, anchor: TextAnchor| {
+            d.text(
+                text,
+                at,
+                TextStyle {
+                    size: 11.0,
+                    color: muted,
+                    anchor,
+                    font: CanvasFont::default(),
+                },
+            );
+        };
+        let gutter = 62.0;
+        let head = 18.0;
+        let cw = ((size.width - gutter - 8.0) / 3.0).max(1.0);
+        let ch = ((size.height - head - 8.0) / 4.0).max(1.0);
+        for (i, h) in [TextAlign::Leading, TextAlign::Center, TextAlign::Trailing]
+            .into_iter()
+            .enumerate()
+        {
+            let cx = gutter + cw * (i as f64 + 0.5);
+            caption(
+                d,
+                &format!("{h:?}"),
+                Point::new(cx, 2.0),
+                TextAnchor {
+                    h: TextAlign::Center,
+                    v: TextVAlign::Top,
+                },
+            );
+            for (j, v) in [
+                TextVAlign::Top,
+                TextVAlign::Middle,
+                TextVAlign::Baseline,
+                TextVAlign::Bottom,
+            ]
+            .into_iter()
+            .enumerate()
+            {
+                let cy = head + ch * (j as f64 + 0.5);
+                if i == 0 {
+                    // The row's name, itself right-aligned against the grid — this section's own
+                    // small use of the anchor it is documenting.
+                    caption(
+                        d,
+                        &format!("{v:?}"),
+                        Point::new(gutter - 10.0, cy),
+                        TextAnchor {
+                            h: TextAlign::Trailing,
+                            v: TextVAlign::Middle,
+                        },
+                    );
+                }
+                // The crosshair IS the point being anchored to.
+                d.stroke(
+                    Shape::Line(
+                        Point::new(cx - cw * 0.45, cy),
+                        Point::new(cx + cw * 0.45, cy),
+                    ),
+                    rule,
+                    1.0,
+                );
+                d.stroke(
+                    Shape::Line(Point::new(cx, cy - 13.0), Point::new(cx, cy + 13.0)),
+                    rule,
+                    1.0,
+                );
+                d.text(
+                    SAMPLE,
+                    Point::new(cx, cy),
+                    TextStyle {
+                        size: 19.0,
+                        color: AZURE,
+                        anchor: TextAnchor { h, v },
+                        font: CanvasFont::default(),
+                    },
+                );
+            }
+        }
+    })
+    .height(H)
+    .grow_w()
+    .id("canvas-anchors"),))
+    .title(crate::res::str::canvas_anchors_title())
 }
 
 /// Paths, stroke styles and clipping (docs/canvas.md): the primitives beyond rectangles and

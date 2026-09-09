@@ -557,7 +557,7 @@ fn battery_view(level: Signal<f64>, charging: Signal<bool>) -> impl Piece {
             TextStyle {
                 size: 16.0,
                 color: band,
-                anchor: TextAnchor::Centered,
+                anchor: TextAnchor::CENTERED,
                 ..Default::default()
             },
         );

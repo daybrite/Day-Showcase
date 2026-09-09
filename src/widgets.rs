@@ -62,7 +62,7 @@ pub(crate) fn gauge(value: Signal<f64>) -> impl Piece {
             TextStyle {
                 size: (side * 0.2).clamp(14.0, 30.0),
                 color: accent,
-                anchor: TextAnchor::Centered,
+                anchor: TextAnchor::CENTERED,
                 ..Default::default()
             },
         );
