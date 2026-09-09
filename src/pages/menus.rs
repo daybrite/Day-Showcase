@@ -126,12 +126,15 @@ fn build_app_menu() -> Vec<MenuEntry> {
                 // toolbar button and the sidebar rows without any of them knowing about the
                 // others. ⌘D / Ctrl+D, the platform's usual "bookmark this" key.
                 //
-                // The TITLE carries the state, not a check mark: "Star" / "Unstar" is the
-                // platform idiom for a command whose two directions are one item, and day's
-                // menu model has no checked state to set anyway.
+                // The TITLE carries the state here, deliberately: "Star" / "Unstar" is the
+                // platform idiom for a command whose two directions are one item, where the
+                // check mark below is for a setting that is simply on or off. Both spellings are
+                // right; which one an item wants is a question about the command, not about what
+                // the menu model can express.
                 {
                     let star = crate::commands::star();
                     menu_item((star.title)().format())
+                        .id(star.id)
                         .key("d")
                         .enabled((star.enabled)())
                         .action(move || (star.run)())
@@ -139,11 +142,23 @@ fn build_app_menu() -> Vec<MenuEntry> {
                 {
                     let shot = crate::commands::screenshot();
                     menu_item((shot.title)().format())
+                        .id(shot.id)
                         .key("s")
                         .enabled((shot.enabled)())
                         .action(move || (shot.run)())
                 },
                 menu_separator(),
+                // A plain on/off SETTING, with the platform's own check mark: the page captions
+                // appear and disappear under every title as this is toggled, live, because
+                // `widgets::heading` reads the same signal inside a `when`.
+                {
+                    let caps = crate::commands::captions_command();
+                    menu_item((caps.title)().format())
+                        .id(caps.id)
+                        .shortcut(Shortcut::new("c").shift())
+                        .checked((caps.checked)())
+                        .action(move || (caps.run)())
+                },
                 menu_separator(),
                 // Appearance (commands.rs): the same three commands the toolbar's segmented
                 // control carries. ⌘⌥1/2/3 — the digits are the group's order, and ⌥ keeps them
@@ -224,17 +239,15 @@ fn build_app_menu() -> Vec<MenuEntry> {
 /// mode in force. Reading `checked` HERE is what re-lowers the bar when the setting changes.
 fn appearance_item(mode: crate::commands::Appearance, key: &str) -> MenuEntry {
     let cmd = crate::commands::appearance_command(mode);
-    let title = (cmd.title)().format();
-    // The mode in force is marked in the title, since day's menu model carries no checked state
-    // (the same reason Star spells its two directions into the title).
-    let title = if (cmd.checked)() {
-        format!("✓ {title}")
-    } else {
-        title
-    };
-    menu_item(title)
+    // A one-of-three choice: all three are checkable, so the group keeps the mark's column and
+    // reads as a radio set rather than shifting sideways as the selection moves. `.checked` is a
+    // tracked read of the appearance signal, so `app_menu_reactive` re-lowers the bar and the
+    // mark follows — no backend flips it (docs/menus.md).
+    menu_item((cmd.title)().format())
+        .id(cmd.id)
         .shortcut(Shortcut::new(key).alt())
         .enabled((cmd.enabled)())
+        .checked((cmd.checked)())
         .action(move || (cmd.run)())
 }
 

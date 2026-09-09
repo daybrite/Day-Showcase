@@ -940,6 +940,7 @@ menu_appearance = 外观
 menu_script = 脚本
 cmd_star = 收藏
 cmd_unstar = 取消收藏
+cmd_show_captions = 显示说明
 
 # 语音（day-part-speech）：daybridge 的参考部件——一套 API，每个平台一种语言。
 speech_title = 文本转语音

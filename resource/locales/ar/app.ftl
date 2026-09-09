@@ -967,6 +967,7 @@ menu_appearance = المظهر
 menu_script = سكربت
 cmd_star = تمييز بنجمة
 cmd_unstar = إزالة النجمة
+cmd_show_captions = إظهار الشروح
 
 # النطق (day-part-speech): مرجع daybridge — واجهة واحدة، ولغة مختلفة لكل منصة.
 speech_title = تحويل النص إلى كلام

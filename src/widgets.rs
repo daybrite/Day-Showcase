@@ -108,11 +108,23 @@ pub(crate) fn heading(
 ) -> impl Piece {
     let native_header = capability(Cap::NavHeader) == Support::Native;
     match (native_header, caption) {
+        // Never hidden here: where the nav bar owns the title, this sentence IS the page's
+        // heading, and View ▸ Show Captions is about the line UNDER a title, not about leaving a
+        // page unnamed. (Those targets are also the ones with no menu bar to reach it from.)
         (true, Some(c)) => label(c).font(Font::Subheadline).id(title_id).any(),
         (true, None) => nothing().any(),
+        // `when`, not a build-time `if`: the menu toggles this while a page is on screen, and a
+        // signal read during `build` is just a value read — the page would keep its old heading
+        // until navigation rebuilt it (docs/state.md).
         (false, Some(c)) => column((
             label(title).font(Font::Title).id(title_id),
-            label(c).font(Font::Footnote),
+            when(crate::commands::captions, move || {
+                // Named after the title it sits under, so a script can assert the toggle
+                // actually removed it rather than merely blanking it.
+                label(c.clone())
+                    .id(format!("{title_id}-caption"))
+                    .font(Font::Footnote)
+            }),
         ))
         .spacing(4.0)
         .align(HAlign::Leading)

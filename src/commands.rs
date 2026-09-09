@@ -147,6 +147,41 @@ pub(crate) fn star() -> Command {
     }
 }
 
+// ── Page captions ───────────────────────────────────────────────────────────────────────────
+
+/// Whether pages draw the sentence under their title — persisted, app-wide.
+#[derive(Clone, Copy)]
+struct Captions(Signal<bool>);
+
+impl Ambient for Captions {
+    fn create() -> Self {
+        let s = Signal::new(true);
+        day::prefs::bind("showcase.captions", s);
+        Captions(s)
+    }
+}
+
+/// A tracked read, so a heading that calls it re-renders when the menu toggles it.
+pub(crate) fn captions() -> bool {
+    Captions::app().0.get()
+}
+
+/// View ▸ Show Captions — an on/off SETTING, where the appearance trio below is a one-of-three
+/// choice. Both are drawn with `MenuEntry::checked`, which is the point of having them side by
+/// side: the same check mark serves a switch and a radio group, exactly as it does natively.
+pub(crate) fn captions_command() -> Command {
+    Command {
+        id: "cmd-captions",
+        title: crate::res::str::cmd_show_captions,
+        enabled: || true,
+        checked: captions,
+        run: || {
+            let s = Captions::app().0;
+            s.set(!s.get());
+        },
+    }
+}
+
 /// Save a picture of this window (docs/window-image.md).
 ///
 /// The capture is deferred a turn rather than taken inline: this command is reached from a MENU

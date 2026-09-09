@@ -949,6 +949,7 @@ menu_appearance = Apparence
 menu_script = Script
 cmd_star = Suivre
 cmd_unstar = Ne plus suivre
+cmd_show_captions = Afficher les légendes
 
 # Speech (day-part-speech) : la référence daybridge — une API, un langage par plateforme.
 speech_title = Synthèse vocale

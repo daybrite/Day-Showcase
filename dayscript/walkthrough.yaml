@@ -621,6 +621,20 @@ flow:
   - menu: { key: cmd_star, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - wait_idle:
   - assert_text: { id: toolbar-star-state, key: toolbar_on, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  # A CHECKED menu item, addressed by the app's own id (docs/menus.md). Two things are being
+  # shown at once. The item carries `.checked`, so the platform draws its real check mark and the
+  # mark moves only because `app_menu_reactive` re-lowers the bar — no backend flips it. And the
+  # step names `id: cmd-captions` rather than a label: this item's title is localized, and the
+  # appearance trio beside it rewrites nothing but its mark, so an id is the only address that
+  # holds across all four language runs.
+  - assert_visible: { id: toolbars-title-caption, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - menu: { id: cmd-captions, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - wait_idle:
+  # Gone from the tree, not merely blank: the heading's `when` unmounted it.
+  - assert_missing: { id: toolbars-title-caption, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - menu: { id: cmd-captions, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - wait_idle:
+  - assert_visible: { id: toolbars-title-caption, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   # Screenshot (docs/window-image.md): the command captures the window IN-PROCESS first and only
   # opens the save picker once it has bytes, so the picker appearing at all is what proves the
   # capture worked — a failed capture returns early and presents nothing. Dismissed rather than

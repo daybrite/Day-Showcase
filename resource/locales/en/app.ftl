@@ -951,6 +951,7 @@ menu_appearance = Appearance
 menu_script = Script
 cmd_star = Star
 cmd_unstar = Unstar
+cmd_show_captions = Show Captions
 
 # Speech (day-part-speech): the daybridge reference part — one API, a different language per
 # platform (docs/bridge.md).
