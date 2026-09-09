@@ -120,6 +120,36 @@ fn text_section() -> impl Piece {
                     font: font(None, false),
                 },
             );
+            // What the measuring above cost, read LAST so it counts this recording's own calls
+            // (docs/fonts.md "It is cached"). Drawn inside the canvas rather than beside it
+            // because that needs no reactivity at all: the numbers change when this closure runs,
+            // and this closure is what draws them.
+            //
+            // Watch it move. Resizing the window re-records with the same strings, so `hits`
+            // climbs and `misses` does not — the measurements never reach the toolkit twice.
+            // Choosing another font changes the KEY of every specimen, so `misses` jumps by the
+            // number of lines here and then stops again.
+            let st = day::text_metrics_cache_stats();
+            d.text(
+                // A generated `res::str` takes its arguments in ALPHABETICAL order, not the order
+                // the message mentions them — three `i64`s in the wrong order compile and render
+                // a plausible-looking lie. Named locals, so the call reads as a check.
+                &{
+                    let (entries, hits, misses) =
+                        (st.entries as i64, st.hits as i64, st.misses as i64);
+                    crate::res::str::canvas_metrics_cache(entries, hits, misses).format()
+                },
+                Point::new(8.0, size.height - 6.0),
+                TextStyle {
+                    size: 11.0,
+                    color: Color::rgba(0.5, 0.5, 0.55, 0.9),
+                    anchor: TextAnchor {
+                        h: TextAlign::Leading,
+                        v: TextVAlign::Bottom,
+                    },
+                    font: CanvasFont::default(),
+                },
+            );
         })
         .height(H)
         .grow_w()

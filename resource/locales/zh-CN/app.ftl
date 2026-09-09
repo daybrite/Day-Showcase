@@ -423,6 +423,7 @@ canvas_gauge = 画布仪表
 gauge_value_label = 数值
 canvas_text_title = 文本与字体
 canvas_anchors_title = 文本锚点
+canvas_metrics_cache = measure_text：{ $hits } 命中 · { $misses } 实测 · { $entries } 保留
 canvas_font_label = 字体
 canvas_font_default = 系统
 canvas_text_specimen = 敏捷的棕色狐狸跳过懒狗

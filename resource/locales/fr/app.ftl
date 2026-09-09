@@ -428,6 +428,7 @@ canvas_gauge = Jauge canevas
 gauge_value_label = Valeur
 canvas_text_title = Texte et polices
 canvas_anchors_title = Ancrages du texte
+canvas_metrics_cache = measure_text : { $hits } en cache · { $misses } mesurés · { $entries } retenus
 canvas_font_label = Police
 canvas_font_default = Système
 canvas_text_specimen = Portez ce vieux whisky au juge blond qui fume

@@ -428,6 +428,7 @@ canvas_gauge = Canvas gauge
 gauge_value_label = Value
 canvas_text_title = Text & fonts
 canvas_anchors_title = Text anchors
+canvas_metrics_cache = measure_text: { $hits } cached · { $misses } measured · { $entries } held
 canvas_font_label = Font
 canvas_font_default = System
 canvas_text_specimen = The quick brown fox jumps over the lazy dog

@@ -435,6 +435,7 @@ canvas_gauge = مقياس اللوحة
 gauge_value_label = القيمة
 canvas_text_title = النص والخطوط
 canvas_anchors_title = مراسي النص
+canvas_metrics_cache = ‏measure_text: { $hits } مخزَّنة · { $misses } مقيسة · { $entries } محفوظة
 canvas_font_label = الخط
 canvas_font_default = النظام
 canvas_text_specimen = نص حكيم له سر قاطع وذو شأن عظيم
