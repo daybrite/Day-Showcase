@@ -627,14 +627,21 @@ flow:
   # step names `id: cmd-captions` rather than a label: this item's title is localized, and the
   # appearance trio beside it rewrites nothing but its mark, so an id is the only address that
   # holds across all four language runs.
-  - assert_visible: { id: toolbars-title-caption, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  #
+  # The caption's own id exists only where the page draws its own title. Where the nav chrome
+  # names the destination (`Cap::NavHeader` Native — the phones AND the Windows NavigationView),
+  # `heading()` makes the caption the title element and gives it `toolbars-title`, so there is no
+  # `-caption` to assert on and nothing for the toggle to unmount. Hence `windows-xaml` beside
+  # the phones on these three, and only these three: the `menu:` steps below still exercise the
+  # checked item there.
+  - assert_visible: { id: toolbars-title-caption, skip_on: [ios-uikit, android-mdc, harmony-arkui, windows-xaml, web-dom] }
   - menu: { id: cmd-captions, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - wait_idle:
   # Gone from the tree, not merely blank: the heading's `when` unmounted it.
-  - assert_missing: { id: toolbars-title-caption, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - assert_missing: { id: toolbars-title-caption, skip_on: [ios-uikit, android-mdc, harmony-arkui, windows-xaml, web-dom] }
   - menu: { id: cmd-captions, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - wait_idle:
-  - assert_visible: { id: toolbars-title-caption, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - assert_visible: { id: toolbars-title-caption, skip_on: [ios-uikit, android-mdc, harmony-arkui, windows-xaml, web-dom] }
   # Screenshot (docs/window-image.md): the command captures the window IN-PROCESS first and only
   # opens the save picker once it has bytes, so the picker appearing at all is what proves the
   # capture worked — a failed capture returns early and presents nothing. Dismissed rather than
