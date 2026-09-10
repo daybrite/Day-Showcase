@@ -21,8 +21,8 @@ pub(crate) struct ToolbarDemo {
     presses: Signal<i64>,
     /// Whether the optional item is in the bar — the add/remove demonstration.
     extra: Signal<bool>,
-    /// Whether the disable-able item (Clear recording) is enabled.
-    refresh_enabled: Signal<bool>,
+    /// Whether the disable-able item (Show Source) is enabled — the targeted-patch demo.
+    source_enabled: Signal<bool>,
     /// The last thing the toolbar did, in words.
     last: Signal<String>,
     /// The appearance segmented control's chosen index. The truth is the persisted setting
@@ -69,7 +69,7 @@ impl Ambient for ToolbarDemo {
             star_switch: Signal::new(false),
             presses: Signal::new(0),
             extra: Signal::new(false),
-            refresh_enabled: Signal::new(true),
+            source_enabled: Signal::new(true),
             last: Signal::new(String::new()),
             theme: Signal::new(crate::commands::Appearance::System.index()),
         }
@@ -179,6 +179,9 @@ pub(crate) fn page_commands(sec: crate::Section) -> Vec<ToolbarEntry> {
     // The button follows the starred SET, which the row context menu and the App menu also
     // write — one truth, three surfaces.
     Effect::new(move || starred.set(crate::commands::is_starred(sec)));
+    // The one item the Toolbars page can disable, so the targeted-patch demo has a subject:
+    // only this item changes, and a search in progress is undisturbed.
+    let demo = state();
     vec![
         // "Show Source": open this page's source on GitHub. The SF symbol on Apple platforms
         // and the desktop symbol sets; Android stages no glyph for a `Symbol`, so there the
@@ -190,6 +193,7 @@ pub(crate) fn page_commands(sec: crate::Section) -> Vec<ToolbarEntry> {
             toolbar_button("tb-source", crate::res::str::show_source()).icon(Symbol::Code)
         }
         .tooltip(crate::res::str::show_source())
+        .enabled_when(move || demo.source_enabled.get())
         .action(move || crate::open_source_of(sec)),
         // The Star command (commands.rs), not a demo toggle. Its label comes from the one
         // `Command`, so this button, the App menu's item and the row's context menu can never
@@ -205,19 +209,6 @@ pub(crate) fn page_commands(sec: crate::Section) -> Vec<ToolbarEntry> {
                     crate::commands::toggle_star(sec);
                 }
             }),
-        // The Screenshot command (commands.rs) — declared once, rendered here and in the App
-        // menu.
-        {
-            let shot = crate::commands::screenshot();
-            // The one item the Toolbars page can disable, so the targeted-patch demo has a
-            // subject: only this item changes, and a search in progress is undisturbed.
-            let demo = state();
-            toolbar_button(shot.id, (shot.title)())
-                .icon(Symbol::Camera)
-                .placement(ToolbarPlacement::Primary)
-                .enabled_when(move || demo.refresh_enabled.get() && (shot.enabled)())
-                .action(move || (shot.run)())
-        },
     ]
 }
 
@@ -231,7 +222,6 @@ pub(crate) fn toolbars_page() -> AnyPiece {
     page(
         crate::res::str::nav_toolbars(),
         "toolbars-title",
-        Some(crate::res::str::toolbars_caption()),
         form((readout_section(), controls_section(), vocabulary_section())).any(),
     )
     .any()
@@ -342,7 +332,7 @@ fn controls_section() -> impl Piece {
         ),
         labeled(
             crate::res::str::toolbar_enabled_label(),
-            toggle(s.refresh_enabled).id("toolbar-enabled-switch"),
+            toggle(s.source_enabled).id("toolbar-enabled-switch"),
         ),
         // Mirrors the command's own state, not a window-level copy: the star button belongs to
         // whichever page is showing now, and this switch drives the same command it does.

@@ -44,7 +44,6 @@ flow:
   # `decrement-button` are gone with it; the stepper is a piece of its own now.)
   - navigate: { route: controls }
   - assert_route: { route: controls }
-  - assert_visible: { id: controls-title }
   # Buttons: every style counts a press into ONE readout, so two taps in two styles read "2" —
   # the styles are presentation, the action is one.
   - tap: { id: btn-plain }
@@ -129,8 +128,10 @@ flow:
   - assert_visible: { id: ctl-badge }
   - assert_visible: { id: gauge }
   - assert_visible: { id: ctl-divider }
-  # Two shots: the top of the page, then the pickers scrolled into view.
-  - scroll_to: { id: controls-title }
+  # Two shots: the top of the page, then the pickers scrolled into view. Where the nav chrome
+  # names the page there is no in-content title to scroll to, so the first button stands in.
+  - scroll_to: { id: controls-title, skip_on: [ios-uikit, android-mdc, harmony-arkui, windows-xaml] }
+  - scroll_to: { id: btn-plain, only_on: [ios-uikit, android-mdc, harmony-arkui, windows-xaml] }
   - screenshot:
       name: controls
       title: { en: "Controls", fr: "Contrôles", ar: "عناصر التحكّم", zh-CN: "控件" }
@@ -146,7 +147,6 @@ flow:
   # at startup for these labels to realize.
   - navigate: { route: text }
   - assert_route: { route: text }
-  - assert_visible: { id: text-title }
   - assert_visible: { id: text-emphasis }
   - assert_visible: { id: text-custom-28 }
   - assert_visible: { id: text-font-pacifico }
@@ -186,7 +186,6 @@ flow:
   # attributes and per-toolkit capability-gated toggles. Seed the markdown sample for a stable shot.
   - navigate: { route: textareas }
   - assert_route: { route: textareas }
-  - assert_visible: { id: textareas-title }
   - assert_visible: { id: textareas-editor }
   - tap: { id: ta-seed-markdown }
   - wait_idle:
@@ -248,7 +247,6 @@ flow:
   # under NSDatePicker, UIDatePicker, Material dialogs, QDateEdit, and the composed GTK build.
   - navigate: { route: dates }
   - assert_route: { route: dates }
-  - assert_visible: { id: dates-title }
   - input: { id: date-compact, text: "2026-11-05" }
   - assert_text: { id: date-value, text: "2026-11-05" }
   # The inline calendar is bound to the SAME date signal — driving it moves the same readout.
@@ -272,7 +270,6 @@ flow:
   # control focusable on every platform.
   - navigate: { route: focus }
   - assert_route: { route: focus }
-  - assert_visible: { id: focus-title }
   # Programmatic request through the group signal: the "next" button continues from the LAST
   # focused field, and starts the cycle at Name only when nothing has held focus yet. GTK gives
   # a freshly shown page an initial focus of its own — the first field, in the Arabic layout —
@@ -315,7 +312,6 @@ flow:
   # targets; and the window's size classes.
   - navigate: { route: layout }
   - assert_route: { route: layout }
-  - assert_visible: { id: layout-title }
   # Alignment is a build-time property, so each pick rebuilds the swatch row through its own
   # `when` arm — drive all three so every arm realizes on every backend, then back to Center.
   - assert_visible: { id: layout-stack }
@@ -499,7 +495,6 @@ flow:
   # Screenshot the pristine form first, then open each dialog, answer it, assert the result.
   - navigate: { route: menus }
   - assert_route: { route: menus }
-  - assert_visible: { id: menus-title }
   - assert_visible: { id: menus-last }
   - assert_visible: { id: menus-context-target }
   - screenshot:
@@ -551,7 +546,6 @@ flow:
   # `day.search` item never reaches a phone's bar.
   - navigate: { route: toolbars, skip_on: [harmony-arkui] }
   - assert_route: { route: toolbars, skip_on: [harmony-arkui] }
-  - assert_visible: { id: toolbars-title, skip_on: [harmony-arkui] }
   # Appearance: ONE native segmented control over the persisted setting (src/commands.rs), which
   # the App menu's Appearance submenu also drives. Skipped on Qt, which reports `Cap::Appearance`
   # unsupported — the items lower DISABLED there, and the readout says so rather than the app
@@ -637,32 +631,11 @@ flow:
   - menu: { key: cmd_star, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - wait_idle:
   - assert_text: { id: toolbar-star-state, key: toolbar_on, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
-  # A CHECKED menu item, addressed by the app's own id (docs/menus.md). Two things are being
-  # shown at once. The item carries `.checked`, so the platform draws its real check mark and the
-  # mark moves only because `app_menu_reactive` re-lowers the bar — no backend flips it. And the
-  # step names `id: cmd-captions` rather than a label: this item's title is localized, and the
-  # appearance trio beside it rewrites nothing but its mark, so an id is the only address that
-  # holds across all four language runs.
-  #
-  # The caption's own id exists only where the page draws its own title. Where the nav chrome
-  # names the destination (`Cap::NavHeader` Native — the phones AND the Windows NavigationView),
-  # `heading()` makes the caption the title element and gives it `toolbars-title`, so there is no
-  # `-caption` to assert on and nothing for the toggle to unmount. Hence `windows-xaml` beside
-  # the phones on these three, and only these three: the `menu:` steps below still exercise the
-  # checked item there.
-  - assert_visible: { id: toolbars-title-caption, skip_on: [ios-uikit, android-mdc, harmony-arkui, windows-xaml, web-dom] }
-  - menu: { id: cmd-captions, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
-  - wait_idle:
-  # Gone from the tree, not merely blank: the heading's `when` unmounted it.
-  - assert_missing: { id: toolbars-title-caption, skip_on: [ios-uikit, android-mdc, harmony-arkui, windows-xaml, web-dom] }
-  - menu: { id: cmd-captions, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
-  - wait_idle:
-  - assert_visible: { id: toolbars-title-caption, skip_on: [ios-uikit, android-mdc, harmony-arkui, windows-xaml, web-dom] }
-  # Screenshot (docs/window-image.md): the command captures the window IN-PROCESS first and only
-  # opens the save picker once it has bytes, so the picker appearing at all is what proves the
-  # capture worked — a failed capture returns early and presents nothing. Dismissed rather than
-  # saved: where the shot lands is the user's business, not a walkthrough's.
-  - toolbar: { item: cmd-screenshot, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  # Screenshot (docs/window-image.md), from the View menu: the command captures the window
+  # IN-PROCESS first and only opens the save picker once it has bytes, so the picker appearing at
+  # all is what proves the capture worked — a failed capture returns early and presents nothing.
+  # Dismissed rather than saved: where the shot lands is the user's business, not a walkthrough's.
+  - menu: { id: cmd-screenshot, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - assert_presented: { skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - respond: { dismiss: true, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   # Adding an item is just a different list: tick the switch, then the new item is drivable —
@@ -706,6 +679,27 @@ flow:
       skip_on: [harmony-arkui]
       title: { en: "Toolbars", fr: "Barres d'outils", ar: "أشرطة الأدوات", zh-CN: "工具栏" }
       source: src/pages/toolbars.rs
+  # A CHECKED menu item, addressed by the app's own id (docs/menus.md). Two things are being
+  # shown at once. The item carries `.checked`, so the platform draws its real check mark and the
+  # mark moves only because `app_menu_reactive` re-lowers the bar — no backend flips it. And the
+  # step names `id: cmd-pseudo-locale` rather than a label: this item's title is localized, and
+  # the appearance trio beside it rewrites nothing but its mark, so an id is the only address that
+  # holds across all four language runs.
+  #
+  # Toggled on, the run's locale takes the `-XA` suffix and every string comes back accented and
+  # expanded (docs/localization.md); toggled off, the suffix is gone again and the rest of the
+  # run stays in the run's locale. It runs AFTER the sidebar search above is cleared: the filter
+  # is a word-prefix match against the rows' live titles, and a query typed in the run's locale
+  # matches nothing once every title is accented — the filtered-out page would unmount.
+  - menu: { id: cmd-pseudo-locale, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - wait_idle:
+  # The key resolves in the locale NOW in force — the pseudo one — so the label must have
+  # re-rendered under it to match.
+  - assert_text: { id: toolbar-star-state, key: toolbar_on, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - screenshot: { name: toolbars-pseudo-locale, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - menu: { id: cmd-pseudo-locale, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - wait_idle:
+  - assert_text: { id: toolbar-star-state, key: toolbar_on, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   # Unstar now that the shot has it. The starred set is written through to prefs
   # (`showcase.starred`, src/commands.rs), so a run that ENDS starred is a run that changed the
   # machine: the next launch opens with Toolbars sorted to the top of the sidebar, and every
@@ -984,7 +978,6 @@ flow:
   # Controls now, the card and environment on Layout.)
   - navigate: { route: canvas }
   - assert_route: { route: canvas }
-  - assert_visible: { id: canvas-title }
   - set_value: { id: shapes-angle-slider, value: 45 }
   # Canvas text in a chosen font (docs/fonts.md): the font menu lists the platform's families
   # plus the bundled Pacifico it starts on; the list itself differs per platform, so the
@@ -1035,7 +1028,6 @@ flow:
   # Animate!, and let the backend interpolation settle before capturing.
   - navigate: { route: animation }
   - assert_route: { route: animation }
-  - assert_visible: { id: animation-title }
   - set_value: { id: anim-scale, value: 1.25 }
   - set_value: { id: anim-rotation, value: 30 }
   - set_value: { id: anim-hue, value: 200 }
@@ -1107,7 +1099,6 @@ flow:
   # is stable. The page is video only; the bundled Lottie animation has a page of its own below.
   - navigate: { route: media }
   - assert_route: { route: media }
-  - assert_visible: { id: media-title }
   - assert_visible: { id: media }
   - assert_visible: { id: media-play }
   - assert_visible: { id: media-load }
@@ -1125,7 +1116,6 @@ flow:
   # the native view live.
   - navigate: { route: lottie, only_on: [ios-uikit, android-mdc] }
   - assert_route: { route: lottie, only_on: [ios-uikit, android-mdc] }
-  - assert_visible: { id: lottie-title, only_on: [ios-uikit, android-mdc] }
   - assert_visible: { id: lottie-view, only_on: [ios-uikit, android-mdc] }
   - assert_visible: { id: lottie-speed-slider, only_on: [ios-uikit, android-mdc] }
   - assert_text: { id: lottie-speed-value, text: "1.00×", only_on: [ios-uikit, android-mdc] }
@@ -1155,7 +1145,6 @@ flow:
   # and the pause lets the Paris tiles land before the shot.
   - navigate: { route: map, only_on: [macos-appkit, ios-uikit] }
   - assert_route: { route: map, only_on: [macos-appkit, ios-uikit] }
-  - assert_visible: { id: map-title, only_on: [macos-appkit, ios-uikit] }
   - assert_visible: { id: map, only_on: [macos-appkit, ios-uikit] }
   - tap: { id: map-paris, only_on: [macos-appkit, ios-uikit] }
   - assert_text: { id: map-coords, text: "48.8566, 2.3522", only_on: [macos-appkit, ios-uikit] }
@@ -1301,7 +1290,6 @@ flow:
   # (push-model platforms); device identity varies, so presence only.
   - navigate: { route: system }
   - assert_route: { route: system }
-  - assert_visible: { id: system-title }
   - assert_visible: { id: battery }
   - a11y_audit: { id: battery }
   - set_value: { id: battery-level, value: 65 }
@@ -1334,7 +1322,6 @@ flow:
   # presence only), then day-part-http through the platform's own stack.
   - navigate: { route: network }
   - assert_route: { route: network }
-  - assert_visible: { id: network-title }
   - tap: { id: network-refresh }
   - assert_visible: { id: network-reading }
   # Resource (day::reactive, docs/async.md): the first fetch runs at page build. Let it settle
@@ -1391,7 +1378,6 @@ flow:
   # is what proves each call went through.
   - navigate: { route: speech }
   - assert_route: { route: speech }
-  - assert_visible: { id: speech-title }
   - wait_for: { id: speech-support }
   - assert_visible: { id: speech-text }
   - assert_visible: { id: speech-speak }
@@ -1413,7 +1399,6 @@ flow:
   # clipboard). The save/open pickers answer with a temp path (relative → app temp dir).
   - navigate: { route: files }
   - assert_route: { route: files }
-  - assert_visible: { id: files-title }
   - assert_visible: { id: clipboard-field }
   # Screenshot the pristine form BEFORE the clipboard copy: Android 13+ pops a system
   # clipboard-preview overlay on copy that lingers several seconds and would photobomb the shot.
@@ -1471,7 +1456,6 @@ flow:
   # grouping, zh CLDR date patterns).
   - navigate: { route: localization }
   - assert_route: { route: localization }
-  - assert_visible: { id: localization-title }
   - assert_text: { id: fmt-number, key: fmt_number, args: { n: 1234567.891 } }
   - assert_text: { id: fmt-fraction, key: fmt_fraction, args: { n: 1234.5 } }
   - assert_text: { id: fmt-percent, key: fmt_percent, args: { p: 0.72 } }
@@ -1504,7 +1488,6 @@ flow:
   # a replay here would re-dispatch taps onto a page that does not have them.
   - navigate: { route: scripting }
   - assert_route: { route: scripting }
-  - assert_visible: { id: scripting-title }
   - assert_visible: { id: scripting-buffer }
   - assert_visible: { id: scripting-record }
   - assert_visible: { id: scripting-play }
@@ -1521,7 +1504,6 @@ flow:
   # so the same script passes in every locale).
   - navigate: { route: tweaks }
   - assert_route: { route: tweaks }
-  - assert_visible: { id: tweaks-title }
   - assert_visible: { id: tweak-bezel-toolbar }
   - assert_visible: { id: tweak-tooltip-button }
   - assert_visible: { id: tweak-ticks-slider }
@@ -1549,7 +1531,6 @@ flow:
   # (known_parameters_pack_to_known_row_counts), so a generator change fails in cargo test first.
   - navigate: { route: benchmark }
   - assert_route: { route: benchmark }
-  - assert_visible: { id: benchmark-title }
   - wait_for: { id: bench-grid }
   - assert_text: { id: bench-seed-value, text: "1" }
   - assert_text: { id: bench-count-value, text: "48" }
@@ -1584,7 +1565,6 @@ flow:
   # browser sandbox, lib.rs `destinations`), so the section skips there.
   - navigate: { route: crash, skip_on: [web-dom] }
   - assert_route: { route: crash, skip_on: [web-dom] }
-  - assert_visible: { id: crash-title, skip_on: [web-dom] }
   - assert_visible: { id: crash-abort, skip_on: [web-dom] }
   - screenshot:
       name: crash

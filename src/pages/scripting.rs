@@ -131,7 +131,6 @@ pub(crate) fn scripting_page() -> AnyPiece {
     page(
         crate::res::str::nav_scripting(),
         "scripting-title",
-        Some(crate::res::str::scripting_caption()),
         form((
             // The editable script — streamed into while recording, hand-editable any time.
             section((text_area(buf)

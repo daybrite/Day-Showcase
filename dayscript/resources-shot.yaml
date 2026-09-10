@@ -5,7 +5,6 @@ flow:
   - screenshot: home
   - navigate: { route: resources }
   - assert_route: { route: resources }
-  - assert_visible: { id: resources-title }
   - assert_visible: { id: resources-numbers }
   - assert_visible: { id: resources-greeting }
   - screenshot: resources

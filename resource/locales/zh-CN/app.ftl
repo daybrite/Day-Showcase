@@ -6,7 +6,6 @@ name_placeholder = 你的名字
 flavor_placeholder = 输入或选择口味
 flavor_add = 添加
 nav_controls = 控件
-controls_caption = Day 提供的每一个控件，按家族排列，全部绑定到实时状态，并在页面底部回显。
 ctl_buttons = 按钮
 ctl_press = 按下
 ctl_plain = 普通
@@ -102,7 +101,6 @@ picker_inline = 内联
 
 # — day-piece-datetime —
 nav_dates = 日期与时间
-dates_caption = 原生日期和时间选择器与民用日期/时间信号双向绑定——同一分组内的选择器共享同一信号。
 dates_date_section = 日期
 dates_time_section = 时间
 dates_composed_section = 组合
@@ -172,7 +170,6 @@ webview_embedded_status_none = 尚未跟随任何外部链接。
 webview_embedded_opened = 已在应用外打开：{ $url }
 webview_embedded_intercepted = 已拦截——已在应用内导航到“{ $route }”。
 
-lottie_caption = 原生 Lottie 动画，以 JSON 打包（lottie-ios / lottie-android）
 lottie_speed = 速度
 lottie_model_section = 文件内容
 lottie_model_frames = 帧数
@@ -269,7 +266,6 @@ media_load = 加载
 
 # — Localization page (docs/localization.md) —
 nav_localization = 本地化
-fmt_caption = 一套翻译——按每种语言以 ICU 规则渲染：数字、日期、复数语法和排序都跟随语言。
 loc_locale_section = 实时语言
 loc_live_note = 语言是一个信号——切换后所有文本立即重新渲染。布局方向在启动时固定（以 ar 启动可见镜像界面）。
 loc_current_label = 当前
@@ -297,7 +293,6 @@ plural_items = { $count ->
 }
 
 # Text playground (typography)
-text_caption = 语义样式映射到平台的原生文本样式和无障碍文字缩放。
 text_selectable_toggle = 可选中
 text_styles_header = 样式
 text_weights_header = 字重
@@ -309,7 +304,6 @@ text_fonts_header = 打包字体
 text_fonts_note = Font.Custom("Family", pt)——来自应用 resource/fonts/ 目录的文件，由 day build 打包并在每个平台按字体族名解析。
 
 # Menus playground
-menus_caption = 原生菜单——应用菜单栏与部件的上下文菜单——支持嵌套子菜单、键盘快捷键和标准编辑命令。
 menus_last = 最近操作
 menus_lifecycle = 生命周期
 menus_target = 在此右键（移动端长按）打开上下文菜单
@@ -348,7 +342,6 @@ prefs_value_label = 已存储的值：
 
 # --- bundled resources (§18.3) ---
 nav_resources = 资源
-resources_caption = 按名称从打包资源加载的图片，以及对嵌入数据的随机读取。
 vectors_title = 矢量图
 vectors_note = 侧边栏图标均来自 resource/vectors/ —— 每个图标一个 SVG，在所有后端都与分辨率无关。
 vectors_tints = 着色
@@ -383,7 +376,6 @@ map_paris = 巴黎
 
 # — tweaks page (docs/tweaks.md) —
 nav_tweaks = 微调
-tweaks_intro = 打包的微调按工具包配置内置部件背后的原生控件。在未覆盖的工具包上是空操作——下面的部件只是保持原样。
 tweaks_stock = 原样
 tweaks_tweaked = 已微调
 tweaks_bezel_title = 按钮边框样式
@@ -410,14 +402,10 @@ tweaks_label_class = 原生类：{ $class }
 nav_canvas = 画布与形状
 nav_system = 设备与传感器
 nav_network_http = 网络与 HTTP
-network_caption = 先看平台报告的连接状态，再通过平台自身的协议栈发起 HTTP：代理、VPN 与 TLS 一并生效。
 network_status_section = 连接状态
 nav_notify_badge = 通知与角标
 nav_speech_haptics = 语音与触觉
-speech_haptics_caption = 与人对话的两个部件：平台的语音，以及它的触觉引擎。
 nav_files_storage = 文件与存储
-files_storage_caption = 剪贴板、键值偏好设置、原生文件选择器，以及应用专属的文件存储。
-canvas_caption = 形状、变换、手势和组合层部件——全部通过画布绘制。
 paths_title = 路径、描边与裁剪
 canvas_gauge = 画布仪表
 gauge_value_label = 数值
@@ -434,7 +422,6 @@ canvas_text_specimen = 敏捷的棕色狐狸跳过懒狗
 canvas_text_bold = 粗体
 canvas_text_italic = 斜体
 canvas_text_bold_italic = 粗斜体
-system_caption = 无界面的设备状态部件：电池、网络连接、运动传感器和设备标识。
 
 # — data strings localized for the walkthrough locales (option lists, specimen rows) —
 chocolate = 巧克力
@@ -482,7 +469,6 @@ menus_dialogs_section = 对话框
 modal_result_label = 结果
 
 # 媒体页面
-media_caption = 原生媒体播放器 — 平台自身的视图，由触发器驱动播放控制。
 media_player_section = 视频
 
 # 资源页面分区
@@ -504,7 +490,6 @@ about_locale = 语言
 
 # 焦点页（docs/focus.md）
 nav_focus = 焦点
-focus_caption = 焦点是双向绑定：原生变化写入信号，写入信号则移动焦点。
 focus_group_section = 一个信号，一个表单
 focus_group_caption = 三个输入框绑定同一个可选枚举信号。点击或按 Tab 切换，读数随之变化；回车跳到下一个输入框。
 focus_name_label = 姓名
@@ -548,33 +533,26 @@ scroll_to_item = 滚动到第 100 项
 
 # Grid page (docs/grid.md) — grid/grid_row from basics to a stress test.
 nav_grid = 网格
-grid_caption = 列宽随内容而定，单元格可跨列，弹性单元格平分剩余宽度
 grid_tab_basics = 基础
 grid_tab_sizing = 尺寸
 grid_tab_spanning = 跨列
 grid_tab_composite = 组合
 grid_tab_stress = 压力测试
-grid_basics_caption = 每列取其最宽单元格的宽度。无需固定宽度，也无需占位空白。
 grid_col_name = 姓名
 grid_col_wins = 胜场
 grid_col_points = 积分
-grid_sizing_caption = 固定列、按内容列与弹性列并存于同一网格。
 grid_sizing_fixed = 固定 80 pt
 grid_sizing_content = 按内容
 grid_sizing_short = 短
 grid_sizing_longer = 内容较长的单元格
-grid_spanning_caption = 单元格可以跨列；不属于任何行的子项横跨整个网格。
 grid_month_title = 周计划
 grid_event_focus = 专注时段
 grid_event_review = 评审
-grid_composite_caption = 形状与网格结合：内容列中的图形组，旁边是一条弹性范围条。
 grid_day_n = 第 { $n } 天
-grid_stress_cells = { $n } 行、每行 8 个单元格，全部即时布局。更新一个单元格只会重新测量它自己。
 grid_stress_add = 增加 50 行
 grid_stress_bump = 递增首个单元格
 
 nav_animation = 动画
-anim_caption = 排入缩放、旋转、不透明度、偏移和色相，然后点按“动画！”以所选曲线和时长一起播放。
 
 # 动画页面
 anim_scale = 缩放
@@ -597,7 +575,6 @@ anim_duration_ms = { $ms } 毫秒
 # — 基准测试页（Day-Bench 的网格基准测试；在 Apple 原生后端上，分段选择器还通过
 #   day-piece-swiftui 承载其手写的 SwiftUI 孪生实现，docs/swiftui.md）—
 nav_benchmark = 基准测试
-bench_caption = 由网格单元组成的伪随机拼块，恰好铺满整个窗格。两个参数都会重新打包每一行，布局引擎因此一次性重新协商全部布局。
 bench_parameters = 参数
 bench_seed = 随机种子
 bench_count = 总数
@@ -659,7 +636,6 @@ files_initial_content =
 
 # 崩溃报告页面（day-break，docs/break.md）
 nav_crash = 崩溃报告
-crash_caption = 注册崩溃处理程序，在下次启动时查看报告，并选择是否发送。
 crash_trigger_section = 触发崩溃
 crash_report_section = 最近的崩溃报告
 crash_abort = 崩溃（中止）
@@ -674,7 +650,6 @@ crash_empty = 暂无崩溃报告。触发一次崩溃，然后重新启动即可
 
 # 文本区域页面
 nav_textareas = 文本编辑
-textareas_caption = 两种多行编辑器：平台原生的富文本视图（编辑带格式的文档），以及下方的纯文本区域。
 textareas_editor_section = 编辑器
 textareas_seed_section = 填充为
 textareas_attrs_section = 属性
@@ -752,7 +727,6 @@ storage_files_label = 已存文件
 storage_idle = 尚未存储任何内容
 
 prefs_window_title = 偏好设置
-prefs_window_caption = 主题和语言应用于所有窗口，并在启动之间保留。
 
 # — Tree page (docs/tree.md) —
 nav_tree = 树
@@ -783,7 +757,6 @@ tree_ctx_delete = 删除
 
 # — Toolbars page (docs/toolbars.md) —
 nav_toolbars = 工具栏
-toolbars_caption = 窗口自己的工具栏，绘制在平台原生的窗口外壳里——macOS 上是 NSToolbar，GNOME 上是 AdwHeaderBar，KDE 上是 QToolBar，Windows 上是 CommandBar。看看本窗口自己的外壳：桌面、iPad 和 iPhone 上是顶部工具栏，Android 上是页面下方的工具栏；下面的控件在驱动它。
 toolbar_unsupported = 此工具包没有窗口工具栏，因此没有安装任何内容。手机会把这些命令放进页面内容里。
 toolbar_readout_title = 工具栏正在做什么
 toolbar_controls_title = 从这里驱动它
@@ -819,7 +792,7 @@ toolbar_last_new = 新建窗口
 toolbar_last_extra = 已复制版本信息
 # The page's own controls.
 toolbar_extra_label = 显示“复制信息”项
-toolbar_enabled_label = 已启用截图
+toolbar_enabled_label = 已启用“显示源代码”
 toolbar_clear_search = 清除搜索
 toolbar_seed_search = 填充搜索
 toolbar_seed_text = 工具栏
@@ -836,7 +809,6 @@ toolbar_kind_space = 间隔
 toolbar_kind_space_note = 弹性间隔把靠前的项与靠后的项分开。
 # --- day-part-local-notify (docs/notify.md) ---
 nav_notify = 通知
-notify_caption = 通过平台自身的通知系统发送本地通知。在系统支持的平台上，定时通知由系统保存——请查看功能说明行。
 notify_caps_post = 此平台支持发送通知
 notify_caps_unsupported = 此版本无法使用本地通知（macOS 需要已签名的应用包——请使用 day pack）
 notify_caps_schedule_os = 定时通知在应用关闭后仍会送达
@@ -878,7 +850,6 @@ haptics_song_cascade = 级联
 
 # — 脚本录制（dayscript 录制器）—
 nav_scripting = 脚本录制
-scripting_caption = 将你的点击和导航录制为可回放的 dayscript。点击"录制"，在应用中操作，然后返回点击"停止"。编辑 YAML 进行微调，点击"播放"回放，点击"复制"或"导出"保存。
 scripting_record = 录制
 scripting_stop = 停止
 scripting_copy = 复制
@@ -946,7 +917,7 @@ menu_appearance = 外观
 menu_script = 脚本
 cmd_star = 收藏
 cmd_unstar = 取消收藏
-cmd_show_captions = 显示说明
+cmd_toggle_pseudo_locale = 切换伪语言环境
 
 # 语音（day-part-speech）：daybridge 的参考部件——一套 API，每个平台一种语言。
 speech_title = 文本转语音
@@ -966,7 +937,6 @@ vectors_live_tint = 实时着色
 vectors_cycle_tint = 切换
 
 # Layout page (docs/size-classes.md "Row fit policies")
-layout_caption = 行、列与层叠；一行按钮在各种适配策略下的表现；卡片与环境强调色；带目标的普通滚动；以及窗口当前的尺寸类别。
 layout_note = 选择一种策略，然后增加组件直到这一行放不下。裁剪让末尾超出屏幕（调试版本会记录），换行按各按钮自身宽度折到新行，等宽列把这些行对齐成网格，竖排在紧凑宽度下改为纵向堆叠，滚动保持可滑动的单行。在桌面上把窗口拖窄即可看到竖排生效。
 layout_row_section = 行适配
 layout_fit_label = 适配策略
@@ -1009,7 +979,6 @@ field_color = 颜色
 
 # 光标页（day/docs/cursor.md）：`.cursor()` 装饰器，逐个形状。
 nav_cursors = 光标
-cursors_caption = 指针悬停在部件上的形状：一套词汇，由每个工具包用自己的形状集绘制，另有一种闭包形式随你的状态而变。
 cursors_support_title = 在此工具包上
 cursors_support_label = 此处支持
 cursors_native = 原生

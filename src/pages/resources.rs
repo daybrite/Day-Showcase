@@ -10,7 +10,6 @@ pub(crate) fn resources_page() -> AnyPiece {
     page(
         crate::res::str::nav_resources(),
         "resources-title",
-        Some(crate::res::str::resources_caption()),
         form((image_section(), vectors_section(), data_section())).any(),
     )
     .any()

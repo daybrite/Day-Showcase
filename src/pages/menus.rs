@@ -148,16 +148,16 @@ fn build_app_menu() -> Vec<MenuEntry> {
                         .action(move || (shot.run)())
                 },
                 menu_separator(),
-                // A plain on/off SETTING, with the platform's own check mark: the page captions
-                // appear and disappear under every title as this is toggled, live, because
-                // `widgets::heading` reads the same signal inside a `when`.
+                // A plain on/off SETTING, with the platform's own check mark: every string in
+                // the app re-renders accented and expanded as this is toggled, live, because the
+                // locale is a signal every binding reads.
                 {
-                    let caps = crate::commands::captions_command();
-                    menu_item((caps.title)().format())
-                        .id(caps.id)
-                        .shortcut(Shortcut::new("c").shift())
-                        .checked((caps.checked)())
-                        .action(move || (caps.run)())
+                    let pseudo = crate::commands::pseudo_locale_command();
+                    menu_item((pseudo.title)().format())
+                        .id(pseudo.id)
+                        .shortcut(Shortcut::new("x").shift())
+                        .checked((pseudo.checked)())
+                        .action(move || (pseudo.run)())
                 },
                 menu_separator(),
                 // Appearance (commands.rs): the same three commands the toolbar's segmented
@@ -258,7 +258,6 @@ pub(crate) fn menus_page() -> AnyPiece {
     page(
         crate::res::str::nav_menus(),
         "menus-title",
-        Some(crate::res::str::menus_caption()),
         form((
             app_menu_section(),
             context_section(),

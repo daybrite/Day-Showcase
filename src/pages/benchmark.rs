@@ -201,11 +201,7 @@ pub(crate) fn benchmark_page() -> AnyPiece {
     // NOT widgets::page(): that scroll-wraps its body, and the patchwork must FILL the remaining
     // pane exactly (the benchmark's whole invariant) — the tabs page sets the same precedent.
     column((
-        heading(
-            crate::res::str::nav_benchmark(),
-            "benchmark-title",
-            Some(crate::res::str::bench_caption()),
-        ),
+        heading(crate::res::str::nav_benchmark(), "benchmark-title"),
         body,
     ))
     .spacing(10.0)

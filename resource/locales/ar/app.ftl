@@ -12,7 +12,6 @@ name_placeholder = اسمك
 flavor_placeholder = اكتب نكهة أو اخترها
 flavor_add = إضافة
 nav_controls = عناصر التحكّم
-controls_caption = كل عناصر التحكّم التي يوفّرها Day، عائلةً عائلة، كلٌّ منها مرتبط بحالة حيّة تُقرأ مجدّدًا أسفل الصفحة.
 ctl_buttons = الأزرار
 ctl_press = اضغط
 ctl_plain = عادي
@@ -108,7 +107,6 @@ picker_inline = مضمّن
 
 # — day-piece-datetime —
 nav_dates = التاريخ والوقت
-dates_caption = منتقيات تاريخ ووقت أصلية مرتبطة باتجاهين بإشارات مدنية — منتقيات القسم الواحد تتشارك الإشارة نفسها.
 dates_date_section = التاريخ
 dates_time_section = الوقت
 dates_composed_section = مركّب
@@ -180,7 +178,6 @@ webview_embedded_status_none = لم يُتبع أي رابط خارجي بعد.
 webview_embedded_opened = فُتح خارج التطبيق: { $url }
 webview_embedded_intercepted = اعتُرض — انتقل التطبيق إلى "{ $route }".
 
-lottie_caption = رسم Lottie متحرّك أصلي، مضمَّن كملف JSON‏ (lottie-ios / lottie-android)
 lottie_speed = السرعة
 lottie_model_section = في الملف
 lottie_model_frames = الإطارات
@@ -277,7 +274,6 @@ media_load = تحميل
 
 # — Localization page (docs/localization.md) —
 nav_localization = التوطين
-fmt_caption = مجموعة ترجمات واحدة — عرض مطابق لـ ICU لكل لغة: الأرقام والتواريخ وقواعد الجمع وترتيب الفرز كلها تتبع اللغة.
 loc_locale_section = اللغة الحية
 loc_live_note = اللغة إشارة — تبديلها يعيد عرض كل النصوص فورًا. اتجاه التخطيط يثبت عند الإطلاق (أطلق بالعربية لواجهة معكوسة).
 loc_current_label = الحالية
@@ -309,7 +305,6 @@ plural_items = { $count ->
 }
 
 # Text playground (typography)
-text_caption = الأنماط الدلالية تُطابق أنماط النص الأصلية للمنصة وتكبير نص إمكانية الوصول.
 text_selectable_toggle = قابل للتحديد
 text_styles_header = الأنماط
 text_weights_header = الأوزان
@@ -321,7 +316,6 @@ text_fonts_header = الخطوط المضمّنة
 text_fonts_note = ‏Font.Custom("Family", pt) — ملفات من مجلد resource/fonts/ في التطبيق، يضمّها day build وتُحلّ باسم العائلة على كل منصة.
 
 # Menus playground
-menus_caption = قوائم أصلية — شريط قوائم التطبيق وقوائم السياق لكل قطعة — مع قوائم فرعية متداخلة واختصارات لوحة المفاتيح وأوامر التحرير القياسية.
 menus_last = آخر إجراء
 menus_lifecycle = دورة الحياة
 menus_target = انقر بزر الفأرة الأيمن هنا (ضغطة مطوّلة على الجوال) لقائمة سياق
@@ -360,7 +354,6 @@ prefs_value_label = القيمة المخزَّنة:
 
 # --- bundled resources (§18.3) ---
 nav_resources = الموارد
-resources_caption = صورة تُحمَّل بالاسم من مورد مضمَّن، مع قراءات عشوائية لبيانات مضمّنة.
 vectors_title = المتجهات
 vectors_note = رموز الشريط الجانبي من resource/vectors/ — ملف SVG لكل أيقونة، مستقل عن الدقة على كل واجهة خلفية.
 vectors_tints = التلوين
@@ -395,7 +388,6 @@ map_paris = باريس
 
 # — tweaks page (docs/tweaks.md) —
 nav_tweaks = التوليفات
-tweaks_intro = التوليفات المحزَّمة تضبط الودجة الأصلية خلف قطعة مدمجة، حسب حزمة الأدوات. وعلى حزم الأدوات غير المشمولة تكون بلا أثر — القطع أدناه تبدو قياسية ببساطة.
 tweaks_stock = قياسي
 tweaks_tweaked = مولَّف
 tweaks_bezel_title = إطار الزر
@@ -422,14 +414,10 @@ tweaks_label_class = الفئة الأصلية: { $class }
 nav_canvas = اللوحة والأشكال
 nav_system = الجهاز والمستشعرات
 nav_network_http = الشبكة وHTTP
-network_caption = ما تقوله المنصة عن الاتصال، ثم HTTP عبر مكدّسها الخاص: الوكلاء وVPN وTLS مشمولة.
 network_status_section = الاتصال
 nav_notify_badge = الإشعارات والشارة
 nav_speech_haptics = الكلام واللمس
-speech_haptics_caption = الجزءان اللذان يخاطبان الشخص: صوت المنصة ومحرّكها اللمسي.
 nav_files_storage = الملفات والتخزين
-files_storage_caption = الحافظة، والتفضيلات بالمفتاح والقيمة، ومنتقيات الملفات الأصلية، ومخزن ملفات خاص بالتطبيق.
-canvas_caption = أشكال وتحويلات وإيماءات وقطع الطبقة التركيبية — كلها تُرسم عبر اللوحة.
 paths_title = المسارات والحدود والاقتصاص
 canvas_gauge = مقياس اللوحة
 gauge_value_label = القيمة
@@ -446,7 +434,6 @@ canvas_text_specimen = نص حكيم له سر قاطع وذو شأن عظيم
 canvas_text_bold = عريض
 canvas_text_italic = مائل
 canvas_text_bold_italic = عريض مائل
-system_caption = قطع حالة الجهاز بلا واجهة: البطارية والاتصال ومستشعرات الحركة وهوية الجهاز.
 
 # — data strings localized for the walkthrough locales (option lists, specimen rows) —
 chocolate = شوكولاتة
@@ -494,7 +481,6 @@ menus_dialogs_section = الحوارات
 modal_result_label = النتيجة
 
 # صفحة الوسائط
-media_caption = مشغّل وسائط أصلي — عرض المنصة نفسها، والتحكم عبر المشغّلات.
 media_player_section = الفيديو
 
 # أقسام صفحة الموارد
@@ -516,7 +502,6 @@ about_locale = اللغة
 
 # صفحة التركيز (docs/focus.md)
 nav_focus = التركيز
-focus_caption = التركيز ارتباط ثنائي الاتجاه: التغييرات الأصلية تكتب الإشارة، وكتابة الإشارة تنقل التركيز.
 focus_group_section = إشارة واحدة، نموذج واحد
 focus_group_caption = ثلاثة حقول مرتبطة بإشارة اختيارية واحدة. انقر أو تنقّل بينها فيتبعها المؤشر؛ وزر الإدخال ينتقل إلى الحقل التالي.
 focus_name_label = الاسم
@@ -560,33 +545,26 @@ scroll_to_item = التمرير إلى العنصر 100
 
 # Grid page (docs/grid.md) — grid/grid_row from basics to a stress test.
 nav_grid = الشبكة
-grid_caption = أعمدة تُقاس حسب المحتوى، وخلايا تمتد عبر الأعمدة، وخلايا مرنة تتقاسم العرض المتبقي
 grid_tab_basics = الأساسيات
 grid_tab_sizing = الأحجام
 grid_tab_spanning = الامتداد
 grid_tab_composite = التركيب
 grid_tab_stress = اختبار الضغط
-grid_basics_caption = يأخذ كل عمود عرض أوسع خلية فيه. لا عروض ثابتة ولا فواصل حشو.
 grid_col_name = الاسم
 grid_col_wins = الانتصارات
 grid_col_points = النقاط
-grid_sizing_caption = أعمدة ثابتة وأخرى بحسب المحتوى وأخرى مرنة في شبكة واحدة.
 grid_sizing_fixed = ثابت 80 نقطة
 grid_sizing_content = حسب المحتوى
 grid_sizing_short = قصير
 grid_sizing_longer = خلية بمحتوى أطول
-grid_spanning_caption = يمكن للخلية أن تمتد عبر عدة أعمدة؛ والعنصر خارج أي صف يمتد عبر الشبكة كلها.
 grid_month_title = مخطط الأسبوع
 grid_event_focus = فترة تركيز
 grid_event_review = مراجعة
-grid_composite_caption = الأشكال والشبكة معًا: مجموعات رموز في أعمدة بحسب المحتوى بجانب شريط مدى مرن.
 grid_day_n = اليوم { $n }
-grid_stress_cells = { $n } صفًا في كل منها 8 خلايا، تُرتَّب كلها فورًا. تحديث خلية واحدة يعيد قياسها وحدها.
 grid_stress_add = أضف 50 صفًا
 grid_stress_bump = زد الخلية الأولى
 
 nav_animation = الرسوم المتحركة
-anim_caption = اضبط المقياس والدوران والعتامة والإزاحة وتدرّج اللون، ثم اضغط «حرِّك!» لتشغيلها معًا بالمنحنى والمدة المختارَين.
 
 # صفحة الحركة
 anim_scale = المقياس
@@ -609,7 +587,6 @@ anim_duration_ms = { $ms } مللي ثانية
 # — صفحة قياس الأداء (اختبار الشبكات من Day-Bench؛ على منصات Apple الأصلية يستضيف منتقٍ مقسّم
 #   أيضًا نسخته التوأم المكتوبة بـ SwiftUI عبر day-piece-swiftui، docs/swiftui.md) —
 nav_benchmark = قياس الأداء
-bench_caption = رقعة شبه عشوائية من خلايا الشبكة تُبلِّط اللوحة تمامًا. كلا المُعاملين يعيد رصّ كل صف، فيعيد محرك التخطيط التفاوض على كل شيء دفعة واحدة.
 bench_parameters = المعلمات
 bench_seed = بذرة عشوائية
 bench_count = العدد الإجمالي
@@ -676,7 +653,6 @@ files_initial_content =
 
 # صفحة الإبلاغ عن الأعطال (day-break, docs/break.md)
 nav_crash = الإبلاغ عن الأعطال
-crash_caption = سجِّل معالِجات الأعطال، وراجِع التقرير عند التشغيل التالي، واختر ما إذا كنت تريد إرساله.
 crash_trigger_section = إحداث عطل
 crash_report_section = آخر تقرير عطل
 crash_abort = تعطيل (إنهاء)
@@ -691,7 +667,6 @@ crash_empty = لا يوجد تقرير عطل بعد. أحدِث عطلاً ثم
 
 # صفحة مناطق النص
 nav_textareas = تحرير النص
-textareas_caption = محرران متعددا الأسطر: عرض النص المنسق الخاص بالمنصة فوق مستند منسق، ومنطقة النص الأصلية البسيطة تحته.
 textareas_editor_section = المحرّر
 textareas_seed_section = تعبئة بـ
 textareas_attrs_section = السمات
@@ -769,7 +744,6 @@ storage_files_label = الملفات المخزنة
 storage_idle = لا شيء مخزّن بعد
 
 prefs_window_title = الإعدادات
-prefs_window_caption = يُطبَّق المظهر واللغة على كل النوافذ ويُحفظان بين عمليات التشغيل.
 
 # — Tree page (docs/tree.md) —
 nav_tree = شجرة
@@ -805,7 +779,6 @@ tree_ctx_delete = حذف
 
 # — Toolbars page (docs/toolbars.md) —
 nav_toolbars = أشرطة الأدوات
-toolbars_caption = شريط أدوات النافذة نفسها، ضمن الهيكل الأصلي للمنصة — ‏NSToolbar على macOS، وAdwHeaderBar على GNOME، وQToolBar على KDE، وCommandBar على Windows. انظر إلى هيكل هذه النافذة نفسه: الشريط العلوي على سطح المكتب وiPad وiPhone، والشريط أسفل الصفحة على Android؛ عناصر التحكّم أدناه هي التي تقوده.
 toolbar_unsupported = لا تملك مجموعة الأدوات هذه شريط أدوات للنافذة، لذا لم يُثبَّت شيء. الهاتف يضع هذه الأوامر داخل المحتوى بدلًا من ذلك.
 toolbar_readout_title = ما الذي يفعله شريط الأدوات
 toolbar_controls_title = قيادته من هنا
@@ -846,7 +819,7 @@ toolbar_last_new = نافذة جديدة
 toolbar_last_extra = نُسخت معلومات الإصدار
 # The page's own controls.
 toolbar_extra_label = إظهار عنصر نسخ المعلومات
-toolbar_enabled_label = لقطة الشاشة مفعّلة
+toolbar_enabled_label = عرض المصدر مفعّل
 toolbar_clear_search = مسح البحث
 toolbar_seed_search = تعبئة البحث
 toolbar_seed_text = أشرطة الأدوات
@@ -863,7 +836,6 @@ toolbar_kind_space = المسافات
 toolbar_kind_space_note = مسافة مرنة تفصل عناصر البداية عن عناصر النهاية.
 # --- day-part-local-notify (docs/notify.md) ---
 nav_notify = الإشعارات
-notify_caption = انشر إشعارًا محليًا عبر نظام الإشعارات الخاص بالمنصة. تحتفظ المنصة بالإشعارات المجدولة حيثما أمكن — راجع سطر القدرات.
 notify_caps_post = النشر مدعوم على هذه المنصة
 notify_caps_unsupported = الإشعارات المحلية غير متاحة في هذه النسخة (على macOS تتطلب حزمة تطبيق موقّعة — استخدم day pack)
 notify_caps_schedule_os = تبقى الإشعارات المجدولة بعد إغلاق التطبيق
@@ -905,7 +877,6 @@ haptics_song_cascade = تتابع
 
 # — البرمجة النصية (مسجّل dayscript) —
 nav_scripting = البرمجة النصية
-scripting_caption = سجّل نقراتك وتنقّلك في سكربت dayscript قابل لإعادة التشغيل. اضغط «تسجيل»، وتنقّل في التطبيق ونفّذ إجراءاتك، ثم عُد واضغط «إيقاف». عدّل YAML لضبطه، و«تشغيل» لإعادة تشغيله، و«نسخ» أو «تصدير» للاحتفاظ به.
 scripting_record = تسجيل
 scripting_stop = إيقاف
 scripting_copy = نسخ
@@ -973,7 +944,7 @@ menu_appearance = المظهر
 menu_script = سكربت
 cmd_star = تمييز بنجمة
 cmd_unstar = إزالة النجمة
-cmd_show_captions = إظهار الشروح
+cmd_toggle_pseudo_locale = تبديل اللغة الزائفة
 
 # النطق (day-part-speech): مرجع daybridge — واجهة واحدة، ولغة مختلفة لكل منصة.
 speech_title = تحويل النص إلى كلام
@@ -993,7 +964,6 @@ vectors_live_tint = تلوين حي
 vectors_cycle_tint = تبديل
 
 # Layout page (docs/size-classes.md "Row fit policies")
-layout_caption = الصفوف والأعمدة والطبقات؛ وكيف يتصرّف صفّ من الأزرار تحت كل سياسة ملاءمة؛ والبطاقات ولون التمييز المحيط؛ وتمرير بسيط مع أهداف؛ وفئات حجم النافذة الحالية.
 layout_note = اختر سياسة ثم أضف مكوّنات حتى يضيق الصف بها. «قصّ» يترك البقية خارج الشاشة (وتسجّلها إصدارات التصحيح)، و«التفاف» ينتقل إلى أسطر جديدة بعرض كل زر، و«أعمدة متساوية» تحاذي تلك الأسطر في شبكة، و«عمود» يكدّس عموديًا عند العرض المضغوط، و«تمرير» يبقي سطرًا واحدًا قابلًا للسحب. على سطح المكتب، ضيّق النافذة لترى «عمود» يعمل.
 layout_row_section = ملاءمة الصف
 layout_fit_label = السياسة
@@ -1036,7 +1006,6 @@ field_color = اللون
 
 # صفحة المؤشّرات (day/docs/cursor.md): المزخرف `.cursor()`، شكلًا شكلًا.
 nav_cursors = المؤشّرات
-cursors_caption = شكل المؤشّر فوق قطعة: مفردات واحدة ترسمها كل مجموعة أدوات من طقمها الخاص، وصيغة إغلاق تتبع حالتك.
 cursors_support_title = في مجموعة الأدوات هذه
 cursors_support_label = الدعم هنا
 cursors_native = أصلي

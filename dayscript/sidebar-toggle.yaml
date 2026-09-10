@@ -7,7 +7,7 @@ description: >
 flow:
   - wait_for: { id: nav }
   - navigate: { route: toolbars }
-  - assert_visible: { id: toolbars-title }
+  - assert_route: { route: toolbars }
   - screenshot: sidebar-expanded
   - toolbar: { item: day.sidebar-toggle }
   - pause: 0.6

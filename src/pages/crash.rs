@@ -128,7 +128,6 @@ pub(crate) fn crash_page() -> AnyPiece {
     page(
         crate::res::str::nav_crash(),
         "crash-title",
-        Some(crate::res::str::crash_caption()),
         form((crash_controls, report_view)).any(),
     )
     .any()

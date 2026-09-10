@@ -79,8 +79,8 @@ pub(crate) fn gauge(value: Signal<f64>) -> impl Piece {
     .id("gauge")
 }
 
-/// Standard page scaffold (the showcase design pass): a title + optional caption header over a
-/// scrollable, consistently padded content column. Every page uses it, so typography, spacing,
+/// Standard page scaffold (the showcase design pass): a title heading over a scrollable,
+/// consistently padded content column. Every page uses it, so typography, spacing,
 /// and scrolling behave identically across the app.
 /// A piece that mounts nothing.
 ///
@@ -93,43 +93,16 @@ pub(crate) fn nothing() -> impl Piece {
 
 /// A page's title heading. When the native nav shows the destination title in its own header
 /// (`Cap::NavHeader` — the phones, and the Windows NavigationView), the big in-content title is
-/// redundant, so it is dropped and the caption takes its place, carrying the `title_id`.
-///
-/// A page with NO caption then has nothing left to say, and draws nothing: the heading used to
-/// render the title again in `Font::Subheadline` purely so a script had an anchor to assert, which
-/// put "About" under a nav bar already reading "About" — the same word twice, on every such page.
-/// The scripts assert the page's own content instead (`assert_route` proves the destination), so
-/// the anchor is not worth the duplicate. Elsewhere — the desktops, where nothing else names the
-/// destination — it renders the usual `Font::Title` + caption.
-pub(crate) fn heading(
-    title: LocalizedText,
-    title_id: &'static str,
-    caption: Option<LocalizedText>,
-) -> impl Piece {
-    let native_header = capability(Cap::NavHeader) == Support::Native;
-    match (native_header, caption) {
-        // Never hidden here: where the nav bar owns the title, this sentence IS the page's
-        // heading, and View ▸ Show Captions is about the line UNDER a title, not about leaving a
-        // page unnamed. (Those targets are also the ones with no menu bar to reach it from.)
-        (true, Some(c)) => label(c).font(Font::Subheadline).id(title_id).any(),
-        (true, None) => nothing().any(),
-        // `when`, not a build-time `if`: the menu toggles this while a page is on screen, and a
-        // signal read during `build` is just a value read — the page would keep its old heading
-        // until navigation rebuilt it (docs/state.md).
-        (false, Some(c)) => column((
-            label(title).font(Font::Title).id(title_id),
-            when(crate::commands::captions, move || {
-                // Named after the title it sits under, so a script can assert the toggle
-                // actually removed it rather than merely blanking it.
-                label(c.clone())
-                    .id(format!("{title_id}-caption"))
-                    .font(Font::Footnote)
-            }),
-        ))
-        .spacing(4.0)
-        .align(HAlign::Leading)
-        .any(),
-        (false, None) => label(title).font(Font::Title).id(title_id).any(),
+/// redundant and the heading draws nothing: it used to render the title again in
+/// `Font::Subheadline` purely so a script had an anchor to assert, which put "About" under a nav
+/// bar already reading "About" — the same word twice, on every such page. The scripts assert the
+/// page's own content instead (`assert_route` proves the destination). Elsewhere — the desktops,
+/// where nothing else names the destination — it renders the `Font::Title` title.
+pub(crate) fn heading(title: LocalizedText, title_id: &'static str) -> impl Piece {
+    if capability(Cap::NavHeader) == Support::Native {
+        nothing().any()
+    } else {
+        label(title).font(Font::Title).id(title_id).any()
     }
 }
 
@@ -147,20 +120,8 @@ pub(crate) fn heading(
 /// unchanged; [`page_wide`] opts out for the pages whose content wants the whole canvas.
 pub(crate) const CONTENT_MAX_WIDTH: f64 = 680.0;
 
-pub(crate) fn page(
-    title: LocalizedText,
-    title_id: &'static str,
-    caption: Option<LocalizedText>,
-    body: impl Piece,
-) -> impl Piece {
-    page_inner(
-        title,
-        title_id,
-        caption,
-        None,
-        body,
-        Some(CONTENT_MAX_WIDTH),
-    )
+pub(crate) fn page(title: LocalizedText, title_id: &'static str, body: impl Piece) -> impl Piece {
+    page_inner(title, title_id, None, body, Some(CONTENT_MAX_WIDTH))
 }
 
 /// [`page`] with a control in the heading's corner slot — pushed to the trailing edge of the
@@ -169,14 +130,12 @@ pub(crate) fn page(
 pub(crate) fn page_trailing(
     title: LocalizedText,
     title_id: &'static str,
-    caption: Option<LocalizedText>,
     trailing: impl Piece,
     body: impl Piece,
 ) -> impl Piece {
     page_inner(
         title,
         title_id,
-        caption,
         Some(trailing.any()),
         body,
         Some(CONTENT_MAX_WIDTH),
@@ -189,26 +148,23 @@ pub(crate) fn page_trailing(
 pub(crate) fn page_wide(
     title: LocalizedText,
     title_id: &'static str,
-    caption: Option<LocalizedText>,
     body: impl Piece,
 ) -> impl Piece {
-    page_inner(title, title_id, caption, None, body, None)
+    page_inner(title, title_id, None, body, None)
 }
 
 fn page_inner<P1: Piece>(
     title: LocalizedText,
     title_id: &'static str,
-    caption: Option<LocalizedText>,
     trailing: Option<AnyPiece>,
     body: P1,
     max_width: Option<f64>,
 ) -> impl Piece + use<P1> {
-    let head = heading(title, title_id, caption);
+    let head = heading(title, title_id);
     let head = match trailing {
         // The corner slot: beside the heading where the big in-content title renders. On
-        // native-header targets (the phones — the nav bar owns the title, so the heading is
-        // the caption sentence) that sentence needs the full measure; the control rides its
-        // own trailing-aligned row above it instead of squeezing the caption sideways.
+        // native-header targets (the phones — the nav bar owns the title, so the heading draws
+        // nothing) the control rides its own trailing-aligned row instead.
         Some(t) => {
             if capability(Cap::NavHeader) == Support::Native {
                 column((row((spacer(), t)).grow_w(), head))

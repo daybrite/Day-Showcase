@@ -63,7 +63,7 @@ pub(crate) fn list_page() -> AnyPiece {
     );
     column((
         row((
-            heading(crate::res::str::nav_list(), "list-title", None),
+            heading(crate::res::str::nav_list(), "list-title"),
             spacer(),
             button(crate::res::str::list_clear_selection())
                 .bordered()

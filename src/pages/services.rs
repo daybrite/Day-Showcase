@@ -15,7 +15,6 @@ pub(crate) fn network_page() -> AnyPiece {
     page(
         crate::res::str::nav_network_http(),
         "network-title",
-        Some(crate::res::str::network_caption()),
         form((network_section(), http_section())).any(),
     )
     .any()
@@ -27,7 +26,6 @@ pub(crate) fn notify_page() -> AnyPiece {
     page(
         crate::res::str::nav_notify_badge(),
         "notify-page-title",
-        Some(crate::res::str::notify_caption()),
         form((notify_section(), badge_section())).any(),
     )
     .any()
@@ -39,7 +37,6 @@ pub(crate) fn speech_page() -> AnyPiece {
     page(
         crate::res::str::nav_speech_haptics(),
         "speech-title",
-        Some(crate::res::str::speech_haptics_caption()),
         form((speech_section(), haptics_section())).any(),
     )
     .any()
@@ -51,7 +48,6 @@ pub(crate) fn files_page() -> AnyPiece {
     page(
         crate::res::str::nav_files_storage(),
         "files-title",
-        Some(crate::res::str::files_storage_caption()),
         form((
             clipboard_section(),
             prefs_section(),

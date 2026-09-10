@@ -10,7 +10,6 @@ pub(crate) fn cursors_page() -> AnyPiece {
     page(
         crate::res::str::nav_cursors(),
         "cursors-title",
-        Some(crate::res::str::cursors_caption()),
         form((
             support_section(),
             swatches_section(

@@ -10,7 +10,6 @@ pub(crate) fn system_page() -> AnyPiece {
     page(
         crate::res::str::nav_system(),
         "system-title",
-        Some(crate::res::str::system_caption()),
         form((
             battery_section(),
             sensors_section(),

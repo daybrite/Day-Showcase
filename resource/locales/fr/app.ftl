@@ -9,7 +9,6 @@ name_placeholder = Votre nom
 flavor_placeholder = Saisissez ou choisissez un parfum
 flavor_add = Ajouter
 nav_controls = Contrôles
-controls_caption = Tous les contrôles fournis par Day, famille par famille, chacun lié à un état vivant et relu au bas de la page.
 ctl_buttons = Boutons
 ctl_press = Appuyer
 ctl_plain = Simple
@@ -105,7 +104,6 @@ picker_inline = Aligné
 
 # — day-piece-datetime —
 nav_dates = Date et heure
-dates_caption = Sélecteurs natifs de date et d'heure liés en double sens à des signaux civils — les sélecteurs d'une même section partagent le même signal.
 dates_date_section = Date
 dates_time_section = Heure
 dates_composed_section = Composé
@@ -176,7 +174,6 @@ webview_embedded_status_none = Aucun lien externe suivi pour l'instant.
 webview_embedded_opened = Ouvert hors de l'app : { $url }
 webview_embedded_intercepted = Intercepté — navigation dans l'app vers « { $route } ».
 
-lottie_caption = Une animation Lottie native, fournie en JSON (lottie-ios / lottie-android)
 lottie_speed = Vitesse
 lottie_model_section = Dans le fichier
 lottie_model_frames = Images
@@ -273,7 +270,6 @@ media_load = Charger
 
 # — Localization page (docs/localization.md) —
 nav_localization = Localisation
-fmt_caption = Un seul jeu de traductions — rendu conforme à ICU pour chaque locale : nombres, dates, grammaire du pluriel et ordre de tri suivent la langue.
 loc_locale_section = Locale en direct
 loc_live_note = La locale est un signal — changer de langue re-rend chaque chaîne instantanément. Le sens de lecture est fixé au lancement (lancez en ar pour l'interface miroir).
 loc_current_label = Actuelle
@@ -302,7 +298,6 @@ plural_items = { $count ->
 }
 
 # Aire de jeu Texte (typographie)
-text_caption = Les styles sémantiques correspondent aux styles natifs et à l'échelle de texte d'accessibilité.
 text_selectable_toggle = Sélectionnable
 text_styles_header = Styles
 text_weights_header = Graisses
@@ -314,7 +309,6 @@ text_fonts_header = Polices embarquées
 text_fonts_note = Font.Custom("Famille", pt) — fichiers du dossier resource/fonts/ de l'application, embarqués par day build et résolus par nom de famille sur chaque plateforme.
 
 # Aire de jeu Menus
-menus_caption = Menus natifs — la barre de menus de l'application et les menus contextuels par élément — avec sous-menus imbriqués, raccourcis clavier et commandes d'édition standard.
 menus_last = Dernière action
 menus_lifecycle = Cycle de vie
 menus_target = Clic droit ici (appui long sur mobile) pour un menu contextuel
@@ -353,7 +347,6 @@ prefs_value_label = Valeur enregistrée :
 
 # --- bundled resources (§18.3) ---
 nav_resources = Ressources
-resources_caption = Une image chargée par nom depuis une ressource, avec accès aléatoire à des données embarquées.
 vectors_title = Vecteurs
 vectors_note = Les glyphes de la barre latérale, issus de resource/vectors/ — un SVG par icône, indépendant de la résolution sur chaque backend.
 vectors_tints = Teintes
@@ -388,7 +381,6 @@ map_paris = Paris
 
 # — page tweaks (docs/tweaks.md) —
 nav_tweaks = Tweaks
-tweaks_intro = Les tweaks empaquetés configurent le composant natif derrière une pièce intégrée, par toolkit. Là où un tweak n'est pas couvert, il est sans effet — les pièces ci-dessous restent d'origine.
 tweaks_stock = D'origine
 tweaks_tweaked = Ajustée
 tweaks_bezel_title = Biseau du bouton
@@ -415,14 +407,10 @@ tweaks_label_class = Classe native : { $class }
 nav_canvas = Canevas et formes
 nav_system = Appareil et capteurs
 nav_network_http = Réseau et HTTP
-network_caption = Ce que la plateforme dit de la connectivité, puis HTTP par sa propre pile : proxys, VPN et TLS compris.
 network_status_section = Connectivité
 nav_notify_badge = Notifications et badge
 nav_speech_haptics = Voix et haptique
-speech_haptics_caption = Les deux parties qui s'adressent à la personne : la voix de la plateforme et son moteur haptique.
 nav_files_storage = Fichiers et stockage
-files_storage_caption = Le presse-papiers, les préférences clé-valeur, les sélecteurs de fichiers natifs et un stockage de fichiers propre à l'application.
-canvas_caption = Formes, transformations, gestes et widgets composés — tous dessinés via le canevas.
 paths_title = Tracés, contours et découpe
 canvas_gauge = Jauge canevas
 gauge_value_label = Valeur
@@ -439,7 +427,6 @@ canvas_text_specimen = Portez ce vieux whisky au juge blond qui fume
 canvas_text_bold = Gras
 canvas_text_italic = Italique
 canvas_text_bold_italic = Gras italique
-system_caption = Les modules d'état de l'appareil : batterie, connectivité, capteurs et identité.
 
 # — data strings localized for the walkthrough locales (option lists, specimen rows) —
 chocolate = chocolat
@@ -487,7 +474,6 @@ menus_dialogs_section = Dialogues
 modal_result_label = Résultat
 
 # Page Média
-media_caption = Un lecteur multimédia natif — la vue de la plateforme, transport piloté par déclencheurs.
 media_player_section = Vidéo
 
 # Sections de la page Ressources
@@ -509,7 +495,6 @@ about_locale = Langue
 
 # Page Focus (docs/focus.md)
 nav_focus = Focus
-focus_caption = Le focus est une liaison bidirectionnelle : les changements natifs écrivent le signal, et écrire le signal déplace le focus.
 focus_group_section = Un signal, un formulaire
 focus_group_caption = Trois champs liés à un même signal optionnel. Cliquez ou tabulez de l’un à l’autre et l’indicateur suit ; Entrée passe au champ suivant.
 focus_name_label = Nom
@@ -553,33 +538,26 @@ scroll_to_item = Aller à l'élément 100
 
 # Grid page (docs/grid.md) — grid/grid_row from basics to a stress test.
 nav_grid = Grille
-grid_caption = Des colonnes dimensionnées par leur contenu, des cellules qui fusionnent, et des cellules flexibles qui se partagent la largeur restante
 grid_tab_basics = Bases
 grid_tab_sizing = Dimensions
 grid_tab_spanning = Fusion
 grid_tab_composite = Composition
 grid_tab_stress = Endurance
-grid_basics_caption = Chaque colonne prend la largeur de sa cellule la plus large. Pas de largeurs fixes, pas d'espaceurs de remplissage.
 grid_col_name = Nom
 grid_col_wins = Victoires
 grid_col_points = Points
-grid_sizing_caption = Colonnes fixes, ajustées au contenu et flexibles dans une même grille.
 grid_sizing_fixed = Fixe 80 pt
 grid_sizing_content = Contenu
 grid_sizing_short = Court
 grid_sizing_longer = Une cellule au contenu plus long
-grid_spanning_caption = Une cellule peut couvrir plusieurs colonnes ; un enfant hors de toute ligne couvre la grille entière.
 grid_month_title = Semainier
 grid_event_focus = Bloc de concentration
 grid_event_review = Revue
-grid_composite_caption = Formes et grille réunies : des glyphes groupés dans des colonnes au contenu, à côté d'une barre de plage flexible.
 grid_day_n = Jour { $n }
-grid_stress_cells = { $n } lignes de 8 cellules, toutes disposées d'avance. Modifier une cellule ne remesure que celle-ci.
 grid_stress_add = Ajouter 50 lignes
 grid_stress_bump = Incrémenter la première cellule
 
 nav_animation = Animation
-anim_caption = Mettez en file d’attente échelle, rotation, opacité, décalage et teinte, puis touchez « Animer ! » pour tout animer ensemble avec la courbe et la durée choisies.
 
 # Page Animation
 anim_scale = Échelle
@@ -602,7 +580,6 @@ anim_duration_ms = { $ms } ms
 # — Page Benchmark (le benchmark Grilles de Day-Bench ; sur les backends Apple natifs, un
 #   sélecteur segmenté héberge aussi sa réplique SwiftUI via day-piece-swiftui, docs/swiftui.md) —
 nav_benchmark = Benchmark
-bench_caption = Un patchwork pseudo-aléatoire de cellules de grille qui pave exactement le panneau. Les deux paramètres réempaquettent chaque rangée, le moteur de mise en page renégocie donc tout d'un coup.
 bench_parameters = Paramètres
 bench_seed = Graine aléatoire
 bench_count = Nombre total
@@ -665,7 +642,6 @@ files_initial_content =
 
 # Page Rapports de plantage (day-break, docs/break.md)
 nav_crash = Rapports de plantage
-crash_caption = Installez les gestionnaires de plantage, consultez le rapport au prochain lancement et choisissez de l'envoyer.
 crash_trigger_section = Déclencher un plantage
 crash_report_section = Dernier rapport de plantage
 crash_abort = Planter (abandon)
@@ -680,7 +656,6 @@ crash_empty = Aucun rapport pour l'instant. Déclenchez un plantage, puis relanc
 
 # Page Zones de texte
 nav_textareas = Édition de texte
-textareas_caption = Deux éditeurs multilignes : la vue de texte enrichi de la plateforme sur un document mis en forme, et la zone de texte native simple en dessous.
 textareas_editor_section = Éditeur
 textareas_seed_section = Remplir avec
 textareas_attrs_section = Attributs
@@ -758,7 +733,6 @@ storage_files_label = Fichiers stockés
 storage_idle = Rien d'enregistré pour l'instant
 
 prefs_window_title = Préférences
-prefs_window_caption = Le thème et la langue s'appliquent à toutes les fenêtres et sont conservés entre les lancements.
 
 # — Tree page (docs/tree.md) —
 nav_tree = Arborescence
@@ -791,7 +765,6 @@ tree_ctx_delete = Supprimer
 
 # — Toolbars page (docs/toolbars.md) —
 nav_toolbars = Barres d'outils
-toolbars_caption = La barre d'outils de la fenêtre elle-même, dans l'habillage natif de la plateforme — un NSToolbar sur macOS, l'AdwHeaderBar sur GNOME, une QToolBar sur KDE, une CommandBar sur Windows. Regardez l'habillage de cette fenêtre : la barre du haut sur le bureau, l'iPad et l'iPhone, la barre sous la page sur Android ; les contrôles ci-dessous la pilotent.
 toolbar_unsupported = Cette boîte à outils n'a pas de barre d'outils de fenêtre ; rien n'a donc été installé. Sur téléphone, ces commandes vont dans le contenu.
 toolbar_readout_title = Ce que fait la barre d'outils
 toolbar_controls_title = La piloter depuis ici
@@ -828,7 +801,7 @@ toolbar_last_new = Nouvelle fenêtre
 toolbar_last_extra = Infos de version copiées
 # The page's own controls.
 toolbar_extra_label = Afficher l'élément Copier les infos
-toolbar_enabled_label = Capture d’écran activée
+toolbar_enabled_label = Afficher la source activé
 toolbar_clear_search = Effacer la recherche
 toolbar_seed_search = Remplir la recherche
 toolbar_seed_text = barres d'outils
@@ -845,7 +818,6 @@ toolbar_kind_space = Espaceurs
 toolbar_kind_space_note = Un espace flexible sépare les éléments de tête de ceux de fin.
 # --- day-part-local-notify (docs/notify.md) ---
 nav_notify = Notifications
-notify_caption = Publiez une notification locale via le système de notifications de la plateforme. Les notifications programmées sont conservées par le système lorsque c'est possible — voir la ligne de capacités.
 notify_caps_post = Publication prise en charge sur cette plateforme
 notify_caps_unsupported = Notifications locales indisponibles dans cette version (sur macOS elles exigent une app signée — utilisez day pack)
 notify_caps_schedule_os = Les notifications programmées survivent à la fermeture de l'application
@@ -887,7 +859,6 @@ haptics_song_cascade = Cascade
 
 # — scripting (enregistreur dayscript) —
 nav_scripting = Scripts
-scripting_caption = Enregistrez vos appuis et votre navigation dans un dayscript rejouable. Appuyez sur Enregistrer, parcourez l'application et agissez, puis revenez et appuyez sur Arrêter. Modifiez le YAML pour l'ajuster, Lire pour le rejouer, Copier ou Exporter pour le conserver.
 scripting_record = Enregistrer
 scripting_stop = Arrêter
 scripting_copy = Copier
@@ -955,7 +926,7 @@ menu_appearance = Apparence
 menu_script = Script
 cmd_star = Suivre
 cmd_unstar = Ne plus suivre
-cmd_show_captions = Afficher les légendes
+cmd_toggle_pseudo_locale = Basculer la pseudo-locale
 
 # Speech (day-part-speech) : la référence daybridge — une API, un langage par plateforme.
 speech_title = Synthèse vocale
@@ -975,7 +946,6 @@ vectors_live_tint = Teinte dynamique
 vectors_cycle_tint = Changer
 
 # Layout page (docs/size-classes.md "Row fit policies")
-layout_caption = Rangées, colonnes et couches ; le comportement d'une rangée de boutons sous chaque politique d'ajustement ; cartes et accent ambiant ; un défilement simple avec cibles ; et les classes de taille de la fenêtre.
 layout_note = Choisissez une politique, puis ajoutez des composants jusqu'à ce que la rangée manque de place. Rognage laisse la fin sortir de l'écran (les builds de débogage le signalent), Retour à la ligne passe à la ligne à la largeur de chaque bouton, Colonnes égales aligne ces lignes en grille, Colonne empile en largeur compacte, Défilement garde une seule ligne à faire glisser. Sur un ordinateur, rétrécissez la fenêtre pour voir Colonne s'activer.
 layout_row_section = Ajustement de rangée
 layout_fit_label = Politique
@@ -1018,7 +988,6 @@ field_color = Couleur
 
 # La page Curseurs (day/docs/cursor.md) : le décorateur `.cursor()`, forme par forme.
 nav_cursors = Curseurs
-cursors_caption = La forme du pointeur au-dessus d'une pièce : un seul vocabulaire, dessiné par chaque boîte à outils à partir de son propre jeu, et une forme fermée qui suit votre état.
 cursors_support_title = Sur cette boîte à outils
 cursors_support_label = Prise en charge ici
 cursors_native = Native

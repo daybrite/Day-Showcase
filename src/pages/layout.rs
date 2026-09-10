@@ -12,7 +12,6 @@ pub(crate) fn layout_page() -> AnyPiece {
     page(
         crate::res::str::nav_layout(),
         "layout-title",
-        Some(crate::res::str::layout_caption()),
         form((
             stacks_section(),
             fit_section(),

@@ -47,7 +47,7 @@ pub(crate) fn webview_page() -> AnyPiece {
     let js_remote = JsHandle::new();
     let js_embedded = JsHandle::new();
     column((
-        heading(crate::res::str::nav_webview(), "webview-title", None),
+        heading(crate::res::str::nav_webview(), "webview-title"),
         column((picker(
             [
                 crate::res::str::webview_tab_remote().format(),

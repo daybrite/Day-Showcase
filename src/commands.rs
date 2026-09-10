@@ -147,37 +147,35 @@ pub(crate) fn star() -> Command {
     }
 }
 
-// ── Page captions ───────────────────────────────────────────────────────────────────────────
+// ── Pseudo-locale ───────────────────────────────────────────────────────────────────────────
 
-/// Whether pages draw the sentence under their title — persisted, app-wide.
-#[derive(Clone, Copy)]
-struct Captions(Signal<bool>);
-
-impl Ambient for Captions {
-    fn create() -> Self {
-        let s = Signal::new(true);
-        day::prefs::bind("showcase.captions", s);
-        Captions(s)
-    }
+/// Whether the locale in force is a pseudo-locale (docs/localization.md): the `-XA` variant of
+/// a real locale, accented and expanded for layout testing. A tracked read.
+pub(crate) fn pseudo_locale() -> bool {
+    day::locale().with(|l| l.ends_with("-XA"))
 }
 
-/// A tracked read, so a heading that calls it re-renders when the menu toggles it.
-pub(crate) fn captions() -> bool {
-    Captions::app().0.get()
-}
-
-/// View ▸ Show Captions — an on/off SETTING, where the appearance trio below is a one-of-three
-/// choice. Both are drawn with `MenuEntry::checked`, which is the point of having them side by
-/// side: the same check mark serves a switch and a radio group, exactly as it does natively.
-pub(crate) fn captions_command() -> Command {
+/// View ▸ Toggle Pseudo-Locale — an on/off SETTING, where the appearance trio below is a
+/// one-of-three choice. Both are drawn with `MenuEntry::checked`, which is the point of having
+/// them side by side: the same check mark serves a switch and a radio group, exactly as it does
+/// natively.
+///
+/// On, the current locale takes the `-XA` suffix (`fr` → `fr-XA`) and every string re-renders
+/// accented and expanded; off strips it again. Toggled while a French run is in force it
+/// stresses the French strings, not the English ones, which is what makes it a menu item rather
+/// than the Localization page's fixed `en-XA` button.
+pub(crate) fn pseudo_locale_command() -> Command {
     Command {
-        id: "cmd-captions",
-        title: crate::res::str::cmd_show_captions,
+        id: "cmd-pseudo-locale",
+        title: crate::res::str::cmd_toggle_pseudo_locale,
         enabled: || true,
-        checked: captions,
+        checked: pseudo_locale,
         run: || {
-            let s = Captions::app().0;
-            s.set(!s.get());
+            let current = day::locale().get_untracked();
+            match current.strip_suffix("-XA") {
+                Some(base) => set_locale(base),
+                None => set_locale(&format!("{current}-XA")),
+            }
         },
     }
 }

@@ -19,7 +19,6 @@ pub(crate) fn text_page() -> AnyPiece {
     page_trailing(
         crate::res::str::nav_text(),
         "text-title",
-        Some(crate::res::str::text_caption()),
         row((
             label(crate::res::str::text_selectable_toggle()).font(Font::Subheadline),
             toggle(sel_on).id("text-selectable-toggle"),

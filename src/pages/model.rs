@@ -172,7 +172,7 @@ pub(crate) fn model_page() -> AnyPiece {
 
     column((
         row((
-            heading(crate::res::str::nav_model(), "model-title", None),
+            heading(crate::res::str::nav_model(), "model-title"),
             spacer(),
             labeled(
                 crate::res::str::model_hide_done(),

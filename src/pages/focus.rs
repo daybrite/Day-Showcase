@@ -9,7 +9,6 @@ pub(crate) fn focus_page() -> AnyPiece {
     page(
         crate::res::str::nav_focus(),
         "focus-title",
-        Some(crate::res::str::focus_caption()),
         form((group_section(), bool_section(), probe_section())).any(),
     )
     .any()

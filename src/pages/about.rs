@@ -76,7 +76,6 @@ pub(crate) fn about_page() -> AnyPiece {
     page(
         crate::res::str::nav_about(),
         "about-title",
-        None,
         column((hero, form((info,))))
             .spacing(16.0)
             .align(HAlign::Leading)

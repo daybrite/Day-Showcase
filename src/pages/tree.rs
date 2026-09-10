@@ -298,7 +298,7 @@ pub(crate) fn tree_page() -> AnyPiece {
     scroll(
         column((
             row((
-                heading(crate::res::str::nav_tree(), "tree-title", None),
+                heading(crate::res::str::nav_tree(), "tree-title"),
                 spacer(),
                 button(crate::res::str::tree_add_file())
                     .prominent()

@@ -47,7 +47,6 @@ pub(crate) fn media_page() -> AnyPiece {
     page_wide(
         crate::res::str::nav_media(),
         "media-title",
-        Some(crate::res::str::media_caption()),
         form((video,)).any(),
     )
     .any()
@@ -132,7 +131,6 @@ pub(crate) fn lottie_page() -> AnyPiece {
     crate::widgets::page(
         crate::res::str::nav_lottie(),
         "lottie-title",
-        Some(crate::res::str::lottie_caption()),
         form((stage, lottie_facts(selected))).any(),
     )
     .any()

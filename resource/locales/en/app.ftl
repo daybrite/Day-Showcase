@@ -9,7 +9,6 @@ name_placeholder = Your name
 flavor_placeholder = Type or pick a flavor
 flavor_add = Add
 nav_controls = Controls
-controls_caption = Every control Day ships, family by family, each bound to live state and read back at the foot of the page.
 ctl_buttons = Buttons
 ctl_press = Press
 ctl_plain = Plain
@@ -105,7 +104,6 @@ picker_inline = Inline
 
 # — day-piece-datetime —
 nav_dates = Date & time
-dates_caption = Native date & time pickers bound two-way to civil date/time signals — pickers in the same section share one signal.
 dates_date_section = Date
 dates_time_section = Time
 dates_composed_section = Composed
@@ -176,7 +174,6 @@ webview_embedded_status_none = No external link followed yet.
 webview_embedded_opened = Opened outside the app: { $url }
 webview_embedded_intercepted = Intercepted — navigated in-app to "{ $route }".
 
-lottie_caption = A native Lottie animation, bundled as JSON (lottie-ios / lottie-android)
 lottie_speed = Speed
 lottie_model_section = In the file
 lottie_model_frames = Frames
@@ -273,7 +270,6 @@ media_load = Load
 
 # — Localization page (docs/localization.md: live locale, NUMBER/DATETIME, plurals, collation) —
 nav_localization = Localization
-fmt_caption = One set of translations — ICU-correct rendering per locale: numbers, dates, plural grammar, and sort order all follow the language.
 loc_locale_section = Live locale
 loc_live_note = The locale is a signal — switching re-renders every string instantly. Layout direction is fixed at launch (launch with ar for the mirrored UI).
 loc_current_label = Current
@@ -302,7 +298,6 @@ plural_items = { $count ->
 }
 
 # Text playground (typography)
-text_caption = Semantic styles map to the platform's native text styles and accessibility text scaling.
 text_selectable_toggle = Selectable
 text_styles_header = Styles
 text_weights_header = Weights
@@ -314,7 +309,6 @@ text_fonts_header = Bundled fonts
 text_fonts_note = Font.Custom("Family", pt) — files from the app's resource/fonts/ directory, bundled by day build and resolved by family name on every platform.
 
 # Menus playground
-menus_caption = The transient native surfaces: the menu bar, per-piece context menus, and imperative dialogs.
 menus_last = Last action
 menus_lifecycle = Lifecycle
 menus_target = Right-click here (long-press on mobile) for a context menu
@@ -353,7 +347,6 @@ prefs_value_label = Stored value:
 
 # --- bundled resources (§18.3) ---
 nav_resources = Resources
-resources_caption = An image loaded by name from a bundled resource, plus random-access reads of embedded data.
 vectors_title = Vectors
 vectors_note = The sidebar's glyphs, drawn from resource/vectors/ — one SVG per icon, resolution-independent on every backend.
 vectors_tints = Tints
@@ -388,7 +381,6 @@ map_paris = Paris
 
 # — tweaks page (docs/tweaks.md) —
 nav_tweaks = Tweaks
-tweaks_intro = Packaged tweaks configure the native widget behind a built-in piece, per toolkit. On toolkits a tweak doesn't cover, it is a no-op — the pieces below simply look stock.
 tweaks_stock = Stock
 tweaks_tweaked = Tweaked
 tweaks_bezel_title = Button bezel
@@ -415,14 +407,10 @@ tweaks_label_class = Native class: { $class }
 nav_canvas = Canvas & shapes
 nav_system = Device & sensors
 nav_network_http = Network & HTTP
-network_caption = What the platform says about connectivity, then HTTP through its own stack: proxies, VPN and TLS included.
 network_status_section = Connectivity
 nav_notify_badge = Notifications & badge
 nav_speech_haptics = Speech & haptics
-speech_haptics_caption = The two parts that talk to the person: the platform's voice, and its haptic engine.
 nav_files_storage = Files & storage
-files_storage_caption = The clipboard, key-value preferences, the native file pickers, and an app-local file store.
-canvas_caption = Shapes, transforms, gestures, and composition-tier widgets — all drawn through the canvas.
 paths_title = Paths, strokes & clipping
 canvas_gauge = Canvas gauge
 gauge_value_label = Value
@@ -439,7 +427,6 @@ canvas_text_specimen = The quick brown fox jumps over the lazy dog
 canvas_text_bold = Bold
 canvas_text_italic = Italic
 canvas_text_bold_italic = Bold Italic
-system_caption = The headless device-state parts: battery, connectivity, motion sensors, and device identity.
 
 # — data strings localized for the walkthrough locales (option lists, specimen rows) —
 chocolate = chocolate
@@ -487,7 +474,6 @@ menus_dialogs_section = Dialogs
 modal_result_label = Result
 
 # Media page
-media_caption = A native media player — the platform's own view, transport driven by triggers.
 media_player_section = Video
 
 # Resources page sections
@@ -509,7 +495,6 @@ about_locale = Locale
 
 # Focus page (docs/focus.md)
 nav_focus = Focus
-focus_caption = Focus is a two-way binding: native changes write the signal, and writing the signal moves focus.
 focus_group_section = One signal, one form
 focus_group_caption = Three fields bound to one optional enum signal. Click or Tab between them and the readout follows; Return hops to the next field.
 focus_name_label = Name
@@ -553,33 +538,26 @@ scroll_to_item = Scroll to item 100
 
 # Grid page (docs/grid.md) — grid/grid_row from basics to a stress test.
 nav_grid = Grid
-grid_caption = Columns sized by content, cells that span, and flexible cells that share the leftover width
 grid_tab_basics = Basics
 grid_tab_sizing = Sizing
 grid_tab_spanning = Spanning
 grid_tab_composite = Composite
 grid_tab_stress = Stress
-grid_basics_caption = Each column takes the width of its widest cell. No fixed widths, no placeholder spacers.
 grid_col_name = Name
 grid_col_wins = Wins
 grid_col_points = Points
-grid_sizing_caption = Fixed, content-sized, and flexible columns in one grid.
 grid_sizing_fixed = Fixed 80 pt
 grid_sizing_content = Content
 grid_sizing_short = Short
 grid_sizing_longer = A longer content cell
-grid_spanning_caption = A cell can span columns; a bare child outside any row spans the whole grid.
 grid_month_title = Week planner
 grid_event_focus = Focus block
 grid_event_review = Review
-grid_composite_caption = Shapes and grid together: glyph groups in content columns beside a flexible range bar.
 grid_day_n = Day { $n }
-grid_stress_cells = { $n } rows of 8 cells, all laid out eagerly. Updating one cell re-measures only that cell.
 grid_stress_add = Add 50 rows
 grid_stress_bump = Bump the first cell
 
 nav_animation = Animation
-anim_caption = Queue scale, rotation, opacity, offset, and hue, then tap Animate! to run them all together with the chosen curve and duration.
 
 # Animation page (localized labels; the ! is part of the button voice)
 anim_scale = Scale
@@ -602,7 +580,6 @@ anim_duration_ms = { $ms } ms
 # — Benchmark page (the Day-Bench Grids benchmark; on the Apple-native backends a segmented
 #   picker also hosts its hand-written SwiftUI twin via day-piece-swiftui, docs/swiftui.md) —
 nav_benchmark = Benchmark
-bench_caption = A pseudo-random patchwork of grid cells that tiles the pane exactly. Both parameters repack every row, so the layout engine renegotiates all of it at once.
 bench_parameters = Parameters
 bench_seed = Random Seed
 bench_count = Total Count
@@ -666,7 +643,6 @@ files_initial_content =
 
 # Crash Reporting page (day-break, docs/break.md)
 nav_crash = Crash Reporting
-crash_caption = Register crash handlers, review the report on next launch, and choose whether to send it.
 crash_trigger_section = Trigger a crash
 crash_report_section = Last crash report
 crash_abort = Crash (abort)
@@ -681,7 +657,6 @@ crash_empty = No crash report yet. Trigger a crash, then relaunch to see it here
 
 # Text Areas page
 nav_textareas = Text editing
-textareas_caption = Two multi-line editors: the platform's rich-text view over a styled document, and the plain native text area beneath it.
 textareas_editor_section = Editor
 textareas_seed_section = Seed with
 textareas_attrs_section = Attributes
@@ -760,7 +735,6 @@ storage_idle = Nothing stored yet
 
 # --- Preferences window (docs/windows.md) ---
 prefs_window_title = Preferences
-prefs_window_caption = Theme and language apply to every window and persist across launches.
 
 # — Tree page (docs/tree.md) —
 nav_tree = Tree
@@ -793,7 +767,6 @@ tree_ctx_delete = Delete
 
 # — Toolbars page (docs/toolbars.md) —
 nav_toolbars = Toolbars
-toolbars_caption = The window's own toolbar, in the platform's native chrome — an NSToolbar on macOS, the AdwHeaderBar on GNOME, a QToolBar on KDE, a CommandBar on Windows. Look at this window's own chrome: the top bar on the desktop, iPad and iPhone, the bar under the page on Android; the controls below drive it.
 toolbar_unsupported = This toolkit has no window toolbar, so nothing was installed. A phone puts these commands in the content instead.
 toolbar_readout_title = What the toolbar is doing
 toolbar_controls_title = Driving it from here
@@ -830,7 +803,7 @@ toolbar_last_new = New window
 toolbar_last_extra = Build info copied
 # The page's own controls.
 toolbar_extra_label = Show the Copy Info item
-toolbar_enabled_label = Screenshot enabled
+toolbar_enabled_label = Show Source enabled
 toolbar_clear_search = Clear search
 toolbar_seed_search = Fill search
 toolbar_seed_text = toolbars
@@ -847,7 +820,6 @@ toolbar_kind_space = Spacers
 toolbar_kind_space_note = A flexible space splits leading items from trailing ones.
 # --- day-part-local-notify (docs/notify.md) ---
 nav_notify = Notifications
-notify_caption = Post a local notification through the platform's own notification system. Scheduled ones are held by the OS where it can — see the capability line.
 notify_caps_post = Posting supported on this platform
 notify_caps_unsupported = Local notifications are unavailable in this build (on macOS they need a signed app bundle — use day pack)
 notify_caps_schedule_os = Scheduled notifications survive the app closing
@@ -889,7 +861,6 @@ haptics_song_cascade = Cascade
 
 # — scripting (dayscript recorder) —
 nav_scripting = Scripting
-scripting_caption = Record your taps and navigation into a replayable dayscript. Hit Record, move around and act, then come back and Stop. Edit the YAML to tweak it, Play to replay it, and Copy or Export to keep it.
 scripting_record = Record
 scripting_stop = Stop
 scripting_copy = Copy
@@ -957,7 +928,7 @@ menu_appearance = Appearance
 menu_script = Script
 cmd_star = Star
 cmd_unstar = Unstar
-cmd_show_captions = Show Captions
+cmd_toggle_pseudo_locale = Toggle Pseudo-Locale
 
 # Speech (day-part-speech): the daybridge reference part — one API, a different language per
 # platform (docs/bridge.md).
@@ -978,7 +949,6 @@ vectors_live_tint = Live tint
 vectors_cycle_tint = Cycle
 
 # Layout page (docs/size-classes.md "Row fit policies")
-layout_caption = Rows, columns and layers; how one row of buttons behaves under each fit policy; cards and an ambient accent; a plain scroll with targets; and the size classes the window is in.
 layout_note = Pick a policy, then add components until the row runs out of room. Clip lets the tail fall offscreen (debug builds log it), Wrap breaks onto new lines at each button's own width, Even columns aligns those lines into a grid, Column stacks below compact width, Scroll keeps one swipeable line. On a desktop, drag the window narrower to watch Column engage.
 layout_row_section = Row fit
 layout_fit_label = Fit policy
@@ -1024,7 +994,6 @@ field_color = Color
 
 # The Cursors page (day/docs/cursor.md): the `.cursor()` decorator, shape by shape.
 nav_cursors = Cursors
-cursors_caption = The pointer's shape over a piece: one vocabulary, drawn by each toolkit from its own set, and a closure form that follows your state.
 cursors_support_title = On this toolkit
 cursors_support_label = Support here
 cursors_native = Native

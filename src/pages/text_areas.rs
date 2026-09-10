@@ -71,17 +71,12 @@ enum Doc {
 }
 
 pub(crate) fn text_areas_page() -> AnyPiece {
-    page(
-        crate::res::str::nav_textareas(),
-        "textareas-title",
-        Some(crate::res::str::textareas_caption()),
-        {
-            // The STYLED editor leads: it is what the page is now about, and the plain
-            // `text_area` below it is the simpler control it grew out of.
-            let (editor, seed, attrs) = plain_sections();
-            form((styled_sections(), editor, seed, attrs)).any()
-        },
-    )
+    page(crate::res::str::nav_textareas(), "textareas-title", {
+        // The STYLED editor leads: it is what the page is now about, and the plain
+        // `text_area` below it is the simpler control it grew out of.
+        let (editor, seed, attrs) = plain_sections();
+        form((styled_sections(), editor, seed, attrs)).any()
+    })
     .any()
 }
 

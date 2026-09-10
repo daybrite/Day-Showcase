@@ -16,7 +16,6 @@ pub(crate) fn dates_page() -> AnyPiece {
     page(
         crate::res::str::nav_dates(),
         "dates-title",
-        Some(crate::res::str::dates_caption()),
         column((
             // The embedded calendar, full-width and unlabeled: the native month grid needs the
             // whole content width. Inside a labeled form row the control column was too narrow and

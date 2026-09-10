@@ -188,7 +188,6 @@ pub(crate) fn animation_page() -> AnyPiece {
     page(
         crate::res::str::nav_animation(),
         "animation-title",
-        Some(crate::res::str::anim_caption()),
         body.any(),
     )
     .any()

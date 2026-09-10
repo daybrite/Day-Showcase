@@ -12,7 +12,6 @@ pub(crate) fn localization_page() -> AnyPiece {
     page(
         crate::res::str::nav_localization(),
         "localization-title",
-        Some(crate::res::str::fmt_caption()),
         form((
             locale_section(),
             numbers_section(),

@@ -3,7 +3,7 @@ description: Navigate to the Text playground and screenshot the typography speci
 flow:
   - wait_for: { id: nav }
   - navigate: { route: text }
-  - assert_visible: { id: text-title }
+  - assert_route: { route: text }
   - assert_visible: { id: text-emphasis }
   - assert_visible: { id: text-font-pacifico }
   - assert_visible: { id: text-font-bungee }

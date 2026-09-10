@@ -68,7 +68,6 @@ pub(crate) fn grid_page() -> AnyPiece {
         let menu = crate::widgets::page(
             crate::res::str::nav_grid(),
             "grid-title",
-            Some(crate::res::str::grid_caption()),
             column((
                 button(crate::res::str::grid_tab_basics())
                     .action(push(GridDemo::Basics))
@@ -105,18 +104,14 @@ pub(crate) fn grid_page() -> AnyPiece {
     .any()
 }
 
-/// Shared sub-page scaffold: title + caption over scrollable padded content (the tabs.rs pane
-/// shape, plus scrolling so the stress page works everywhere).
-fn pane(title: LocalizedText, caption: LocalizedText, body: impl Piece) -> impl Piece {
+/// Shared sub-page scaffold: a title over scrollable padded content (the tabs.rs pane shape,
+/// plus scrolling so the stress page works everywhere).
+fn pane(title: LocalizedText, body: impl Piece) -> impl Piece {
     scroll(
-        column((
-            label(title).font(Font::Title),
-            label(caption).font(Font::Footnote),
-            body,
-        ))
-        .spacing(12.0)
-        .align(HAlign::Leading)
-        .padding(16.0),
+        column((label(title).font(Font::Title), body))
+            .spacing(12.0)
+            .align(HAlign::Leading)
+            .padding(16.0),
     )
 }
 
@@ -136,7 +131,6 @@ fn basics_demo() -> impl Piece {
     }
     pane(
         crate::res::str::grid_tab_basics(),
-        crate::res::str::grid_basics_caption(),
         grid((
             grid_row((
                 label(crate::res::str::grid_col_name()).font(Font::Headline),
@@ -168,7 +162,6 @@ fn sizing_demo() -> impl Piece {
     }
     pane(
         crate::res::str::grid_tab_sizing(),
-        crate::res::str::grid_sizing_caption(),
         grid((
             grid_row((
                 label(crate::res::str::grid_sizing_fixed())
@@ -228,7 +221,6 @@ fn spanning_demo() -> impl Piece {
     }
     pane(
         crate::res::str::grid_tab_spanning(),
-        crate::res::str::grid_spanning_caption(),
         grid((
             label(crate::res::str::grid_month_title()).font(Font::Headline),
             day_cells(1),
@@ -367,7 +359,6 @@ fn composite_demo() -> impl Piece {
         .collect();
     pane(
         crate::res::str::grid_tab_composite(),
-        crate::res::str::grid_composite_caption(),
         grid(PieceVec(rows))
             .column_spacing(12.0)
             .row_spacing(8.0)
@@ -421,7 +412,6 @@ fn stress_demo() -> impl Piece {
     .id("grid-stress");
     pane(
         crate::res::str::grid_tab_stress(),
-        crate::res::str::grid_stress_cells(rows),
         column((
             row((
                 button(crate::res::str::grid_stress_add())

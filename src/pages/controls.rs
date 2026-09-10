@@ -24,7 +24,6 @@ pub(crate) fn controls_page() -> AnyPiece {
     page(
         crate::res::str::nav_controls(),
         "controls-title",
-        Some(crate::res::str::controls_caption()),
         form((
             buttons_section(st),
             switches_section(st),

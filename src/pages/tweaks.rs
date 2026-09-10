@@ -152,11 +152,7 @@ pub(crate) fn tweaks_page() -> AnyPiece {
 
     scroll(
         column((
-            heading(
-                crate::res::str::nav_tweaks(),
-                "tweaks-title",
-                Some(crate::res::str::tweaks_intro()),
-            ),
+            heading(crate::res::str::nav_tweaks(), "tweaks-title"),
             bezel_card,
             tooltip_card,
             ticks_card,

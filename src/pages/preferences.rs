@@ -14,9 +14,6 @@ pub(crate) fn preferences_window() -> impl Piece {
             label(res::str::prefs_window_title())
                 .font(Font::Title2)
                 .id("prefs-title"),
-            label(res::str::prefs_window_caption())
-                .font(Font::Footnote)
-                .color(Color::rgba(0.55, 0.57, 0.62, 1.0)),
             form((day_piece_settings::settings_sections(
                 "showcase.theme",
                 "showcase.locale",

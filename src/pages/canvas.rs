@@ -11,7 +11,6 @@ pub(crate) fn canvas_page() -> AnyPiece {
     page_wide(
         crate::res::str::nav_canvas(),
         "canvas-title",
-        Some(crate::res::str::canvas_caption()),
         form((
             shapes_section(),
             text_section(),

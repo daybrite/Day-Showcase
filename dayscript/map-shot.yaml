@@ -4,7 +4,6 @@ flow:
   - wait_for: { id: nav }
   - navigate: { route: map }
   - assert_route: { route: map }
-  - assert_visible: { id: map-title }
   - assert_visible: { id: map }
   - tap: { id: map-paris }
   - assert_text: { id: map-coords, text: "48.8566, 2.3522" }

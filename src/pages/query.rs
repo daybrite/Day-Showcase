@@ -239,7 +239,7 @@ pub(crate) fn query_page() -> AnyPiece {
     let track_list = track_list.id("query-list");
 
     column((
-        heading(crate::res::str::nav_query(), "query-title", None),
+        heading(crate::res::str::nav_query(), "query-title"),
         search_field(term).id("query-search"),
         // Stacked, not a three-up row: phone widths clip it.
         labeled(
