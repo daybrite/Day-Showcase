@@ -1,6 +1,6 @@
-Day Showcase is the demo app for Day, a framework for writing apps in Rust that draw with each platform's own toolkit. This build draws with UIKit. The same Rust code builds with Material on Android, AppKit on macOS, GTK and Qt on Linux, XAML on Windows, ArkUI on HarmonyOS, and the DOM in a browser.
+Day Showcase is the demo app for Day (daybrite.dev), a framework for creating mobile and desktop apps in Rust.
 
-The app has 35 pages in eight groups, and each page is a working demo of one part of the framework. Every control on a page is bound to a value, and the readout under it changes as you use it.
+Each screen in the app is a demonstration of one part of the framework:
 
 Controls: buttons, switches, sliders, steppers, pickers, text fields, a multi-line editor, date and time pickers, keyboard focus, and pointer cursors.
 Layout: rows, columns, and layers under each fit policy, and a grid with spanning cells.
@@ -12,6 +12,6 @@ App & tooling: localization, scripting, tweaks, a benchmark against SwiftUI, and
 
 The toolbar on every page has a code button that opens that page's Rust source on GitHub, so you can read the code beside the result. The star button pins a page to the top of the list, and the theme button switches the appearance.
 
-The app is translated into English, French, Arabic, and Simplified Chinese. Switching the language on the Localization page rebuilds every page in place, and Arabic mirrors the layout. Every page works offline on first launch.
+The app is translated into English, French, Arabic, and Simplified Chinese. Switching the language on the Localization page updates every page in place, and Arabic mirrors the layout.
 
-Day and this app are open source. The framework is at github.com/daybrite/day and the app's source is at github.com/daybrite/Day-Showcase.
+Day and this app are open source. The framework is at github.com/daybrite/day and the app's source is at github.com/daybrite/Day-Showcase. Each page in the app contains a link to the underlying source code.

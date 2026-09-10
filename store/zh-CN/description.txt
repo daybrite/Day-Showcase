@@ -1,6 +1,6 @@
-Day Showcase 是 Day 的演示应用。Day 是一个用 Rust 编写应用的框架，界面由各平台自己的工具包绘制。这个版本用 UIKit 绘制。同一份 Rust 代码在 Android 上用 Material 构建，在 macOS 上用 AppKit，在 Linux 上用 GTK 和 Qt，在 Windows 上用 XAML，在 HarmonyOS 上用 ArkUI，在浏览器里用 DOM。
+Day Showcase 是 Day（daybrite.dev）的演示应用，Day 是一个用 Rust 创建移动和桌面应用的框架。
 
-应用共有 35 个页面，分为八组，每个页面都是框架某一部分的可操作演示。页面上的每个控件都绑定到一个值，下方的读数会随着你的操作而变化。
+应用中的每个页面都是框架某一部分的演示：
 
 控件：按钮、开关、滑块、步进器、选择器、文本框、多行编辑器、日期和时间选择器、键盘焦点，以及指针光标。
 布局：各种适配策略下的行、列和层，以及带跨格单元的网格。
@@ -12,6 +12,6 @@ Day Showcase 是 Day 的演示应用。Day 是一个用 Rust 编写应用的框�
 
 每个页面的工具栏都有一个代码按钮，可在 GitHub 上打开该页面的 Rust 源码，让你对照结果阅读代码。星标按钮把页面固定到列表顶部，主题按钮切换外观。
 
-应用已翻译成英语、法语、阿拉伯语和简体中文。在本地化页面切换语言会就地重建每个页面，阿拉伯语则镜像布局。每个页面首次启动即可离线使用。
+应用已翻译成英语、法语、阿拉伯语和简体中文。在本地化页面切换语言会就地更新每个页面，阿拉伯语则镜像布局。
 
-Day 和这个应用都是开源的。框架位于 github.com/daybrite/day，应用源码位于 github.com/daybrite/Day-Showcase。
+Day 和这个应用都是开源的。框架位于 github.com/daybrite/day，应用源码位于 github.com/daybrite/Day-Showcase。应用中的每个页面都包含指向其源码的链接。

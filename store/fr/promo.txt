@@ -1,1 +1,0 @@
-Chaque page de Day Showcase est une démo en direct d'une partie du framework Day, dessinée avec UIKit sur cet appareil ; son code Rust est à un bouton de la barre.
