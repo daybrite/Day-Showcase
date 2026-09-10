@@ -55,6 +55,12 @@ label = "nav_localization"
 apple-app-id = "6802801331"
 google-play-id = "dev.daybrite.showcase"
 
+# The web build on a home screen (docs/web.md "Home screen and offline"). The name, the
+# description, and the icons come from store/ and the icon master; the splash matches the
+# icon's own background so the launch reads as one motion.
+[web]
+background-color = "#123246"
+
 # The desktop window (docs/cli.md). Kept in lockstep with main.rs's WindowOptions — the CLI
 # sizes headless X servers (xvfb) from THIS, so a mismatch would crop or letterbox the
 # root-capture screenshot fallback on linux-gtk.
