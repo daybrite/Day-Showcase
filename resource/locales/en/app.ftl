@@ -1013,3 +1013,9 @@ cursors_nested_outer = Crosshair out here
 cursors_nested_inner = A hand in here
 cursors_native_title = This toolkit's own
 cursors_native_none = This toolkit names no shapes beyond the shared set.
+
+# Permission reasons: what iOS and HarmonyOS show when the app asks (Day.toml [permissions]).
+permission_camera = Show how Day asks for a permission — the showcase never opens the camera.
+permission_location_when_in_use = Show your coordinates live on the Device & sensors page.
+permission_motion = Show live accelerometer, gyroscope and magnetometer traces on the Device & sensors page.
+permission_NSBluetoothAlwaysUsageDescription = Show how Day asks for Bluetooth — the showcase never connects to a device.

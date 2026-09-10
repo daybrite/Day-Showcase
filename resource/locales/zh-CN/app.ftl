@@ -998,3 +998,9 @@ cursors_nested_outer = 这里是十字线
 cursors_nested_inner = 这里是手形
 cursors_native_title = 本工具包独有
 cursors_native_none = 本工具包没有共享集之外的形状。
+
+# 权限说明：应用请求权限时 iOS 和 HarmonyOS 显示的文字。
+permission_camera = 演示 Day 如何请求权限——展示应用从不打开相机。
+permission_location_when_in_use = 在“设备与传感器”页面实时显示您的坐标。
+permission_motion = 在“设备与传感器”页面实时显示加速度计、陀螺仪和磁力计曲线。
+permission_NSBluetoothAlwaysUsageDescription = 演示 Day 如何请求蓝牙权限——展示应用从不连接任何设备。

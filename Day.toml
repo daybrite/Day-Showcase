@@ -27,17 +27,21 @@ targets = [
 # Info.plist usage descriptions, and HarmonyOS requestPermissions — the declaration every mobile OS
 # requires before an app may even ask. The reason text is what the OS shows the user in its prompt.
 # The showcase's Device & sensors page reads their status; it never prompts during the walkthrough.
+# The reasons are translated, so they live in the catalogs as `permission_<name>` messages
+# (resource/locales/<tag>/app.ftl, docs/permissions.md "Localized reasons"); `true` here is the
+# declaration alone.
 [permissions]
-camera = "Show how Day asks for a permission — the showcase never opens the camera."
-location-when-in-use = "Show your coordinates live on the Device & sensors page."
+camera = true
+location-when-in-use = true
 notifications = true
-motion = "Show live accelerometer, gyroscope and magnetometer traces on the Device & sensors page."
+motion = true
 
 # Bluetooth is not in Day's portable permission set (docs/permissions.md), so it goes through the
 # raw escape hatch: the key is written into the iOS Info.plist verbatim. iOS 13+ reads
 # NSBluetoothAlwaysUsageDescription; the older NSBluetoothPeripheralUsageDescription is deprecated.
+# Its reason is the catalog's `permission_NSBluetoothAlwaysUsageDescription` message.
 [permissions.raw]
-ios = { NSBluetoothAlwaysUsageDescription = "Show how Day asks for Bluetooth — the showcase never connects to a device." }
+ios = { NSBluetoothAlwaysUsageDescription = true }
 
 # Launcher shortcuts (docs/deep-links.md): long-press the app icon to jump straight to a page.
 # Labels are Fluent ids resolved per locale at build; routes are saved deep links.

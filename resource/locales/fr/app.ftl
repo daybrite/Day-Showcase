@@ -1007,3 +1007,9 @@ cursors_nested_outer = Un réticule ici
 cursors_nested_inner = Une main ici
 cursors_native_title = Propres à cette boîte à outils
 cursors_native_none = Cette boîte à outils ne nomme aucune forme au-delà du jeu commun.
+
+# Motifs des autorisations : le texte affiché par iOS et HarmonyOS quand l’app demande.
+permission_camera = Montrer comment Day demande une autorisation — la vitrine n'ouvre jamais l'appareil photo.
+permission_location_when_in_use = Afficher vos coordonnées en direct sur la page Appareil et capteurs.
+permission_motion = Afficher en direct les courbes de l'accéléromètre, du gyroscope et du magnétomètre sur la page Appareil et capteurs.
+permission_NSBluetoothAlwaysUsageDescription = Montrer comment Day demande le Bluetooth — la vitrine ne se connecte jamais à un appareil.

@@ -1025,3 +1025,9 @@ cursors_nested_outer = علامة تصويب هنا
 cursors_nested_inner = يد هنا
 cursors_native_title = الخاصّة بمجموعة الأدوات هذه
 cursors_native_none = لا تسمّي مجموعة الأدوات هذه أشكالًا خارج الطقم المشترك.
+
+# أسباب الأذونات: النص الذي يعرضه iOS وHarmonyOS عندما يطلب التطبيق الإذن.
+permission_camera = عرض كيفية طلب Day للإذن — لا يفتح العرض التوضيحي الكاميرا أبدًا.
+permission_location_when_in_use = عرض إحداثياتك مباشرةً في صفحة الجهاز والمستشعرات.
+permission_motion = عرض قراءات مقياس التسارع والجيروسكوب والمغناطيسية مباشرةً في صفحة الجهاز والمستشعرات.
+permission_NSBluetoothAlwaysUsageDescription = عرض كيفية طلب Day لبلوتوث — لا يتصل العرض التوضيحي بأي جهاز أبدًا.
