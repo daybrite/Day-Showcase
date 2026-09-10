@@ -49,6 +49,12 @@ label = "nav_menus"
 route = "localization"
 label = "nav_localization"
 
+# Where the app is listed (docs/store.md "Listed apps"): a store id here means the listing is
+# live, so the project site shows that store's badge and links to it.
+[store]
+apple-app-id = "6802801331"
+google-play-id = "dev.daybrite.showcase"
+
 # The desktop window (docs/cli.md). Kept in lockstep with main.rs's WindowOptions — the CLI
 # sizes headless X servers (xvfb) from THIS, so a mismatch would crop or letterbox the
 # root-capture screenshot fallback on linux-gtk.

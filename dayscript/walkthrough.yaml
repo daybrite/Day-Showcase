@@ -416,7 +416,13 @@ flow:
       source: src/pages/stack.rs
   - tap: { id: stack-deeper }
   - assert_route: { route: stack/1/2 }
-  - nav_back:
+  # The PLATFORM's back — the bar's own button on iOS, the system back on Android — rather than
+  # Day's rail: it runs the backend's user-back path (shouldPop, the pop, the report to Day),
+  # which a bare `nav_back` never reaches and which is where both 2026-09 back bugs lived.
+  # Mobile only: a desktop has no native back to press for a nested stack.
+  - nav_back: { native: true, only_on: [uikit, mdc] }
+  - assert_route: { route: stack/1, only_on: [uikit, mdc] }
+  - nav_back: { only_on: [appkit, gtk, qt, xaml, arkui, dom] }
   - assert_route: { route: stack/1 }
   - nav_back:
   - assert_route: { route: stack }
@@ -442,6 +448,16 @@ flow:
   - assert_presented: {}
   - respond: { button: 1 }
   - assert_route: { route: stack }
+  # The same guard through the PLATFORM's back: on iOS the bar's shouldPop vetoes the pop and
+  # hands it to Day, on Android the dispatcher's guard callback does — both must raise the
+  # confirm, and "discard" must then pop through Day's rail.
+  - tap: { id: stack-push, only_on: [uikit, mdc] }
+  - assert_route: { route: stack/1, only_on: [uikit, mdc] }
+  - toggle: { id: stack-dirty, value: true, only_on: [uikit, mdc] }
+  - nav_back: { native: true, only_on: [uikit, mdc] }
+  - assert_presented: { only_on: [uikit, mdc] }
+  - respond: { button: 1, only_on: [uikit, mdc] }
+  - assert_route: { route: stack, only_on: [uikit, mdc] }
   # Fullscreen cover (docs/cover.md): native modal on iOS/Android, topmost child elsewhere —
   # every backend presents it now, so these steps run everywhere.
   - tap: { id: cover-present }
