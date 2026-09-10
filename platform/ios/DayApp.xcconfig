@@ -27,7 +27,7 @@ CURRENT_PROJECT_VERSION = 1
 // Dev builds run unsigned in the simulator, and `day pack` turns signing on from Day.toml
 // [signing.ios] on the command line. To sign builds driven from the Xcode IDE (running on
 // a device), remove the CODE_SIGNING_ALLOWED line and set your team:
-CODE_SIGNING_ALLOWED = NO
+//CODE_SIGNING_ALLOWED = NO
 //DEVELOPMENT_TEAM = ABCDE12345
 //CODE_SIGN_STYLE = Automatic
 //CODE_SIGN_IDENTITY = Apple Development
