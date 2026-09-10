@@ -16,6 +16,7 @@ pub(crate) fn canvas_page() -> AnyPiece {
             shapes_section(),
             text_section(),
             anchors_section(),
+            interaction_section(),
             paths_section(),
             gradients_section(),
             gauge_section(),
@@ -293,6 +294,103 @@ fn anchors_section() -> impl Piece {
     .title(crate::res::str::canvas_anchors_title())
 }
 
+/// Tap, drag and hover on one canvas (docs/canvas.md "Interaction").
+///
+/// Three gestures, three marks, and the point of putting them together is that they are NOT
+/// interchangeable. Hover follows a pointer and is the only one a touch-only phone never reports;
+/// a tap is the one every device has; a drag is what a press that travels becomes — and on some
+/// backends what a press that barely travels becomes too. Anything reachable by hover has to be
+/// reachable by a tap, which is why a chart's selection wires all three to the same signal.
+///
+/// The readout names what each gesture last reported, so a run on any backend says plainly which
+/// of the three that backend delivers.
+fn interaction_section() -> impl Piece {
+    const H: f64 = 200.0;
+    let hover = Signal::new(None::<Point>);
+    let tap = Signal::new(None::<Point>);
+    let trail = Signal::new(Vec::<Point>::new());
+    let dragging = Signal::new(false);
+    section((
+        canvas(move |d, size| {
+            let muted = Color::rgba(0.5, 0.5, 0.55, 0.7);
+            // A frame, so the canvas's own bounds are visible — a hover that reports nothing and
+            // a canvas that is not there look the same otherwise.
+            d.stroke(
+                Shape::Rect(Rect::new(0.5, 0.5, size.width - 1.0, size.height - 1.0)),
+                muted,
+                1.0,
+            );
+            // HOVER: a crosshair, drawn only while a pointer is inside.
+            if let Some(p) = hover.get() {
+                d.stroke(
+                    Shape::Line(Point::new(0.0, p.y), Point::new(size.width, p.y)),
+                    muted,
+                    1.0,
+                );
+                d.stroke(
+                    Shape::Line(Point::new(p.x, 0.0), Point::new(p.x, size.height)),
+                    muted,
+                    1.0,
+                );
+            }
+            // DRAG: the path travelled, as one stamped run of dots plus a line — the batched op
+            // (docs/canvas.md "Stamping"), because a long drag is a lot of marks.
+            let pts = trail.get();
+            if pts.len() > 1 {
+                d.stroke(Shape::Polygon(pts.clone()), TEAL.with_alpha(0.45), 1.5);
+                d.stamp(Shape::Ellipse(Rect::new(-2.0, -2.0, 4.0, 4.0)), pts, TEAL);
+            }
+            // TAP: a ring where the last one landed.
+            if let Some(p) = tap.get() {
+                d.stroke(circle_at(p, 9.0), CORAL, 2.0);
+                d.fill(circle_at(p, 2.5), CORAL);
+            }
+        })
+        .height(H)
+        .grow_w()
+        .on_hover(move |at| hover.set(at))
+        .on_tap_at(move |p| tap.set(Some(p)))
+        .on_drag(move |drag| {
+            match drag.phase {
+                DragPhase::Began => {
+                    dragging.set(true);
+                    trail.set(vec![drag.location]);
+                }
+                _ => trail.update(|t| t.push(drag.location)),
+            }
+            if drag.phase == DragPhase::Ended {
+                dragging.set(false);
+            }
+        })
+        .id("canvas-interaction"),
+        labeled(
+            crate::res::str::canvas_interaction_label(),
+            label(move || {
+                let fmt = |p: Option<Point>| match p {
+                    Some(p) => format!("{:.0}, {:.0}", p.x, p.y),
+                    None => crate::res::str::canvas_interaction_none().format(),
+                };
+                // A generated `res::str` takes its arguments ALPHABETICALLY, not in the order the
+                // message mentions them — named locals so the call reads as a check.
+                let (hover_s, tap_s, trail_n) = (
+                    fmt(hover.get()),
+                    fmt(tap.get()),
+                    trail.with(|t| t.len() as i64),
+                );
+                crate::res::str::canvas_interaction_readout(hover_s, tap_s, trail_n).format()
+            })
+            .font(Font::Callout)
+            .id("canvas-interaction-readout"),
+        ),
+    ))
+    .title(crate::res::str::canvas_interaction_title())
+}
+
+/// A circle centred on a point — the ring and dot the tap mark is made of.
+fn circle_at(at: Point, r: f64) -> Shape {
+    Shape::Ellipse(Rect::new(at.x - r, at.y - r, r * 2.0, r * 2.0))
+}
+
 /// Paths, stroke styles and clipping (docs/canvas.md): the primitives beyond rectangles and
 /// polygons, in three canvases so the whole vocabulary fits one screen.
 ///
@@ -303,6 +401,48 @@ fn anchors_section() -> impl Piece {
 /// them.
 fn paths_section() -> impl Piece {
     section((row((
+        // Arcs as SEGMENTS (docs/canvas.md "Paths"): three figures that are each ONE closed
+        // contour and could not be, without `arc_to`.
+        //
+        // A donut wedge is two arcs — out along the far edge, back along the near one — and the
+        // hole between them exists because the same contour comes back. A gauge is a single arc
+        // stroked with round caps. A leaf is two arcs bulging opposite ways, which is what a
+        // shape built out of arcs looks like when neither of them is a circle's worth.
+        canvas(|d, size| {
+            in_design_box(d, size, |d| {
+                let wedge = Point::new(38.0, 40.0);
+                d.fill(
+                    PathBuilder::new()
+                        .arc_to(wedge, 28.0, 200.0, 140.0)
+                        .arc_to(wedge, 15.0, 340.0, -140.0)
+                        .close()
+                        .build(),
+                    TEAL,
+                );
+                // A gauge: one arc, no fill, round caps — the track and the value on it.
+                let gauge = Point::new(105.0, 46.0);
+                for (sweep, color, w) in [(180.0, SLATE, 7.0), (118.0, AMBER, 7.0)] {
+                    d.stroke_styled(
+                        PathBuilder::new().arc_to(gauge, 30.0, 180.0, sweep).build(),
+                        color,
+                        StrokeStyle::round(w),
+                    );
+                }
+                // A leaf: two arcs bulging opposite ways, closed into one contour.
+                let (a, b) = (Point::new(24.0, 96.0), Point::new(56.0, 96.0));
+                d.fill(
+                    PathBuilder::new()
+                        .arc_to(a, 26.0, -50.0, 100.0)
+                        .arc_to(b, 26.0, 130.0, 100.0)
+                        .close()
+                        .build(),
+                    VIOLET,
+                );
+            });
+        })
+        .id("canvas-arcs")
+        .aspect_ratio(DESIGN_RATIO)
+        .grow_w(),
         // Arbitrary paths: the same two contours under both fill rules (even-odd cuts the
         // hole, non-zero does not), and a Catmull-Rom spline through scattered points.
         canvas(|d, size| {

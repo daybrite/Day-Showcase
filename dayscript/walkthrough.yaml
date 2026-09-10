@@ -980,6 +980,29 @@ flow:
   # canvas mounted, and the screenshot below is what catches a backend hanging the line box off
   # the wrong edge. Twelve cells, three across by four down.
   - wait_for: { id: canvas-anchors }
+  # Three figures built from `PathBuilder::arc_to` (docs/canvas.md "Paths"): a donut wedge, a
+  # round-capped gauge, and a leaf from two arcs curving opposite ways. The point of them is that
+  # arcs COMPOSE with lines in one contour, so a fill and a stroke both close correctly — which is
+  # a face, not a value, and rides the screenshot below.
+  - wait_for: { id: canvas-arcs }
+  # `scroll_to` reveals minimally, so the arcs land on the viewport's bottom edge rather than
+  # centered. Aiming at a later canvas to push them up does not work here — on macos-appkit the
+  # frame came back identical — so the arcs are named directly and the capture is read from
+  # the bottom of it.
+  - scroll_to: { id: canvas-arcs }
+  - wait_idle:
+  - screenshot:
+      name: canvas-arcs
+  # Tap, drag and hover on one canvas (docs/canvas.md "Interaction"). Hover cannot be driven from
+  # a script — it needs a real pointer, and half the targets here have none — so what is asserted
+  # is the pair that CAN be: a tap leaves its ring, and a drag leaves a trail of the samples it
+  # reported. The readout names all three, so the screenshot says which the backend delivered.
+  - wait_for: { id: canvas-interaction }
+  - tap: { id: canvas-interaction, at: [120, 60] }
+  - wait_idle:
+  - drag: { id: canvas-interaction, from: [200, 40], to: [420, 150], steps: 10 }
+  - wait_idle:
+  - assert_visible: { id: canvas-interaction-readout }
   # Accessibility (§13): diff the native AX tree against day's expectations. The gauge is a
   # canvas, so day applies role=Meter + a spoken label/value; the audit reads them back natively
   # (apple targets; gtk/qt report unsupported and skip). A full-tree audit follows.
