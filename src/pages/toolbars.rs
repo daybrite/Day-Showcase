@@ -188,8 +188,8 @@ pub(crate) fn page_commands(sec: crate::Section) -> Vec<ToolbarEntry> {
         toolbar_button("tb-source", crate::res::str::show_source())
             .icon(Symbol::Code)
             .tooltip(crate::res::str::show_source())
-        .enabled_when(move || demo.source_enabled.get())
-        .action(move || crate::open_source_of(sec)),
+            .enabled_when(move || demo.source_enabled.get())
+            .action(move || crate::open_source_of(sec)),
         // The Star command (commands.rs), not a demo toggle. Its label comes from the one
         // `Command`, so this button, the App menu's item and the row's context menu can never
         // disagree.
