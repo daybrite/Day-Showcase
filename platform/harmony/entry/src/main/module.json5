@@ -23,6 +23,9 @@
       { "name": "ohos.permission.LOCATION", "reason": "$string:day_perm_reason_location_when_in_use", "usedScene": { "abilities": ["EntryAbility"], "when": "inuse" } },
       // day:permissions-end
     ],
+    // Both abilities and both pages ($profile:main_pages) are the framework's: `day build`
+    // stages them into ets/day/ from the day-arkui crate (docs/harmonyos.md), so the paths
+    // below are fixed and never edited per app.
     "abilities": [
       {
         "name": "EntryAbility",
@@ -30,8 +33,8 @@
         "metadata": [
           { "name": "ohos.ability.shortcuts", "resource": "$profile:shortcuts_config" },
         ],
-        "srcEntry": "./ets/entryability/EntryAbility.ets",
-        "description": "Day ArkUI demo",
+        "srcEntry": "./ets/day/EntryAbility.ets",
+        "description": "The app's main window",
         "icon": "$media:layered_image",
         "label": "$string:EntryAbility_label",
         "startWindowIcon": "$media:startIcon",
@@ -52,7 +55,7 @@
       {
         // Secondary day windows (docs/windows.md): one multiton instance per open window.
         "name": "DayWindowAbility",
-        "srcEntry": "./ets/entryability/DayWindowAbility.ets",
+        "srcEntry": "./ets/day/DayWindowAbility.ets",
         "description": "Day secondary window",
         "icon": "$media:layered_image",
         "label": "$string:EntryAbility_label",

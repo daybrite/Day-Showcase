@@ -206,7 +206,7 @@ fn page_inner<P1: Piece>(
 /// readout's text has to resolve to the piece that has text, and the reservation wrapper has none.
 pub(crate) fn numeric_readout(
     text: impl Fn() -> String + 'static,
-    widest: &'static str,
+    widest: impl Into<String>,
     id: &'static str,
 ) -> impl Piece {
     // Both halves of the problem: `tabular` stops the digits shifting inside the box (`1` is

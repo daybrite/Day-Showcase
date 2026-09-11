@@ -184,11 +184,10 @@ fn sensor_section(
     // The widest reading this line can show, in the run's locale: three signed values of up to
     // three integer digits (a magnetometer reads past ±100 µT), so the box is sized once.
     let widest = crate::res::str::sensor_reading(unit, "-000.00", "-000.00", "-000.00").format();
+    // Through the shared helper, which puts the id on the LABEL: `reserving` returns a wrapper
+    // with no native handle, and an id on that wrapper reaches no element on web-dom.
     section((
-        label(move || line(reading.get(), kind, unit))
-            .tabular()
-            .reserving(widest)
-            .id(id),
+        crate::widgets::numeric_readout(move || line(reading.get(), kind, unit), widest, id),
         when(
             move || available,
             move || strip_chart(series).id(format!("{id}-chart")),
