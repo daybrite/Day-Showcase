@@ -91,6 +91,8 @@ day-tweak-tree-style = { git = "https://github.com/daybrite/day.git" }
 day-piece-webview = { git = "https://github.com/daybrite/day.git" }
 day-piece-media = { git = "https://github.com/daybrite/day.git" }
 day-part-haptics = { git = "https://github.com/daybrite/day.git" }
+# Sound effects (docs/sound.md): the Speech, sound & haptics page plays bundled clips.
+day-part-sound = { git = "https://github.com/daybrite/day.git" }
 # Local notifications (docs/notify.md): the Platform Services page posts and schedules them.
 day-part-local-notify = { git = "https://github.com/daybrite/day.git" }
 # day-part-prefs is no longer a direct dependency: it arrives through the day facade as

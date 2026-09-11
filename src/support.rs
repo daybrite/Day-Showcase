@@ -30,6 +30,11 @@ pub(crate) fn haptics() -> Support {
     from_bool(day_part_haptics::is_supported())
 }
 
+/// Sound effects: likewise.
+pub(crate) fn sound() -> Support {
+    from_bool(day_part_sound::is_supported())
+}
+
 /// Local notifications: likewise.
 pub(crate) fn notifications() -> Support {
     from_bool(day_part_local_notify::is_supported())

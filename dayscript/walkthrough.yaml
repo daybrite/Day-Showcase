@@ -1372,10 +1372,10 @@ flow:
       title: { en: "Notifications & badge", fr: "Notifications et badge", ar: "الإشعارات والشارة", zh-CN: "通知与角标" }
       source: src/pages/services.rs
 
-  # Speech & haptics (docs/bridge.md, docs/haptics.md): the support line is the speech part's own
-  # answer for this target; the voice itself is the acceptance test (dayscript/speech.yaml speaks,
-  # opt-in — a CI runner has nobody to hear it). The haptic buttons run everywhere; the readout
-  # is what proves each call went through.
+  # Speech, sound & haptics (docs/bridge.md, docs/sound.md, docs/haptics.md): the support line is
+  # the speech part's own answer for this target; the voice itself is the acceptance test
+  # (dayscript/speech.yaml speaks, opt-in — a CI runner has nobody to hear it). The sound and
+  # haptic buttons run everywhere; the readouts are what prove each call went through.
   - navigate: { route: speech }
   - assert_route: { route: speech }
   - wait_for: { id: speech-support }
@@ -1384,8 +1384,16 @@ flow:
   - assert_visible: { id: haptics-supported }
   - screenshot:
       name: speech
-      title: { en: "Speech & haptics", fr: "Parole et haptique", ar: "الكلام واللمس", zh-CN: "语音与触感" }
+      title: { en: "Speech, sound & haptics", fr: "Voix, sons et haptique", ar: "الكلام والصوت واللمس", zh-CN: "语音、音效与触觉" }
       source: src/pages/services.rs
+  # `#sound-last-played` shows the part's own record of the play, which it keeps whether or not
+  # this machine has speakers.
+  - scroll_to: { id: sound-click }
+  - tap: { id: sound-click }
+  - assert_text: { id: sound-last-played, key: sound_last_played, args: { clip: "sounds/click.wav" } }
+  - tap: { id: sound-right }
+  - assert_text: { id: sound-last-played, key: sound_last_played, args: { clip: "sounds/glass.wav" } }
+  - scroll_to: { id: haptics-medium }
   - tap: { id: haptics-medium }
   # `#haptics-last-played` is `tr("haptics-last-played")` — a localized string, so assert by
   # key + args so it resolves in the run's locale, not a hardcoded English literal.

@@ -336,6 +336,23 @@ haptics_last = آخر تشغيل
 haptics_none = لم يُشغَّل شيء بعد
 haptics_last_played = شُغِّل: { $style }
 
+# --- day-part-sound ---
+nav_sound = المؤثرات الصوتية
+sound_click = نقرة
+sound_confirm = تأكيد
+sound_error = خطأ
+sound_glass = زجاج
+sound_card = بطاقة
+sound_jingle = لحن قصير
+sound_pan_caption = المقطع نفسه على اليسار وفي الوسط وعلى اليمين.
+sound_left = يسار
+sound_center = وسط
+sound_right = يمين
+sound_volume = مستوى الصوت
+sound_last = آخر تشغيل
+sound_none = لم يُشغَّل شيء بعد
+sound_last_played = شُغِّل: { $clip }
+
 # --- day-part-prefs ---
 nav_prefs = التفضيلات
 prefs_caption = احفظ سلسلة نصية عبر عمليات التشغيل باستخدام day-part-prefs.
@@ -416,7 +433,7 @@ nav_system = الجهاز والمستشعرات
 nav_network_http = الشبكة وHTTP
 network_status_section = الاتصال
 nav_notify_badge = الإشعارات والشارة
-nav_speech_haptics = الكلام واللمس
+nav_speech_haptics = الكلام والصوت واللمس
 nav_files_storage = الملفات والتخزين
 paths_title = المسارات والحدود والاقتصاص
 canvas_gauge = مقياس اللوحة

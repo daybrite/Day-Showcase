@@ -324,6 +324,23 @@ haptics_last = 最近播放
 haptics_none = 尚未播放
 haptics_last_played = 已播放：{ $style }
 
+# --- day-part-sound ---
+nav_sound = 音效
+sound_click = 点击
+sound_confirm = 确认
+sound_error = 错误
+sound_glass = 玻璃
+sound_card = 纸牌
+sound_jingle = 旋律
+sound_pan_caption = 同一段声音分别放在左侧、中间和右侧。
+sound_left = 左
+sound_center = 中
+sound_right = 右
+sound_volume = 音量
+sound_last = 最近播放
+sound_none = 尚未播放
+sound_last_played = 已播放：{ $clip }
+
 # --- day-part-prefs ---
 nav_prefs = 偏好设置
 prefs_caption = 使用 day-part-prefs 在多次启动间持久化一个字符串。
@@ -404,7 +421,7 @@ nav_system = 设备与传感器
 nav_network_http = 网络与 HTTP
 network_status_section = 连接状态
 nav_notify_badge = 通知与角标
-nav_speech_haptics = 语音与触觉
+nav_speech_haptics = 语音、音效与触觉
 nav_files_storage = 文件与存储
 paths_title = 路径、描边与裁剪
 canvas_gauge = 画布仪表

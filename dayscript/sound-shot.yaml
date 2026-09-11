@@ -1,0 +1,12 @@
+name: sound-shot
+description: The Sound effects group — the clip grid, the panned clip, the volume slider, and the readout after two plays.
+flow:
+  - wait_for: { id: nav }
+  - navigate: { route: speech }
+  - wait_for: { id: sound-click }
+  - scroll_to: { id: sound-last-played }
+  - tap: { id: sound-card }
+  - assert_text: { id: sound-last-played, key: sound_last_played, args: { clip: "sounds/card.wav" } }
+  - tap: { id: sound-left }
+  - assert_text: { id: sound-last-played, key: sound_last_played, args: { clip: "sounds/glass.wav" } }
+  - screenshot: sound-grid

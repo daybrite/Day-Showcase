@@ -329,6 +329,23 @@ haptics_last = Dernier joué
 haptics_none = Rien joué pour l'instant
 haptics_last_played = Joué : { $style }
 
+# --- day-part-sound ---
+nav_sound = Effets sonores
+sound_click = Clic
+sound_confirm = Confirmation
+sound_error = Erreur
+sound_glass = Verre
+sound_card = Carte
+sound_jingle = Jingle
+sound_pan_caption = Le même son placé à gauche, au centre et à droite.
+sound_left = Gauche
+sound_center = Centre
+sound_right = Droite
+sound_volume = Volume
+sound_last = Dernier joué
+sound_none = Rien joué pour l'instant
+sound_last_played = Joué : { $clip }
+
 # --- day-part-prefs ---
 nav_prefs = Préférences
 prefs_caption = Conserver une chaîne entre les lancements avec day-part-prefs.
@@ -409,7 +426,7 @@ nav_system = Appareil et capteurs
 nav_network_http = Réseau et HTTP
 network_status_section = Connectivité
 nav_notify_badge = Notifications et badge
-nav_speech_haptics = Voix et haptique
+nav_speech_haptics = Voix, sons et haptique
 nav_files_storage = Fichiers et stockage
 paths_title = Tracés, contours et découpe
 canvas_gauge = Jauge canevas

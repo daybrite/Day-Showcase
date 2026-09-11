@@ -1,13 +1,14 @@
 use day::prelude::*;
 use day_part_haptics::Haptic;
 use day_part_local_notify::{Channel, Importance, Notification, Trigger};
+use day_part_sound::{AssetName, Play};
 
 use crate::widgets::page;
 
-/// Platform services (docs/http.md, docs/clipboard.md, docs/prefs.md, docs/haptics.md,
-/// docs/files.md, docs/notify.md, docs/bridge.md): the headless "do something with the OS" parts,
-/// one grouped form section each — text to speech (first: it is the daybridge reference, and the
-/// one demo you can hear), an HTTP fetch, clipboard round-trip, persisted preferences, haptic
+/// Platform services (docs/http.md, docs/clipboard.md, docs/prefs.md, docs/sound.md,
+/// docs/haptics.md, docs/files.md, docs/notify.md, docs/bridge.md): the headless "do something
+/// with the OS" parts, one grouped form section each — text to speech (first: it is the daybridge
+/// reference), an HTTP fetch, clipboard round-trip, persisted preferences, sound effects, haptic
 /// feedback, local notifications, and the native file pickers.
 /// Network & HTTP: what the platform says about connectivity, then day-part-http through the
 /// platform's own HTTP stack — fetch, PATCH, a `Resource`, and a free-form URL check.
@@ -31,13 +32,13 @@ pub(crate) fn notify_page() -> AnyPiece {
     .any()
 }
 
-/// Speech & haptics: the two parts that talk to the person — the platform's voice and its
-/// haptic engine.
+/// Speech, sound & haptics: the parts that talk to the person — the platform's voice, its sound
+/// engine, and its haptic engine.
 pub(crate) fn speech_page() -> AnyPiece {
     page(
         crate::res::str::nav_speech_haptics(),
         "speech-title",
-        form((speech_section(), haptics_section())).any(),
+        form((speech_section(), sound_section(), haptics_section())).any(),
     )
     .any()
 }
@@ -208,6 +209,112 @@ fn prefs_section() -> impl Piece {
         ),
     ))
     .title(crate::res::str::nav_prefs())
+}
+
+/// One button that plays a bundled clip at `pan` and shows the part's record of the play in
+/// `#sound-last-played`.
+fn sound_button(
+    id: &'static str,
+    title: LocalizedText,
+    clip: AssetName,
+    pan: f32,
+    last: Signal<String>,
+) -> impl Piece + use<> {
+    button(title)
+        .bordered()
+        .action(move || {
+            day_part_sound::play_with(
+                &clip,
+                Play {
+                    pan,
+                    ..Play::default()
+                },
+            );
+            // What the part recorded rather than what was asked, so the readout proves the call
+            // arrived (docs/sound.md: a play counts once it passes the switch and the volume).
+            if let Some(played) = day_part_sound::recent().pop() {
+                last.set(crate::res::str::sound_last_played(played).format());
+            }
+        })
+        .id(id)
+        .grow_w()
+}
+
+/// Sound effects: six bundled clips, one clip panned across the stereo field, and the master
+/// volume every play is scaled by.
+fn sound_section() -> impl Piece {
+    use crate::res::assets::sounds;
+    let last = Signal::new(crate::res::str::sound_none().format());
+    let volume = Signal::new(f64::from(day_part_sound::volume()));
+    Effect::new(move || day_part_sound::set_volume(volume.get() as f32));
+    // Decoded ahead, so the first tap sounds at once.
+    day_part_sound::preload(&[
+        sounds::click_wav,
+        sounds::confirm_wav,
+        sounds::error_wav,
+        sounds::glass_wav,
+        sounds::card_wav,
+        sounds::jingle_wav,
+    ]);
+    let clip = |id, title, clip| sound_button(id, title, clip, 0.0, last);
+    let panned = |id, title, pan| sound_button(id, title, sounds::glass_wav, pan, last);
+    section((
+        crate::widgets::support_note(crate::support::sound()),
+        // Equal-width cells, as in the haptics grid below.
+        grid((
+            grid_row((
+                clip(
+                    "sound-click",
+                    crate::res::str::sound_click(),
+                    sounds::click_wav,
+                ),
+                clip(
+                    "sound-confirm",
+                    crate::res::str::sound_confirm(),
+                    sounds::confirm_wav,
+                ),
+                clip(
+                    "sound-error",
+                    crate::res::str::sound_error(),
+                    sounds::error_wav,
+                ),
+            )),
+            grid_row((
+                clip(
+                    "sound-glass",
+                    crate::res::str::sound_glass(),
+                    sounds::glass_wav,
+                ),
+                clip(
+                    "sound-card",
+                    crate::res::str::sound_card(),
+                    sounds::card_wav,
+                ),
+                clip(
+                    "sound-jingle",
+                    crate::res::str::sound_jingle(),
+                    sounds::jingle_wav,
+                ),
+            )),
+        ))
+        .spacing(8.0),
+        label(crate::res::str::sound_pan_caption()).font(Font::Footnote),
+        grid((grid_row((
+            panned("sound-left", crate::res::str::sound_left(), -1.0),
+            panned("sound-center", crate::res::str::sound_center(), 0.0),
+            panned("sound-right", crate::res::str::sound_right(), 1.0),
+        )),))
+        .spacing(8.0),
+        labeled(
+            crate::res::str::sound_volume(),
+            slider(volume).range(0.0..=1.0).id("sound-volume"),
+        ),
+        labeled(
+            crate::res::str::sound_last(),
+            label(move || last.get()).id("sound-last-played"),
+        ),
+    ))
+    .title(crate::res::str::nav_sound())
 }
 
 /// One button that plays a haptic and records the style name into `#haptics-last-played`.

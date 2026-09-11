@@ -329,6 +329,23 @@ haptics_last = Last played
 haptics_none = Nothing played yet
 haptics_last_played = Played: { $style }
 
+# --- day-part-sound ---
+nav_sound = Sound effects
+sound_click = Click
+sound_confirm = Confirm
+sound_error = Error
+sound_glass = Glass
+sound_card = Card
+sound_jingle = Jingle
+sound_pan_caption = The same clip placed left, center, and right.
+sound_left = Left
+sound_center = Center
+sound_right = Right
+sound_volume = Volume
+sound_last = Last played
+sound_none = Nothing played yet
+sound_last_played = Played: { $clip }
+
 # --- day-part-prefs ---
 nav_prefs = Preferences
 prefs_caption = Persist a string across launches with day-part-prefs.
@@ -409,7 +426,7 @@ nav_system = Device & sensors
 nav_network_http = Network & HTTP
 network_status_section = Connectivity
 nav_notify_badge = Notifications & badge
-nav_speech_haptics = Speech & haptics
+nav_speech_haptics = Speech, sound & haptics
 nav_files_storage = Files & storage
 paths_title = Paths, strokes & clipping
 canvas_gauge = Canvas gauge
