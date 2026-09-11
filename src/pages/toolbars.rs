@@ -183,16 +183,11 @@ pub(crate) fn page_commands(sec: crate::Section) -> Vec<ToolbarEntry> {
     // only this item changes, and a search in progress is undisturbed.
     let demo = state();
     vec![
-        // "Show Source": open this page's source on GitHub. The SF symbol on Apple platforms
-        // and the desktop symbol sets; Android stages no glyph for a `Symbol`, so there the
-        // bundled image draws instead of the label.
-        if cfg!(target_os = "android") {
-            toolbar_button("tb-source", crate::res::str::show_source())
-                .image(crate::res::images::show_source)
-        } else {
-            toolbar_button("tb-source", crate::res::str::show_source()).icon(Symbol::Code)
-        }
-        .tooltip(crate::res::str::show_source())
+        // "Show Source": open this page's source on GitHub. The standard symbol, which every
+        // toolkit draws from its own set — SF Symbols on Apple, Day's Material glyphs on Android.
+        toolbar_button("tb-source", crate::res::str::show_source())
+            .icon(Symbol::Code)
+            .tooltip(crate::res::str::show_source())
         .enabled_when(move || demo.source_enabled.get())
         .action(move || crate::open_source_of(sec)),
         // The Star command (commands.rs), not a demo toggle. Its label comes from the one

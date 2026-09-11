@@ -13,6 +13,27 @@ pub(crate) fn system_page() -> AnyPiece {
         form((
             battery_section(),
             sensors_section(),
+            sensor_section(
+                day_part_sensors::SensorKind::Accelerometer,
+                crate::res::str::sensor_accelerometer(),
+                "m/s²",
+                "sensor-accel",
+                false,
+            ),
+            sensor_section(
+                day_part_sensors::SensorKind::Gyroscope,
+                crate::res::str::sensor_gyroscope(),
+                "rad/s",
+                "sensor-gyro",
+                false,
+            ),
+            sensor_section(
+                day_part_sensors::SensorKind::Magnetometer,
+                crate::res::str::sensor_magnetometer(),
+                "µT",
+                "sensor-magnet",
+                true,
+            ),
             location_section(),
             device_section(),
         ))
@@ -74,18 +95,45 @@ fn battery_section() -> impl Piece {
     .title(crate::res::str::nav_battery())
 }
 
-/// Live sensor readouts (docs/sensors.md). Each row subscribes with `day_part_sensors::watch`, whose
-/// samples arrive on a background thread — so the value crosses to the UI through a `Setter`, the
-/// standard idiom (DESIGN §4.5). The subscriptions are tied to this page's scope: leaving the page
-/// drops the `Watch` handles and the platform stops sampling.
+/// The sensors group's opener: the platform note and the motion permission's row. The three
+/// sensors follow as sections of their own ([`sensor_section`]), each titled by its name, so the
+/// readout has a line to itself.
 fn sensors_section() -> impl Piece {
-    use day_part_sensors::SensorKind;
+    section((
+        crate::widgets::support_note(crate::support::sensors()),
+        permission_row(
+            crate::res::str::sensor_permission(),
+            day_part_permissions::Permission::Motion,
+            "sensors-perm",
+        ),
+    ))
+    .title(crate::res::str::nav_sensors())
+}
 
-    /// One row's text: a reading, "waiting" while the sensor exists but has not reported yet, or
+/// One live sensor (docs/sensors.md): its readout on a line of its own, then its strip chart.
+///
+/// Each section subscribes with `day_part_sensors::watch`, whose samples arrive on a background
+/// thread — so the value crosses to the UI through a `Setter`, the standard idiom (DESIGN §4.5).
+/// The subscription is tied to this page's scope: leaving the page drops the `Watch` handles and
+/// the platform stops sampling.
+///
+/// The readout is a number that changes twenty times a second, so it gets both halves of the
+/// steady-readout treatment: `reserving` sizes its box to the widest reading the sensor can
+/// show, so the line never reflows as a value gains a digit, and `tabular` asks the platform
+/// for figures of equal advance, so the digits stop shifting inside it. `legend` adds the axis
+/// key under the chart, once, on the last section.
+fn sensor_section(
+    kind: day_part_sensors::SensorKind,
+    title: day::LocalizedText,
+    unit: &'static str,
+    id: &'static str,
+    legend: bool,
+) -> impl Piece {
+    /// The readout: a reading, "waiting" while the sensor exists but has not reported yet, or
     /// "unavailable" (each branch a full `tr(...)` so `day lint` sees the key).
     fn line(
         reading: Option<day_part_sensors::SensorReading>,
-        kind: SensorKind,
+        kind: day_part_sensors::SensorKind,
         unit: &str,
     ) -> String {
         match reading {
@@ -103,95 +151,51 @@ fn sensors_section() -> impl Piece {
         }
     }
 
-    // A signal per sensor, fed by its own subscription. The callback crosses the RAW reading
-    // and nothing else: it runs on the platform's sampling thread, where day-l10n's
-    // thread-local bundles are empty — formatting there resolved every reading to the
-    // ⟨sensor_reading⟩ miss marker. The label formats on the UI side instead, which also
-    // re-renders readings in the new language on a live locale switch.
+    let available = day_part_sensors::is_available(kind);
+    // The latest reading for the readout, and a rolling history for the chart: one stream, two
+    // views. The callbacks cross the RAW reading and nothing else: they run on the platform's
+    // sampling thread, where day-l10n's thread-local bundles are empty — formatting there
+    // resolved every reading to the ⟨sensor_reading⟩ miss marker. The label formats on the UI
+    // side instead, which also re-renders readings in the new language on a live locale switch.
+    let reading = Signal::new(None::<day_part_sensors::SensorReading>);
+    let series = Signal::new(Vec::<day_part_sensors::SensorReading>::new());
     let mut watches = Vec::new();
-    let mut row = |kind: SensorKind| {
-        let reading = Signal::new(None::<day_part_sensors::SensorReading>);
-        if day_part_sensors::is_available(kind) {
-            let set = reading.setter();
-            watches.push(day_part_sensors::watch(kind, move |r| set.set(Some(r))));
-        }
-        reading
-    };
-    let accel = row(SensorKind::Accelerometer);
-    let gyro = row(SensorKind::Gyroscope);
-    let magnet = row(SensorKind::Magnetometer);
-
-    // A rolling history per sensor, for the strip charts. The same subscription feeds both the
-    // readout and the chart — one stream, two views.
-    let mut history = |kind: SensorKind| {
-        let series = Signal::new(Vec::<day_part_sensors::SensorReading>::new());
-        if day_part_sensors::is_available(kind) {
-            let set = series.setter();
-            let buf = std::sync::Arc::new(std::sync::Mutex::new(Vec::new()));
-            watches.push(day_part_sensors::watch(kind, move |r| {
-                let snapshot = {
-                    let Ok(mut b) = buf.lock() else { return };
-                    b.push(r);
-                    if b.len() > CHART_SAMPLES {
-                        b.remove(0);
-                    }
-                    b.clone()
-                };
-                set.set(snapshot);
-            }));
-        }
-        series
-    };
-    let accel_series = history(SensorKind::Accelerometer);
-    let gyro_series = history(SensorKind::Gyroscope);
-    let magnet_series = history(SensorKind::Magnetometer);
-
+    if available {
+        let set = reading.setter();
+        watches.push(day_part_sensors::watch(kind, move |r| set.set(Some(r))));
+        let set = series.setter();
+        let buf = std::sync::Arc::new(std::sync::Mutex::new(Vec::new()));
+        watches.push(day_part_sensors::watch(kind, move |r| {
+            let snapshot = {
+                let Ok(mut b) = buf.lock() else { return };
+                b.push(r);
+                if b.len() > CHART_SAMPLES {
+                    b.remove(0);
+                }
+                b.clone()
+            };
+            set.set(snapshot);
+        }));
+    }
     // Holding the handles until the page goes away is what keeps the streams alive — and dropping
     // them here is what stops the platform sampling when it doesn't.
     Scope::current().on_cleanup(move || drop(watches));
 
+    // The widest reading this line can show, in the run's locale: three signed values of up to
+    // three integer digits (a magnetometer reads past ±100 µT), so the box is sized once.
+    let widest = crate::res::str::sensor_reading(unit, "-000.00", "-000.00", "-000.00").format();
     section((
-        crate::widgets::support_note(crate::support::sensors()),
-        permission_row(
-            crate::res::str::sensor_permission(),
-            day_part_permissions::Permission::Motion,
-            "sensors-perm",
-        ),
-        labeled(
-            crate::res::str::sensor_accelerometer(),
-            label(move || line(accel.get(), SensorKind::Accelerometer, "m/s²")).id("sensor-accel"),
-        ),
+        label(move || line(reading.get(), kind, unit))
+            .tabular()
+            .reserving(widest)
+            .id(id),
         when(
-            move || day_part_sensors::is_available(SensorKind::Accelerometer),
-            move || strip_chart(accel_series).id("sensor-accel-chart"),
-        ),
-        labeled(
-            crate::res::str::sensor_gyroscope(),
-            label(move || line(gyro.get(), SensorKind::Gyroscope, "rad/s")).id("sensor-gyro"),
-        ),
-        when(
-            move || day_part_sensors::is_available(SensorKind::Gyroscope),
-            move || strip_chart(gyro_series).id("sensor-gyro-chart"),
-        ),
-        labeled(
-            crate::res::str::sensor_magnetometer(),
-            label(move || line(magnet.get(), SensorKind::Magnetometer, "µT")).id("sensor-magnet"),
-        ),
-        when(
-            move || day_part_sensors::is_available(SensorKind::Magnetometer),
-            move || strip_chart(magnet_series).id("sensor-magnet-chart"),
+            move || available,
+            move || strip_chart(series).id(format!("{id}-chart")),
         ),
         // The legend only means something next to a chart.
         when(
-            move || {
-                [
-                    SensorKind::Accelerometer,
-                    SensorKind::Gyroscope,
-                    SensorKind::Magnetometer,
-                ]
-                .into_iter()
-                .any(day_part_sensors::is_available)
-            },
+            move || legend && available,
             move || {
                 label(crate::res::str::chart_axes())
                     .font(Font::Footnote)
@@ -199,7 +203,7 @@ fn sensors_section() -> impl Piece {
             },
         ),
     ))
-    .title(crate::res::str::nav_sensors())
+    .title(title)
 }
 
 /// How many samples a strip chart keeps — at day-part-sensors' ~20 Hz, about six seconds.
