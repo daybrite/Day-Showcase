@@ -110,12 +110,9 @@ day-piece-map = { git = "https://github.com/daybrite/day.git" }
 day-piece-lottie = { git = "https://github.com/daybrite/day-piece-lottie.git" }
 # day-piece-camera renders on iOS, Android and HarmonyOS; the front-end compiles everywhere and
 # `day_piece_camera::support()` decides at run time whether the Camera page is listed. Its own
-# repository, like lottie. BY PATH until that repository is pushed: cargo fetches a git
-# dependency's source even when a `[patch]` replaces it, so a git line cannot resolve before the
-# remote exists. Once it does, this becomes
-#     day-piece-camera = { git = "https://github.com/daybrite/day-piece-camera.git" }
-# and `day patch --local ../day-piece-camera` builds against the checkout.
-day-piece-camera = { path = "../day-piece-camera" }
+# repository, like lottie: a bare git line, and `day patch --local ../day-piece-camera` builds
+# against a checkout.
+day-piece-camera = { git = "https://github.com/daybrite/day-piece-camera.git" }
 # The last photo the Camera page took is shown through the bytes-backed image piece.
 day-piece-remote-image = { git = "https://github.com/daybrite/day.git" }
 # SwiftUI embedding (docs/swiftui.md): hosts the swiftui/ package's views on the Benchmark page.
