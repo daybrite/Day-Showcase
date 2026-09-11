@@ -36,25 +36,25 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "عرض كيفية طلب Day للإذن — لا يفتح العرض التوضيحي الكاميرا أبدًا."
+            "value": "معاينة الكاميرا والتقاط صورة في صفحة الكاميرا."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Show how Day asks for a permission — the showcase never opens the camera."
+            "value": "Preview and take a photo on the Camera page."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Montrer comment Day demande une autorisation — la vitrine n'ouvre jamais l'appareil photo."
+            "value": "Afficher l'aperçu et prendre une photo sur la page Appareil photo."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "演示 Day 如何请求权限——展示应用从不打开相机。"
+            "value": "在“相机”页面预览并拍照。"
           }
         }
       }

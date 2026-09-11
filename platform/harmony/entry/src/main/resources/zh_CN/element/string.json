@@ -1,4 +1,7 @@
 { "string": [
+  { "name": "day_perm_reason_camera", "value": "在“相机”页面预览并拍照。" },
+  { "name": "day_perm_reason_location_when_in_use", "value": "在“设备与传感器”页面实时显示您的坐标。" },
+  { "name": "day_perm_reason_motion", "value": "在“设备与传感器”页面实时显示加速度计、陀螺仪和磁力计曲线。" },
   { "name": "day_shortcut_0", "value": "菜单与对话框" },
   { "name": "day_shortcut_1", "value": "本地化" }
 ] }

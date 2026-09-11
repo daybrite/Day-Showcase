@@ -1009,7 +1009,20 @@ cursors_native_title = Propres à cette boîte à outils
 cursors_native_none = Cette boîte à outils ne nomme aucune forme au-delà du jeu commun.
 
 # Motifs des autorisations : le texte affiché par iOS et HarmonyOS quand l’app demande.
-permission_camera = Montrer comment Day demande une autorisation — la vitrine n'ouvre jamais l'appareil photo.
+permission_camera = Afficher l'aperçu et prendre une photo sur la page Appareil photo.
 permission_location_when_in_use = Afficher vos coordonnées en direct sur la page Appareil et capteurs.
 permission_motion = Afficher en direct les courbes de l'accéléromètre, du gyroscope et du magnétomètre sur la page Appareil et capteurs.
 permission_NSBluetoothAlwaysUsageDescription = Montrer comment Day demande le Bluetooth — la vitrine ne se connecte jamais à un appareil.
+
+# Camera (src/pages/camera.rs): the viewfinder, its permission, and the last photo.
+nav_camera = Appareil photo
+camera_permission_section = Autorisation
+camera_permission_label = Accès à l'appareil photo
+camera_viewfinder_section = Viseur
+camera_take_photo = Prendre une photo
+camera_flip = Retourner
+camera_state_label = Appareil photo
+camera_last_photo_section = Dernière photo
+camera_photo_label = Photo
+camera_no_photo = Aucune pour l'instant
+camera_photo_size = { $width } × { $height } · { $name }

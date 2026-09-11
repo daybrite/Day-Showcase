@@ -26,7 +26,8 @@ targets = [
 # OS permissions (docs/permissions.md). `day build` turns these into <uses-permission> entries,
 # Info.plist usage descriptions, and HarmonyOS requestPermissions — the declaration every mobile OS
 # requires before an app may even ask. The reason text is what the OS shows the user in its prompt.
-# The showcase's Device & sensors page reads their status; it never prompts during the walkthrough.
+# The Device & sensors page reads their status and the Camera page asks for the camera's; neither
+# prompts during the walkthrough.
 # The reasons are translated, so they live in the catalogs as `permission_<name>` messages
 # (resource/locales/<tag>/app.ftl, docs/permissions.md "Localized reasons"); `true` here is the
 # declaration alone.

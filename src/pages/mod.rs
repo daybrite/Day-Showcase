@@ -3,6 +3,7 @@
 pub(crate) mod about;
 pub(crate) mod animation;
 pub(crate) mod benchmark;
+pub(crate) mod camera;
 pub(crate) mod canvas;
 pub(crate) mod content_list;
 pub(crate) mod controls;
@@ -37,6 +38,7 @@ pub(crate) mod webview;
 pub(crate) use about::about_page;
 pub(crate) use animation::animation_page;
 pub(crate) use benchmark::benchmark_page;
+pub(crate) use camera::camera_page;
 pub(crate) use canvas::canvas_page;
 pub(crate) use content_list::content_list_page;
 pub(crate) use controls::controls_page;

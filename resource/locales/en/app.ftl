@@ -1015,7 +1015,20 @@ cursors_native_title = This toolkit's own
 cursors_native_none = This toolkit names no shapes beyond the shared set.
 
 # Permission reasons: what iOS and HarmonyOS show when the app asks (Day.toml [permissions]).
-permission_camera = Show how Day asks for a permission — the showcase never opens the camera.
+permission_camera = Preview and take a photo on the Camera page.
 permission_location_when_in_use = Show your coordinates live on the Device & sensors page.
 permission_motion = Show live accelerometer, gyroscope and magnetometer traces on the Device & sensors page.
 permission_NSBluetoothAlwaysUsageDescription = Show how Day asks for Bluetooth — the showcase never connects to a device.
+
+# Camera (src/pages/camera.rs): the viewfinder, its permission, and the last photo.
+nav_camera = Camera
+camera_permission_section = Permission
+camera_permission_label = Camera access
+camera_viewfinder_section = Viewfinder
+camera_take_photo = Take photo
+camera_flip = Flip
+camera_state_label = Camera
+camera_last_photo_section = Last photo
+camera_photo_label = Photo
+camera_no_photo = None yet
+camera_photo_size = { $width } × { $height } · { $name }

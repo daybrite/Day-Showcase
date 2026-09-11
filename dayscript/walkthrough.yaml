@@ -1449,6 +1449,23 @@ flow:
   # App & tooling
   # ---------------------------------------------------------------------------------------------
 
+  # Camera (day-piece-camera): the viewfinder page, listed only where the piece renders — the
+  # phones and HarmonyOS. Status only: the Allow button raises an OS permission dialog that
+  # dayscript cannot dismiss, so it is never tapped here (dayscript/camera-capture.yaml drives the
+  # capture after the permission is granted out of band). The state reads `idle` while the
+  # permission is undecided, `unavailable` on the iOS Simulator once it is held (no capture
+  # device), and `running` on the Android emulator's virtual camera.
+  - navigate: { route: camera, only_on: [ios-uikit, android-mdc, harmony-arkui] }
+  - assert_route: { route: camera, only_on: [ios-uikit, android-mdc, harmony-arkui] }
+  - assert_visible: { id: camera-perm, only_on: [ios-uikit, android-mdc, harmony-arkui] }
+  - assert_visible: { id: camera-state, only_on: [ios-uikit, android-mdc, harmony-arkui] }
+  - assert_text: { id: camera-photo-size, key: camera_no_photo, only_on: [ios-uikit, android-mdc, harmony-arkui] }
+  - screenshot:
+      name: camera
+      only_on: [ios-uikit, android-mdc, harmony-arkui]
+      title: { en: "Camera", fr: "Appareil photo", ar: "الكاميرا", zh-CN: "相机" }
+      source: src/pages/camera.rs
+
   # Localization (docs/localization.md): live locale switching, icu4x NUMBER/DATETIME rendering,
   # CLDR plural categories, and collation-aware sorting. Key-based asserts resolve through the
   # SAME bundle + formatter as the labels, so the expected strings are locale-correct by

@@ -1,4 +1,7 @@
 { "string": [
+  { "name": "day_perm_reason_camera", "value": "Afficher l'aperçu et prendre une photo sur la page Appareil photo." },
+  { "name": "day_perm_reason_location_when_in_use", "value": "Afficher vos coordonnées en direct sur la page Appareil et capteurs." },
+  { "name": "day_perm_reason_motion", "value": "Afficher en direct les courbes de l'accéléromètre, du gyroscope et du magnétomètre sur la page Appareil et capteurs." },
   { "name": "day_shortcut_0", "value": "Menus et dialogues" },
   { "name": "day_shortcut_1", "value": "Localisation" }
 ] }

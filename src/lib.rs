@@ -202,6 +202,7 @@ day::routes! {
         Network => "network",
         Notify => "notify",
         Speech => "speech",
+        Camera => "camera",
         Cursors => "cursors",
         Files => "files",
         Scripting => "scripting",
@@ -249,6 +250,7 @@ impl Section {
             Section::Network => "src/pages/services.rs",
             Section::Notify => "src/pages/services.rs",
             Section::Speech => "src/pages/services.rs",
+            Section::Camera => "src/pages/camera.rs",
             Section::Files => "src/pages/services.rs",
             Section::Stack => "src/pages/stack.rs",
             Section::System => "src/pages/system.rs",
@@ -418,7 +420,7 @@ struct Row {
 /// A page whose central feature this target cannot run is not listed at all — a target with
 /// no toolbar has nothing to show on a Toolbars page — while a section inside a page that the
 /// target cannot run keeps its banner (support.rs). Two of the four such pages are decided at
-/// compile time because their crates carry no runtime probe (Map, Lottie), two at runtime.
+/// compile time because their crates carry no runtime probe (Map, Lottie), three at runtime.
 fn destinations() -> Vec<Dest> {
     use crate::res::vectors;
     use Group::*;
@@ -647,6 +649,13 @@ fn destinations() -> Vec<Dest> {
             files_page,
         ),
         d(
+            Platform,
+            Section::Camera,
+            crate::res::str::nav_camera,
+            vectors::nav_camera,
+            camera_page,
+        ),
+        d(
             App,
             Section::Localization,
             crate::res::str::nav_localization,
@@ -687,6 +696,8 @@ fn destinations() -> Vec<Dest> {
     all.retain(|d| match d.section {
         Section::Toolbars => capability(Cap::Toolbar) != Support::Unsupported,
         Section::CrashReporting => crate::support::crash_reporting() != Support::Unsupported,
+        // The piece's own probe: it renders on the mobile toolkits and nowhere else.
+        Section::Camera => day_piece_camera::support() != Support::Unsupported,
         _ => true,
     });
     all

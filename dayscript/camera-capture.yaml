@@ -1,0 +1,22 @@
+name: camera-capture
+description: >
+  Take a photo with the Camera page. Opt-in, and deliberately NOT part of walkthrough.yaml: the
+  viewfinder needs the camera permission, which only an OS dialog dayscript cannot dismiss can
+  grant. Grant it out of band first — on Android
+  `adb shell pm grant dev.daybrite.showcase android.permission.CAMERA`, on the iOS Simulator
+  `xcrun simctl privacy <udid> grant camera dev.daybrite.showcase` — then this script proves the
+  capture path: the session runs, the shutter writes a JPEG into the app's cache, and the page
+  shows it. The Android emulator's virtual camera makes the whole path real; the iOS Simulator
+  has no capture device and reports `unavailable`, so run this one on Android or a device.
+flow:
+  - wait_for: { id: nav }
+  - navigate: { route: camera }
+  - assert_route: { route: camera }
+  # The permission was granted out of band, so the viewfinder started at build. The emulator's
+  # camera takes a moment to open.
+  - pause: { secs: 5 }
+  - assert_text: { id: camera-state, text: "running" }
+  - screenshot: camera-running
+  - tap: { id: camera-shoot }
+  - wait_for: { id: camera-photo, timeout_secs: 20 }
+  - screenshot: camera-photo

@@ -42,7 +42,7 @@
 	<key>UILaunchScreen</key>
 	<dict/>
 	<key>NSCameraUsageDescription</key>
-	<string>Show how Day asks for a permission — the showcase never opens the camera.</string>
+	<string>Preview and take a photo on the Camera page.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Show your coordinates live on the Device &amp; sensors page.</string>
 	<key>NSMotionUsageDescription</key>

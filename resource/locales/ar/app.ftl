@@ -1027,7 +1027,20 @@ cursors_native_title = الخاصّة بمجموعة الأدوات هذه
 cursors_native_none = لا تسمّي مجموعة الأدوات هذه أشكالًا خارج الطقم المشترك.
 
 # أسباب الأذونات: النص الذي يعرضه iOS وHarmonyOS عندما يطلب التطبيق الإذن.
-permission_camera = عرض كيفية طلب Day للإذن — لا يفتح العرض التوضيحي الكاميرا أبدًا.
+permission_camera = معاينة الكاميرا والتقاط صورة في صفحة الكاميرا.
 permission_location_when_in_use = عرض إحداثياتك مباشرةً في صفحة الجهاز والمستشعرات.
 permission_motion = عرض قراءات مقياس التسارع والجيروسكوب والمغناطيسية مباشرةً في صفحة الجهاز والمستشعرات.
 permission_NSBluetoothAlwaysUsageDescription = عرض كيفية طلب Day لبلوتوث — لا يتصل العرض التوضيحي بأي جهاز أبدًا.
+
+# Camera (src/pages/camera.rs): the viewfinder, its permission, and the last photo.
+nav_camera = الكاميرا
+camera_permission_section = الإذن
+camera_permission_label = الوصول إلى الكاميرا
+camera_viewfinder_section = المعاينة
+camera_take_photo = التقاط صورة
+camera_flip = تبديل الكاميرا
+camera_state_label = الكاميرا
+camera_last_photo_section = آخر صورة
+camera_photo_label = الصورة
+camera_no_photo = لا شيء بعد
+camera_photo_size = { $width } × { $height } · { $name }

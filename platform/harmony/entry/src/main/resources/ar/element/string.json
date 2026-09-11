@@ -1,4 +1,7 @@
 { "string": [
+  { "name": "day_perm_reason_camera", "value": "معاينة الكاميرا والتقاط صورة في صفحة الكاميرا." },
+  { "name": "day_perm_reason_location_when_in_use", "value": "عرض إحداثياتك مباشرةً في صفحة الجهاز والمستشعرات." },
+  { "name": "day_perm_reason_motion", "value": "عرض قراءات مقياس التسارع والجيروسكوب والمغناطيسية مباشرةً في صفحة الجهاز والمستشعرات." },
   { "name": "day_shortcut_0", "value": "القوائم والحوارات" },
   { "name": "day_shortcut_1", "value": "التوطين" }
 ] }

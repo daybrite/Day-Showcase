@@ -1000,7 +1000,20 @@ cursors_native_title = 本工具包独有
 cursors_native_none = 本工具包没有共享集之外的形状。
 
 # 权限说明：应用请求权限时 iOS 和 HarmonyOS 显示的文字。
-permission_camera = 演示 Day 如何请求权限——展示应用从不打开相机。
+permission_camera = 在“相机”页面预览并拍照。
 permission_location_when_in_use = 在“设备与传感器”页面实时显示您的坐标。
 permission_motion = 在“设备与传感器”页面实时显示加速度计、陀螺仪和磁力计曲线。
 permission_NSBluetoothAlwaysUsageDescription = 演示 Day 如何请求蓝牙权限——展示应用从不连接任何设备。
+
+# Camera (src/pages/camera.rs): the viewfinder, its permission, and the last photo.
+nav_camera = 相机
+camera_permission_section = 权限
+camera_permission_label = 相机访问
+camera_viewfinder_section = 取景器
+camera_take_photo = 拍照
+camera_flip = 翻转
+camera_state_label = 相机
+camera_last_photo_section = 最近的照片
+camera_photo_label = 照片
+camera_no_photo = 暂无
+camera_photo_size = { $width } × { $height } · { $name }
