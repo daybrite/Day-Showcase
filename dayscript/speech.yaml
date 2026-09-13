@@ -3,11 +3,11 @@ description: >
   The daybridge reference part (docs/bridge.md): day-part-speech declares one API and implements it
   in Swift on Apple, Java on Android, ArkTS on HarmonyOS, JavaScript on the web and C on Linux.
   This drives the Speech section on the Platform services page: it types a line, speaks it, and
-  stops it. What a script can check here is the section's own state — a v1 bridge call is
-  synchronous and one-shot, so the app is never told when the engine finished talking and there is
-  nothing on screen that reports it. Hearing the voice is the acceptance test; this run proves the
-  section renders on every target, reports the support the part claims for it, and takes both
-  bridged calls without wedging the UI.
+  stops it. The state line under the buttons is the bridge's callback tier (docs/bridge.md
+  "Callbacks"): the engine reports the end of the utterance back through the token it was handed,
+  so stopping mid-sentence must settle the line on "Stopped". Hearing the voice is still the
+  acceptance test for the sound itself; this run proves the section renders on every target,
+  reports the support the part claims for it, and that a completion crosses the bridge.
 flow:
   - wait_for: { id: nav }
   - navigate: { route: speech }
@@ -21,5 +21,9 @@ flow:
   # Empty means "speak the localized sample the placeholder shows"; typing overrides it.
   - input: { id: speech-text, text: "Day speaks through the bridge." }
   - tap: { id: speech-speak }
+  - assert_text: { id: speech-state, text: "Speaking…", skip_on: [linux-gtk, linux-qt, macos-gtk, macos-qt, windows-gtk, windows-qt, windows-xaml, harmony-arkui] }
   - tap: { id: speech-stop }
+  # The engine's cancellation arrives through the completion and lands as "Stopped". Targets whose
+  # arm reports no end (speech-dispatcher), or that have no arm, settle on their own answer.
+  - assert_text: { id: speech-state, text: "Stopped", skip_on: [linux-gtk, linux-qt, macos-gtk, macos-qt, windows-gtk, windows-qt, windows-xaml, harmony-arkui] }
   - assert_text: { id: speech-text, text: "Day speaks through the bridge." }

@@ -1,152 +1,122 @@
 {
-  "sourceLanguage" : "en",
-  "strings" : {
-    "CFBundleDisplayName" : {
-      "comment" : "Bundle display name",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Day Showcase"
+  "sourceLanguage": "en",
+  "strings": {
+    "NSBluetoothAlwaysUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "عرض كيفية طلب Day لبلوتوث — لا يتصل العرض التوضيحي بأي جهاز أبدًا."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show how Day asks for Bluetooth — the showcase never connects to a device."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Montrer comment Day demande le Bluetooth — la vitrine ne se connecte jamais à un appareil."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "演示 Day 如何请求蓝牙权限——展示应用从不连接任何设备。"
           }
         }
       }
     },
-    "CFBundleName" : {
-      "comment" : "Bundle name",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Showcase"
+    "NSCameraUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "معاينة الكاميرا والتقاط صورة في صفحة الكاميرا."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preview and take a photo on the Camera page."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher l'aperçu et prendre une photo sur la page Appareil photo."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在“相机”页面预览并拍照。"
           }
         }
       }
     },
-    "Localization" : {
-
-    },
-    "Menus & dialogs" : {
-
-    },
-    "NSBluetoothAlwaysUsageDescription" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "عرض كيفية طلب Day لبلوتوث — لا يتصل العرض التوضيحي بأي جهاز أبدًا."
+    "NSLocationWhenInUseUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "عرض إحداثياتك مباشرةً في صفحة الجهاز والمستشعرات."
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Show how Day asks for Bluetooth — the showcase never connects to a device."
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show your coordinates live on the Device & sensors page."
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Montrer comment Day demande le Bluetooth — la vitrine ne se connecte jamais à un appareil."
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher vos coordonnées en direct sur la page Appareil et capteurs."
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "演示 Day 如何请求蓝牙权限——展示应用从不连接任何设备。"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在“设备与传感器”页面实时显示您的坐标。"
           }
         }
       }
     },
-    "NSCameraUsageDescription" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "معاينة الكاميرا والتقاط صورة في صفحة الكاميرا."
+    "NSMotionUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "عرض قراءات مقياس التسارع والجيروسكوب والمغناطيسية مباشرةً في صفحة الجهاز والمستشعرات."
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Preview and take a photo on the Camera page."
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show live accelerometer, gyroscope and magnetometer traces on the Device & sensors page."
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Afficher l'aperçu et prendre une photo sur la page Appareil photo."
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher en direct les courbes de l'accéléromètre, du gyroscope et du magnétomètre sur la page Appareil et capteurs."
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在“相机”页面预览并拍照。"
-          }
-        }
-      }
-    },
-    "NSLocationWhenInUseUsageDescription" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "عرض إحداثياتك مباشرةً في صفحة الجهاز والمستشعرات."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Show your coordinates live on the Device & sensors page."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Afficher vos coordonnées en direct sur la page Appareil et capteurs."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在“设备与传感器”页面实时显示您的坐标。"
-          }
-        }
-      }
-    },
-    "NSMotionUsageDescription" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "عرض قراءات مقياس التسارع والجيروسكوب والمغناطيسية مباشرةً في صفحة الجهاز والمستشعرات."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Show live accelerometer, gyroscope and magnetometer traces on the Device & sensors page."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Afficher en direct les courbes de l'accéléromètre, du gyroscope et du magnétomètre sur la page Appareil et capteurs."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在“设备与传感器”页面实时显示加速度计、陀螺仪和磁力计曲线。"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在“设备与传感器”页面实时显示加速度计、陀螺仪和磁力计曲线。"
           }
         }
       }
     }
   },
-  "version" : "1.0"
+  "version": "1.0"
 }

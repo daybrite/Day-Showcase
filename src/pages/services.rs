@@ -68,12 +68,14 @@ pub(crate) fn files_page() -> AnyPiece {
 /// `available()` reports what THIS target's arm promises, so the label is the honest answer on a
 /// target with no arm (Unsupported) or a partial one (HarmonyOS, whose voices are zh-CN only).
 ///
-/// There is no progress readout. A v1 bridge call is synchronous and one-shot, so nothing tells the
-/// app when the engine stopped talking (docs/bridge.md "After v1") — a "Speaking…" label would sit
-/// there forever and read as a hang. The voice is the feedback.
+/// The state line is the callback tier at work (docs/bridge.md "Callbacks"): `speak_future`
+/// resolves when the engine reports the end of the utterance, so "Speaking…" holds exactly as
+/// long as the voice does and then says how it ended — finished, or stopped by the Stop button.
 fn speech_section() -> impl Piece {
     // Empty means "say the localized sample", which is exactly what the placeholder shows.
     let phrase = Signal::new(String::new());
+    // What the engine is doing, in the user's words; empty until the first tap.
+    let state = Signal::new(String::new());
     let support = crate::support::speech();
     let support_text = match support {
         Support::Native => crate::res::str::speech_native(),
@@ -100,9 +102,24 @@ fn speech_section() -> impl Piece {
                     } else {
                         typed
                     };
-                    // An `Unsupported` here is the fallback arm answering, which the support label
-                    // above already said; nothing to report that the user was not told.
-                    let _ = day_part_speech::speak(&text);
+                    // The future starts the utterance at once and resumes on the UI thread
+                    // when the engine reports its end (docs/async.md), so the state is a plain
+                    // signal write on both sides of the await. An `Unsupported` here is the
+                    // fallback arm answering, which the support label above already said.
+                    state.set(crate::res::str::speech_state_speaking().format());
+                    day::task(async move {
+                        let ended = day_part_speech::speak_future(&text).await;
+                        state.set(match ended {
+                            Ok(day_part_speech::SpeechEnd::Finished)
+                            | Ok(day_part_speech::SpeechEnd::Unobserved) => {
+                                crate::res::str::speech_state_finished().format()
+                            }
+                            Ok(day_part_speech::SpeechEnd::Stopped) => {
+                                crate::res::str::speech_state_stopped().format()
+                            }
+                            Err(e) => e.to_string(),
+                        });
+                    });
                 })
                 .tint(crate::widgets::primary())
                 .id("speech-speak"),
@@ -112,6 +129,9 @@ fn speech_section() -> impl Piece {
                 .id("speech-stop"),
         ))
         .spacing(8.0),
+        label(move || state.get())
+            .font(Font::Footnote)
+            .id("speech-state"),
     ))
     .title(crate::res::str::speech_title())
 }
