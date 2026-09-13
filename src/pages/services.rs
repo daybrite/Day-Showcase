@@ -1547,7 +1547,10 @@ fn download_section() -> impl Piece {
                 deliver.set(Some(progress.clone()));
             }
         });
-        day::reactive::Scope::current().on_cleanup(move || drop(watch));
+        // The watch stops when the page's scope drops it.
+        day::reactive::Scope::current().on_cleanup(move || {
+            let _stop = watch;
+        });
         // The test server takes a moment to hash the file, so ask for the digest up front.
         static ASKED: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
         if !ASKED.swap(true, std::sync::atomic::Ordering::Relaxed)
@@ -1787,8 +1790,10 @@ fn stream_section() -> impl Piece {
 }
 
 /// 8 MiB of the test server's pattern bytes.
+#[cfg(not(target_arch = "wasm32"))]
 const UPLOAD_BYTES: u64 = 8 << 20;
 /// Their SHA-256, hashed once off the UI thread.
+#[cfg(not(target_arch = "wasm32"))]
 static UPLOAD_SHA256: std::sync::OnceLock<String> = std::sync::OnceLock::new();
 
 /// The pattern bytes, generated while the upload reads them.
@@ -1836,6 +1841,9 @@ fn upload_section() -> impl Piece {
         fraction.set(0.0);
         digest.set(String::new());
         status.set(crate::res::str::http_checking().format());
+        // The web has no test server to upload to, so `local_url` answered before this.
+        #[cfg(target_arch = "wasm32")]
+        let _ = url;
         #[cfg(not(target_arch = "wasm32"))]
         {
             let sent = fraction.setter();

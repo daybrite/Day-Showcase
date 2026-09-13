@@ -23,9 +23,9 @@ flow:
   - tap: { id: speech-speak }
   # web-dom skips both state lines: CI's headless Chromium fails every utterance with the browser's
   # own `synthesis-failed`, so the line never reads "Speaking…" or "Stopped" there.
-  - assert_text: { id: speech-state, text: "Speaking…", skip_on: [linux-gtk, linux-qt, macos-gtk, macos-qt, windows-gtk, windows-qt, windows-xaml, harmony-arkui, web-dom] }
+  - assert_text: { id: speech-state, key: speech_state_speaking, skip_on: [linux-gtk, linux-qt, macos-gtk, macos-qt, windows-gtk, windows-qt, windows-xaml, harmony-arkui, web-dom] }
   - tap: { id: speech-stop }
   # The engine's cancellation arrives through the completion and lands as "Stopped". Targets whose
   # arm reports no end (speech-dispatcher), or that have no arm, settle on their own answer.
-  - assert_text: { id: speech-state, text: "Stopped", skip_on: [linux-gtk, linux-qt, macos-gtk, macos-qt, windows-gtk, windows-qt, windows-xaml, harmony-arkui, web-dom] }
+  - assert_text: { id: speech-state, key: speech_state_stopped, skip_on: [linux-gtk, linux-qt, macos-gtk, macos-qt, windows-gtk, windows-qt, windows-xaml, harmony-arkui, web-dom] }
   - assert_text: { id: speech-text, text: "Day speaks through the bridge." }
