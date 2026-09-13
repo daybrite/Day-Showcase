@@ -100,6 +100,8 @@ day-part-local-notify = { git = "https://github.com/daybrite/day.git" }
 day-piece-settings = { git = "https://github.com/daybrite/day.git" }
 day-part-deviceinfo = { git = "https://github.com/daybrite/day.git" }
 day-part-http = { git = "https://github.com/daybrite/day.git" }
+# The download manager (docs/downloads.md): the Networking page's pausable, resumable download.
+day-part-downloads = { git = "https://github.com/daybrite/day.git" }
 day-part-fs = { git = "https://github.com/daybrite/day.git" }
 day-piece-activity = { git = "https://github.com/daybrite/day.git" }
 day-piece-searchfield = { git = "https://github.com/daybrite/day.git" }

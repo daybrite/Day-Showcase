@@ -1,0 +1,104 @@
+name: network
+description: >
+  The Network & HTTP page end to end against the test server inside the app (docs/http.md,
+  docs/downloads.md): a 32 MiB download paused mid-transfer, resumed from its partial file and
+  verified against its SHA-256, then the same download run by the system; a response streamed in chunks; an 8 MiB streamed upload and a
+  multipart form; redirects approved hop by hop and stopped at the first; Basic, Digest and
+  Bearer challenges answered from the page; a cookie set during a redirect; a response served
+  from the cache; a WebSocket echo closed with a code; and a total-time limit. The server trust
+  and client certificate rows visit badssl.com and example.com, so this run checks only that
+  they render. The client steps run on the toolkits whose platform stack offers what they need:
+  URLSession on macOS and iOS, OkHttp on Android.
+flow:
+  - wait_for: { id: nav }
+  - navigate: { route: network }
+  - assert_route: { route: network }
+  - assert_visible: { id: http-caps }
+  - tap: { id: http-fetch }
+  - assert_text: { id: http-status, text: "200 day-http-ok" }
+
+  # Download manager: start, pause mid-transfer, resume from the partial file, verify.
+  - tap: { id: download-start, only_on: [appkit, uikit, mdc] }
+  - assert_text: { id: download-state, text: "running", timeout_secs: 120, only_on: [appkit, uikit, mdc] }
+  - pause: { secs: 2, only_on: [appkit, uikit, mdc] }
+  - tap: { id: download-pause, only_on: [appkit, uikit, mdc] }
+  - assert_text: { id: download-state, text: "paused", only_on: [appkit, uikit, mdc] }
+  - screenshot:
+      name: network-download-paused
+      only_on: [appkit, uikit, mdc]
+  - tap: { id: download-resume, only_on: [appkit, uikit, mdc] }
+  - assert_text: { id: download-state, text: "done", timeout_secs: 120, only_on: [appkit, uikit, mdc] }
+  - assert_text: { id: download-verified, key: download_verified, only_on: [appkit, uikit, mdc] }
+
+  # The same download run by the system: a background URLSession, which pauses and resumes from
+  # its resume data, and DownloadManager, which cannot pause.
+  - toggle: { id: download-system, value: true, only_on: [appkit, uikit, mdc] }
+  - tap: { id: download-start, only_on: [appkit, uikit, mdc] }
+  - assert_text: { id: download-tier, key: download_tier_system, timeout_secs: 30, only_on: [appkit, uikit, mdc] }
+  - assert_text: { id: download-state, text: "running", timeout_secs: 60, only_on: [appkit, uikit] }
+  - pause: { secs: 2, only_on: [appkit, uikit] }
+  - tap: { id: download-pause, only_on: [appkit, uikit] }
+  - assert_text: { id: download-state, text: "paused", only_on: [appkit, uikit] }
+  - tap: { id: download-resume, only_on: [appkit, uikit] }
+  - assert_text: { id: download-state, text: "done", timeout_secs: 120, only_on: [appkit, uikit, mdc] }
+  - assert_text: { id: download-verified, key: download_verified, only_on: [appkit, uikit, mdc] }
+  - toggle: { id: download-system, value: false, only_on: [appkit, uikit, mdc] }
+
+  # Streaming: twelve 4096-byte chunks fed over time.
+  - tap: { id: stream-start, only_on: [appkit, uikit, mdc] }
+  - assert_text: { id: stream-bytes, text: "49152 bytes", timeout_secs: 20, only_on: [appkit, uikit, mdc] }
+
+  # Uploads: a body streamed from a reader, then a multipart form.
+  - tap: { id: upload-stream, only_on: [appkit, uikit, mdc] }
+  - assert_text: { id: upload-status, text: "8388608 bytes received", timeout_secs: 60, only_on: [appkit, uikit, mdc] }
+  - assert_text: { id: upload-digest, key: upload_digest_match, only_on: [appkit, uikit, mdc] }
+  - tap: { id: upload-form, only_on: [appkit, uikit, mdc] }
+  - assert_text: { id: upload-form-status, text: "65810 bytes received", only_on: [appkit, uikit, mdc] }
+
+  # Redirects: every hop approved, then the first one stopped.
+  - tap: { id: redirect-follow, only_on: [appkit, uikit, mdc] }
+  - assert_text: { id: redirect-status, text: "200 redirected", only_on: [appkit, uikit, mdc] }
+  - assert_text: { id: redirect-hops, text: "/redirect/2 → /redirect/1 → /redirect/0", only_on: [appkit, uikit, mdc] }
+  - tap: { id: redirect-stop, only_on: [appkit, uikit, mdc] }
+  - assert_text: { id: redirect-status, text: "302 /redirect/2", only_on: [appkit, uikit, mdc] }
+
+  # Challenges answered with the fields' values.
+  - tap: { id: auth-basic, only_on: [appkit, uikit, mdc] }
+  - assert_text: { id: auth-status, text: "200 authenticated day", only_on: [appkit, uikit, mdc] }
+  - tap: { id: auth-digest, only_on: [appkit, uikit, mdc] }
+  - assert_text: { id: auth-status, text: "200 authenticated day", only_on: [appkit, uikit, mdc] }
+  - tap: { id: auth-bearer, only_on: [appkit, uikit, mdc] }
+  - assert_text: { id: auth-status, text: "200 authenticated", only_on: [appkit, uikit, mdc] }
+
+  # Cookies: set during a redirect, sent again, cleared.
+  - tap: { id: cookie-clear, only_on: [appkit, uikit, mdc] }
+  - assert_text: { id: cookie-status, text: "none", only_on: [appkit, uikit, mdc] }
+  - tap: { id: cookie-set, only_on: [appkit, uikit, mdc] }
+  - assert_text: { id: cookie-status, text: "flavor=oat", only_on: [appkit, uikit, mdc] }
+  - tap: { id: cookie-clear, only_on: [appkit, uikit, mdc] }
+  - assert_text: { id: cookie-status, text: "none", only_on: [appkit, uikit, mdc] }
+
+  # The cache: the second fetch repeats the server's count, a reload does not.
+  - tap: { id: cache-fetch, only_on: [appkit, uikit, mdc] }
+  - assert_text: { id: cache-status, text: "generated 1 · network", only_on: [appkit, uikit, mdc] }
+  - tap: { id: cache-fetch, only_on: [appkit, uikit, mdc] }
+  - assert_text: { id: cache-status, text: "generated 1 · cache", only_on: [appkit, uikit, mdc] }
+  - tap: { id: cache-reload, only_on: [appkit, uikit, mdc] }
+  - assert_text: { id: cache-status, text: "generated 2 · network", only_on: [appkit, uikit, mdc] }
+
+  # WebSocket: open with a subprotocol, echo, close with a code.
+  - tap: { id: ws-connect, only_on: [appkit, uikit, mdc] }
+  - assert_text: { id: ws-state, text: "open · day", only_on: [appkit, uikit, mdc] }
+  - tap: { id: ws-send, only_on: [appkit, uikit, mdc] }
+  - assert_text: { id: ws-last, text: "hello", only_on: [appkit, uikit, mdc] }
+  - tap: { id: ws-close, only_on: [appkit, uikit, mdc] }
+  - assert_text: { id: ws-state, text: "closed · 4000 done", only_on: [appkit, uikit, mdc] }
+
+  # A one-second limit on a three-second response.
+  - tap: { id: timeout-run, only_on: [appkit, uikit, mdc] }
+  - assert_text: { id: timeout-status, text: "error: request timed out", timeout_secs: 10, only_on: [appkit, uikit, mdc] }
+
+  # The rows that need the internet render everywhere.
+  - assert_visible: { id: trust-visit }
+  - assert_visible: { id: trust-pins }
+  - assert_visible: { id: identity-with }

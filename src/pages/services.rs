@@ -11,12 +11,28 @@ use crate::widgets::page;
 /// reference), an HTTP fetch, clipboard round-trip, persisted preferences, sound effects, haptic
 /// feedback, local notifications, and the native file pickers.
 /// Network & HTTP: what the platform says about connectivity, then day-part-http through the
-/// platform's own HTTP stack — fetch, PATCH, a `Resource`, and a free-form URL check.
+/// platform's own HTTP stack. The crate-root calls come first (fetch, PATCH, a `Resource`, a
+/// free-form URL check); then a `Client` shows each capability against the test server inside the
+/// app, and day-part-downloads runs a download that can pause, resume and verify.
 pub(crate) fn network_page() -> AnyPiece {
     page(
         crate::res::str::nav_network_http(),
         "network-title",
-        form((network_section(), http_section())).any(),
+        form((
+            network_section(),
+            http_section(),
+            download_section(),
+            stream_section(),
+            upload_section(),
+            redirect_section(),
+            auth_section(),
+            cookie_section(),
+            cache_section(),
+            websocket_section(),
+            timeout_section(),
+            trust_section(),
+        ))
+        .any(),
     )
     .any()
 }
@@ -1143,54 +1159,140 @@ fn files_section() -> impl Piece {
     .title(crate::res::str::nav_files())
 }
 
-/// The demo's target URL. Native targets spin the one-shot loopback server below; the web
-/// (web-dom) instead fetches the same-origin `day-http-ok` path — a browser tab can host no
-/// TCP listener, and `day launch`'s dev server answers that path with the identical bodies
-/// (crates/day-cli/src/web.rs), so the walkthrough asserts the same bytes everywhere. On a
-/// static host without the endpoint the buttons report the server's honest error instead.
-fn demo_url() -> Result<String, String> {
+/// The loopback test server every demonstration on the Network & HTTP page talks to, started on
+/// first use (docs/http.md "Testing"). It needs no network, so the page behaves the same in
+/// airplane mode, on CI, and behind a proxy.
+#[cfg(not(target_arch = "wasm32"))]
+fn test_server() -> Result<&'static day_part_http::testing::Server, String> {
+    static SERVER: std::sync::OnceLock<Result<day_part_http::testing::Server, String>> =
+        std::sync::OnceLock::new();
+    SERVER
+        .get_or_init(|| day_part_http::testing::Server::start().map_err(|e| e.to_string()))
+        .as_ref()
+        .map_err(Clone::clone)
+}
+
+/// A URL on the test server. A browser tab can host no listener: on the web the root path goes
+/// to `day launch`'s dev server, whose same-origin `day-http-ok` endpoint answers with the
+/// identical bodies (crates/day-cli/src/web.rs), and every other path reports that it needs the
+/// server inside the app.
+fn local_url(path: &str) -> Result<String, String> {
     #[cfg(target_arch = "wasm32")]
     {
         // Relative on purpose: resolves against the page origin (and subpath, e.g. the
         // project-Pages /Day-Showcase/), keeping the request same-origin — no CORS.
-        Ok("day-http-ok".into())
+        if path == "/" {
+            return Ok("day-http-ok".into());
+        }
+        Err(crate::res::str::network_needs_server().format())
     }
     #[cfg(not(target_arch = "wasm32"))]
     {
-        serve_once().map_err(|e| e.to_string())
+        test_server().map(|server| server.url(path))
     }
 }
 
-/// One-shot loopback server answering `200` — the demo needs no external network, so it behaves
-/// the same in airplane mode, on CI, and behind a proxy. GET keeps the historic `day-http-ok`
-/// body (walkthrough-asserted, byte-identical); any other method echoes it as
-/// `day-http-ok:<METHOD>` — the deterministic proof that e.g. PATCH crossed the platform engine.
-#[cfg(not(target_arch = "wasm32"))]
-fn serve_once() -> std::io::Result<String> {
-    use std::io::{Read, Write};
-    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
-    let port = listener.local_addr()?.port();
-    std::thread::spawn(move || {
-        if let Ok((mut stream, _)) = listener.accept() {
-            let mut buf = [0u8; 2048];
-            let n = stream.read(&mut buf).unwrap_or(0);
-            let head = String::from_utf8_lossy(&buf[..n]);
-            let method = head.split_whitespace().next().unwrap_or("GET").to_string();
-            let body = if method == "GET" {
-                "day-http-ok".to_string()
-            } else {
-                format!("day-http-ok:{method}")
-            };
-            let _ = stream.write_all(
-                format!(
-                    "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
-                    body.len()
-                )
-                .as_bytes(),
-            );
-        }
-    });
-    Ok(format!("http://127.0.0.1:{port}/"))
+/// A `ws://` URL on the test server.
+fn local_ws_url(path: &str) -> Result<String, String> {
+    #[cfg(target_arch = "wasm32")]
+    {
+        let _ = path;
+        Err(crate::res::str::network_needs_server().format())
+    }
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        test_server().map(|server| server.ws_url(path))
+    }
+}
+
+/// `"<status> <body>"` or `"error: …"`. Raw on purpose: identical in every locale, so the
+/// scripts can assert it exactly.
+fn status_line(result: Result<day_part_http::Response, day_part_http::HttpError>) -> String {
+    match result {
+        Ok(resp) => format!("{} {}", resp.status, resp.text()),
+        Err(e) => format!("error: {e}"),
+    }
+}
+
+/// `"<status>"` or `"error: …"`, for responses whose body is a whole web page.
+fn status_only(result: Result<day_part_http::Response, day_part_http::HttpError>) -> String {
+    match result {
+        Ok(resp) => resp.status.to_string(),
+        Err(e) => format!("error: {e}"),
+    }
+}
+
+/// The banner for a demonstration that needs a capability this platform may lack.
+fn needs(available: bool) -> impl Piece {
+    crate::widgets::support_note(if available {
+        Support::Native
+    } else {
+        Support::Unsupported
+    })
+}
+
+/// Bytes as MiB with one decimal.
+fn mib(bytes: u64) -> String {
+    format!("{:.1} MiB", bytes as f64 / f64::from(1u32 << 20))
+}
+
+/// Every capability the platform's client reports, by its API name.
+fn capabilities_line() -> String {
+    let c = day_part_http::capabilities();
+    let names = [
+        ("streaming", c.streaming),
+        ("upload_streaming", c.upload_streaming),
+        ("upload_progress", c.upload_progress),
+        ("manual_redirects", c.manual_redirects),
+        ("auth_questions", c.auth_questions),
+        ("native_auth_schemes", c.native_auth_schemes),
+        ("server_trust", c.server_trust),
+        ("client_identity", c.client_identity),
+        ("platform_cookies", c.platform_cookies),
+        ("platform_cache", c.platform_cache),
+        ("metrics", c.metrics),
+        ("websockets", c.websockets),
+        ("websocket_ping", c.websocket_ping),
+        ("websocket_headers", c.websocket_headers),
+        ("wait_for_connectivity", c.wait_for_connectivity),
+    ];
+    let on: Vec<&str> = names
+        .iter()
+        .filter(|(_, on)| *on)
+        .map(|(name, _)| *name)
+        .collect();
+    if on.is_empty() {
+        "\u{2014}".into()
+    } else {
+        on.join(", ")
+    }
+}
+
+/// Transfer metrics on one line: protocol, timings, connection reuse, address, TLS version.
+fn metrics_line(m: &day_part_http::Metrics) -> String {
+    let mut parts: Vec<String> = Vec::new();
+    if let Some(protocol) = &m.protocol {
+        parts.push(protocol.clone());
+    }
+    if let Some(total) = m.total {
+        parts.push(format!("{} ms", total.as_millis()));
+    }
+    if let Some(first) = m.first_byte {
+        parts.push(format!("ttfb {} ms", first.as_millis()));
+    }
+    if let Some(reused) = m.reused_connection {
+        parts.push(if reused { "reused" } else { "new connection" }.into());
+    }
+    if let Some(address) = &m.remote_address {
+        parts.push(address.clone());
+    }
+    if let Some(tls) = &m.tls_version {
+        parts.push(tls.clone());
+    }
+    if m.from_cache {
+        parts.push("cache".into());
+    }
+    parts.join(" · ")
 }
 
 fn http_section() -> impl Piece {
@@ -1205,19 +1307,11 @@ fn http_section() -> impl Piece {
         label(crate::res::str::http_caption()).font(Font::Footnote),
         crate::widgets::action_result(
             button(crate::res::str::http_fetch())
-                .action(move || match demo_url() {
+                .action(move || match local_url("/") {
                     Ok(url) => day_part_http::fetch_async(
                         day_part_http::Request::get(url)
                             .timeout(std::time::Duration::from_secs(10)),
-                        move |result| {
-                            // Raw "<status> <body>" on purpose: identical in every locale, so
-                            // the walkthrough can assert it exactly.
-                            let text = match result {
-                                Ok(resp) => format!("{} {}", resp.status, resp.text()),
-                                Err(e) => format!("error: {e}"),
-                            };
-                            done.set(text);
-                        },
+                        move |result| done.set(status_line(result)),
                     ),
                     Err(e) => status.set(format!("error: {e}")),
                 })
@@ -1231,16 +1325,12 @@ fn http_section() -> impl Piece {
         crate::widgets::action_result(
             button(crate::res::str::http_patch())
                 .bordered()
-                .action(move || match demo_url() {
+                .action(move || match local_url("/") {
                     Ok(url) => {
                         day::task(async move {
                             let req = day_part_http::Request::patch(url, Vec::new())
                                 .timeout(std::time::Duration::from_secs(10));
-                            let text = match day_part_http::fetch_future(req).await {
-                                Ok(resp) => format!("{} {}", resp.status, resp.text()),
-                                Err(e) => format!("error: {e}"),
-                            };
-                            patch_status.set(text);
+                            patch_status.set(status_line(day_part_http::fetch_future(req).await));
                         });
                     }
                     Err(e) => patch_status.set(format!("error: {e}")),
@@ -1255,6 +1345,12 @@ fn http_section() -> impl Piece {
         labeled(
             crate::res::str::http_tier(),
             label(day_part_http::tier().label()).id("http-tier"),
+        ),
+        labeled(
+            crate::res::str::http_caps(),
+            label(capabilities_line())
+                .font(Font::Footnote)
+                .id("http-caps"),
         ),
         url_check_field(),
     ))
@@ -1273,7 +1369,7 @@ fn http_resource_row() -> impl Piece {
             attempts.set(attempts.get() + 1);
             let n = attempts.get();
             async move {
-                let url = demo_url().map_err(day_part_http::HttpError::Io)?;
+                let url = local_url("/").map_err(day_part_http::HttpError::Io)?;
                 let resp = day_part_http::fetch_future(
                     day_part_http::Request::get(url).timeout(std::time::Duration::from_secs(10)),
                 )
@@ -1309,8 +1405,9 @@ fn http_resource_row() -> impl Piece {
 }
 
 /// The second half of the HTTP section: type any http(s) URL, tap Check, and read back the
-/// response headers plus the body size — a live view of what the platform stack returns
-/// (and of platform policy: iOS ATS rejecting a cleartext host shows up here as the error).
+/// response headers, the body size and the transfer metrics — a live view of what the platform
+/// stack returns (and of platform policy: iOS ATS rejecting a cleartext host shows up here as
+/// the error).
 fn url_check_field() -> impl Piece {
     // Pre-filled with a host that answers cross-origin requests (httpbin echoes with
     // `Access-Control-Allow-Origin: *`), so Check works out of the box on web-dom too —
@@ -1318,7 +1415,7 @@ fn url_check_field() -> impl Piece {
     let url = Signal::new("https://httpbin.org/get".to_string());
     let out = Signal::new(String::new());
     // The in-flight check, if any: re-tapping Check aborts the previous task, which drops its
-    // FetchFuture and CANCELS the platform request (docs/async.md's drop-cancel rail) — type a
+    // future and CANCELS the platform request (docs/async.md's drop-cancel rail) — type a
     // slow URL, tap Check twice, and only the second answer ever lands.
     let inflight: std::rc::Rc<std::cell::Cell<Option<day::TaskHandle>>> =
         std::rc::Rc::new(std::cell::Cell::new(None));
@@ -1342,11 +1439,17 @@ fn url_check_field() -> impl Piece {
                 let slot = inflight.clone();
                 let handle = day::task(async move {
                     // Await-style (docs/async.md): the future resumes on the UI thread, so the
-                    // readout is a plain Signal write — no Setter needed.
-                    let text = match day_part_http::fetch_future(req).await {
+                    // readout is a plain Signal write — no Setter needed. A `Client` carries the
+                    // transfer metrics the crate-root calls leave out.
+                    let text = match day_part_http::Client::new().fetch_future(req).await {
                         // Raw readout on purpose (headers and sizes aren't locale material).
                         Ok(resp) => {
                             let mut s = format!("HTTP {} · {} bytes", resp.status, resp.body.len());
+                            if let Some(line) = resp.metrics.as_ref().map(metrics_line)
+                                && !line.is_empty()
+                            {
+                                s.push_str(&format!("\n{line}"));
+                            }
                             for (k, v) in &resp.headers {
                                 s.push_str(&format!("\n{k}: {v}"));
                             }
@@ -1370,6 +1473,991 @@ fn url_check_field() -> impl Piece {
     // Leading, like the section's other rows — the default centered alignment floated the
     // Check button and readout as islands mid-card on every platform.
     .align(HAlign::Leading)
+}
+
+/// 32 MiB, fed at 6 MiB a second so the bar has time to move and the buttons time to act.
+const DOWNLOAD_BYTES: u64 = 32 << 20;
+const DOWNLOAD_RATE: u64 = 6 << 20;
+
+/// The download the Download manager section shows, for as long as the app runs.
+static DOWNLOAD: std::sync::Mutex<Option<day_part_downloads::DownloadId>> =
+    std::sync::Mutex::new(None);
+/// The SHA-256 the finished file must have, as the test server computed it.
+static DOWNLOAD_SHA256: std::sync::OnceLock<String> = std::sync::OnceLock::new();
+
+fn current_download() -> Option<day_part_downloads::DownloadId> {
+    DOWNLOAD.lock().ok().and_then(|id| *id)
+}
+
+/// The download manager behind the section, opened once beside the app's files
+/// (docs/downloads.md). Its journal outlives the app, but the test server's port does not, so
+/// whatever a previous run left behind is cleared on first use.
+fn downloads() -> Result<&'static day_part_downloads::Downloads, String> {
+    static DOWNLOADS: std::sync::OnceLock<Result<day_part_downloads::Downloads, String>> =
+        std::sync::OnceLock::new();
+    DOWNLOADS
+        .get_or_init(|| {
+            let manager = day_part_downloads::Downloads::open(download_dir()?.join("manager"))
+                .map_err(|e| e.to_string())?;
+            for stale in manager.list() {
+                let _ = manager.remove(stale.id);
+            }
+            Ok(manager)
+        })
+        .as_ref()
+        .map_err(Clone::clone)
+}
+
+/// Where the section's download and its manager live.
+fn download_dir() -> Result<std::path::PathBuf, String> {
+    #[cfg(target_arch = "wasm32")]
+    {
+        Err(crate::res::str::network_needs_server().format())
+    }
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        day_part_fs::data_dir()
+            .map(|dir| dir.join("showcase-downloads"))
+            .map_err(|e| e.to_string())
+    }
+}
+
+/// A download manager at work: a large file with a progress bar, paused, resumed from its
+/// partial file with a validated range request, and verified against its SHA-256 at the end.
+fn download_section() -> impl Piece {
+    use day_part_downloads::{
+        Download, DownloadError, DownloadId, Downloads, Progress, State, Tier,
+    };
+
+    let snapshot: Signal<Option<Progress>> = Signal::new(
+        downloads()
+            .ok()
+            .zip(current_download())
+            .and_then(|(manager, id)| manager.progress(id)),
+    );
+    let message = Signal::new(String::new());
+    // Hand the next download to the OS (a background URLSession, DownloadManager) where it has a
+    // service for that.
+    let system = Signal::new(false);
+    if let Ok(manager) = downloads() {
+        // Progress arrives on the transport's thread; the setter carries it to the UI thread.
+        let deliver = snapshot.setter();
+        let watch = manager.watch(move |progress| {
+            if current_download() == Some(progress.id) {
+                deliver.set(Some(progress.clone()));
+            }
+        });
+        day::reactive::Scope::current().on_cleanup(move || drop(watch));
+        // The test server takes a moment to hash the file, so ask for the digest up front.
+        static ASKED: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+        if !ASKED.swap(true, std::sync::atomic::Ordering::Relaxed)
+            && let Ok(url) = local_url(&format!("/bytes/{DOWNLOAD_BYTES}/sha256"))
+        {
+            let request =
+                day_part_http::Request::get(url).timeout(std::time::Duration::from_secs(120));
+            day_part_http::fetch_async(request, |result| {
+                if let Ok(resp) = result
+                    && resp.status == 200
+                {
+                    let _ = DOWNLOAD_SHA256.set(resp.text().trim().to_string());
+                }
+            });
+        }
+    }
+
+    let start = move || {
+        let manager = match downloads() {
+            Ok(manager) => manager,
+            Err(e) => return message.set(e),
+        };
+        if let Some(id) = current_download() {
+            match manager.progress(id) {
+                Some(progress) if !progress.state.is_settled() => return,
+                Some(_) => {
+                    let _ = manager.remove(id);
+                }
+                None => {}
+            }
+        }
+        let (url, digest_url, dest) = match (
+            local_url(&format!("/bytes/{DOWNLOAD_BYTES}?rate={DOWNLOAD_RATE}")),
+            local_url(&format!("/bytes/{DOWNLOAD_BYTES}/sha256")),
+            download_dir(),
+        ) {
+            (Ok(url), Ok(digest_url), Ok(dir)) => (url, digest_url, dir.join("sample.bin")),
+            (Err(e), _, _) | (_, Err(e), _) | (_, _, Err(e)) => return message.set(e),
+        };
+        message.set(crate::res::str::http_checking().format());
+        day::task(async move {
+            let expected = match DOWNLOAD_SHA256.get() {
+                Some(digest) => digest.clone(),
+                None => {
+                    let request = day_part_http::Request::get(digest_url)
+                        .timeout(std::time::Duration::from_secs(120));
+                    match day_part_http::fetch_future(request).await {
+                        Ok(resp) => resp.text().trim().to_string(),
+                        Err(e) => return message.set(format!("error: {e}")),
+                    }
+                }
+            };
+            let download = Download::new(day_part_http::Request::get(url), dest)
+                .expect_len(DOWNLOAD_BYTES)
+                .expect_sha256(&expected)
+                .in_background(system.get_untracked());
+            match manager.enqueue(download) {
+                Ok(id) => {
+                    if let Ok(mut current) = DOWNLOAD.lock() {
+                        *current = Some(id);
+                    }
+                    message.set(String::new());
+                    snapshot.set(manager.progress(id));
+                }
+                Err(e) => message.set(format!("error: {e}")),
+            }
+        });
+    };
+    let act = move |op: fn(&Downloads, DownloadId) -> Result<(), DownloadError>| {
+        if let (Ok(manager), Some(id)) = (downloads(), current_download())
+            && let Err(e) = op(manager, id)
+        {
+            message.set(format!("error: {e}"));
+        }
+    };
+
+    section((
+        needs(!cfg!(target_arch = "wasm32")),
+        progress(move || snapshot.with(|p| p.as_ref().and_then(|p| p.fraction()).unwrap_or(0.0)))
+            .id("download-progress"),
+        when(Downloads::system_tier, move || {
+            labeled(
+                crate::res::str::download_system(),
+                toggle(system).id("download-system"),
+            )
+        }),
+        row((
+            button(crate::res::str::download_start())
+                .tint(crate::widgets::primary())
+                .action(start)
+                .id("download-start"),
+            button(crate::res::str::download_cancel())
+                .tint(crate::widgets::danger())
+                .action(move || act(Downloads::cancel))
+                .id("download-cancel"),
+        ))
+        .spacing(8.0),
+        row((
+            button(crate::res::str::download_pause())
+                .bordered()
+                .action(move || act(Downloads::pause))
+                .id("download-pause"),
+            button(crate::res::str::download_resume())
+                .bordered()
+                .action(move || act(Downloads::resume))
+                .id("download-resume"),
+        ))
+        .spacing(8.0),
+        // The state is the manager's own word for it (`running`, `paused`, `done`): a value, not
+        // prose, and what the scripts assert.
+        label(move || {
+            snapshot.with(|p| match p {
+                Some(p) => p.state.label().to_string(),
+                None => crate::res::str::http_idle().format(),
+            })
+        })
+        .id("download-state"),
+        label(move || {
+            snapshot.with(|p| match p {
+                Some(p) if p.tier == Tier::System => {
+                    crate::res::str::download_tier_system().format()
+                }
+                Some(_) => crate::res::str::download_tier_app().format(),
+                None => String::new(),
+            })
+        })
+        .font(Font::Footnote)
+        .id("download-tier"),
+        label(move || {
+            snapshot.with(|p| match p {
+                Some(p) => crate::res::str::download_detail(
+                    format!("{}/s", mib(p.bytes_per_second as u64)),
+                    mib(p.received),
+                    p.remaining
+                        .map_or_else(|| "\u{2014}".to_string(), |r| format!("{} s", r.as_secs())),
+                    mib(p.total.unwrap_or(DOWNLOAD_BYTES)),
+                )
+                .format(),
+                None => String::new(),
+            })
+        })
+        .font(Font::Footnote)
+        .id("download-detail"),
+        label(move || {
+            snapshot.with(|p| match p {
+                Some(p) if p.resumed_from > 0 => {
+                    crate::res::str::download_resumed(mib(p.resumed_from)).format()
+                }
+                _ => String::new(),
+            })
+        })
+        .font(Font::Footnote)
+        .id("download-resumed"),
+        label(move || {
+            snapshot.with(|p| match p {
+                Some(p) if p.state == State::Done && p.sha256.is_some() => {
+                    crate::res::str::download_verified().format()
+                }
+                Some(p) => p
+                    .error
+                    .as_ref()
+                    .map(|e| format!("error: {e}"))
+                    .unwrap_or_default(),
+                None => String::new(),
+            })
+        })
+        .id("download-verified"),
+        label(move || message.get())
+            .font(Font::Footnote)
+            .id("download-message"),
+    ))
+    .title(crate::res::str::download_title())
+}
+
+/// A slow response read chunk by chunk as the platform delivers it (docs/http.md "Streaming"):
+/// under `day::task` each chunk lands on the UI thread, and the body pulls the next one only
+/// when the loop asks.
+fn stream_section() -> impl Piece {
+    let bytes = Signal::new(crate::res::str::http_idle().format());
+    let chunks = Signal::new(String::new());
+    let inflight: std::rc::Rc<std::cell::Cell<Option<day::TaskHandle>>> = std::rc::Rc::default();
+    section((
+        needs(day_part_http::capabilities().streaming),
+        crate::widgets::action_result(
+            button(crate::res::str::stream_start())
+                .bordered()
+                .action(move || {
+                    let url = match local_url("/drip?chunks=12&size=4096&delay_ms=150") {
+                        Ok(url) => url,
+                        Err(e) => return bytes.set(e),
+                    };
+                    if let Some(previous) = inflight.take() {
+                        previous.abort();
+                    }
+                    bytes.set(crate::res::str::http_checking().format());
+                    chunks.set(String::new());
+                    let slot = inflight.clone();
+                    let handle = day::task(async move {
+                        let request = day_part_http::Request::get(url);
+                        match day_part_http::Client::new().send_future(request).await {
+                            Ok(streaming) => {
+                                let mut body = streaming.into_body();
+                                let (mut count, mut total) = (0u32, 0u64);
+                                loop {
+                                    match body.next().await {
+                                        Some(Ok(chunk)) => {
+                                            count += 1;
+                                            total += chunk.len() as u64;
+                                            chunks.set(format!("{count} chunks"));
+                                            bytes.set(format!("{total} bytes…"));
+                                        }
+                                        Some(Err(e)) => break bytes.set(format!("error: {e}")),
+                                        None => break bytes.set(format!("{total} bytes")),
+                                    }
+                                }
+                            }
+                            Err(e) => bytes.set(format!("error: {e}")),
+                        }
+                        slot.set(None);
+                    });
+                    inflight.set(Some(handle));
+                })
+                .id("stream-start")
+                .any(),
+            column((
+                label(move || bytes.get()).id("stream-bytes"),
+                label(move || chunks.get())
+                    .font(Font::Footnote)
+                    .id("stream-chunks"),
+            ))
+            .spacing(2.0)
+            .align(HAlign::Leading)
+            .any(),
+        ),
+    ))
+    .title(crate::res::str::stream_title())
+}
+
+/// 8 MiB of the test server's pattern bytes.
+const UPLOAD_BYTES: u64 = 8 << 20;
+/// Their SHA-256, hashed once off the UI thread.
+static UPLOAD_SHA256: std::sync::OnceLock<String> = std::sync::OnceLock::new();
+
+/// The pattern bytes, generated while the upload reads them.
+#[cfg(not(target_arch = "wasm32"))]
+struct PatternReader {
+    offset: u64,
+    len: u64,
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+impl std::io::Read for PatternReader {
+    fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
+        let n = (self.len - self.offset).min(buf.len() as u64) as usize;
+        for (i, byte) in buf[..n].iter_mut().enumerate() {
+            *byte = day_part_http::testing::pattern_byte(self.offset + i as u64);
+        }
+        self.offset += n as u64;
+        Ok(n)
+    }
+}
+
+/// Uploads (docs/http.md "Uploads"): a body streamed from a reader with a progress bar, checked by
+/// the SHA-256 the server computes, and a multipart form.
+fn upload_section() -> impl Piece {
+    let fraction = Signal::new(0.0f64);
+    let status = Signal::new(crate::res::str::http_idle().format());
+    let digest = Signal::new(String::new());
+    let form_status = Signal::new(String::new());
+
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        static HASHING: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+        if !HASHING.swap(true, std::sync::atomic::Ordering::Relaxed) {
+            std::thread::spawn(|| {
+                let _ = UPLOAD_SHA256.set(day_part_http::testing::pattern_sha256(UPLOAD_BYTES));
+            });
+        }
+    }
+
+    let upload = move || {
+        let url = match local_url("/upload") {
+            Ok(url) => url,
+            Err(e) => return status.set(e),
+        };
+        fraction.set(0.0);
+        digest.set(String::new());
+        status.set(crate::res::str::http_checking().format());
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            let sent = fraction.setter();
+            let request = day_part_http::Request::post(url, Vec::new())
+                .body_stream(
+                    PatternReader {
+                        offset: 0,
+                        len: UPLOAD_BYTES,
+                    },
+                    Some(UPLOAD_BYTES),
+                )
+                .upload_progress(move |done, total| {
+                    sent.set(done as f64 / total.unwrap_or(UPLOAD_BYTES).max(1) as f64);
+                });
+            day::task(async move {
+                match day_part_http::Client::new().fetch_future(request).await {
+                    Ok(resp) => {
+                        let reply = resp.text().into_owned();
+                        let (received, hash) = reply.split_once(' ').unwrap_or((&reply, ""));
+                        status.set(format!("{received} bytes received"));
+                        fraction.set(1.0);
+                        digest.set(match UPLOAD_SHA256.get() {
+                            Some(expected) if expected == hash => {
+                                crate::res::str::upload_digest_match().format()
+                            }
+                            Some(_) => crate::res::str::upload_digest_mismatch().format(),
+                            None => String::new(),
+                        });
+                    }
+                    Err(e) => status.set(format!("error: {e}")),
+                }
+            });
+        }
+    };
+    let upload_form = move || {
+        let url = match local_url("/upload") {
+            Ok(url) => url,
+            Err(e) => return form_status.set(e),
+        };
+        form_status.set(crate::res::str::http_checking().format());
+        let form = day_part_http::Form::new()
+            .text("title", "Day Showcase")
+            .bytes(
+                "sample",
+                "sample.bin",
+                "application/octet-stream",
+                vec![0x5A; 64 << 10],
+            );
+        let request = day_part_http::Request::post(url, Vec::new()).form(form);
+        day::task(async move {
+            let text = match day_part_http::Client::new().fetch_future(request).await {
+                Ok(resp) => format!(
+                    "{} bytes received",
+                    resp.text().split(' ').next().unwrap_or("0")
+                ),
+                Err(e) => format!("error: {e}"),
+            };
+            form_status.set(text);
+        });
+    };
+
+    section((
+        needs(day_part_http::capabilities().upload_streaming),
+        progress(fraction).id("upload-progress"),
+        crate::widgets::action_result(
+            button(crate::res::str::upload_stream())
+                .bordered()
+                .action(upload)
+                .id("upload-stream")
+                .any(),
+            column((
+                label(move || status.get()).id("upload-status"),
+                label(move || digest.get())
+                    .font(Font::Footnote)
+                    .id("upload-digest"),
+            ))
+            .spacing(2.0)
+            .align(HAlign::Leading)
+            .any(),
+        ),
+        crate::widgets::action_result(
+            button(crate::res::str::upload_form())
+                .bordered()
+                .action(upload_form)
+                .id("upload-form")
+                .any(),
+            label(move || form_status.get())
+                .id("upload-form-status")
+                .any(),
+        ),
+    ))
+    .title(crate::res::str::upload_title())
+}
+
+/// Redirects (docs/http.md "Redirects"): a handler sees each hop and follows it, or stops at
+/// the first so the redirect response is the response.
+fn redirect_section() -> impl Piece {
+    let status = Signal::new(crate::res::str::http_idle().format());
+    let hops = Signal::new(String::new());
+    let run = move |stop_at_first: bool| {
+        let url = match local_url("/redirect/3") {
+            Ok(url) => url,
+            Err(e) => return status.set(e),
+        };
+        status.set(crate::res::str::http_checking().format());
+        hops.set(String::new());
+        let record = hops.setter();
+        let trail = std::sync::Mutex::new(Vec::<String>::new());
+        let client = day_part_http::Client::builder()
+            .on_redirect(move |hop, reply| {
+                // The path alone: the test server's port changes with every run.
+                let path = hop
+                    .to
+                    .splitn(4, '/')
+                    .nth(3)
+                    .map_or_else(|| hop.to.clone(), |p| format!("/{p}"));
+                if let Ok(mut trail) = trail.lock() {
+                    trail.push(path);
+                    record.set(trail.join(" → "));
+                }
+                if stop_at_first {
+                    reply.stop();
+                } else {
+                    reply.follow();
+                }
+            })
+            .build();
+        day::task(async move {
+            let text = match client.fetch_future(day_part_http::Request::get(url)).await {
+                Ok(resp) if (300..400).contains(&resp.status) => {
+                    format!(
+                        "{} {}",
+                        resp.status,
+                        resp.header("location").unwrap_or_default()
+                    )
+                }
+                other => status_line(other),
+            };
+            status.set(text);
+        });
+    };
+    section((
+        needs(day_part_http::capabilities().manual_redirects),
+        column((
+            button(crate::res::str::redirect_follow())
+                .bordered()
+                .action(move || run(false))
+                .id("redirect-follow"),
+            button(crate::res::str::redirect_stop())
+                .bordered()
+                .action(move || run(true))
+                .id("redirect-stop"),
+        ))
+        .spacing(8.0)
+        .align(HAlign::Leading),
+        label(move || status.get()).id("redirect-status"),
+        label(move || hops.get())
+            .font(Font::Footnote)
+            .id("redirect-hops"),
+    ))
+    .title(crate::res::str::redirect_title())
+}
+
+/// Authentication (docs/http.md "Challenges"): the server challenges with Basic, Digest or
+/// Bearer, and the page's handler answers with the fields' values.
+fn auth_section() -> impl Piece {
+    let user = Signal::new("day".to_string());
+    let password = Signal::new("sunrise".to_string());
+    let status = Signal::new(crate::res::str::http_idle().format());
+    let run = move |path: &'static str| {
+        let url = match local_url(path) {
+            Ok(url) => url,
+            Err(e) => return status.set(e),
+        };
+        let (name, secret) = (user.get_untracked(), password.get_untracked());
+        status.set(crate::res::str::http_checking().format());
+        let client = day_part_http::Client::builder()
+            .cookies(day_part_http::Cookies::Off)
+            .on_challenge(move |challenge, reply| match challenge.scheme {
+                day_part_http::Scheme::Bearer => reply.bearer(secret.clone()),
+                _ => reply.credential(name.clone(), secret.clone()),
+            })
+            .build();
+        day::task(async move {
+            status.set(status_line(
+                client.fetch_future(day_part_http::Request::get(url)).await,
+            ));
+        });
+    };
+    section((
+        labeled(
+            crate::res::str::auth_user(),
+            text_field(user).id("auth-user"),
+        ),
+        labeled(
+            crate::res::str::auth_password(),
+            text_field(password).id("auth-password"),
+        ),
+        row((
+            button(crate::res::str::auth_basic())
+                .bordered()
+                .action(move || run("/basic-auth/day/sunrise"))
+                .id("auth-basic"),
+            button(crate::res::str::auth_digest())
+                .bordered()
+                .action(move || run("/digest-auth/day/sunrise"))
+                .id("auth-digest"),
+            button(crate::res::str::auth_bearer())
+                .bordered()
+                .action(move || run("/bearer/sunrise"))
+                .id("auth-bearer"),
+        ))
+        .spacing(8.0),
+        label(move || status.get()).id("auth-status"),
+    ))
+    .title(crate::res::str::auth_title())
+}
+
+/// The client the Cookies section shares, so a cookie one tap sets is there for the next.
+fn cookie_client() -> &'static day_part_http::Client {
+    static CLIENT: std::sync::OnceLock<day_part_http::Client> = std::sync::OnceLock::new();
+    CLIENT.get_or_init(|| {
+        day_part_http::Client::builder()
+            .cache(day_part_http::Cache::Off)
+            .build()
+    })
+}
+
+/// Cookies (docs/http.md "Cookies"): a cookie set by a redirect response, sent on the next hop
+/// and on later requests, then cleared.
+fn cookie_section() -> impl Piece {
+    let status = Signal::new(crate::res::str::http_idle().format());
+    let send = move |path: &'static str| {
+        let url = match local_url(path) {
+            Ok(url) => url,
+            Err(e) => return status.set(e),
+        };
+        day::task(async move {
+            let text = match cookie_client()
+                .fetch_future(day_part_http::Request::get(url))
+                .await
+            {
+                Ok(resp) => resp.text().into_owned(),
+                Err(e) => format!("error: {e}"),
+            };
+            status.set(text);
+        });
+    };
+    let platform_store = cfg!(any(
+        target_os = "macos",
+        target_os = "ios",
+        target_arch = "wasm32"
+    )) && day_part_http::capabilities().platform_cookies;
+    section((
+        needs(!cfg!(target_arch = "wasm32")),
+        label(if platform_store {
+            crate::res::str::cookie_store_platform()
+        } else {
+            crate::res::str::cookie_store_jar()
+        })
+        .font(Font::Footnote),
+        row((
+            button(crate::res::str::cookie_set())
+                .bordered()
+                .action(move || send("/cookies/set?flavor=oat"))
+                .id("cookie-set"),
+            button(crate::res::str::cookie_send())
+                .bordered()
+                .action(move || send("/cookies"))
+                .id("cookie-send"),
+            button(crate::res::str::cookie_clear())
+                .bordered()
+                .action(move || {
+                    cookie_client().clear_cookies();
+                    send("/cookies");
+                })
+                .id("cookie-clear"),
+        ))
+        .spacing(8.0),
+        label(move || status.get()).id("cookie-status"),
+    ))
+    .title(crate::res::str::cookie_title())
+}
+
+/// The client the Cache section shares, with the platform's cache.
+fn cache_client() -> &'static day_part_http::Client {
+    static CLIENT: std::sync::OnceLock<day_part_http::Client> = std::sync::OnceLock::new();
+    CLIENT.get_or_init(|| {
+        day_part_http::Client::builder()
+            .cookies(day_part_http::Cookies::Off)
+            .cache(day_part_http::Cache::platform())
+            .build()
+    })
+}
+
+/// The cache (docs/http.md "Caching"): the server says a response keeps for a minute and counts
+/// the times it really answers, so a response from the cache repeats the count.
+fn cache_section() -> impl Piece {
+    let status = Signal::new(crate::res::str::http_idle().format());
+    let fetch = move |policy: day_part_http::CachePolicy| {
+        let url = match local_url("/cache/60") {
+            Ok(url) => url,
+            Err(e) => return status.set(e),
+        };
+        day::task(async move {
+            let request = day_part_http::Request::get(url).cache(policy);
+            let text = match cache_client().fetch_future(request).await {
+                Ok(resp) => {
+                    let from_cache = resp.metrics.as_ref().is_some_and(|m| m.from_cache);
+                    format!(
+                        "{} · {}",
+                        resp.text(),
+                        if from_cache { "cache" } else { "network" }
+                    )
+                }
+                Err(e) => format!("error: {e}"),
+            };
+            status.set(text);
+        });
+    };
+    section((
+        needs(day_part_http::capabilities().platform_cache),
+        row((
+            button(crate::res::str::cache_fetch())
+                .bordered()
+                .action(move || fetch(day_part_http::CachePolicy::Default))
+                .id("cache-fetch"),
+            button(crate::res::str::cache_reload())
+                .bordered()
+                .action(move || fetch(day_part_http::CachePolicy::Reload))
+                .id("cache-reload"),
+            button(crate::res::str::cache_clear())
+                .bordered()
+                .action(move || {
+                    cache_client().clear_cache();
+                    status.set("\u{2014}".into());
+                })
+                .id("cache-clear"),
+        ))
+        .spacing(8.0),
+        label(move || status.get()).id("cache-status"),
+    ))
+    .title(crate::res::str::cache_title())
+}
+
+/// A WebSocket (docs/http.md "WebSockets"): connect to the test server's echo, send a message,
+/// ping, and close with a code, while a task reads what comes back.
+fn websocket_section() -> impl Piece {
+    use day_part_http::Message;
+
+    let state = Signal::new(crate::res::str::http_idle().format());
+    let last = Signal::new(String::new());
+    let ping = Signal::new(String::new());
+    let text = Signal::new("hello".to_string());
+    let sender: std::rc::Rc<std::cell::RefCell<Option<day_part_http::WsSender>>> =
+        std::rc::Rc::default();
+    let reader: std::rc::Rc<std::cell::Cell<Option<day::TaskHandle>>> = std::rc::Rc::default();
+
+    let connect = {
+        let sender = sender.clone();
+        move || {
+            let url = match local_ws_url("/ws/echo") {
+                Ok(url) => url,
+                Err(e) => return state.set(e),
+            };
+            // A new connection replaces the old: aborting its reader drops the socket, which
+            // closes it.
+            if let Some(previous) = reader.take() {
+                previous.abort();
+            }
+            sender.borrow_mut().take();
+            state.set(crate::res::str::http_checking().format());
+            last.set(String::new());
+            let slot = sender.clone();
+            let handle = day::task(async move {
+                let request = day_part_http::Request::get(url).protocols(["day"]);
+                match day_part_http::Client::new().websocket_future(request).await {
+                    Ok(mut socket) => {
+                        state.set(format!("open · {}", socket.protocol().unwrap_or_default()));
+                        *slot.borrow_mut() = Some(socket.sender());
+                        while let Some(item) = socket.next().await {
+                            match item {
+                                Ok(Message::Text(text)) => last.set(text),
+                                Ok(Message::Binary(bytes)) => {
+                                    last.set(format!("{} bytes", bytes.len()))
+                                }
+                                Ok(Message::Close { code, reason }) => {
+                                    state.set(format!("closed · {code} {reason}"))
+                                }
+                                Err(e) => state.set(format!("error: {e}")),
+                            }
+                        }
+                        slot.borrow_mut().take();
+                    }
+                    Err(e) => state.set(format!("error: {e}")),
+                }
+            });
+            reader.set(Some(handle));
+        }
+    };
+    let send = {
+        let sender = sender.clone();
+        move || {
+            if let Some(socket) = sender.borrow().as_ref() {
+                socket.send_async(Message::Text(text.get_untracked()), |_| {});
+            }
+        }
+    };
+    let send_ping = {
+        let sender = sender.clone();
+        move || {
+            if let Some(socket) = sender.borrow().as_ref() {
+                let done = ping.setter();
+                socket.ping_async(move |result| {
+                    done.set(match result {
+                        Ok(()) => "pong".into(),
+                        Err(e) => format!("error: {e}"),
+                    })
+                });
+            }
+        }
+    };
+    let close = move || {
+        if let Some(socket) = sender.borrow().as_ref() {
+            socket.close(4000, "done");
+        }
+    };
+
+    section((
+        needs(day_part_http::capabilities().websockets),
+        row((
+            button(crate::res::str::ws_connect())
+                .bordered()
+                .action(connect)
+                .id("ws-connect"),
+            button(crate::res::str::ws_close())
+                .bordered()
+                .action(close)
+                .id("ws-close"),
+        ))
+        .spacing(8.0),
+        text_field(text).id("ws-text"),
+        row((
+            button(crate::res::str::ws_send())
+                .bordered()
+                .action(send)
+                .id("ws-send"),
+            button(crate::res::str::ws_ping())
+                .bordered()
+                .action(send_ping)
+                .id("ws-ping"),
+        ))
+        .spacing(8.0),
+        label(move || state.get()).id("ws-state"),
+        label(move || last.get()).id("ws-last"),
+        label(move || ping.get())
+            .font(Font::Footnote)
+            .id("ws-ping-status"),
+    ))
+    .title(crate::res::str::ws_title())
+}
+
+/// A total-time limit (docs/http.md "Time limits"): a response the server holds for three seconds
+/// against a client that allows one.
+fn timeout_section() -> impl Piece {
+    let status = Signal::new(crate::res::str::http_idle().format());
+    section((crate::widgets::action_result(
+        button(crate::res::str::timeout_run())
+            .bordered()
+            .action(move || {
+                let url = match local_url("/delay/3000") {
+                    Ok(url) => url,
+                    Err(e) => return status.set(e),
+                };
+                status.set(crate::res::str::http_checking().format());
+                day::task(async move {
+                    let client = day_part_http::Client::builder()
+                        .timeout_total(std::time::Duration::from_secs(1))
+                        .build();
+                    status.set(status_line(
+                        client.fetch_future(day_part_http::Request::get(url)).await,
+                    ));
+                });
+            })
+            .id("timeout-run")
+            .any(),
+        label(move || status.get()).id("timeout-status").any(),
+    ),))
+    .title(crate::res::str::timeout_title())
+}
+
+/// Server trust and client certificates (docs/http.md "Trust"): a self-signed server refused and
+/// then trusted by a handler, public-key pins learned, honored and violated, and a server that
+/// asks for a client certificate. badssl.com publishes these servers, and the certificate, for
+/// exactly this kind of test.
+fn trust_section() -> impl Piece {
+    use day_part_http::{Client, Identity, Request, Trust};
+
+    let caps = day_part_http::capabilities();
+    let visit = Signal::new(crate::res::str::http_idle().format());
+    let pins = Signal::new(String::new());
+    let identity = Signal::new(crate::res::str::http_idle().format());
+
+    let self_signed = move |trust_anyway: bool| {
+        visit.set(crate::res::str::http_checking().format());
+        let mut builder = Client::builder();
+        if trust_anyway {
+            builder = builder.on_server_trust(|trust, reply| {
+                if trust.host == "self-signed.badssl.com" {
+                    reply.accept();
+                } else {
+                    reply.default_handling();
+                }
+            });
+        }
+        let client = builder.build();
+        day::task(async move {
+            let request = Request::get("https://self-signed.badssl.com/");
+            visit.set(status_only(client.fetch_future(request).await));
+        });
+    };
+    let check_pins = move || {
+        pins.set(crate::res::str::http_checking().format());
+        day::task(async move {
+            // Learn the key example.com presents, pin it, then pin a key it does not present.
+            let leaf = std::sync::Arc::new(std::sync::Mutex::new(None::<String>));
+            let seen = leaf.clone();
+            let learner = Client::builder()
+                .on_server_trust(move |trust, reply| {
+                    if let Ok(mut leaf) = seen.lock() {
+                        *leaf = trust.pins().into_iter().next();
+                    }
+                    reply.default_handling();
+                })
+                .build();
+            if let Err(e) = learner
+                .fetch_future(Request::get("https://example.com/"))
+                .await
+            {
+                return pins.set(format!("error: {e}"));
+            }
+            let Some(pin) = leaf.lock().ok().and_then(|leaf| leaf.clone()) else {
+                return pins.set("error: no certificate chain".into());
+            };
+            let pinned = Client::builder()
+                .trust(Trust::system().pin("example.com", &pin))
+                .build();
+            let good = status_only(
+                pinned
+                    .fetch_future(Request::get("https://example.com/"))
+                    .await,
+            );
+            let wrong = Client::builder()
+                .trust(Trust::system().pin(
+                    "example.com",
+                    "sha256/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+                ))
+                .build();
+            let bad = status_only(
+                wrong
+                    .fetch_future(Request::get("https://example.com/"))
+                    .await,
+            );
+            pins.set(format!("{pin}\npinned: {good}\nwrong pin: {bad}"));
+        });
+    };
+    let connect_identity = move |with_certificate: bool| {
+        identity.set(crate::res::str::http_checking().format());
+        day::task(async move {
+            let mut builder = Client::builder();
+            if with_certificate {
+                let archive = Request::get("https://badssl.com/certs/badssl.com-client.p12");
+                match day_part_http::fetch_future(archive).await {
+                    Ok(resp) if resp.status == 200 => {
+                        builder = builder.identity(Identity::pkcs12(resp.body, "badssl.com"));
+                    }
+                    other => return identity.set(status_only(other)),
+                }
+            }
+            let request = Request::get("https://client.badssl.com/");
+            identity.set(status_only(builder.build().fetch_future(request).await));
+        });
+    };
+
+    section((
+        needs(caps.server_trust),
+        label(crate::res::str::network_needs_internet()).font(Font::Footnote),
+        column((
+            button(crate::res::str::trust_visit())
+                .bordered()
+                .action(move || self_signed(false))
+                .id("trust-visit"),
+            button(crate::res::str::trust_accept())
+                .bordered()
+                .action(move || self_signed(true))
+                .id("trust-accept"),
+        ))
+        .spacing(8.0)
+        .align(HAlign::Leading),
+        label(move || visit.get()).id("trust-status"),
+        button(crate::res::str::trust_pins())
+            .bordered()
+            .action(check_pins)
+            .id("trust-pins"),
+        label(move || pins.get())
+            .font(Font::Footnote)
+            .id("trust-pin-status"),
+        column((
+            button(crate::res::str::identity_without())
+                .bordered()
+                .action(move || connect_identity(false))
+                .id("identity-without"),
+            button(crate::res::str::identity_with())
+                .bordered()
+                .action(move || connect_identity(true))
+                .id("identity-with"),
+        ))
+        .spacing(8.0)
+        .align(HAlign::Leading),
+        label(move || identity.get()).id("identity-status"),
+    ))
+    .title(crate::res::str::trust_title())
 }
 
 /// App-local file storage (docs/fs.md): day-part-fs write/read/list/remove through the async
