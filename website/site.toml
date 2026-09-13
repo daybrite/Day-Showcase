@@ -14,3 +14,7 @@ accent-color = "#ff9500"
 webapp = "webapp"
 default-platform = "web"
 
+# The showcase for the icon pipeline, so it uses the layer only that pipeline
+# produces: day:monochrome, shown as the sun's own shadow.
+icon-effect = "emboss"
+

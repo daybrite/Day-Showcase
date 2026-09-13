@@ -9,7 +9,7 @@ day::routes! {
 
 /// Native tabbed container (docs/tabs.md): a `nav` with `NavStyle::Tabs`, bound to a
 /// `Signal<Tab>` of the active tab (tabs always have a selection, so no `Option`). NSTabView /
-/// UITabBarController / GtkNotebook / QTabWidget / Android tab strip. Each pane holds live
+/// UITabBarController / AdwViewSwitcher / QTabWidget / Android tab strip. Each pane holds live
 /// controls whose signals are owned by the PAGE, not the pane — switch away and back and the
 /// state is still there, which is the point the panes make.
 pub(crate) fn tabs_page() -> AnyPiece {
@@ -40,8 +40,8 @@ pub(crate) fn tabs_page() -> AnyPiece {
     // Vectors, not PNGs: a tab bar draws its icon at a size the toolkit picks, and on iOS the SVG
     // rides an asset catalog with `preserves-vector-representation`, so it is resolved at display
     // size instead of scaled from a bitmap. Backends whose tab widget shows icons (iOS UITabBar,
-    // the Android tab strip, QTabWidget) render them; text-only tab widgets (NSTabView,
-    // GtkNotebook) ignore the icon and just show the label.
+    // the Android tab strip, QTabWidget, GTK's AdwViewSwitcher) render them; a text-only tab
+    // widget (NSTabView) ignores the icon and just shows the label.
     let main = nav(tab)
         .style(NavStyle::Tabs)
         .item_icon(
