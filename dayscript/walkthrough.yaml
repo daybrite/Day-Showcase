@@ -731,14 +731,12 @@ flow:
       title: { en: "Content list", fr: "Liste de contenu", ar: "قائمة المحتوى", zh-CN: "内容列表" }
       caption: { en: "The scaffold's item list and editor as the host's own content-list pane.", fr: "La liste et l'éditeur du modèle, en volet de liste de contenu de l'hôte.", ar: "قائمة العناصر والمحرّر من القالب كجزء قائمة المحتوى الخاص بالمضيف.", zh-CN: "脚手架的条目列表与编辑器，作为宿主自己的内容列表窗格。" }
       source: src/pages/content_list/mod.rs
-  # On a phone the editor is a pushed page; pop back so the list's commands are on the bar.
+  # On a phone the editor is a pushed page; pop back so the list's commands are on the bar. On a
+  # wide window the editor sits beside the list, and the same back closes it there without
+  # leaving the section (docs/navigation.md).
   - nav_back: { only_on: [uikit, mdc] }
   - wait_idle: { only_on: [uikit, mdc] }
-  # On a wide window nothing was pushed, so that back left the SECTION instead (the split's
-  # detail is the section itself there); come back to it before driving the pane's commands.
-  # A no-op where the back popped the editor onto the list, which is already this route.
-  - navigate: { route: content-list, only_on: [uikit, mdc] }
-  - wait_for: { id: item-list, only_on: [uikit, mdc] }
+  - assert_route: { route: content-list, only_on: [uikit, mdc] }
   # The pane's own commands (docs/toolbars.md): the filter hides finished items, and Add opens a
   # new row for editing straight away. Driven with the list showing, like Day-Rise's demo.
   - toolbar: { item: tb-show-done, on: false, skip_on: [arkui] }
