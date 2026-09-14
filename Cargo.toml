@@ -89,7 +89,7 @@ day-tweak-slider-tickmarks = { git = "https://github.com/daybrite/day.git" }
 # The Tree page's sidebar styling (docs/tweaks.md): native no-ops outside appkit/gtk.
 day-tweak-tree-style = { git = "https://github.com/daybrite/day.git" }
 day-piece-webview = { git = "https://github.com/daybrite/day-piece-webview.git" }
-day-piece-media = { git = "https://github.com/daybrite/day.git" }
+day-piece-media = { git = "https://github.com/daybrite/day-piece-media.git" }
 day-part-haptics = { git = "https://github.com/daybrite/day.git" }
 # Sound effects (docs/sound.md): the Speech, sound & haptics page plays bundled clips.
 day-part-sound = { git = "https://github.com/daybrite/day.git" }
