@@ -1092,3 +1092,7 @@ camera_no_photo = 暂无
 camera_photo_size = { $width } × { $height } · { $name }
 
 list_activated = 上次激活的行：{ $row }（0 表示无）
+
+ctl_icon_label = 图标和文字
+ctl_icon_only = 仅图标
+ctl_image = 内置图像

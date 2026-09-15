@@ -1101,3 +1101,7 @@ camera_no_photo = Aucune pour l'instant
 camera_photo_size = { $width } × { $height } · { $name }
 
 list_activated = Dernière ligne activée : { $row } (0 = aucune)
+
+ctl_icon_label = Icône et libellé
+ctl_icon_only = Icône seule
+ctl_image = Image intégrée

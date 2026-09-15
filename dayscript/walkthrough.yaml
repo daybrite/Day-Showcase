@@ -54,6 +54,13 @@ flow:
   - assert_visible: { id: btn-tinted }
   - assert_visible: { id: btn-destructive }
   - assert_visible: { id: btn-disabled }
+  - assert_visible: { id: btn-icon-label }
+  - assert_visible: { id: btn-image }
+  - assert_text: { id: btn-icon-only, key: media_play }
+  - tap: { id: btn-icon-only }
+  - assert_text: { id: btn-icon-only, key: media_pause }
+  - tap: { id: btn-icon-only }
+  - assert_text: { id: btn-icon-only, key: media_play }
   - assert_visible: { id: ctl-link }
   # Slider → numeric readout AND the progress bar AND the State row AND the preset label. 42 sits
   # on no preset, so the label reads "Custom": the derivation from level back to preset terms.

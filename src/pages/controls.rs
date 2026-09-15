@@ -146,6 +146,7 @@ impl Catalog {
 /// proves each fired — the styles are presentation, the action is one.
 fn buttons_section(st: Catalog) -> impl Piece {
     let press = crate::res::str::ctl_press;
+    let playing = Signal::new(false);
     section((
         labeled(
             crate::res::str::ctl_plain(),
@@ -182,9 +183,45 @@ fn buttons_section(st: Catalog) -> impl Piece {
         labeled(
             crate::res::str::ctl_disabled(),
             button(press())
+                .icon(Symbol::Close)
                 .enabled(false)
                 .action(move || st.press())
                 .id("btn-disabled"),
+        ),
+        labeled(
+            crate::res::str::ctl_icon_label(),
+            button(press())
+                .icon(Symbol::Add)
+                .action(move || st.press())
+                .id("btn-icon-label"),
+        ),
+        labeled(
+            crate::res::str::ctl_icon_only(),
+            button(move || {
+                if playing.get() {
+                    crate::res::str::media_pause().format()
+                } else {
+                    crate::res::str::media_play().format()
+                }
+            })
+            .bordered()
+            .icon(move || {
+                if playing.get() {
+                    Symbol::Pause
+                } else {
+                    Symbol::Play
+                }
+            })
+            .icon_only()
+            .action(move || playing.set(!playing.get()))
+            .id("btn-icon-only"),
+        ),
+        labeled(
+            crate::res::str::ctl_image(),
+            button(press())
+                .image(crate::res::vectors::nav_controls)
+                .action(move || st.press())
+                .id("btn-image"),
         ),
         labeled(
             crate::res::str::ctl_link(),

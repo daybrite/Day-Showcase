@@ -1119,3 +1119,7 @@ camera_no_photo = لا شيء بعد
 camera_photo_size = { $width } × { $height } · { $name }
 
 list_activated = آخر صف تم تفعيله: { $row } (0 = لا يوجد)
+
+ctl_icon_label = أيقونة وتسمية
+ctl_icon_only = أيقونة فقط
+ctl_image = صورة مضمّنة

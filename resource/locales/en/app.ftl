@@ -1107,3 +1107,7 @@ camera_no_photo = None yet
 camera_photo_size = { $width } × { $height } · { $name }
 
 list_activated = Last activated row: { $row } (0 = none)
+
+ctl_icon_label = Icon and label
+ctl_icon_only = Icon only
+ctl_image = Bundled image
