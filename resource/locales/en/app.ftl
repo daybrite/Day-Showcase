@@ -1105,3 +1105,5 @@ camera_last_photo_section = Last photo
 camera_photo_label = Photo
 camera_no_photo = None yet
 camera_photo_size = { $width } × { $height } · { $name }
+
+list_activated = Last activated row: { $row } (0 = none)

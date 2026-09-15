@@ -28,6 +28,7 @@ pub(crate) fn list_page() -> AnyPiece {
     let jump_end = Trigger::new();
     // The selected ROW NUMBERS (1-based, matching the row labels), fed from the native list's
     // selection reports; single-selection toolkits contribute one-element sets.
+    let activated = Signal::new(0i64);
     let selected: Signal<BTreeSet<i64>> = Signal::new(BTreeSet::new());
     // The one reload path for every begin (pull, toggle, programmatic): a timed task on the
     // main-loop executor (`day::sleep`, docs/async.md) stands in for the network — the same
@@ -152,6 +153,9 @@ pub(crate) fn list_page() -> AnyPiece {
         })
         .font(Font::Footnote)
         .id("list-selection"),
+        label(move || crate::res::str::list_activated(activated.get()).format())
+            .font(Font::Footnote)
+            .id("list-activated"),
         pull_to_refresh(
             refreshing,
             list(
@@ -175,6 +179,7 @@ pub(crate) fn list_page() -> AnyPiece {
             .row_height(RowHeight::Uniform(36.0))
             .multi_select(true)
             // Keys ARE the row numbers, so the selection set is the report itself.
+            .on_activate(move |key| activated.set(key))
             .on_selection(move |keys: Vec<i64>| selected.set(keys.into_iter().collect()))
             // Two-way: app-state changes (Clear Selection) sync into the native list —
             // indices are the rows' CURRENT positions (reorder can move them).

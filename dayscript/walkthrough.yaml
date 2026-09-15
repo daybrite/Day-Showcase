@@ -767,7 +767,12 @@ flow:
   # the app signal echoes it back into the native list, so the screenshot shows the
   # highlighted row. Row index 1 = row number 2. Clear syncs an empty selection natively.
   - assert_text: { id: list-selection, key: list_selection_none }
+  - assert_text: { id: list-activated, key: list_activated, args: { row: 0 } }
   - select: { id: demo-list, index: 1 }
+  - assert_text: { id: list-selection, key: list_selection, args: { count: 1, rows: "2" } }
+  - assert_text: { id: list-activated, key: list_activated, args: { row: 0 } }
+  - activate: { id: demo-list, index: 3 }
+  - assert_text: { id: list-activated, key: list_activated, args: { row: 4 } }
   - assert_text: { id: list-selection, key: list_selection, args: { count: 1, rows: "2" } }
   - screenshot:
       name: list

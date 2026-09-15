@@ -1090,3 +1090,5 @@ camera_last_photo_section = 最近的照片
 camera_photo_label = 照片
 camera_no_photo = 暂无
 camera_photo_size = { $width } × { $height } · { $name }
+
+list_activated = 上次激活的行：{ $row }（0 表示无）

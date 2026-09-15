@@ -1117,3 +1117,5 @@ camera_last_photo_section = آخر صورة
 camera_photo_label = الصورة
 camera_no_photo = لا شيء بعد
 camera_photo_size = { $width } × { $height } · { $name }
+
+list_activated = آخر صف تم تفعيله: { $row } (0 = لا يوجد)
