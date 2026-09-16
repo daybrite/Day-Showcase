@@ -444,6 +444,10 @@ canvas_text_specimen = Portez ce vieux whisky au juge blond qui fume
 canvas_text_bold = Gras
 canvas_text_italic = Italique
 canvas_text_bold_italic = Gras italique
+canvas_image_title = Image à partir d'octets
+canvas_image_loading = Décodage…
+canvas_image_failed = Ces octets ne sont pas une image que cette plateforme décode
+canvas_image_readout = { $format } · { $width } × { $height } px
 
 # — data strings localized for the walkthrough locales (option lists, specimen rows) —
 chocolate = chocolat

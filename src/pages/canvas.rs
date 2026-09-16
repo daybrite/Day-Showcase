@@ -19,6 +19,7 @@ pub(crate) fn canvas_page() -> AnyPiece {
             paths_section(),
             gradients_section(),
             gauge_section(),
+            image_section(),
         ))
         .any(),
     )
@@ -898,6 +899,70 @@ fn gauge_section() -> impl Piece {
         ),
     ))
     .title(crate::res::str::canvas_gauge())
+}
+
+/// A raster image decoded from BYTES and drawn on a canvas (docs/images.md).
+///
+/// The asset is read as a blob, handed to `day::decode_image`, and the returned handle is drawn
+/// with `Draw::image` — the path a downloaded, pasted, or user-picked image takes, with no staged
+/// image resource behind it. That these particular bytes happen to be bundled is incidental:
+/// nothing on this path knows where they came from.
+///
+/// The readout names what the platform's OWN decoder said the bytes were, so a backend that reads
+/// them differently says so here rather than in a doc — which is the reason this runs on every
+/// toolkit.
+fn image_section() -> impl Piece {
+    let shown: Signal<Option<day::Bitmap>> = Signal::new(None);
+    let readout = Signal::new(crate::res::str::canvas_image_loading().format());
+    // EMBEDDED rather than read back through `resource()`: this section is about decoding a
+    // blob, and embedding makes it the same blob on every backend. It also keeps the demo honest
+    // on web-dom, where `resource()` has no reader at all — no backend installs an opener there,
+    // so it falls to the default one, which probes an env var and the executable's directory,
+    // neither of which exists in a browser.
+    const LOGO_PNG: &[u8] = include_bytes!("../../resource/images/day_logo.png");
+    // Started while the section builds: reaching the toolkit from here is ordinary (the page
+    // helpers already ask `capability()` at build), and a backend that decodes INLINE has its
+    // completion drained when the tree borrow ends rather than being lost.
+    day::task(async move {
+        match day::decode_image(std::sync::Arc::new(LOGO_PNG.to_vec())).await {
+            Ok(bitmap) => {
+                let info = bitmap.info();
+                readout.set(
+                    crate::res::str::canvas_image_readout(
+                        info.format.map(|f| f.mime()).unwrap_or("—"),
+                        info.pixels.height,
+                        info.pixels.width,
+                    )
+                    .format(),
+                );
+                shown.set(Some(bitmap));
+            }
+            Err(_) => readout.set(crate::res::str::canvas_image_failed().format()),
+        }
+    });
+    section((
+        canvas(move |d, size| {
+            let Some(bitmap) = shown.get() else { return };
+            // Fit inside the canvas and center, preserving the aspect the decoder reported: a
+            // stretched logo would misrepresent the very thing this section is showing.
+            let px = bitmap.info().pixels;
+            if px.width <= 0.0 || px.height <= 0.0 {
+                return;
+            }
+            let scale = (size.width / px.width).min(size.height / px.height);
+            let (w, h) = (px.width * scale, px.height * scale);
+            d.image(
+                &bitmap,
+                Rect::new((size.width - w) / 2.0, (size.height - h) / 2.0, w, h),
+            );
+        })
+        .height(180.0)
+        .grow_w()
+        .a11y(|a| a.label(crate::res::str::canvas_image_title().format()))
+        .id("canvas-image"),
+        label(move || readout.get()).id("canvas-image-readout"),
+    ))
+    .title(crate::res::str::canvas_image_title())
 }
 
 /// A VU-style segment meter: twelve bottom-anchored bars in a rising ramp, lit up to the

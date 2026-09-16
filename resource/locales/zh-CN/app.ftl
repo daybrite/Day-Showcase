@@ -439,6 +439,10 @@ canvas_text_specimen = 敏捷的棕色狐狸跳过懒狗
 canvas_text_bold = 粗体
 canvas_text_italic = 斜体
 canvas_text_bold_italic = 粗斜体
+canvas_image_title = 从字节解码的图像
+canvas_image_loading = 正在解码…
+canvas_image_failed = 这些字节不是本平台可解码的图像
+canvas_image_readout = { $format } · { $width } × { $height } 像素
 
 # — data strings localized for the walkthrough locales (option lists, specimen rows) —
 chocolate = 巧克力

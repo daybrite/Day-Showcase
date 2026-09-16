@@ -444,6 +444,10 @@ canvas_text_specimen = The quick brown fox jumps over the lazy dog
 canvas_text_bold = Bold
 canvas_text_italic = Italic
 canvas_text_bold_italic = Bold Italic
+canvas_image_title = Image from bytes
+canvas_image_loading = Decoding…
+canvas_image_failed = Those bytes are not an image this platform decodes
+canvas_image_readout = { $format } · { $width } × { $height } px
 
 # — data strings localized for the walkthrough locales (option lists, specimen rows) —
 chocolate = chocolate

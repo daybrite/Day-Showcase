@@ -1022,6 +1022,17 @@ flow:
   - drag: { id: canvas-interaction, from: [200, 40], to: [420, 150], steps: 10 }
   - wait_idle:
   - assert_visible: { id: canvas-interaction-readout }
+  # An image decoded from BYTES and drawn on a canvas (docs/images.md): the bundled PNG is read
+  # as a blob, decoded by the platform's own decoder, and drawn by HANDLE — the path a download or
+  # a paste takes, with no staged image resource behind it. The readout names what that decoder
+  # said the bytes were, so a backend that reads them differently says so here; the picture is
+  # what catches one that decodes but draws nothing.
+  - scroll_to: { id: canvas-image }
+  - wait_idle:
+  - assert_visible: { id: canvas-image }
+  - assert_visible: { id: canvas-image-readout }
+  - screenshot:
+      name: canvas-image
   # Accessibility (§13): diff the native AX tree against day's expectations. The gauge is a
   # canvas, so day applies role=Meter + a spoken label/value; the audit reads them back natively
   # (apple targets; gtk/qt report unsupported and skip). A full-tree audit follows.

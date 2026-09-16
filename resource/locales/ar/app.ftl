@@ -451,6 +451,10 @@ canvas_text_specimen = نص حكيم له سر قاطع وذو شأن عظيم
 canvas_text_bold = عريض
 canvas_text_italic = مائل
 canvas_text_bold_italic = عريض مائل
+canvas_image_title = صورة من وحدات بايت
+canvas_image_loading = جارٍ فك الترميز…
+canvas_image_failed = هذه البايتات ليست صورة تفك هذه المنصة ترميزها
+canvas_image_readout = ‏{ $format } · { $width } × { $height } بكسل
 
 # — data strings localized for the walkthrough locales (option lists, specimen rows) —
 chocolate = شوكولاتة
