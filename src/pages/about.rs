@@ -2,22 +2,22 @@ use day::prelude::*;
 
 use crate::widgets::page;
 
-/// About — the opening page (and the desktop split's default detail): an identity hero
+/// About, the opening page (and the desktop split's default detail): an identity hero
 /// (logo + name + blurb + site link) over one card of live facts about this build and the
-/// platform it landed on — version, bundle id, the native toolkit compiled into the binary,
-/// the OS and device it is running on, the active locale, and the most recent app-lifecycle
-/// phase (docs/lifecycle.md).
+/// platform it landed on, listing the version, bundle id, the native toolkit compiled into
+/// the binary, the OS and device it is running on, the active locale, and the most recent
+/// app-lifecycle phase (docs/lifecycle.md).
 pub(crate) fn about_page() -> AnyPiece {
     let hero = column((
         // The vector mark (docs/vectors.md), not the day_logo raster: drawn at display
-        // resolution on the backends with a vector arm, no tint — the plate and gradient
+        // resolution on the backends with a vector arm, no tint, since the plate and gradient
         // are the authored colors.
         vector(crate::res::vectors::day_mark).frame(96.0, 96.0),
         label(crate::res::str::app_title()).font(Font::Title2),
         label(crate::res::str::about_text())
             .font(Font::Footnote)
             .id("about-text"),
-        // The URL is the label (a value, not prose) — it stays raw in every locale.
+        // The URL is the label (a value, not prose), so it stays raw in every locale.
         link("daybrite.dev", "https://daybrite.dev")
             .font(Font::Footnote)
             .id("about-link"),

@@ -2,19 +2,19 @@ use day::prelude::*;
 
 use crate::widgets::page;
 
-/// Crash Reporting — demonstrates day-break (docs/break.md). The buttons intentionally crash (or
-/// trip day-core's panic containment); on the NEXT launch the saved report shows in the scrollable
+/// Crash Reporting demonstrates day-break (docs/break.md). The buttons crash (or
+/// trip day-core's panic containment); on the next launch the saved report shows in the scrollable
 /// viewer, and "Send report" opens a prefilled email to the developer. Nothing leaves the device
 /// without the user's action.
 ///
 /// The three crash flavors cover day-break's capture paths: a native `abort` (SIGABRT) and a
 /// `segfault` (SIGSEGV) both die and are recorded by the signal handler; the "contained panic"
-/// stays alive (day-core catches panics at its trampoline boundaries — see docs/break.md) and is
-/// recorded as a NON-fatal report on the next launch.
+/// stays alive (day-core catches panics at its trampoline boundaries; see docs/break.md) and is
+/// recorded as a non-fatal report on the next launch.
 /// One crash trigger: its explanation above, its button below and full width.
 ///
 /// Not a `labeled` form row. These explanations are sentences, not field names, and in the label
-/// column they took most of a phone's width and left the button squeezed into what remained — the
+/// column they took most of a phone's width and left the button squeezed into what remained. The
 /// three buttons ended up three different sizes, each sized by how long its sentence happened to
 /// be. Stacked, the sentence gets the full width to wrap into and every button is the same size as
 /// every other, on a phone and on a desktop alike.
@@ -56,9 +56,9 @@ pub(crate) fn crash_page() -> AnyPiece {
         ),
         crash_action(
             crate::res::str::crash_contained_label().format(),
-            // Panics in a button handler run inside day-core's event pump, which CONTAINS the
+            // Panics in a button handler run inside day-core's event pump, which contains the
             // panic (the app survives); it becomes a non-fatal report on the next launch.
-            // Pale amber, the mildest of the three — it is the one the app walks away from.
+            // Pale amber, the mildest of the three: it is the one the app walks away from.
             button(crate::res::str::crash_contained())
                 .action(|| panic!("intentional contained panic from the showcase crash page"))
                 .tint(crate::widgets::tinted(crate::palette::AMBER))
@@ -72,7 +72,7 @@ pub(crate) fn crash_page() -> AnyPiece {
     let has_disclosure = !disclosure.is_empty();
 
     let report_view = section((
-        // The report shown ONCE, in a scrollable text view; an empty-state line when there is none.
+        // The report shown once, in a scrollable text view; an empty-state line when there is none.
         when(
             move || !report.get().is_empty(),
             move || {
@@ -135,7 +135,7 @@ pub(crate) fn crash_page() -> AnyPiece {
 
 /// Run `crash` shortly after returning, so the caller (a button handler inside the event pump) can
 /// finish and reply to the driving dayscript step before the process dies. A delayed main-loop
-/// task is fine — the crash is process-wide (abort / fault) wherever it fires.
+/// task is fine; the crash is process-wide (abort / fault) wherever it fires.
 fn schedule(crash: fn()) {
     day::task(async move {
         day::sleep(150).await;

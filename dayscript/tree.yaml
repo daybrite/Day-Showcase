@@ -12,7 +12,7 @@ flow:
   - assert_route: { route: tree }
 
   # ---- Initial disclosure mirrors the seed: src open (its children visible), pages and
-  # docs closed (their children absent — a composed tree builds no hidden rows, a native
+  # docs closed (their children absent: a composed tree builds no hidden rows, a native
   # one hides them; `assert_missing` holds either way) ----
   - wait_for: { id: tree-node-1 }
   - wait_for: { id: tree-node-2 }
@@ -32,7 +32,7 @@ flow:
   - expand: { id: demo-tree, row: tree-node-4, expanded: false }
   - assert_missing: { id: tree-node-5 }
 
-  # ---- Expand All / Collapse All write the SAME app-owned expansion signal ----
+  # ---- Expand All / Collapse All write the same app-owned expansion signal ----
   - tap: { id: tree-expand-all }
   - wait_for: { id: tree-node-5 }
   - wait_for: { id: tree-node-8 }
@@ -55,7 +55,7 @@ flow:
   - wait_for: { id: tree-node-9 }
 
   # ---- The move guard: docs refuses drops while locked (the Deny path is a pointer
-  # check, above). Unlock, drop in — the target folder is CLOSED, so the moved row
+  # check, above). Unlock and drop in: the target folder is closed, so the moved row
   # disappears into it and comes back when docs opens ----
   - toggle: { id: tree-lock, value: false }
   - tree_move: { id: demo-tree, row: tree-node-9, parent: tree-node-7 }
@@ -74,7 +74,7 @@ flow:
   - toggle: { id: tree-multi, value: false }
   - wait_for: { id: tree-node-1 }
 
-  # ---- Add File: no folder selected, so the new row lands at the root — and is selected,
+  # ---- Add File: no folder selected, so the new row lands at the root and is selected,
   # which the selection readout reports through the app's `on_selection` ----
   - tap: { id: tree-add }
   - wait_for: { id: tree-node-100 }

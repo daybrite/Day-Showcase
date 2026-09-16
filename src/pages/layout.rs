@@ -81,9 +81,9 @@ fn stacks_section() -> impl Piece {
 const MIN_ITEMS: i64 = 1;
 const MAX_ITEMS: i64 = 20;
 
-/// Row fit policies (docs/size-classes.md "Row fit policies"), live: ONE row of buttons is
+/// Row fit policies (docs/size-classes.md "Row fit policies"), live: one row of buttons is
 /// rendered under whichever policy the picker selects, and a stepper grows or shrinks the
-/// button count — the quickest way to feel what Clip, Wrap, Column and Scroll each do to the
+/// button count, the quickest way to feel what Clip, Wrap, Column and Scroll each do to the
 /// same content as it outgrows the window.
 fn fit_section() -> impl Piece {
     // Which fit policy the demo row is built with (picker index), and how many buttons it
@@ -100,7 +100,7 @@ fn fit_section() -> impl Piece {
     ];
 
     // One arm per policy: `fit` is a build-time property, so switching policies rebuilds the
-    // row — `when` is the reactive seam for exactly that. Only one arm is live at a time, so
+    // row; `when` is the reactive switch for exactly that. Only one arm is live at a time, so
     // the shared "layout-demo" id stays unique.
     let arm = |i: usize, fit: RowFit| {
         when(
@@ -113,7 +113,7 @@ fn fit_section() -> impl Piece {
         label(crate::res::str::layout_note()).font(Font::Footnote),
         labeled(
             crate::res::str::layout_fit_label(),
-            // Menu, not segmented: four worded segments outgrow a phone-portrait row — the
+            // Menu, not segmented: four worded segments outgrow a phone-portrait row, the
             // very failure this page teaches, and a native control day's fit policies cannot
             // reach into. The menu styling is compact at every width.
             picker(names.iter().cloned(), fit_idx)
@@ -138,7 +138,7 @@ fn fit_section() -> impl Piece {
             .spacing(8.0),
         ),
         arm(0, RowFit::Clip),
-        // Wrap and WrapColumns sit next to each other on purpose: the same eight buttons
+        // Wrap and WrapColumns sit next to each other: the same eight buttons
         // ragged, then aligned into columns, is the comparison the page exists to make.
         arm(1, RowFit::Wrap { run_spacing: 8.0 }),
         arm(2, RowFit::WrapColumns { run_spacing: 8.0 }),
@@ -148,14 +148,14 @@ fn fit_section() -> impl Piece {
     .title(crate::res::str::layout_row_section())
 }
 
-/// The demo itself: `count` numbered buttons in one `row` under `fit`. The buttons do nothing —
+/// The demo itself: `count` numbered buttons in one `row` under `fit`. The buttons do nothing;
 /// the row is the exhibit.
 fn demo_row(count: Signal<i64>, fit: RowFit) -> impl Piece {
     row((each(
         items(move || (1..=count.get()).collect::<Vec<_>>(), |n: &i64| *n),
         |slot: ItemSlot<i64, i64>| {
-            // Every third button carries a longer label ON PURPOSE. With labels of one width
-            // Wrap and Even columns produce the same picture — correctly, but the page would
+            // Every third button carries a longer label. With labels of one width
+            // Wrap and Even columns produce the same picture, correctly, but the page would
             // then demonstrate nothing. Mixed widths are also the realistic case: a chip row
             // holds words, not a keypad.
             button(slot.field(|n| {
@@ -172,9 +172,10 @@ fn demo_row(count: Signal<i64>, fit: RowFit) -> impl Piece {
     .fit(fit)
 }
 
-/// The composition tier: the `Card` modifier — padding, background and rounded corners as one
-/// reusable surface — and an ambient value flowed through `with_environment` and read back by
-/// a descendant. Pure composition: no native code, no cargo features, every backend for free.
+/// The composition tier: the `Card` modifier (padding, background and rounded corners as one
+/// reusable surface) and an ambient value flowed through `with_environment` and read back by
+/// a descendant. Pure composition: no native code or cargo features, and it works on every
+/// backend.
 fn cards_section() -> impl Piece {
     #[derive(Clone, Copy)]
     struct Accent(Color);
@@ -201,7 +202,7 @@ fn cards_section() -> impl Piece {
 }
 
 /// A plain `scroll` (docs/scroll.md) with programmatic targets: the two buttons write a
-/// `ScrollTarget`, and the dayscript `scroll_to` step drives the same seam by id. A fixed
+/// `ScrollTarget`, and the dayscript `scroll_to` step drives the same target by id. A fixed
 /// height, so the strip scrolls inside the page rather than growing with it.
 fn scroll_section() -> impl Piece {
     let target: Signal<Option<ScrollTarget>> = Signal::new(None);
@@ -230,7 +231,7 @@ fn scroll_section() -> impl Piece {
             .align(HAlign::Leading),
         )
         .scroll_target(target)
-        // `.id` BEFORE `.height`: the id must tag the scroll piece itself, not the sizing
+        // `.id` before `.height`: the id must tag the scroll piece itself, not the sizing
         // wrapper, for the dayscript `scroll_to` step to find a realized scroll.
         .id("layout-scroll")
         .height(200.0),
@@ -239,7 +240,7 @@ fn scroll_section() -> impl Piece {
 }
 
 /// The size classes the window is in right now (docs/size-classes.md). `size_class()` is a
-/// tracked read, so the rows re-run when the window crosses a breakpoint — a rotation, a
+/// tracked read, so the rows re-run when the window crosses a breakpoint: a rotation, a
 /// foldable opening, a desktop window dragged narrow.
 fn size_section() -> impl Piece {
     let class = |pick: fn(SizeClass) -> String| {

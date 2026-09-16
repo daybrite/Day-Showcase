@@ -1,5 +1,5 @@
-//! Live queries (docs/persistence.md): ten thousand rows behind a typed query the ENGINE
-//! answers — the query holds ids, and the list faults in only the rows it shows. The search
+//! Live queries (docs/persistence.md): ten thousand rows behind a typed query the engine
+//! answers: the query holds ids, and the list faults in only the rows it shows. The search
 //! term and the star filter drive `query_fn`; edits to rows flow through the change log, a
 //! change no predicate reads costs nothing, and the list receives row deltas it can animate
 //! instead of reloads. The residency readout shows the working set staying small under the
@@ -71,14 +71,14 @@ fn seed() -> Keyed<Track> {
     )
 }
 
-// Native: a real container (in-memory engine — the Model page shows the file) and a live
+// Native: a real container (in-memory engine; the Model page shows the file) and a live
 // query. Web: the same store shape, filtered by a plain projection.
 #[cfg(not(target_arch = "wasm32"))]
 mod engine {
     use super::{Track, seed};
     use day::prelude::*;
 
-    /// The demo's SQLite container — one per APP (docs/state.md): a database handle, shared by
+    /// The demo's SQLite container, one per app (docs/state.md): a database handle, shared by
     /// every window the way one file is.
     #[derive(Clone)]
     struct Db(ModelContainer);
@@ -145,7 +145,7 @@ mod engine {
         })
     }
 
-    /// How many rows are resident right now — the working set behind the readout.
+    /// How many rows are resident right now: the working set behind the readout.
     pub(super) fn resident() -> usize {
         container().cache::<Track>().with_untracked(|k| k.len())
     }
@@ -156,7 +156,7 @@ mod engine {
     use super::{Track, seed};
     use day::prelude::*;
 
-    /// The demo's track store — one per APP (docs/state.md), like the container above.
+    /// The demo's track store, one per app (docs/state.md), like the container above.
     #[derive(Clone, Copy)]
     struct Tracks(Store<Keyed<Track>>);
 
@@ -333,7 +333,7 @@ pub(crate) fn query_page() -> AnyPiece {
     .any()
 }
 
-// Keep the wasm build honest about the one API difference.
+// Reference `Op` under both cfgs, so the wasm build also compiles the one API difference.
 #[cfg(target_arch = "wasm32")]
 #[allow(dead_code)]
 fn _unused(_: Op) {}

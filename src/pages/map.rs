@@ -2,7 +2,7 @@ use day::prelude::*;
 use day_piece_map::map;
 
 #[cfg(any(target_os = "macos", target_os = "ios"))]
-/// A native map view (day-piece-map, an EXTERNAL standalone piece) — Apple platforms only. Preset
+/// A native map view (day-piece-map, an external standalone piece), Apple platforms only. Preset
 /// buttons recenter the map live via a bound coordinate `Signal` (a `Center` patch to the native
 /// `MKMapView`). The map fills its `.frame`, and a marker pins the initial Boston center.
 pub(crate) fn map_page() -> AnyPiece {

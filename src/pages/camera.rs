@@ -12,7 +12,7 @@ use crate::widgets::page;
 /// The page asks for the permission itself, through the Allow button, and the viewfinder runs
 /// only once it is held: the piece checks the status before every start and never prompts on
 /// its own here. That keeps an OS dialog out of the walkthrough, which cannot dismiss one, and
-/// puts the moment of asking where a real app would put it — after the user has seen what the
+/// puts the moment of asking where a real app would put it: after the user has seen what the
 /// page is for.
 ///
 /// Listed only where the piece renders (`day_piece_camera::support()`, lib.rs `destinations`):
@@ -128,7 +128,7 @@ fn permission_section(active: Signal<bool>) -> impl Piece {
                         .bordered()
                         .action(move || {
                             if can_prompt {
-                                // The completion runs on an unspecified thread — Setters cross
+                                // The completion runs on an unspecified thread; Setters cross
                                 // back to the signals.
                                 let set_status = status.setter();
                                 let set_active = active.setter();

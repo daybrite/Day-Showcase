@@ -10,8 +10,8 @@ day::routes! {
 /// Native tabbed container (docs/tabs.md): a `nav` with `NavStyle::Tabs`, bound to a
 /// `Signal<Tab>` of the active tab (tabs always have a selection, so no `Option`). NSTabView /
 /// UITabBarController / AdwViewSwitcher / QTabWidget / Android tab strip. Each pane holds live
-/// controls whose signals are owned by the PAGE, not the pane — switch away and back and the
-/// state is still there, which is the point the panes make.
+/// controls whose signals are owned by the page, not the pane: switch away and back and the
+/// state is still there, which is what the panes demonstrate.
 pub(crate) fn tabs_page() -> AnyPiece {
     fn pane<P1: Piece>(
         title: LocalizedText,
@@ -36,7 +36,7 @@ pub(crate) fn tabs_page() -> AnyPiece {
     let clicks = Signal::new(0i64);
     let badges = Signal::new(true);
     let sounds = Signal::new(false);
-    // `item_icon` attaches a bundled template VECTOR per tab (docs/tabs.md, docs/vectors.md).
+    // `item_icon` attaches a bundled template vector per tab (docs/tabs.md, docs/vectors.md).
     // Vectors, not PNGs: a tab bar draws its icon at a size the toolkit picks, and on iOS the SVG
     // rides an asset catalog with `preserves-vector-representation`, so it is resolved at display
     // size instead of scaled from a bitmap. Backends whose tab widget shows icons (iOS UITabBar,
@@ -66,7 +66,7 @@ pub(crate) fn tabs_page() -> AnyPiece {
                     crate::res::str::tab_two(),
                     crate::res::str::tab_two_body(),
                     "tab-two-content",
-                    // The data-driven tab demo lives INSIDE this pane — two nested tab views:
+                    // The data-driven tab demo lives inside this pane, two nested tab views:
                     // the outer typed tabs, and a dynamic string-keyed set within Details.
                     column((details_extra(), dynamic_tabs_demo()))
                         .spacing(12.0)
@@ -141,7 +141,7 @@ fn dynamic_tabs_demo() -> impl Piece {
     .frame(560.0, 220.0)
 }
 
-/// Overview: a counter whose signal outlives the pane — count a few clicks, switch tabs, and
+/// Overview: a counter whose signal outlives the pane: count a few clicks, switch tabs, and
 /// come back to the same number.
 fn overview_extra(clicks: Signal<i64>) -> impl Piece {
     column((
@@ -163,8 +163,8 @@ fn overview_extra(clicks: Signal<i64>) -> impl Piece {
     .align(HAlign::Leading)
 }
 
-/// Details: the addressing facts for this tab, as a quiet card. The values are route keys —
-/// data, not prose — so they stay raw.
+/// Details: the addressing facts for this tab, as a quiet card. The values are route keys
+/// (data, not prose), so they stay raw.
 fn details_extra() -> impl Piece {
     column((
         labeled(
@@ -181,7 +181,7 @@ fn details_extra() -> impl Piece {
     .modifier(Card)
 }
 
-/// Settings: two toggles bound to page-scope signals — flip one, tour the other tabs, return.
+/// Settings: two toggles bound to page-scope signals. Flip one, tour the other tabs, return.
 fn settings_extra(badges: Signal<bool>, sounds: Signal<bool>) -> impl Piece {
     column((
         labeled(

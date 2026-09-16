@@ -5,7 +5,7 @@ use crate::widgets::{page, support_note};
 /// The `.cursor()` decorator (day/docs/cursor.md): every shared shape as a swatch to hover, one
 /// box whose shape follows a picker, a nested pair that proves the nearest ancestor wins, and
 /// the shapes only this toolkit names. `Cap::Cursor` says up front whether this host draws the
-/// requested shapes, a nearest neighbor, or nothing at all — a touch screen never shows one.
+/// requested shapes, a nearest neighbor, or nothing at all; a touch screen never shows one.
 pub(crate) fn cursors_page() -> AnyPiece {
     page(
         crate::res::str::nav_cursors(),

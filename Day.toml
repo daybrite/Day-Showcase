@@ -1,11 +1,11 @@
-# Day.toml — the showcase's Day manifest (docs/cli.md). `name`/`version` come from
+# Day.toml: the showcase's Day manifest (docs/cli.md). `name`/`version` come from
 # Cargo.toml's [package]; any [app] property can be overridden per platform ([app.ios]),
-# per toolkit ([app.qt]), or per target ([app.macos-appkit]) — most specific wins.
+# per toolkit ([app.qt]), or per target ([app.macos-appkit]); the most specific wins.
 schema = 1
 
 [app]
 id = "dev.daybrite.showcase"
-# The deep-link scheme this app SHIPPED (docs/deep-links.md). Left explicit because the
+# The deep-link scheme this app shipped (docs/deep-links.md). Left explicit because the
 # default is the id\'s last segment, which is not what this app published.
 scheme = "dayshowcase"
 title = "Day Showcase"
@@ -24,7 +24,7 @@ targets = [
 ]
 
 # OS permissions (docs/permissions.md). `day build` turns these into <uses-permission> entries,
-# Info.plist usage descriptions, and HarmonyOS requestPermissions — the declaration every mobile OS
+# Info.plist usage descriptions, and HarmonyOS requestPermissions, the declaration every mobile OS
 # requires before an app may even ask. The reason text is what the OS shows the user in its prompt.
 # The Device & sensors page reads their status and the Camera page asks for the camera's; neither
 # prompts during the walkthrough.
@@ -66,15 +66,15 @@ google-play-id = "dev.daybrite.showcase"
 [web]
 background-color = "#123246"
 
-# The desktop window (docs/cli.md). Kept in lockstep with main.rs's WindowOptions — the CLI
-# sizes headless X servers (xvfb) from THIS, so a mismatch would crop or letterbox the
+# The desktop window (docs/cli.md). Kept in lockstep with main.rs's WindowOptions; the CLI
+# sizes headless X servers (xvfb) from this, so a mismatch would crop or letterbox the
 # root-capture screenshot fallback on linux-gtk.
 [window]
 width = 1000
 height = 720
 
-# Release signing (§16.5): values resolve from the environment at pack time — an unset variable
-# degrades that section to the dev tier LOUDLY (ad-hoc / dev keystore / self-signed), it never
+# Release signing (§16.5): values resolve from the environment at pack time: an unset variable
+# degrades that section to the dev tier, loudly (ad-hoc / dev keystore / self-signed); it never
 # fails the pack (§20). Populate the DAY_* variables (CI: repository secrets) to light up release
 # signing; `day sign --check` reports readiness without printing any secret.
 [signing.macos]

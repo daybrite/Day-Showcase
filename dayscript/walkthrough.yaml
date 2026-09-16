@@ -37,15 +37,15 @@ flow:
   # Controls
   # ---------------------------------------------------------------------------------------------
 
-  # Controls (docs/forms.md): the catalogue — every control Day ships, family by family, and
+  # Controls (docs/forms.md): the catalogue, every control Day ships, family by family, and
   # every one bound to live state that the State section at the foot reads back. So each step
-  # below drives ONE control and asserts that a DIFFERENT one moved, which is the property the
+  # below drives one control and asserts that a different one moved, which is the property the
   # page exists to demonstrate. (The old mixer's `mix-summary`, `increment-button` and
   # `decrement-button` are gone with it; the stepper is a piece of its own now.)
   - navigate: { route: controls }
   - assert_route: { route: controls }
-  # Buttons: every style counts a press into ONE readout, so two taps in two styles read "2" —
-  # the styles are presentation, the action is one.
+  # Buttons: every style counts a press into one readout, so two taps in two styles read "2".
+  # The styles are presentation, the action is one.
   - tap: { id: btn-plain }
   - tap: { id: btn-bordered }
   - assert_text: { id: btn-presses, text: "2" }
@@ -62,7 +62,7 @@ flow:
   - tap: { id: btn-icon-only }
   - assert_text: { id: btn-icon-only, key: media_play }
   - assert_visible: { id: ctl-link }
-  # Slider → numeric readout AND the progress bar AND the State row AND the preset label. 42 sits
+  # Slider → the numeric readout, the progress bar, the State row, and the preset label. 42 sits
   # on no preset, so the label reads "Custom": the derivation from level back to preset terms.
   - set_value: { id: volume-slider, value: 42 }
   - assert_text: { id: volume-value, text: "42" }
@@ -81,7 +81,7 @@ flow:
   - input: { id: name-field, text: "Ada" }
   - assert_text: { id: state-name, text: "Ada" }
   - assert_visible: { id: notes-area }
-  # Three native picker stylings over ONE Signal<usize>: selecting in any one moves the other two,
+  # Three native picker stylings over one Signal<usize>: selecting in any one moves the other two,
   # and the watch in Catalog::new snaps the level, which the readout and progress bar report.
   - select: { id: picker-segmented, index: 2 }
   - assert_text: { id: picker-value, key: size_large }
@@ -104,7 +104,7 @@ flow:
   - assert_text: { id: state-toggle, key: ctl_on }
   # Combo box (day-piece-combobox, docs/combobox.md): menu selection and free-form entry over the
   # same list. `select` is the menu path (options are localized, so assert by key); `input` is the
-  # free-form path (a literal — user input is not localized); Add grows the list for both.
+  # free-form path (a literal, since user input is not localized); Add grows the list for both.
   - select: { id: flavor-combo, index: 2 }
   - assert_text: { id: flavor-value, key: pistachio }
   - input: { id: flavor-combo, text: "Stracciatella" }
@@ -112,13 +112,13 @@ flow:
   - tap: { id: flavor-add }
   - select: { id: flavor-combo, index: 3 }
   - assert_text: { id: flavor-value, text: "Stracciatella" }
-  # The search field filters the SAME collection the combo offers, so the two share state too.
+  # The search field filters the same collection the combo offers, so the two share state too.
   - input: { id: search-input, key: chocolate }
   - assert_text: { id: search-result, key: chocolate }
   - tap: { id: search-clear }
   - assert_text: { id: search-result, key: vanilla }
   # The compact date and time pickers (docs/datepicker.md): a synthetic ISO `input:` on every
-  # backend, and the State rows are locale-independent ISO from the bound signals — the same
+  # backend, and the State rows are locale-independent ISO from the bound signals, the same
   # two-way binding the Date & time page asserts in depth.
   - input: { id: ctl-date, text: "2026-11-05" }
   - assert_text: { id: state-date, text: "2026-11-05" }
@@ -149,8 +149,8 @@ flow:
       title: { en: "Controls · pickers", fr: "Contrôles · sélecteurs", ar: "عناصر التحكّم · المنتقيات", zh-CN: "控件 · 选择器" }
       source: src/pages/controls.rs
 
-  # Text playground: semantic styles, weights, and the BUNDLED CUSTOM FONTS (docs/resources.md) —
-  # the three Font::Custom families ship in fonts/ and must have been registered by the backend
+  # Text playground: semantic styles, weights, and the bundled custom fonts (docs/resources.md).
+  # The three Font::Custom families ship in fonts/ and must have been registered by the backend
   # at startup for these labels to realize.
   - navigate: { route: text }
   - assert_route: { route: text }
@@ -161,12 +161,12 @@ flow:
   - assert_visible: { id: text-font-specialelite }
   - assert_visible: { id: text-selectable }
   # Styled runs (docs/text-runs.md): one label carrying bold/italic/code/strike/color spans. The
-  # toggle below rebuilds it as a selectable backing, which on iOS is a different native class —
-  # the swap has to carry the attributed text across.
+  # toggle below rebuilds it as a selectable backing, which on iOS is a different native class,
+  # so the swap has to carry the attributed text across.
   - assert_visible: { id: text-runs }
   # Markdown parsed at run time (docs/markdown.md): type into the editor, and the label under it
-  # re-parses. Asserting its text proves the parse ran — the markers are gone from what the label
-  # shows — and the second case proves unfinished markup stays literal instead of flickering.
+  # re-parses. Asserting its text proves the parse ran (the markers are gone from what the label
+  # shows), and the second case proves unfinished markup stays literal instead of flickering.
   - assert_visible: { id: text-md-output }
   - input: { id: text-md-input, text: "**bold** and *italic* and `code` and [a link](https://daybrite.dev)" }
   - wait_idle:
@@ -179,7 +179,7 @@ flow:
       title: { en: "Text", fr: "Texte", ar: "النص", zh-CN: "文字" }
       source: src/pages/text.rs
   # The page-wide Selectable toggle (upper-right): every text piece rebuilds out of and back
-  # into `.selectable()` — on iOS that swaps each label to a read-only text view and back
+  # into `.selectable()`; on iOS that swaps each label to a read-only text view and back
   # (docs/text.md), so both arms must realize cleanly on every backend.
   - toggle: { id: text-selectable-toggle, value: false }
   - assert_visible: { id: text-selectable }
@@ -197,8 +197,8 @@ flow:
   - tap: { id: ta-seed-markdown }
   - wait_idle:
 
-  # The STYLED editor (docs/texteditor.md) — the platform's rich-text view over the same
-  # `StyledText` a label renders. Everything below is Day's own state: the toolbar reads and
+  # The styled editor (docs/texteditor.md): the platform's rich-text view over the same
+  # `StyledText` a label renders. Everything below is Day's state: the toolbar reads and
   # writes the bound document, so what it asserts is true on all nine targets.
   - assert_visible: { id: styled-editor }
   - assert_visible: { id: ed-inspector }
@@ -206,8 +206,8 @@ flow:
       name: textareas
       title: { en: "Text editing", fr: "Édition de texte", ar: "تحرير النص", zh-CN: "文本编辑" }
       source: src/pages/text_areas.rs
-  # A restyle must leave the selection on the SAME characters. The web arm rebuilds its whole
-  # element to apply attributes, so it has to put the selection back by offset — and when its two
+  # A restyle must leave the selection on the same characters. The web arm rebuilds its whole
+  # element to apply attributes, so it has to put the selection back by offset, and when its two
   # offset directions disagreed, a bolded word came back shifted by one character per line above
   # it. The readout says which characters are selected, so this asserts it on every backend.
   - tap: { id: ed-select-word }
@@ -219,15 +219,15 @@ flow:
   - tap: { id: ed-bold }
   - wait_idle:
 
-  # Formatting with NO selection sets the typing style, which is what the next character takes.
+  # Formatting with no selection sets the typing style, which is what the next character takes.
   # The inspector reads it back out of the document, so this drives the whole round trip.
   - tap: { id: ed-bold }
   - wait_idle:
   - tap: { id: ed-italic }
   - wait_idle:
   # The three documents. `Code` is the live-highlighting one: the page re-tokenizes on every
-  # text change and pushes fresh runs, which patches ATTRIBUTES rather than replacing the
-  # document — so the caret survives, and the editor keeps its content.
+  # text change and pushes fresh runs, which patches attributes rather than replacing the
+  # document, so the caret survives, and the editor keeps its content.
   - select: { id: ed-document, index: 1 }
   - wait_idle:
   - assert_visible: { id: styled-editor }
@@ -250,13 +250,13 @@ flow:
 
   # Date & time (docs/datepicker.md): native pickers bound two-way to civil date/time signals.
   # Every picker accepts a synthetic ISO `input:` on every backend, and the readouts are
-  # locale-independent ISO from the bound signals — the same steps assert the two-way binding
+  # locale-independent ISO from the bound signals, so the same steps assert the two-way binding
   # under NSDatePicker, UIDatePicker, Material dialogs, QDateEdit, and the composed GTK build.
   - navigate: { route: dates }
   - assert_route: { route: dates }
   - input: { id: date-compact, text: "2026-11-05" }
   - assert_text: { id: date-value, text: "2026-11-05" }
-  # The inline calendar is bound to the SAME date signal — driving it moves the same readout.
+  # The inline calendar is bound to the same date signal; driving it moves the same readout.
   - input: { id: date-inline, text: "2026-03-09" }
   - assert_text: { id: date-value, text: "2026-03-09" }
   # Both time pickers share one signal; the seconds variant mirrors the compact one.
@@ -272,14 +272,14 @@ flow:
       title: { en: "Date & time", fr: "Date et heure", ar: "التاريخ والوقت", zh-CN: "日期与时间" }
       source: src/pages/dates.rs
 
-  # Focus (docs/focus.md): `focus`/`assert_focused` drive the REAL toolkit duty, so the native
-  # focus ring, the signal, and the probe must agree. Assertions stay on text fields — the one
+  # Focus (docs/focus.md): `focus`/`assert_focused` drive the toolkit duty, so the native
+  # focus ring, the signal, and the probe must agree. Assertions stay on text fields, the one
   # control focusable on every platform.
   - navigate: { route: focus }
   - assert_route: { route: focus }
-  # Programmatic request through the group signal: the "next" button continues from the LAST
+  # Programmatic request through the group signal: the "next" button continues from the last
   # focused field, and starts the cycle at Name only when nothing has held focus yet. GTK gives
-  # a freshly shown page an initial focus of its own — the first field, in the Arabic layout —
+  # a freshly shown page an initial focus of its own (the first field, in the Arabic layout),
   # which made "next" land on Email there (linux-gtk light-ar and dark-ar in CI). Clear first,
   # so the cycle provably starts from nothing.
   - tap: { id: focus-clear-button }
@@ -314,13 +314,13 @@ flow:
   # Layout
   # ---------------------------------------------------------------------------------------------
 
-  # Layout: rows, columns and layers with live alignment; the row fit policies over ONE row of
+  # Layout: rows, columns and layers with live alignment; the row fit policies over one row of
   # buttons; the composition tier (cards, environment); a plain `scroll` with programmatic
   # targets; and the window's size classes.
   - navigate: { route: layout }
   - assert_route: { route: layout }
   # Alignment is a build-time property, so each pick rebuilds the swatch row through its own
-  # `when` arm — drive all three so every arm realizes on every backend, then back to Center.
+  # `when` arm. Drive all three so every arm realizes on every backend, then back to Center.
   - assert_visible: { id: layout-stack }
   - select: { id: layout-align, index: 0 }
   - assert_visible: { id: layout-stack }
@@ -329,10 +329,10 @@ flow:
   - select: { id: layout-align, index: 1 }
   - assert_visible: { id: layout-stack }
   - assert_visible: { id: layout-layers }
-  # Row fit policies (docs/size-classes.md "Row fit policies"): ONE row of numbered buttons
+  # Row fit policies (docs/size-classes.md "Row fit policies"): One row of numbered buttons
   # rebuilt under whichever policy the picker selects, with a stepper for the count. Drive
-  # every policy so each arm realizes on every backend — the arms are `when`-gated rebuilds,
-  # which is exactly what a build-time property needs — then screenshot the Wrap arm with
+  # every policy so each arm realizes on every backend (the arms are `when`-gated rebuilds,
+  # which is exactly what a build-time property needs), then screenshot the Wrap arm with
   # the count raised, the state where the policies visibly differ.
   - assert_text: { id: layout-count, text: "5" }
   - assert_visible: { id: layout-demo }
@@ -362,7 +362,7 @@ flow:
   - assert_visible: { id: layout-card }
   - assert_text: { id: compose-env-value, key: compose_env_value }
   # The dayscript scroll_to step on a plain `scroll` piece: reveal an element, jump edges,
-  # pin an offset (docs/scroll.md — unanimated, so each following step sees the settled offset).
+  # pin an offset (docs/scroll.md; unanimated, so each following step sees the settled offset).
   # The two buttons write the same ScrollTarget the step drives.
   - assert_visible: { id: layout-scroll }
   - scroll_to: { id: "layout-row:1" }
@@ -375,7 +375,7 @@ flow:
   - tap: { id: layout-scroll-top }
   - wait_idle:
   - assert_visible: { id: "layout-row:1" }
-  # Size classes (docs/size-classes.md): tracked reads of the window's class. The VALUES differ
+  # Size classes (docs/size-classes.md): tracked reads of the window's class. The values differ
   # per target and window, so presence only.
   - assert_visible: { id: layout-size-width }
   - assert_visible: { id: layout-size-height }
@@ -388,9 +388,9 @@ flow:
       name: grid
       title: { en: "Grid", fr: "Grille", ar: "الشبكة", zh-CN: "网格" }
       source: src/pages/grid.rs
-  # The Spanning demo by ABSOLUTE route: the same key selects the tab on desktop and pushes the
+  # The Spanning demo by absolute route: the same key selects the tab on desktop and pushes the
   # page on mobile (grid.rs `GridDemo`). A single relative key would fall through the mobile
-  # stack — a stack claims only "" (docs/navigation.md) — so the path form is the portable one.
+  # stack (a stack claims only "", docs/navigation.md), so the path form is the portable one.
   - navigate: { route: grid/spanning }
   - assert_route: { route: grid/spanning }
   - wait_for: { id: grid-spanning }
@@ -405,13 +405,13 @@ flow:
   # Navigation & chrome
   # ---------------------------------------------------------------------------------------------
 
-  # Genuine push/pop stack (docs/navigation.md): tapping pushes onto the path signal; the
+  # Push/pop stack (docs/navigation.md): tapping pushes onto the path signal; the
   # native back button writes the pop back into it. current_route reports the stack's top.
   - navigate: { route: stack }
   - assert_visible: { id: stack-root }
   - tap: { id: stack-push }
   - assert_visible: { id: stack-detail }
-  # assert_route sees the FULL path: nav host key + the stack's segments (docs/navigation.md).
+  # assert_route sees the full path: nav host key + the stack's segments (docs/navigation.md).
   - assert_route: { route: stack/1 }
   - screenshot:
       name: stack-detail
@@ -419,7 +419,7 @@ flow:
       source: src/pages/stack.rs
   - tap: { id: stack-deeper }
   - assert_route: { route: stack/1/2 }
-  # The PLATFORM's back — the bar's own button on iOS, the system back on Android — rather than
+  # The platform's back (the bar's button on iOS, the system back on Android) rather than
   # Day's rail: it runs the backend's user-back path (shouldPop, the pop, the report to Day),
   # which a bare `nav_back` never reaches and which is where both 2026-09 back bugs lived.
   # Mobile only: a desktop has no native back to press for a nested stack.
@@ -437,7 +437,7 @@ flow:
   - nav_back:
   - assert_route: { route: stack }
   # Back interception (docs/navigation.md): push a detail, mark it dirty, then a back is
-  # intercepted by on_back — a confirm dialog appears; "cancel" keeps the page, "discard" pops.
+  # intercepted by on_back and a confirm dialog appears; "cancel" keeps the page, "discard" pops.
   - tap: { id: stack-push }
   - assert_route: { route: stack/1 }
   - toggle: { id: stack-dirty, value: true }
@@ -451,8 +451,8 @@ flow:
   - assert_presented: {}
   - respond: { button: 1 }
   - assert_route: { route: stack }
-  # The same guard through the PLATFORM's back: on iOS the bar's shouldPop vetoes the pop and
-  # hands it to Day, on Android the dispatcher's guard callback does — both must raise the
+  # The same guard through the platform's back: on iOS the bar's shouldPop vetoes the pop and
+  # hands it to Day, on Android the dispatcher's guard callback does; both must raise the
   # confirm, and "discard" must then pop through Day's rail.
   - tap: { id: stack-push, only_on: [uikit, mdc] }
   - assert_route: { route: stack/1, only_on: [uikit, mdc] }
@@ -461,8 +461,8 @@ flow:
   - assert_presented: { only_on: [uikit, mdc] }
   - respond: { button: 1, only_on: [uikit, mdc] }
   - assert_route: { route: stack, only_on: [uikit, mdc] }
-  # Fullscreen cover (docs/cover.md): native modal on iOS/Android, topmost child elsewhere —
-  # every backend presents it now, so these steps run everywhere.
+  # Fullscreen cover (docs/cover.md): native modal on iOS/Android, topmost child elsewhere.
+  # Every backend presents it now, so these steps run everywhere.
   - tap: { id: cover-present }
   - assert_visible: { id: cover-title }
   - screenshot:
@@ -488,7 +488,7 @@ flow:
   - navigate: { route: two }
   - assert_route: { route: tabs/two }
   - assert_value: { id: demo-tabs, value: 1 }
-  # Data-driven tabs (docs/navigation.md), NESTED inside the Details tab — two tab views deep:
+  # Data-driven tabs (docs/navigation.md), nested inside the Details tab, two tab views deep:
   # Add grows the inner native tab strip, Remove shrinks it.
   - assert_visible: { id: dyn-tabs-title }
   - tap: { id: dyn-tab-add }
@@ -498,8 +498,9 @@ flow:
   - assert_value: { id: demo-tabs, value: 2 }
 
   # Menus & dialogs (docs/menus.md, docs/dialogs.md): the transient native surfaces in one
-  # page — the app-menu action readout, the context-menu target, and the imperative dialogs.
-  # Screenshot the pristine form first, then open each dialog, answer it, assert the result.
+  # page, namely the app-menu action readout, the context-menu target, and the imperative
+  # dialogs. Screenshot the pristine form first, then open each dialog, answer it, assert the
+  # result.
   - navigate: { route: menus }
   - assert_route: { route: menus }
   - assert_visible: { id: menus-last }
@@ -525,12 +526,12 @@ flow:
   - respond: { button: 1 }
   - assert_text: { id: modal-result, text: "sheet-1" }
   # The `menu:` step drives an app-menu action by localized key, toolkit-uniform
-  # (docs/menus.md) — no native menu automation involved.
+  # (docs/menus.md), with no native menu automation involved.
   - menu: { key: menu_open }
 
   # Preferences (docs/windows.md): the registered Settings…/⌘, action opens the singleton
-  # preferences window — a real OS window on desktop, a fullscreen cover where the backend
-  # has no secondary windows; the SAME ids resolve either way. The language picker is
+  # preferences window: a real OS window on desktop, a fullscreen cover where the backend
+  # has no secondary windows; the same ids resolve either way. The language picker is
   # universal; the theme picker is Cap::Appearance-gated and asserted in the desktop
   # windows script instead. Close runs the async confirm → teardown path.
   - menu: { key: day-preferences }
@@ -543,28 +544,28 @@ flow:
       source: src/pages/preferences.rs
   - close_window: { window: day.preferences }
 
-  # Toolbars (docs/toolbars.md): the MAIN WINDOW's own toolbar, so the assertions read the
+  # Toolbars (docs/toolbars.md): the main window's toolbar, so the assertions read the
   # page's live bindings rather than any on-page widget. `toolbar:` drives an item through the
   # same dispatch its native control fires; the screenshot is what shows the bar actually drew.
   # The page is hidden where Cap::Toolbar is unsupported (lib.rs `destinations`): HarmonyOS
   # today. iOS and Android dock the bar under the navigation controller's pages (2026-09,
   # docs/toolbars.md) and web-dom draws an emulated strip; the finer per-step skips below say
-  # which items each of them can drive — search rides the navigation list on a phone, so the
+  # which items each of them can drive; search rides the navigation list on a phone, so the
   # `day.search` item never reaches a phone's bar.
   - navigate: { route: toolbars, skip_on: [harmony-arkui] }
   - assert_route: { route: toolbars, skip_on: [harmony-arkui] }
-  # Appearance: ONE native segmented control over the persisted setting (src/commands.rs), which
+  # Appearance: One native segmented control over the persisted setting (src/commands.rs), which
   # the App menu's Appearance submenu also drives. Skipped on Qt, which reports `Cap::Appearance`
-  # unsupported — the items lower DISABLED there, and the readout says so rather than the app
+  # unsupported: the items lower disabled there, and the readout says so rather than the app
   # pretending the override took.
   #
   # These skip by TOOLKIT (`qt`), not by target. The gate is a capability, and every target of a
-  # toolkit answers a capability identically — but Qt has THREE targets (macos-qt, linux-qt,
+  # toolkit answers a capability identically, but Qt has three targets (macos-qt, linux-qt,
   # windows-qt) and GTK another three. Listing targets means the two you cannot build locally are
   # the two you forget, which is exactly how linux-qt and then windows-qt each failed CI in turn.
   # `skip_on`/`only_on` accept either form (day-cli script.rs), so prefer the toolkit.
   # Skipped on Android too: an app-level appearance change there recreates the Activity, and
-  # day-android does not yet survive a second nativeStart in one process (DayActivity.java) — the
+  # day-android does not yet survive a second nativeStart in one process (DayActivity.java): the
   # sidebar mounts twice and every navigation after it is ambiguous. The CI variants cover dark
   # mode on Android by launching with DAY_THEME set instead.
   - toolbar: { item: tb-theme, index: 2, skip_on: [mdc, arkui, dom, qt] }
@@ -573,11 +574,10 @@ flow:
   - toolbar: { item: tb-theme, index: 1, skip_on: [mdc, arkui, dom, qt] }
   - wait_idle:
   - assert_text: { id: toolbar-appearance, key: cmd_appearance_system, skip_on: [mdc, arkui, dom, qt] }
-  # The recorder's transport (docs/agent.md), driven from the SCRIPT MENU it lives in — it acts on
+  # The recorder's transport (docs/agent.md), driven from the Script menu it lives in: it acts on
   # the app's recording rather than on any page, so it earns no room on a page's bar. Record two
-  # taps that
-  # stay on THIS page — a replay that navigated away would take the readout with it — then stop,
-  # play, pause, resume. `tb-new` is deliberately not exercised: it opens a second window, whose
+  # taps that stay on this page (a replay that navigated away would take the readout with it),
+  # then stop, play, pause, resume. `tb-new` is not exercised: it opens a second window, whose
   # chrome would then sit behind every later screenshot in the run.
   - assert_text: { id: toolbar-transport, key: toolbar_transport_idle, skip_on: [harmony-arkui, web-dom] }
   - menu: { key: cmd_record, path: [menu_script], skip_on: [harmony-arkui, web-dom] }
@@ -587,9 +587,9 @@ flow:
   - tap: { id: toolbar-clear-search, skip_on: [harmony-arkui, web-dom] }
   - menu: { key: cmd_stop_recording, path: [menu_script], skip_on: [harmony-arkui, web-dom] }
   - wait_idle:
-  # Stopping JUMPS to Scripting (commands.rs): the script you just recorded is on that page, and
+  # Stopping jumps to Scripting (commands.rs): the script you just recorded is on that page, and
   # leaving the user wherever they happened to be reads as the recording having gone nowhere. The
-  # jump is not itself recorded — `record::stop()` unhooks the nav observer before it runs.
+  # jump is not itself recorded; `record::stop()` unhooks the nav observer before it runs.
   - assert_route: { route: scripting, skip_on: [harmony-arkui, web-dom] }
   # Back to the bar for the rest of this section. The transport readout and the two taps the
   # replay below re-dispatches all live on the Toolbars page, so the playback has to run there.
@@ -603,33 +603,33 @@ flow:
   - menu: { key: cmd_pause, path: [menu_script], skip_on: [harmony-arkui, web-dom] }
   - wait_idle:
   - assert_text: { id: toolbar-transport, key: toolbar_transport_paused, skip_on: [harmony-arkui, web-dom] }
-  # Resume is NOT followed by a "Playing" assertion. The replay runs a quarter second per step
+  # Resume is not followed by a "Playing" assertion. The replay runs a quarter second per step
   # (the Scripting page's default delay), one step is left after the pause, and on a loaded CI
   # simulator (ios-uikit iPad, light-ar) the readout was already back to Idle by the time the
   # assertion read it. The first Playing assertion above has two steps of headroom; this one had
   # none. Reaching Idle from Paused below is the proof that the resume ran.
   - menu: { key: cmd_resume, path: [menu_script], skip_on: [harmony-arkui, web-dom] }
   - wait_idle:
-  # WAIT FOR THE REPLAY TO END before anything below runs. It re-dispatches the two recorded taps
+  # Wait for the replay to end before anything below runs. It re-dispatches the two recorded taps
   # (seed-search, then clear-search) on its own schedule, and every assertion under here reads
-  # state those taps overwrite — a replayed `clear-search` landing late is what emptied
+  # state those taps overwrite; a replayed `clear-search` landing late is what emptied
   # `toolbar-query` on macos-appkit and stomped `toolbar-last` on gtk/qt in CI. `wait_idle` cannot
   # cover it: that flushes the reactive drain, while the replay is a timed sequence still to come.
   # This assert is retryable, so it polls until `playing_signal` clears and costs nothing after.
   - assert_text: { id: toolbar-transport, key: toolbar_transport_idle, skip_on: [harmony-arkui, web-dom] }
-  # `key:`, not a literal: the search field FILTERS THE SIDEBAR on localized titles, so an English
+  # `key:`, not a literal: the search field filters the sidebar on localized titles, so an English
   # query drops every row under `--locale fr` (and with them this very page). Typing a title matches
-  # itself — a query is compared against each word start, and the start at 0 is the whole title.
+  # itself: a query is compared against each word start, and the start at 0 is the whole title.
   - toolbar: { item: day.search, key: nav_toolbars, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
-  # The star is the shared Star COMMAND (src/commands.rs), not a demo toggle: it stars whichever
-  # page is showing — here, Toolbars — and the page's own readout mirrors its state.
+  # The star is the shared Star command (src/commands.rs), not a demo toggle: it stars whichever
+  # page is showing (here, Toolbars), and the page's readout mirrors its state.
   - toolbar: { item: tb-star, on: true }
   - wait_idle:
   - assert_text: { id: toolbar-query, key: nav_toolbars, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - assert_text: { id: toolbar-star-state, key: toolbar_on }
   # One command, four surfaces (docs/menus.md, docs/toolbars.md): the App menu's item carries the
-  # state in its TITLE, so with this page starred it must now read "Unstar" — invoking it unstars,
-  # and the toolbar's own readout follows without the two knowing about each other. `key:` rather
+  # state in its title, so with this page starred it must now read "Unstar". Invoking it unstars,
+  # and the toolbar's readout follows without the two knowing about each other. `key:` rather
   # than a literal so the step survives the localized runs.
   - menu: { key: cmd_unstar, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - wait_idle:
@@ -639,36 +639,36 @@ flow:
   - wait_idle:
   - assert_text: { id: toolbar-star-state, key: toolbar_on, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   # Screenshot (docs/window-image.md), from the View menu: the command captures the window
-  # IN-PROCESS first and only opens the save picker once it has bytes, so the picker appearing at
-  # all is what proves the capture worked — a failed capture returns early and presents nothing.
+  # in-process first and only opens the save picker once it has bytes, so the picker appearing at
+  # all is what proves the capture worked; a failed capture returns early and presents nothing.
   # Dismissed rather than saved: where the shot lands is the user's business, not a walkthrough's.
   - menu: { id: cmd-screenshot, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - assert_presented: { skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - respond: { dismiss: true, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
-  # Adding an item is just a different list: tick the switch, then the new item is drivable —
+  # Adding an item is just a different list: tick the switch, then the new item is drivable,
   # which the `toolbar:` step itself proves, since it fails on an absent or disabled item.
   #
-  # Its READOUT is deliberately not asserted. `tb-extra` copies to the clipboard and only writes
-  # the readout when that succeeds, and on Linux day-part-clipboard shells out to wl-copy/xclip —
-  # neither of which a CI runner has, so the write fails and the readout is never written. That is
-  # the same constraint this file already records for the clipboard round-trip on the Files page
+  # Its readout is not asserted. `tb-extra` copies to the clipboard and only writes the readout
+  # when that succeeds, and on Linux day-part-clipboard shells out to wl-copy/xclip, neither of
+  # which a CI runner has, so the write fails and the readout is never written. That is the same
+  # constraint this file already records for the clipboard round-trip on the Files page
   # ("headless Linux has no system clipboard"), which is why the strict assertion lives in
   # dayscript/clipboard-roundtrip.yaml, gated to macOS + Android. Asserting it here made linux-gtk
   # and linux-qt fail on a capability the step is not about.
   - toggle: { id: toolbar-extra-switch, value: true, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - wait_idle:
   - toolbar: { item: tb-extra, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
-  # Disabling one item patches only that item — `toolbar:` refuses a disabled command.
+  # Disabling one item patches only that item; `toolbar:` refuses a disabled command.
   - toggle: { id: toolbar-enabled-switch, value: false, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - wait_idle:
   - tap: { id: toolbar-clear-search, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - wait_idle:
   - assert_text: { id: toolbar-query, key: toolbar_query_empty, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
-  # The search field also filters the SIDEBAR by localized word-prefix (docs/localization.md
+  # The search field also filters the sidebar by localized word-prefix (docs/localization.md
   # "Searching"). Navigating while filtered proves the row set and the selection can change
-  # together without stranding the detail pane — the bug the nav derive effect now closes. The
+  # together without stranding the detail pane, the bug the nav derive effect now closes. The
   # query is the Stack destination's own localized title, so the row it navigates to is in the
-  # filtered set in EVERY locale; the word-prefix behaviour itself is pinned by day-l10n's tests.
+  # filtered set in every locale; the word-prefix behaviour itself is pinned by day-l10n's tests.
   - toolbar: { item: day.search, key: nav_stack, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - wait_idle:
   - navigate: { route: stack, skip_on: [ios-uikit, android-mdc, harmony-arkui] }
@@ -686,21 +686,21 @@ flow:
       skip_on: [harmony-arkui]
       title: { en: "Toolbars", fr: "Barres d'outils", ar: "أشرطة الأدوات", zh-CN: "工具栏" }
       source: src/pages/toolbars.rs
-  # A CHECKED menu item, addressed by the app's own id (docs/menus.md). Two things are being
+  # A checked menu item, addressed by the app's id (docs/menus.md). Two things are being
   # shown at once. The item carries `.checked`, so the platform draws its real check mark and the
-  # mark moves only because `app_menu_reactive` re-lowers the bar — no backend flips it. And the
+  # mark moves only because `app_menu_reactive` re-lowers the bar; no backend flips it. And the
   # step names `id: cmd-pseudo-locale` rather than a label: this item's title is localized, and
   # the appearance trio beside it rewrites nothing but its mark, so an id is the only address that
   # holds across all four language runs.
   #
   # Toggled on, the run's locale takes the `-XA` suffix and every string comes back accented and
   # expanded (docs/localization.md); toggled off, the suffix is gone again and the rest of the
-  # run stays in the run's locale. It runs AFTER the sidebar search above is cleared: the filter
+  # run stays in the run's locale. It runs after the sidebar search above is cleared: the filter
   # is a word-prefix match against the rows' live titles, and a query typed in the run's locale
-  # matches nothing once every title is accented — the filtered-out page would unmount.
+  # matches nothing once every title is accented, and the filtered-out page would unmount.
   - menu: { id: cmd-pseudo-locale, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - wait_idle:
-  # The key resolves in the locale NOW in force — the pseudo one — so the label must have
+  # The key resolves in the locale now in force (the pseudo one), so the label must have
   # re-rendered under it to match.
   - assert_text: { id: toolbar-star-state, key: toolbar_on, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - screenshot: { name: toolbars-pseudo-locale, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
@@ -708,20 +708,20 @@ flow:
   - wait_idle:
   - assert_text: { id: toolbar-star-state, key: toolbar_on, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   # Unstar now that the shot has it. The starred set is written through to prefs
-  # (`showcase.starred`, src/commands.rs), so a run that ENDS starred is a run that changed the
+  # (`showcase.starred`, src/commands.rs), so a run that ends starred is a run that changed the
   # machine: the next launch opens with Toolbars sorted to the top of the sidebar, and every
   # screenshot taken after this page carries that reordered sidebar. `on: false` is a desired
-  # STATE rather than a flip — the item's action compares it against `checked`
-  # (src/pages/toolbars.rs) — so it restores whether or not the page is currently starred, and it
+  # state rather than a flip (the item's action compares it against `checked`,
+  # src/pages/toolbars.rs), so it restores whether or not the page is currently starred, and it
   # completes the surface matrix: starred from the toolbar, unstarred and restarred from the menu,
   # unstarred from the toolbar.
   - toolbar: { item: tb-star, on: false }
   - wait_idle:
   - assert_text: { id: toolbar-star-state, key: toolbar_off }
 
-  # The Content List page (src/pages/content_list): the `day new` scaffold's own list and
-  # editor, as the host's content-list pane (docs/navigation.md) — a third column on a desktop,
-  # the pushed middle layer on a phone — shown on THIS page only, with the pane's Filter and Add
+  # The Content List page (src/pages/content_list): the `day new` scaffold's list and
+  # editor, as the host's content-list pane (docs/navigation.md), a third column on a desktop or
+  # the pushed middle layer on a phone, shown on this page only, with the pane's Filter and Add
   # and the editor's Done riding it (docs/toolbars.md). The steps mirror Day-Rise's demo.
   - navigate: { route: content-list }
   - assert_route: { route: content-list }
@@ -753,7 +753,7 @@ flow:
   - toolbar: { item: tb-add, skip_on: [arkui] }
   - wait_idle:
   - assert_visible: { id: field-name, skip_on: [arkui] }
-  # Leave the pane's commands proven to leave with it: the next page collapses the pane.
+  # Leaving shows the pane's commands leave with it: the next page collapses the pane.
   - nav_back: { only_on: [uikit, mdc] }
   - wait_idle: { only_on: [uikit, mdc] }
 
@@ -762,12 +762,12 @@ flow:
   # Data
   # ---------------------------------------------------------------------------------------------
 
-  # Native recycling list (docs/list.md): 500 virtualized rows — visited after the delicate
+  # Native recycling list (docs/list.md): 500 virtualized rows, visited after the delicate
   # stack/tabs route assertions so they stay undisturbed. The list is wrapped in pull-to-refresh
   # (day-piece-pullrefresh): a synthetic toggle begins a reload that adds 100 rows and ends itself.
   - navigate: { route: list }
   - assert_route: { route: list }
-  # The tier line (docs/pullrefresh.md) says whether the pull is native or emulated here — it
+  # The tier line (docs/pullrefresh.md) says whether the pull is native or emulated here; it
   # differs per backend, so presence only.
   - assert_visible: { id: list-tier }
   # Selection (docs/list.md): the synthetic select drives the same rail as a native tap;
@@ -793,7 +793,7 @@ flow:
   - assert_text: { id: list-caption, key: list_caption, args: { count: 600 } }
   # Drag-to-reorder (docs/list.md): the `reorder` step drives the same guard → commit path a
   # native drag takes. The order readout shows the first five row numbers. Row 2 (index 1) drops
-  # at index 4; then a drop AIMED at the pinned first slot lands at index 1 instead — the
+  # at index 4; then a drop aimed at the pinned first slot lands at index 1 instead, the
   # guard's Retarget verdict, observable in the readout (index 0 never changes).
   - assert_text: { id: list-order, key: list_order, args: { rows: "1,2,3,4,5" } }
   - reorder: { id: demo-list, from: 1, to: 4 }
@@ -801,16 +801,16 @@ flow:
   - reorder: { id: demo-list, from: 2, to: 0 }
   - assert_text: { id: list-order, key: list_order, args: { rows: "1,4,3,5,2" } }
   # Programmatic scrolling, merged from the old Scrolling page: the buttons drive the
-  # RECYCLING list (scroll-to-row realizes virtualized rows; row 100 is highlighted so the
-  # jump visibly lands). Then Shuffle randomizes the order — animated as native row moves
-  # where the toolkit supports it — and Reset restores it, undoing the reorders above too.
+  # recycling list (scroll-to-row realizes virtualized rows; row 100 is highlighted so the
+  # jump visibly lands). Then Shuffle randomizes the order (animated as native row moves
+  # where the toolkit supports it), and Reset restores it, undoing the reorders above too.
   - tap: { id: list-scroll-bottom }
   - wait_idle:
   - pause: { secs: 0.7 }
   - tap: { id: list-scroll-item }
   - wait_idle:
   - pause: { secs: 0.7 }
-  # The jump targets the ROW, not the position: it selects row 100, and the selection readout
+  # The jump targets the row, not the position: it selects row 100, and the selection readout
   # names it whatever index the row currently sits at.
   - assert_text: { id: list-selection, key: list_selection, args: { count: 1, rows: "100" } }
   - tap: { id: list-scroll-top }
@@ -829,7 +829,7 @@ flow:
   - assert_text: { id: list-order, key: list_order, args: { rows: "1,2,3,4,5" } }
 
   # Swipe-to-delete (docs/list.md). The `delete_row` step drives the guard → commit path, not a
-  # platform gesture, so this asserts on EVERY target — including the desktops, whose toolkits
+  # platform gesture, so this asserts on every target, including the desktops, whose toolkits
   # answer Cap::ListDelete = Unsupported and have no swipe to simulate.
   - delete_row: { id: demo-list, row: 1 }
   - assert_text: { id: list-order, key: list_order, args: { rows: "1,3,4,5,6" } }
@@ -837,18 +837,18 @@ flow:
   - assert_text: { id: list-order, key: list_order, args: { rows: "1,4,5,6,7" } }
   # (The pinned first row is protected by `delete_guard` too, but dayscript has no
   # assert-this-step-fails form, so that refusal is covered by day-pieces' mock tests instead.)
-  # Reset restores the deleted rows, not just the order.
+  # Reset restores the deleted rows as well as the order.
   - tap: { id: list-reset }
   - assert_text: { id: list-order, key: list_order, args: { rows: "1,2,3,4,5" } }
 
   # The tree piece (docs/tree.md): native on macOS/iOS/GTK, composed from day pieces on the
-  # other targets — one script either way, because `expand:`/`tree_move:` drive the same
+  # other targets; one script either way, because `expand:`/`tree_move:` drive the same
   # guard → commit path a pointer does. A real drag and the per-row context menus are native
   # gestures, verified by hand per docs/tree.md; dayscript also has no assert-this-step-fails
-  # form, so the Lock toggle's DENY verdict is exercised by pointer, not here.
+  # form, so the Lock toggle's `Deny` verdict is exercised by pointer, not here.
   - navigate: { route: tree }
   - assert_route: { route: tree }
-  # Initial disclosure: src open, pages and docs closed — both directions one step away.
+  # Initial disclosure: src open, pages and docs closed, so both directions are one step away.
   - wait_for: { id: tree-node-1 }
   - wait_for: { id: tree-node-2 }
   - assert_missing: { id: tree-node-5 }
@@ -867,7 +867,7 @@ flow:
       source: src/pages/tree.rs
 
   # The observable model (docs/model.md): a Store<Keyed<Task>> drives the recycling list
-  # directly. The editor and the mirror label bind the SELECTED row's fields through the store,
+  # directly. The editor and the mirror label bind the selected row's fields through the store,
   # so asserting the mirror after typing proves the round trip without reaching into a recycled
   # cell; hiding done rows re-runs only the key projection.
   - navigate: { route: model }
@@ -891,7 +891,7 @@ flow:
   - toggle: { id: model-filter, value: false }
   - assert_text: { id: model-caption, key: model_caption, args: { count: 300 } }
   # Persistence (docs/persistence.md): the store above is loaded from a ModelContainer on every
-  # native target — the readout names the SQLite file — and insert/edit/delete below fold to one
+  # native target (the readout names the SQLite file), and insert/edit/delete below fold to one
   # INSERT, one UPDATE and one DELETE through the change log. The web build stays in memory, so
   # the file-name assert skips dom.
   - assert_visible: { id: model-storage }
@@ -904,15 +904,15 @@ flow:
   - tap: { id: model-delete }
   - assert_text: { id: model-caption, key: model_caption, args: { count: 300 } }
   - assert_text: { id: model-selected, key: model_selected_none }
-  # Undo (docs/model.md): the change log read backward. The deleted row comes back WHOLE —
-  # data included — as one unit; redo re-deletes it. The label readout carries the same string
+  # Undo (docs/model.md): the change log read backward. The deleted row comes back whole,
+  # data included, as one unit; redo re-deletes it. The label readout carries the same string
   # the native Edit menu title interpolates ("remove" resolved to "Remove").
   - assert_text: { id: model-undo-label, text: "Remove" }
   - tap: { id: model-undo }
   - assert_text: { id: model-caption, key: model_caption, args: { count: 301 } }
   - tap: { id: model-redo }
   - assert_text: { id: model-caption, key: model_caption, args: { count: 300 } }
-  # The redone unit is back on top of the undo stack — same label, ready to undo again.
+  # The redone unit is back on top of the undo stack: same label, ready to undo again.
   - assert_text: { id: model-undo-label, text: "Remove" }
 
   # Live queries (docs/persistence.md): 10,000 rows behind a typed query kept current
@@ -928,7 +928,7 @@ flow:
   - assert_text: { id: query-caption, key: query_caption, args: { count: 1, total: 10000 } }
   - select: { id: query-list, index: 0 }
   - assert_text: { id: query-selected, key: query_selected, args: { title: "Electric Harbor Light 0042" } }
-  # Row identity across a filter flip: the SAME keyed row stays on screen, same selection.
+  # Row identity across a filter flip: the same keyed row stays on screen, same selection.
   - toggle: { id: query-filter, value: true }
   - assert_text: { id: query-caption, key: query_caption, args: { count: 1, total: 10000 } }
   - assert_visible: { id: "query-row:42" }
@@ -940,7 +940,7 @@ flow:
       title: { en: "Query", fr: "Requête", ar: "الاستعلام", zh-CN: "查询" }
       caption: { en: "A live query over 10,000 rows.", fr: "Une requête en direct sur 10 000 lignes.", ar: "استعلام مباشر على 10000 صف.", zh-CN: "对一万行的实时查询。" }
       source: src/pages/query.rs
-  # An edit that moves a row ACROSS the predicate, both directions, while the query watches.
+  # An edit that moves a row across the predicate, both directions, while the query watches.
   - input: { id: query-search, text: "0043" }
   - assert_text: { id: query-caption, key: query_caption, args: { count: 1, total: 10000 } }
   - select: { id: query-list, index: 0 }
@@ -956,7 +956,7 @@ flow:
   - input: { id: query-search, text: "" }
   - assert_text: { id: query-caption, key: query_caption, args: { count: 10000, total: 10000 } }
   - assert_visible: { id: query-evals, skip_on: [dom] }
-  # FTS5 through the generated shadow index (native only — web has no SQLite). The same term
+  # FTS5 through the generated shadow index (native only; web has no SQLite). The same term
   # answers identically through substring and MATCH; FTS-only syntax then narrows further.
   # 1250 = every eighth title is "Electric …"; 313 of those also carry a Harbor token.
   - input: { id: query-search, text: "electric", skip_on: [dom] }
@@ -995,26 +995,26 @@ flow:
   - wait_for: { id: canvas-text }
   - wait_for: { id: canvas-font }
   # Every `TextAnchor` placement on a crosshair (docs/canvas.md "Anchors"). The alignment is the
-  # BACKEND's, so this is a per-toolkit check that only a picture can make: the assert proves the
+  # backend's, so this is a per-toolkit check that only a picture can make: the assert proves the
   # canvas mounted, and the screenshot below is what catches a backend hanging the line box off
   # the wrong edge. Twelve cells, three across by four down.
   - wait_for: { id: canvas-anchors }
   # Three figures built from `PathBuilder::arc_to` (docs/canvas.md "Paths"): a donut wedge, a
-  # round-capped gauge, and a leaf from two arcs curving opposite ways. The point of them is that
-  # arcs COMPOSE with lines in one contour, so a fill and a stroke both close correctly — which is
+  # round-capped gauge, and a leaf from two arcs curving opposite ways. They show that arcs
+  # compose with lines in one contour, so a fill and a stroke both close correctly, which is
   # a face, not a value, and rides the screenshot below.
   - wait_for: { id: canvas-arcs }
   # `scroll_to` reveals minimally, so the arcs land on the viewport's bottom edge rather than
-  # centered. Aiming at a later canvas to push them up does not work here — on macos-appkit the
-  # frame came back identical — so the arcs are named directly and the capture is read from
+  # centered. Aiming at a later canvas to push them up does not work here (on macos-appkit the
+  # frame came back identical), so the arcs are named directly and the capture is read from
   # the bottom of it.
   - scroll_to: { id: canvas-arcs }
   - wait_idle:
   - screenshot:
       name: canvas-arcs
   # Tap, drag and hover on one canvas (docs/canvas.md "Interaction"). Hover cannot be driven from
-  # a script — it needs a real pointer, and half the targets here have none — so what is asserted
-  # is the pair that CAN be: a tap leaves its ring, and a drag leaves a trail of the samples it
+  # a script (it needs a real pointer, and half the targets here have none), so what is asserted
+  # is the pair that can be: a tap leaves its ring, and a drag leaves a trail of the samples it
   # reported. The readout names all three, so the screenshot says which the backend delivered.
   - wait_for: { id: canvas-interaction }
   - tap: { id: canvas-interaction, at: [120, 60] }
@@ -1022,8 +1022,8 @@ flow:
   - drag: { id: canvas-interaction, from: [200, 40], to: [420, 150], steps: 10 }
   - wait_idle:
   - assert_visible: { id: canvas-interaction-readout }
-  # An image decoded from BYTES and drawn on a canvas (docs/images.md): the bundled PNG is read
-  # as a blob, decoded by the platform's own decoder, and drawn by HANDLE — the path a download or
+  # An image decoded from bytes and drawn on a canvas (docs/images.md): the bundled PNG is read
+  # as a blob, decoded by the platform's decoder, and drawn by handle, the path a download or
   # a paste takes, with no staged image resource behind it. The readout names what that decoder
   # said the bytes were, so a backend that reads them differently says so here; the picture is
   # what catches one that decodes but draws nothing.
@@ -1044,8 +1044,8 @@ flow:
       title: { en: "Canvas & shapes", fr: "Canevas et formes", ar: "اللوحة والأشكال", zh-CN: "画布与形状" }
       source: src/pages/canvas.rs
 
-  # Declarative animation (§8.4, docs/animation.md): queue DETERMINISTIC targets (fixed values,
-  # not Randomize! — screenshots must reproduce), commit them inside one with_animation via
+  # Declarative animation (§8.4, docs/animation.md): queue deterministic targets (fixed values,
+  # not Randomize!, since screenshots must reproduce), commit them inside one with_animation via
   # Animate!, and let the backend interpolation settle before capturing.
   - navigate: { route: animation }
   - assert_route: { route: animation }
@@ -1067,13 +1067,13 @@ flow:
   - assert_visible: { id: resources-greeting }
   # Full-color vector art (docs/vectors.md): every other glyph here is a monochrome symbol that
   # takes a tint, so this is the only step covering many-path authored-color art. On android-mdc
-  # it is a VectorDrawable rather than a raster. Driving the zoom REBUILDS the glyph at the new
+  # it is a VectorDrawable rather than a raster. Driving the zoom rebuilds the glyph at the new
   # size (see resources.rs), so this also covers that the art survives a resize on every backend.
   - assert_visible: { id: vector-tiger }
   # The glyph row wraps itself now (`RowFit::Wrap`), and the two segmented pickers govern every
   # glyph in it: a weight change re-resolves each source name, a size change re-frames each cell,
-  # and both go through the same keyed rebuild. Driving them covers that the row survives both —
-  # and the weight sweep is what caught android-mdc drawing NOTHING for an aliased weight, which
+  # and both go through the same keyed rebuild. Driving them covers that the row survives both,
+  # and the weight sweep is what caught android-mdc drawing nothing for an aliased weight, which
   # `assert_visible` alone cannot see (the view has a frame either way; docs/vectors.md).
   - assert_visible: { id: resources-vectors-row }
   - select: { id: vector-weight, index: 0 }
@@ -1083,12 +1083,12 @@ flow:
   - select: { id: vector-weight, index: 1 }
   - select: { id: vector-size, index: 1 }
   - wait_idle:
-  # A plain SVG asked for a WEIGHT it has no art for: it must resolve back to its base glyph
+  # A plain SVG asked for a weight it has no art for: it must resolve back to its base glyph
   # rather than draw nothing (docs/vectors.md). Only SF templates stage `__light`/`__bold`, so
   # this is the case every other glyph in the app is in.
   - assert_visible: { id: vector-aliased-weight }
   # The zoom drives the tiger alone now (the glyph row takes its size from the picker above), and
-  # its top is five times what it was — past the content column the art becomes a pannable strip
+  # its top is five times what it was; past the content column the art becomes a pannable strip
   # rather than being clipped, so this covers both arrangements.
   - set_value: { id: vector-zoom, value: 1200 }
   - wait_idle:
@@ -1096,10 +1096,10 @@ flow:
   - set_value: { id: vector-zoom, value: 96 }
   - wait_idle:
   - assert_visible: { id: vector-tiger }
-  # The COMPOSED color picker (docs/colorpicker.md): Day's own panel, built from pieces and a
-  # canvas, so these same steps run identically on all nine targets — including the two with no
+  # The composed color picker (docs/colorpicker.md): Day's panel, built from pieces and a
+  # canvas, so these same steps run identically on all nine targets, including the two with no
   # native chooser to fall back on. Pressing the shade field's white corner is what proves
-  # `on_tap_at` reports WHERE the press landed; Cancel then puts the tint back.
+  # `on_tap_at` reports where the press landed; Cancel then puts the tint back.
   - tap: { id: vector-tint-composed }
   - wait_idle:
   - assert_visible: { id: color-picker-panel }
@@ -1114,7 +1114,7 @@ flow:
       title: { en: "Resources", fr: "Ressources", ar: "الموارد", zh-CN: "资源" }
       source: src/pages/resources.rs
 
-  # Native media player (docs/media.md): an EXTERNAL piece wrapping each toolkit's native player
+  # Native media player (docs/media.md): an external piece wrapping each toolkit's native player
   # (AVPlayerView / AVPlayerViewController / QMediaPlayer / VideoView / GtkVideo / <video>). The
   # pause lets first frames of the network sample arrive; then pause playback so the captured frame
   # is stable. The page is video only; the bundled Lottie animation has a page of its own below.
@@ -1131,9 +1131,9 @@ flow:
       source: src/pages/media.rs
 
   # Lottie (day-piece-lottie): lottie-ios / lottie-android drawing the bundled JSON in a loop.
-  # The page exists ONLY on iOS and Android (media.rs, lib.rs `destinations`), so the whole
+  # The page exists only on iOS and Android (media.rs, lib.rs `destinations`), so the whole
   # section is gated. The preset buttons write the same speed signal the slider does, which gives
-  # the run a deterministic value to assert — the readout follows, and `.speed()` pushes it to
+  # the run a deterministic value to assert; the readout follows, and `.speed()` pushes it to
   # the native view live.
   - navigate: { route: lottie, only_on: [ios-uikit, android-mdc] }
   - assert_route: { route: lottie, only_on: [ios-uikit, android-mdc] }
@@ -1160,7 +1160,7 @@ flow:
   - select: { id: lottie-animation, index: 4, only_on: [ios-uikit, android-mdc] }
   - assert_text: { id: lottie-model-frames, text: "93 @ 30 fps", only_on: [ios-uikit, android-mdc] }
 
-  # Map (day-piece-map, docs/map.md): a native MKMapView, so the page exists ONLY on the two
+  # Map (day-piece-map, docs/map.md): a native MKMapView, so the page exists only on the two
   # Apple targets (map.rs, lib.rs `destinations`) and the whole section is gated. A preset
   # recenters the map through the bound coordinate signal; the readout echoes the coordinates,
   # and the pause lets the Paris tiles land before the shot.
@@ -1179,13 +1179,13 @@ flow:
   - assert_text: { id: map-coords, text: "42.3601, -71.0589", only_on: [macos-appkit, ios-uikit] }
 
   # Native web view (docs/webview.md): each toolkit's native browser. Load the project site,
-  # then `pause` (runner-side — the engine must not block the UI thread) so the page finishes
+  # then `pause` (runner-side, since the engine must not block the UI thread) so the page finishes
   # loading before the capture. Visited after the stack/tabs route assertions so a heavy
   # embedded browser can't disturb them.
   # skip_on harmony-arkui: the x86_64 emulator image ships ArkWebCore.hap with arm64-only native
   # libs (`bm install` rejects it: "the Abi type supported by the device does not match"), so the
-  # Web component's engine is null — and its RosenWeb surface then wedges the window's compositor
-  # for the rest of the process, staling EVERY screenshot after this page. The piece's arkui arm is
+  # Web component's engine is null, and its RosenWeb surface then wedges the window's compositor
+  # for the rest of the process, staling every screenshot after this page. The piece's arkui arm is
   # implemented and renders on a real device; drop this skip once the emulator image carries an
   # x86_64 engine. (measured on the API-18 x86_64 emulator, docs/harmonyos.md)
   - navigate: { route: webview, skip_on: [harmony-arkui] }
@@ -1195,10 +1195,10 @@ flow:
   # Only that backend renders the footnote; everywhere else the piece reports Support::Native.
   - assert_visible: { id: webview-note, only_on: [web-dom] }
   - pause: { secs: 5, skip_on: [harmony-arkui] }
-  # JS evaluation (docs/webview-eval.md), on the combos whose arm is written AND has an engine —
+  # JS evaluation (docs/webview-eval.md), on the combos whose arm is written and has an engine;
   # windows-qt ships no Qt6 WebEngine, and the other backends report Unsupported. These three
   # assertions are engine-independent: JSON.stringify's output and a TypeError's name/message are
-  # spec-defined, so WebKit and V8 agree. A SyntaxError's TEXT is not, so it is not asserted here.
+  # spec-defined, so WebKit and V8 agree. A SyntaxError's text is not, so it is not asserted here.
   - input:
       { id: webview-js, text: "1+1", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc] }
   - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc] }
@@ -1224,14 +1224,14 @@ flow:
       skip_on: [harmony-arkui]
       title: { en: "Web view", fr: "Vue Web", ar: "عرض الويب", zh-CN: "网页视图" }
       source: src/pages/webview.rs
-  # Session retention (docs/webview.md): plant a marker in the LIVE JS context, leave the page
+  # Session retention (docs/webview.md): plant a marker in the live JS context, leave the page
   # entirely, come back, and read it. It only survives if the native engine was retained rather
-  # than rebuilt — a reloaded page would have a fresh, empty `window`.
+  # than rebuilt; a reloaded page would have a fresh, empty `window`.
   #
-  # Runs AFTER the gallery screenshot above, and opens by STOPPING the load, because the marker
+  # Runs after the gallery screenshot above, and opens by stopping the load, because the marker
   # lives in a document the network can still replace. `pause` cannot close that window: a load
   # commits when the origin answers, so on a cold CI runner the marker went into the outgoing
-  # document and the commit took it with it — `expected "survived", found "null"`, on the first
+  # document and the commit took it with it: `expected "survived", found "null"`, on the first
   # of eight variants and no other. (`document.readyState` does not help either: it reads
   # "complete" for the page being replaced.) Stopping first makes the current document final, so
   # what this block measures is retention rather than the runner's luck with the network.
@@ -1245,14 +1245,14 @@ flow:
       }
   - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
   - pause: { secs: 2, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
-  # Prove the marker took BEFORE leaving: if this fails the plant itself lost a race, which is a
+  # Prove the marker took before leaving: if this fails the plant itself lost a race, which is a
   # different fault from the retention the steps below are about.
   - input: { id: webview-js, text: "window.__dayMarker", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
   - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
   - pause: { secs: 2, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
   - assert_text: { id: webview-js-result, text: '"survived"', only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
   # Overwrite the readout before leaving. The result label is a global signal that outlives this
-  # page, so leaving "survived" on screen would let the final assertion below pass on a STALE
+  # page, so leaving "survived" on screen would let the final assertion below pass on a stale
   # label without the marker having survived anything.
   - input: { id: webview-js, text: "'left the page'", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
   - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
@@ -1262,7 +1262,7 @@ flow:
   - pause: { secs: 2, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
   - navigate: { route: webview, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
   - pause: { secs: 3, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
-  # The hoisted signals survived the rebuild — the editor still holds the last text typed into
+  # The hoisted signals survived the rebuild: the editor still holds the last text typed into
   # it, which is the line that overwrote the readout before leaving.
   - assert_text:
       {
@@ -1283,7 +1283,7 @@ flow:
       }
   # The Embedded tab (docs/webview.md): a whole site bundled under resource/assets/web/minisite/,
   # served through web_view_inline on the backends with a local-content arm. The status line is a
-  # day label (asserted everywhere the page shows); what renders INSIDE the web view is native web
+  # day label (asserted everywhere the page shows); what renders inside the web view is native web
   # content dayscript cannot reach, so the screenshot is the visual record.
   - select: { id: webview-tab, index: 1, skip_on: [harmony-arkui] }
   - assert_visible: { id: webview-embedded-status, skip_on: [harmony-arkui] }
@@ -1316,13 +1316,13 @@ flow:
   - set_value: { id: battery-level, value: 65 }
   - toggle: { id: battery-charging, value: true }
   # Sensors stream now (docs/sensors.md), so there is nothing to refresh: each row subscribes on
-  # page build and updates itself. Assert the rows are present — their VALUES are live and differ
+  # page build and updates itself. Assert the rows are present; their values are live and differ
   # per device, so they are never asserted.
   - assert_visible: { id: sensor-accel }
   - assert_visible: { id: sensor-gyro }
   - assert_visible: { id: sensor-magnet }
-  # Permission rows (docs/permissions.md) show STATUS only. Their Request buttons are deliberately
-  # never tapped here: an OS permission dialog is a system modal that dayscript cannot dismiss (it
+  # Permission rows (docs/permissions.md) show status only. Their Request buttons are never
+  # tapped here: an OS permission dialog is a system modal that dayscript cannot dismiss (it
   # is not on day's present() rail), so a tap would hang the run on the Simulator and the emulator.
   # apps/showcase/dayscript/permissions-request.yaml drives the real prompt, opt-in.
   - assert_visible: { id: sensors-perm }
@@ -1346,17 +1346,17 @@ flow:
   - tap: { id: network-refresh }
   - assert_visible: { id: network-reading }
   # Resource (day::reactive, docs/async.md): the first fetch runs at page build. Let it settle
-  # BEFORE the shot, so its readout is filled in when the page is captured.
+  # before the shot, so its readout is filled in when the page is captured.
   - assert_text: { id: http-res-status, text: "ok 1: 200 day-http-ok" }
   - screenshot:
       name: network
       title: { en: "Network & HTTP", fr: "Réseau et HTTP", ar: "الشبكة وHTTP", zh-CN: "网络与 HTTP" }
       source: src/pages/services.rs
-  # HTTP fetch (docs/http.md): day-part-http against a deterministic target — a one-shot
+  # HTTP fetch (docs/http.md): day-part-http against a deterministic target, a one-shot
   # loopback server natively; on web-dom (where a tab can host no TCP listener) the dev
   # server's same-origin /day-http-ok endpoint answers with the identical bodies, so these
-  # asserts run UNSKIPPED everywhere. The status label fills in from an async completion, so
-  # assert_text's bounded retry (§14.3) covers the gap. The body is raw on purpose — identical
+  # asserts run unskipped everywhere. The status label fills in from an async completion, so
+  # assert_text's bounded retry (§14.3) covers the gap. The body is raw, so it is identical
   # across locales.
   - tap: { id: http-fetch }
   - assert_text: { id: http-status, text: "200 day-http-ok" }
@@ -1365,7 +1365,7 @@ flow:
   - tap: { id: http-patch }
   - assert_text: { id: http-patch-status, text: "200 day-http-ok:PATCH" }
   # Refetch re-runs the Resource fetch asserted before the screenshot above (the attempt
-  # counter proves it — a fresh fetch, not a cached readout).
+  # counter proves it: a fresh fetch, not a cached readout).
   - tap: { id: http-res-refetch }
   - assert_text: { id: http-res-status, text: "ok 2: 200 day-http-ok" }
   - assert_visible: { id: http-tier }
@@ -1375,9 +1375,9 @@ flow:
   - assert_visible: { id: http-check }
 
   # Notifications & badge (docs/notify.md): the capability lines, the notification form, its
-  # permission row, and the app-icon badge. Nothing is POSTED here: a delivered notification is a
+  # permission row, and the app-icon badge. Nothing is posted here: a delivered notification is a
   # system banner that would photobomb every later screenshot, and the permission Request button
-  # opens an OS modal dayscript cannot dismiss — the same rule as the Request buttons on Device &
+  # opens an OS modal dayscript cannot dismiss, the same rule as the Request buttons on Device &
   # sensors. dayscript/notify-shot.yaml and badge-shot.yaml drive the real post and badge, opt-in.
   - navigate: { route: notify }
   - assert_route: { route: notify }
@@ -1394,8 +1394,8 @@ flow:
       source: src/pages/services.rs
 
   # Speech, sound & haptics (docs/bridge.md, docs/sound.md, docs/haptics.md): the support line is
-  # the speech part's own answer for this target; the voice itself is the acceptance test
-  # (dayscript/speech.yaml speaks, opt-in — a CI runner has nobody to hear it). The sound and
+  # the speech part's answer for this target; the voice itself is the acceptance test
+  # (dayscript/speech.yaml speaks, opt-in, since a CI runner has nobody to hear it). The sound and
   # haptic buttons run everywhere; the readouts are what prove each call went through.
   - navigate: { route: speech }
   - assert_route: { route: speech }
@@ -1416,20 +1416,20 @@ flow:
   - assert_text: { id: sound-last-played, key: sound_last_played, args: { clip: "sounds/glass.wav" } }
   - scroll_to: { id: haptics-medium }
   - tap: { id: haptics-medium }
-  # `#haptics-last-played` is `tr("haptics-last-played")` — a localized string, so assert by
+  # `#haptics-last-played` is `tr("haptics-last-played")`, a localized string, so assert by
   # key + args so it resolves in the run's locale, not a hardcoded English literal.
   - assert_text: { id: haptics-last-played, key: haptics_last_played, args: { style: "Medium" } }
   - tap: { id: haptics-success }
   - assert_text: { id: haptics-last-played, key: haptics_last_played, args: { style: "Success" } }
 
   # Files & storage: the clipboard round-trip, persisted prefs, the native file pickers, and the
-  # app-local file store — one form, one screenshot. The strict OS clipboard assertion lives in
-  # dayscript/clipboard-roundtrip.yaml (macOS + Android only; headless Linux has no system
-  # clipboard). The save/open pickers answer with a temp path (relative → app temp dir).
+  # app-local file store, all in one form and one screenshot. The strict OS clipboard assertion
+  # lives in dayscript/clipboard-roundtrip.yaml (macOS + Android only; headless Linux has no
+  # system clipboard). The save/open pickers answer with a temp path (relative → app temp dir).
   - navigate: { route: files }
   - assert_route: { route: files }
   - assert_visible: { id: clipboard-field }
-  # Screenshot the pristine form BEFORE the clipboard copy: Android 13+ pops a system
+  # Screenshot the pristine form before the clipboard copy: Android 13+ pops a system
   # clipboard-preview overlay on copy that lingers several seconds and would photobomb the shot.
   - screenshot:
       name: files
@@ -1443,9 +1443,9 @@ flow:
   - input: { id: prefs-field, text: "overwritten" }
   - tap: { id: prefs-load }
   - assert_text: { id: prefs-value, text: "day-remembers" }
-  # Clear removes the KEY, so the run hands the prefs store back the way it found it — and
+  # Clear removes the key, so the run hands the prefs store back the way it found it, and
   # `prefs::remove` gets covered alongside the set and get above, which nothing else exercised.
-  # Loading afterwards is what proves the removal reached STORAGE: "cleared" is only what the
+  # Loading afterwards is what proves the removal reached storage: "cleared" is only what the
   # button wrote to the label, while "nothing stored yet" is the store itself answering.
   - tap: { id: prefs-clear }
   - assert_text: { id: prefs-status, key: prefs_cleared }
@@ -1462,7 +1462,7 @@ flow:
   - respond: { path: "day-walkthrough.txt", skip_on: [web-dom] }
   - assert_text: { id: files-status, text: "opened", skip_on: [web-dom] }
   - assert_text: { id: files-opened-name, key: files_opened, args: { name: "day-walkthrough.txt" }, skip_on: [web-dom] }
-  # App-local file storage (docs/fs.md): day-part-fs through the async futures — the same
+  # App-local file storage (docs/fs.md): day-part-fs through the async futures, the same
   # steps on every target, including web-dom (OPFS). Statuses are raw, identical per locale.
   - input: { id: fs-note, text: "day-fs-demo" }
   - tap: { id: fs-save }
@@ -1478,8 +1478,8 @@ flow:
   # App & tooling
   # ---------------------------------------------------------------------------------------------
 
-  # Camera (day-piece-camera): the viewfinder page, listed only where the piece renders — the
-  # phones and HarmonyOS. Status only: the Allow button raises an OS permission dialog that
+  # Camera (day-piece-camera): the viewfinder page, listed only where the piece renders (the
+  # phones and HarmonyOS). Status only: the Allow button raises an OS permission dialog that
   # dayscript cannot dismiss, so it is never tapped here (dayscript/camera-capture.yaml drives the
   # capture after the permission is granted out of band). The state reads `idle` while the
   # permission is undecided, `unavailable` on the iOS Simulator once it is held (no capture
@@ -1495,9 +1495,9 @@ flow:
       title: { en: "Camera", fr: "Appareil photo", ar: "الكاميرا", zh-CN: "相机" }
       source: src/pages/camera.rs
 
-  # Localization (docs/localization.md): live locale switching, icu4x NUMBER/DATETIME rendering,
+  # Localization (docs/localization.md): live locale switching, icu4x number/datetime rendering,
   # CLDR plural categories, and collation-aware sorting. Key-based asserts resolve through the
-  # SAME bundle + formatter as the labels, so the expected strings are locale-correct by
+  # same bundle + formatter as the labels, so the expected strings are locale-correct by
   # construction (ar gets zero/two/few/many plurals and Arabic date patterns, fr narrow-NBSP
   # grouping, zh CLDR date patterns).
   - navigate: { route: localization }
@@ -1508,13 +1508,13 @@ flow:
   - assert_text: { id: fmt-date, key: fmt_date, args: { d: "2026-07-18" } }
   - assert_text: { id: fmt-time, key: fmt_time, args: { t: "14:45" } }
   - assert_text: { id: fmt-datetime, key: fmt_datetime, args: { dt: "2026-07-18T14:45" } }
-  # Plurals: drive the count through the CLDR categories (each locale renders ITS grammar).
+  # Plurals: drive the count through the CLDR categories (each locale renders its grammar).
   - assert_text: { id: plural-label, key: plural_items, args: { count: 0 } }
   - tap: { id: plural-add }
   - assert_text: { id: plural-label, key: plural_items, args: { count: 1 } }
   - tap: { id: plural-add, repeat: 2 }
   - assert_text: { id: plural-label, key: plural_items, args: { count: 3 } }
-  # Collation order is per-locale (zh = pinyin) — pinned in day-l10n's unit tests; here we assert
+  # Collation order is per-locale (zh = pinyin), pinned in day-l10n's unit tests; here we assert
   # presence and let the per-locale screenshot grid show the reorder.
   - assert_visible: { id: fmt-sorted }
   # Live locale switch: the signal readout is a raw tag (locale-independent), then restore the
@@ -1530,7 +1530,7 @@ flow:
   # Scripting (docs/agent.md): the recorder's buffer and transport on a page of their own. The
   # recording itself is driven from the Toolbars section above (the stop jumps here), so on the
   # desktops the buffer already holds that script; on the phones it is empty. Presence and the
-  # shot are what this stop takes — the transport is exercised through the toolbar, and re-running
+  # shot are what this stop takes; the transport is exercised through the toolbar, and re-running
   # a replay here would re-dispatch taps onto a page that does not have them.
   - navigate: { route: scripting }
   - assert_route: { route: scripting }
@@ -1546,7 +1546,7 @@ flow:
       source: src/pages/scripting.rs
 
   # Tweaks (docs/tweaks.md): packaged per-toolkit native configuration of built-in pieces, plus
-  # NativeRef liveness — unmounting the Tweaked Piece clears the ref (asserted via Fluent keys
+  # NativeRef liveness: unmounting the Tweaked Piece clears the ref (asserted via Fluent keys
   # so the same script passes in every locale).
   - navigate: { route: tweaks }
   - assert_route: { route: tweaks }
@@ -1559,8 +1559,8 @@ flow:
   - toggle: { id: tweak-ref-toggle, value: true }
   - assert_text: { id: tweak-ref-status, key: tweaks_ref_live }
   # The inline label tweak beside a conditional backing (docs/tweaks.md "Conditional
-  # backings"): flipping Selectable rebuilds the sample label — on iOS as a read-only
-  # UITextView — and the tweak must land on both arms, on every backend.
+  # backings"): flipping Selectable rebuilds the sample label (on iOS as a read-only
+  # UITextView), and the tweak must land on both arms, on every backend.
   - assert_visible: { id: tweak-label-sample }
   - toggle: { id: tweak-label-selectable, value: true }
   - assert_visible: { id: tweak-label-sample }
@@ -1571,7 +1571,7 @@ flow:
       title: { en: "Tweaks", fr: "Tweaks", ar: "التوليفات", zh-CN: "微调" }
       source: src/pages/tweaks.rs
 
-  # Benchmark (the Day-Bench Grids benchmark): a deterministic patchwork — the same (seed, count)
+  # Benchmark (the Day-Bench Grids benchmark): a deterministic patchwork; the same (seed, count)
   # draws the same picture on every target, so the shots are diffable. The readouts prove the
   # sliders reached the generator; the row counts are pinned by unit tests
   # (known_parameters_pack_to_known_row_counts), so a generator change fails in cargo test first.
@@ -1585,14 +1585,14 @@ flow:
       name: benchmark
       title: { en: "Benchmark", fr: "Benchmark", ar: "قياس الأداء", zh-CN: "基准测试" }
       source: src/pages/benchmark.rs
-  # Denser patchwork, then back to the defaults — reproducibility means the run must land on the
+  # Denser patchwork, then back to the defaults; reproducibility means the run must land on the
   # row count it opened with.
   - set_value: { id: bench-count, value: 240 }
   - assert_text: { id: bench-count-value, text: "240" }
   - assert_text: { id: bench-rows, key: bench_rows, args: { rows: 45 } }
   - set_value: { id: bench-count, value: 48 }
   - assert_text: { id: bench-rows, key: bench_rows, args: { rows: 10 } }
-  # The SwiftUI twin (day-piece-swiftui, docs/swiftui.md) — the segmented picker exists only where
+  # The SwiftUI twin (day-piece-swiftui, docs/swiftui.md): the segmented picker exists only where
   # support() is Native, so these steps are gated to the two Apple-native targets. The pane's own
   # sliders live inside the hosted SwiftUI view (no dayscript ids); the shot is the deliverable.
   - select: { id: bench-impl, index: 1, only_on: [macos-appkit, ios-uikit] }
@@ -1605,7 +1605,7 @@ flow:
       source: src/pages/benchmark.rs
   - select: { id: bench-impl, index: 0, only_on: [macos-appkit, ios-uikit] }
 
-  # Crash Reporting (day-break, docs/break.md): the walkthrough only VISITS the page (empty state);
+  # Crash Reporting (day-break, docs/break.md): the walkthrough only visits the page (empty state);
   # the actual crash + next-launch report are driven by crash.yaml / crash-report.yaml so the
   # walkthrough itself never dies mid-run. The page is hidden on web-dom (no crash reporting in a
   # browser sandbox, lib.rs `destinations`), so the section skips there.
@@ -1623,22 +1623,22 @@ flow:
   # ---------------------------------------------------------------------------------------------
 
   # Every page has now been visited, so every piece kind this app uses has been realized. A kind
-  # with no renderer on this backend rendered a `⟨kind⟩` placeholder — which no other assertion can
+  # with no renderer on this backend rendered a `⟨kind⟩` placeholder, which no other assertion can
   # see, because the app still draws and the screenshot still looks plausible. `allow:` is this
   # file's per-target gap ledger; anything outside it fails the run, so a piece losing its renderer
   # (or a toolkit feature silently not being enabled) surfaces here first.
   #
-  # The empty list below is the point: on seven targets the showcase should render ZERO
+  # The empty list below is what matters: on seven targets the showcase should render zero
   # placeholders. Lists marked (measured) came from running this step with `allow: []`; the others
   # are read from the piece crates' backend arms and will be corrected by the first CI run that
-  # disagrees — the failure names the kind.
+  # disagrees; the failure names the kind.
   - assert_no_placeholders:
       only_on: [macos-appkit, linux-gtk, linux-qt, macos-qt, windows-xaml]
       allow: []
   # Android ships no color chooser in the framework, in Material, or in AndroidX, so the Resources
-  # page's `.native()` well has nothing to realize and draws the placeholder on purpose — with a
-  # banner beside it saying so, and Day's COMPOSED panel next to it working normally
-  # (docs/colorpicker.md). Same story on harmony-arkui below.
+  # page's `.native()` well has nothing to realize and draws the placeholder, with a banner beside
+  # it saying so, and Day's composed panel next to it working normally (docs/colorpicker.md).
+  # Same story on harmony-arkui below.
   - assert_no_placeholders:
       only_on: [android-mdc]
       allow: [day.piece.colorpicker]
@@ -1653,15 +1653,15 @@ flow:
       only_on: [macos-gtk]
       allow: [day.piece.webview]
   # The MinGW (windows-gnu) builds used to lose piece renderer registrations: the linker drops a
-  # linkme static whose codegen unit exports nothing else referenced — the dead-strip gamble
-  # DESIGN.md §8.2 records — and which crates survived was link-order luck (combobox and
+  # linkme static whose codegen unit exports nothing else referenced (the dead-strip gamble
+  # DESIGN.md §8.2 records), and which crates survived was link-order luck (combobox and
   # searchfield registered on the gtk build, none on qt, and the stepper joined the missing
   # 2026-09). Since 2026-09 `day build` links the two MinGW targets with `--no-gc-sections`
   # (day-cli/src/ops.rs): COFF has no retain flag for a `#[used]` static, so the collector was
-  # dropping the registration sections. These sets are the ones measured BEFORE that, kept
+  # dropping the registration sections. These sets are the ones measured before that, kept
   # until a green CI run shows which entries can go. windows-xaml
   # links with MSVC, which keeps `#[used]` statics, and stays in the zero-placeholder group
-  # above. webview is additionally absent by design on windows-gtk (no WebKitGTK 6 for MinGW).
+  # above. webview is additionally absent on windows-gtk (no WebKitGTK 6 for MinGW).
   - assert_no_placeholders:
       only_on: [windows-qt]
       allow: [day.piece.activity, day.piece.colorpicker, day.piece.combobox, day.piece.datepicker,
@@ -1675,7 +1675,7 @@ flow:
       only_on: [harmony-arkui]
       allow: [day.piece.activity, day.piece.colorpicker, day.piece.combobox, day.piece.media,
               day.piece.searchfield, day.piece.webview]
-  # (measured on web-dom) — media() landed as a <video>, so it is deliberately NOT listed here.
+  # (measured on web-dom; media() landed as a <video>, so it is not listed here.)
   - assert_no_placeholders:
       only_on: [web-dom]
       allow: [day.piece.activity, day.piece.combobox, day.piece.datepicker, day.piece.searchfield,

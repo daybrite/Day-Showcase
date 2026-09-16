@@ -1,5 +1,5 @@
-# Build, test, package and release the Day Showcase — the same reusable workflow every Day app
-# uses (daybrite/actions). The app's own pipeline; day's repository ALSO builds this app from a
+# Build, test, package and release the Day Showcase with the same reusable workflow every Day app
+# uses (daybrite/actions). The app's own pipeline; day's repository also builds this app from a
 # checkout of it, to test the framework against the app it documents.
 name: ci
 
@@ -31,8 +31,8 @@ jobs:
       # The phone leg runs `pixel_5` rather than the shared workflow's generic `medium_phone`,
       # which is `pixel_7`'s panel: 1080x2400 at 420 dpi, 2.59 Mpx. That is 2.5% more pixels than
       # `pixel_5` and it is 2.5% too many. A headless runner rasterizes every one of them in
-      # software on two cores, and this app's Web view page loads the live daybrite.dev — 21 hero
-      # PNGs and 31 inline SVGs — which is what tips it: the guest freezes whole, adbd included,
+      # software on two cores, and this app's Web view page loads the live daybrite.dev (21 hero
+      # PNGs and 31 inline SVGs), which is what tips it: the guest freezes whole, adbd included,
       # partway through the eight-variant matrix. `pixel_5` (2.53 Mpx) clears it, and the tablet
       # clears it by more, since `day devices boot` halves any headless panel past three million
       # pixels and `medium_tablet` comes back at 1280x800.
@@ -46,10 +46,10 @@ jobs:
       app-id: dev.daybrite.showcase
       deploy-web: true
       # Tag builds sign and notarize the .dmg in a job that checks out nothing and runs only
-      # Apple's own tools — the Developer ID is never present where repository code runs. Needs a
-      # `release-signing` environment in THIS repository holding DAY_MACOS_CERT_P12,
+      # Apple's tools, so the Developer ID is never present where repository code runs. Needs a
+      # `release-signing` environment in this repository holding DAY_MACOS_CERT_P12,
       # DAY_MACOS_CERT_PASSWORD, DAY_SIGN_MACOS_IDENTITY and the DAY_NOTARY_* trio. Setting this
-      # input is what asks for signing, so a tag build FAILS if the material is missing rather than
+      # input is what asks for signing, so a tag build fails if the material is missing rather than
       # quietly shipping a .dmg macOS refuses to open. Remove the input to release unsigned.
       signing-environment: release-signing
       # A tag build also ships the iOS app: the packed .ipa goes to App Store Connect through the

@@ -1,8 +1,8 @@
 //! The Content List page: the `day new` scaffold's own item list and editor, exactly as a new
 //! app starts with them (https://daybrite.dev/docs/navigation "The content list").
 //!
-//! `model.rs`, `navigate.rs` and `detail.rs` are GENERATED from the scaffold template by
-//! `scripts/template-sync.sh` and checked against it in CI — edit the template, not them. What
+//! `model.rs`, `navigate.rs` and `detail.rs` are generated from the scaffold template by
+//! `scripts/template-sync.sh` and checked against it in CI; edit the template, not them. What
 //! is hand-written here is the glue a crate root normally supplies: the route enum the model's
 //! scene defaults to, and the two builders `lib.rs` hands the navigation host. The list is the
 //! host's own content-list pane, shown only on this page (`content_list_for` in `lib.rs`), so

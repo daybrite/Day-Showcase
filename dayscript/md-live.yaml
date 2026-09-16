@@ -4,7 +4,7 @@ flow:
   - wait_for: { id: nav }
   - navigate: { route: text }
   # Typing replaces the buffer; the label under the divider re-parses it and shows the text
-  # with the markers stripped — which is the runtime parse, observed rather than asserted.
+  # with the markers stripped, which is the runtime parse, observed rather than asserted.
   - input: { id: text-md-input, text: "**bold** and *italic* and `code` and [a link](https://daybrite.dev)" }
   - wait_idle:
   - assert_text: { id: text-md-output, text: "bold and italic and code and a link" }

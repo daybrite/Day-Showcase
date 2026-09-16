@@ -8,7 +8,7 @@ flow:
   - assert_visible: { id: resources-numbers }
   - assert_visible: { id: resources-greeting }
   - screenshot: resources
-  # Day's COMPOSED color picker (docs/colorpicker.md), which is the same panel on every target —
+  # Day's composed color picker (docs/colorpicker.md), which is the same panel on every target,
   # so this shot is comparable across the whole gallery in a way no native chooser's is.
   - tap: { id: vector-tint-composed }
   - wait_idle:

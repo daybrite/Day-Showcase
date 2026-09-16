@@ -87,17 +87,17 @@ fn resource_lines() -> (String, String) {
 const GLYPH_SIZES: [f64; 4] = [16.0, 24.0, 36.0, 48.0];
 
 /// `vector(res::vectors::…)` (docs/vectors.md): the same glyphs the sidebar rows use, drawn
-/// in-page — resolution-independent, and tinted through the piece's `.tint(…)` where the
+/// in-page, resolution-independent, and tinted through the piece's `.tint(…)` where the
 /// backend supports recoloring (Apple template rendering, Android drawable tint, GTK pixel
 /// recolor; other backends draw the authored color).
 fn vectors_section() -> impl Piece {
     // Which stop of the palette ramp the live-tint glyph is showing, and the color the two
-    // pickers write. The ramp button and both pickers drive the SAME signal, which is what makes
+    // pickers write. The ramp button and both pickers drive the same signal, which is what makes
     // "cycle, then open a picker" pick up where the ramp left off.
     let live = Signal::new(0usize);
     let tint = Signal::new(crate::palette::RAMP[0]);
     // The Weight and Size pickers apply to every glyph in the wrapping row below.
-    let weight = Signal::new(1usize); // Light / Regular / Bold — Regular by default
+    let weight = Signal::new(1usize); // Light / Regular / Bold; Regular by default
     let size = Signal::new(1usize); // 16 / 24 / 36 / 48 pt
     // Edge length of the zoomable art, in points. The tiger's alone now: the glyph row takes its
     // size from the Size picker, so the two no longer fight over one slider.
@@ -114,9 +114,9 @@ fn vectors_section() -> impl Piece {
     use crate::res::vectors as gv;
     section((
         label(crate::res::str::vectors_note()).font(Font::Footnote),
-        // The two pickers that govern EVERY glyph below. Neither is reactive on the piece:
+        // The two pickers that govern every glyph below. Neither is reactive on the piece:
         // `.weight(…)` resolves to a different staged source name and `.frame(…)` is a layout
-        // constant, so both are build-time facts — which is why the row is rebuilt through
+        // constant, so both are build-time facts, which is why the row is rebuilt through
         // `each` keyed on the pair rather than patched.
         labeled(
             crate::res::str::vectors_weights(),
@@ -137,14 +137,14 @@ fn vectors_section() -> impl Piece {
                 .segmented()
                 .id("vector-size"),
         ),
-        // The glyph row is DERIVED, not hand-written: one list of glyphs in one `row`, wrapped by
+        // The glyph row is derived, not hand-written: one list of glyphs in one `row`, wrapped by
         // the row itself. It was a `grid` whose column count this page computed from the window's
-        // width class and the glyph size — arithmetic that existed only because a row could not
+        // width class and the glyph size, arithmetic that existed only because a row could not
         // wrap. `RowFit::Wrap` (docs/size-classes.md) moved that into layout, where the run break
         // happens against the measured width rather than against a guess.
         //
         // Still rebuilt through `each`, keyed on the weight and size the pickers hold, because
-        // both change what each glyph IS rather than how it is laid out.
+        // both change what each glyph is rather than how it is laid out.
         each(
             items(move || vec![(weight.get(), size.get())], |k| *k),
             move |slot| {
@@ -152,10 +152,10 @@ fn vectors_section() -> impl Piece {
                 let px = GLYPH_SIZES[s.min(GLYPH_SIZES.len() - 1)];
                 // `home_symbol` leads: it is the one SF-template source here with true
                 // per-weight art. Every glyph after it is a plain SVG, so moving the Weight
-                // picker off Regular exercises the ALIASING path on all 23 at once — a weight a
+                // picker off Regular exercises the aliasing path on all 23 at once: a weight a
                 // source has no art for must resolve back to its base glyph rather than draw
                 // nothing (docs/vectors.md). Doing it in bulk is what caught android-mdc
-                // resolving the image piece's name WITHOUT that fallback: every aliased glyph was
+                // resolving the image piece's name without that fallback: every aliased glyph was
                 // blank there, and `assert_visible` could not see it because the ImageView had a
                 // frame either way.
                 let glyphs = [
@@ -202,8 +202,8 @@ fn vectors_section() -> impl Piece {
             },
         ),
         // The aliasing case again, called out on its own so a script can assert it directly: a
-        // plain SVG asked for Bold, which it has no art for. It must look exactly like Regular —
-        // what that proves is that the alias RESOLVES instead of drawing nothing.
+        // plain SVG asked for Bold, which it has no art for. It must look exactly like Regular,
+        // which proves that the alias resolves instead of drawing nothing.
         row((
             vector(gv::nav_about)
                 .weight(VectorWeight::Bold)
@@ -226,11 +226,11 @@ fn vectors_section() -> impl Piece {
             .spacing(12.0)
             .id("resources-vectors-tints"),
         ),
-        // A LIVE tint: the same glyph bound to a signal, so any of the three controls beside it
+        // A live tint: the same glyph bound to a signal, so any of the three controls beside it
         // repaints the realized view through `ImagePatch::Tint` instead of rebuilding it
-        // (docs/vectors.md). Cycle walks the palette ramp; the two wells open a real color
-        // chooser — one the platform's, one Day's own (docs/colorpicker.md), which is the whole
-        // point of having both here.
+        // (docs/vectors.md). Cycle walks the palette ramp; the two wells open a color chooser
+        // each, one the platform's and one Day's own (docs/colorpicker.md), which is why both
+        // are here.
         labeled(
             crate::res::str::vectors_live_tint(),
             row((
@@ -246,15 +246,15 @@ fn vectors_section() -> impl Piece {
                         );
                     })
                     .id("vector-cycle-tint"),
-                // The platform's own chooser. `.native()` is literal — on a toolkit with no
+                // The platform's chooser. `.native()` is literal: on a toolkit with no
                 // color picker (android-mdc, harmony-arkui) this draws Day's placeholder rather
-                // than quietly substituting the composed panel, which is exactly what the page
-                // is here to show. The banner below says so in words.
+                // than quietly substituting the composed panel, which is what the page is here
+                // to show. The banner below says so in words.
                 color_picker(tint)
                     .native()
                     .title(crate::res::str::vectors_pick_tint())
                     .id("vector-tint-native"),
-                // Day's own panel, built from pieces and a canvas — identical on all nine
+                // Day's own panel, built from pieces and a canvas, identical on all nine
                 // targets. Its `key` is also the well's dayscript id (the piece tags the button
                 // itself, since an id set from out here would land on the wrapper).
                 color_picker(tint)
@@ -267,33 +267,33 @@ fn vectors_section() -> impl Piece {
             .align(VAlign::Center),
         ),
         label(crate::res::str::vectors_tint_idioms()).font(Font::Footnote),
-        // On android-mdc and harmony-arkui the FIRST well has nothing to open — neither platform
-        // ships a color chooser anywhere — so it draws Day's `⟨day.piece.colorpicker⟩`
+        // On android-mdc and harmony-arkui the first well has nothing to open (neither platform
+        // ships a color chooser anywhere), so it draws Day's `⟨day.piece.colorpicker⟩`
         // placeholder and this banner says why. The second well works there exactly as it does
         // here, which is the argument for having built it. (Same shape as the Controls page's
         // note beside the combo box on iOS.)
         crate::widgets::support_note(day_piece_colorpicker::support()),
-        // Full-color art, NOT a tintable glyph: everything above is a monochrome symbol that
-        // takes a `.tint`, so the pipeline's other half — many-path, authored-color art — had
+        // Full-color art, not a tintable glyph: everything above is a monochrome symbol that
+        // takes a `.tint`, so the pipeline's other half (many-path, authored-color art) had
         // no example here. The tiger is 240 paths, and it stays a real vector on every backend
-        // (on android-mdc a VectorDrawable, not a raster — docs/vectors.md).
+        // (on android-mdc a VectorDrawable, not a raster; docs/vectors.md).
         //
-        // The glyph is REBUILT at each zoom step, not transform-scaled. A `.scale()` would
-        // magnify whatever the backend last rasterized — which is the very thing this demo
-        // exists to disprove — so the size change goes through `each`, whose keyed diff disposes
-        // the old view and asks the backend for the art at the NEW size. Every step is a fresh
-        // render from the SVG, which is what keeps the edges crisp as it grows.
+        // The glyph is rebuilt at each zoom step, not transform-scaled. A `.scale()` would
+        // magnify whatever the backend last rasterized, the very thing this demo exists to
+        // disprove, so the size change goes through `each`, whose keyed diff disposes the old
+        // view and asks the backend for the art at the new size. Every step is a fresh render
+        // from the SVG, which is what keeps the edges crisp as it grows.
         //
         // Keyed on 8 px steps rather than the raw f64: a slider drag would otherwise rebuild a
         // 240-path drawing on every pixel of travel.
         //
-        // Centred while it fits, pannable once it does not. The top of the zoom range is five
+        // Centered while it fits, pannable once it does not. The top of the zoom range is five
         // times what it was, which is wider than the page's content column on every desktop
         // window and several times a phone's. Clipping the art at the column edge would hide
         // exactly the detail the raised range exists to show, so past that width the art keeps
         // its full size inside a horizontal scroll strip and the reader pans across it.
         //
-        // The `each` key therefore carries the width CLASS as well as the zoom step: crossing a
+        // The `each` key therefore carries the width class as well as the zoom step: crossing a
         // breakpoint changes which of the two arrangements applies, and a key that ignored it
         // would leave a resized window showing the wrong one.
         each(
@@ -314,7 +314,7 @@ fn vectors_section() -> impl Piece {
                 }
             },
         ),
-        // The zoom sits BELOW the art it drives now that it drives only that art — the glyph row
+        // The zoom sits below the art it drives now that it drives only that art; the glyph row
         // above takes its size from the Size picker instead.
         labeled(
             crate::res::str::vectors_zoom(),
@@ -330,10 +330,10 @@ fn t(g: day::VectorName, c: Color) -> impl Piece {
     vector(g).tint(c).frame(28.0, 28.0)
 }
 
-/// Roughly the width the section card leaves the tiger at the window's current width class —
-/// the point past which the art stops being centered and becomes a pannable strip instead.
+/// Roughly the width the section card leaves the tiger at the window's current width class:
+/// the width past which the art stops being centered and becomes a pannable strip instead.
 ///
-/// Day reports the window's width CLASS, not a measured width (docs/size-classes.md), so this is
+/// Day reports the window's width class, not a measured width (docs/size-classes.md), so this is
 /// a per-class constant rather than a measurement. The read is tracked, so a window dragged
 /// across a breakpoint re-keys the `each` and swaps the arrangement.
 fn tiger_room() -> f64 {

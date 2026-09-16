@@ -105,7 +105,7 @@ picker_segmented = مقسّم
 picker_menu = قائمة
 picker_inline = مضمّن
 
-# — day-piece-datetime —
+# --- day-piece-datetime ---
 nav_dates = التاريخ والوقت
 dates_date_section = التاريخ
 dates_time_section = الوقت
@@ -272,7 +272,7 @@ media_play = تشغيل
 media_pause = إيقاف مؤقت
 media_load = تحميل
 
-# — Localization page (docs/localization.md) —
+# --- Localization page (docs/localization.md) ---
 nav_localization = التوطين
 loc_locale_section = اللغة الحية
 loc_live_note = اللغة إشارة — تبديلها يعيد عرض كل النصوص فورًا. اتجاه التخطيط يثبت عند الإطلاق (أطلق بالعربية لواجهة معكوسة).
@@ -403,7 +403,7 @@ map_caption = ‏MKMapView أصلي — منصات Apple فقط. انقر إعد
 map_boston = بوسطن
 map_paris = باريس
 
-# — tweaks page (docs/tweaks.md) —
+# --- tweaks page (docs/tweaks.md) ---
 nav_tweaks = التوليفات
 tweaks_stock = قياسي
 tweaks_tweaked = مولَّف
@@ -427,7 +427,7 @@ tweaks_label_caption = تعديل مباشر (AppKit وUIKit) يخفّف هذه 
 tweaks_label_sample = هذه التسمية مخفّفة بتعديل أصلي.
 tweaks_label_class = الفئة الأصلية: { $class }
 
-# — merged section pages (design overhaul) —
+# --- merged section pages (design overhaul) ---
 nav_canvas = اللوحة والأشكال
 nav_system = الجهاز والمستشعرات
 nav_network_http = الشبكة وHTTP
@@ -456,7 +456,7 @@ canvas_image_loading = جارٍ فك الترميز…
 canvas_image_failed = هذه البايتات ليست صورة تفك هذه المنصة ترميزها
 canvas_image_readout = ‏{ $format } · { $width } × { $height } بكسل
 
-# — data strings localized for the walkthrough locales (option lists, specimen rows) —
+# --- data strings localized for the walkthrough locales (option lists, specimen rows) ---
 chocolate = شوكولاتة
 size_small = صغير
 size_medium = متوسط
@@ -545,7 +545,7 @@ focus_probe_toggle = مفتاح
 focus_probe_slider = شريط تمرير
 focus_probe_button = زر
 
-# HTTP fetch demo (docs/http.md) — the status readout stays raw "<status> <body>" so the
+# HTTP fetch demo (docs/http.md): the status readout stays raw "<status> <body>" so the
 # walkthrough asserts it byte-for-byte in every locale.
 http_title = HTTP
 http_caption = قطعة day-part-http تمرّ عبر مكدّس HTTP الخاص بالمنصة — وكلاؤه وVPN وTLS.
@@ -612,12 +612,12 @@ identity_with = الاتصال بشهادة
 network_needs_server = تتواصل هذه العروض مع خادم اختبار داخل التطبيق، ولا تستطيع صفحة الويب تشغيله.
 network_needs_internet = تزور هذه العروض badssl.com وexample.com، لذا تحتاج إلى اتصال بالإنترنت.
 
-# Scrolling page (docs/scroll.md) — programmatic scroll targets.
+# Scrolling page (docs/scroll.md): programmatic scroll targets.
 scroll_to_top = التمرير إلى الأعلى
 scroll_to_bottom = التمرير إلى الأسفل
 scroll_to_item = التمرير إلى العنصر 100
 
-# Grid page (docs/grid.md) — grid/grid_row from basics to a stress test.
+# Grid page (docs/grid.md): grid/grid_row from basics to a stress test.
 nav_grid = الشبكة
 grid_tab_basics = الأساسيات
 grid_tab_sizing = الأحجام
@@ -658,8 +658,8 @@ anim_curve_ease_out = تباطؤ
 anim_curve_linear = خطّي
 anim_duration_ms = { $ms } مللي ثانية
 
-# — صفحة قياس الأداء (اختبار الشبكات من Day-Bench؛ على منصات Apple الأصلية يستضيف منتقٍ مقسّم
-#   أيضًا نسخته التوأم المكتوبة بـ SwiftUI عبر day-piece-swiftui، docs/swiftui.md) —
+# --- صفحة قياس الأداء (اختبار الشبكات من Day-Bench؛ على منصات Apple الأصلية يستضيف منتقٍ مقسّم
+#     أيضًا نسخته التوأم المكتوبة بـ SwiftUI عبر day-piece-swiftui، docs/swiftui.md) ---
 nav_benchmark = قياس الأداء
 bench_parameters = المعلمات
 bench_seed = بذرة عشوائية
@@ -819,7 +819,7 @@ storage_idle = لا شيء مخزّن بعد
 
 prefs_window_title = الإعدادات
 
-# — Tree page (docs/tree.md) —
+# --- Tree page (docs/tree.md) ---
 nav_tree = شجرة
 tree_caption = مخطط هرمي فوق صفوف يملكها التطبيق: توسيع، وتحديد، وكشف، وسحب للنقل، وقوائم سياقية لكل صف.
 tree_expand_all = توسيع الكل
@@ -851,13 +851,13 @@ tree_ctx_move_up = نقل لأعلى
 tree_ctx_move_down = نقل لأسفل
 tree_ctx_delete = حذف
 
-# — Toolbars page (docs/toolbars.md) —
+# --- Toolbars page (docs/toolbars.md) ---
 nav_toolbars = أشرطة الأدوات
 toolbar_unsupported = لا تملك مجموعة الأدوات هذه شريط أدوات للنافذة، لذا لم يُثبَّت شيء. الهاتف يضع هذه الأوامر داخل المحتوى بدلًا من ذلك.
 toolbar_readout_title = ما الذي يفعله شريط الأدوات
 toolbar_controls_title = قيادته من هنا
 toolbar_vocabulary_title = مفردات العناصر
-# Item labels — these appear IN the toolbar, so they stay short.
+# Item labels: these appear in the toolbar, so they stay short.
 toolbar_new = نافذة جديدة
 toolbar_menu_open_scripting = فتح صفحة البرمجة النصية
 toolbar_menu_copy_script = نسخ البرنامج النصي
@@ -949,7 +949,7 @@ haptics_song_levelup = ترقية المستوى
 haptics_song_heartbeat = نبض القلب
 haptics_song_cascade = تتابع
 
-# — البرمجة النصية (مسجّل dayscript) —
+# --- البرمجة النصية (مسجّل dayscript) ---
 nav_scripting = البرمجة النصية
 scripting_record = تسجيل
 scripting_stop = إيقاف
@@ -1020,7 +1020,7 @@ cmd_star = تمييز بنجمة
 cmd_unstar = إزالة النجمة
 cmd_toggle_pseudo_locale = تبديل اللغة الزائفة
 
-# النطق (day-part-speech): مرجع daybridge — واجهة واحدة، ولغة مختلفة لكل منصة.
+# النطق (day-part-speech): مرجع daybridge. واجهة واحدة، ولغة مختلفة لكل منصة.
 speech_title = تحويل النص إلى كلام
 speech_caption = واجهة Rust واحدة؛ وصوت المنصة نفسه تحتها — Swift على أبل، وJava على أندرويد، وArkTS على HarmonyOS، وJavaScript على الويب، وC++ على ويندوز.
 speech_phrase = يوم صافٍ، مع احتمال هطول المطر لاحقًا.
@@ -1058,7 +1058,7 @@ vectors_pick_tint = اختر لونًا
 vectors_tint_idioms = أداتا اختيار لون ولون واحد مرتبط: الأولى تفتح أداة النظام، والثانية تفتح اللوحة التي يرسمها Day بنفسه — نفس الأداة على كل هدف.
 
 # صفحة قائمة المحتوى (src/pages/content_list): قائمة العناصر والمحرّر من قالب `day new` نفسه،
-# لذا فالمفاتيح أدناه هي مفاتيح القالب كما هي — الكود المنسوخ يقرأها بالاسم.
+# لذا فالمفاتيح أدناه هي مفاتيح القالب كما هي؛ الكود المنسوخ يقرأها بالاسم.
 nav_content_list = قائمة المحتوى
 nav_navigate = التنقّل
 cmd_add = عنصر جديد

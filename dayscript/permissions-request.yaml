@@ -10,8 +10,8 @@ flow:
   - navigate: { route: system }
   - assert_route: { route: system }
   - assert_visible: { id: location-perm }
-  # The button only exists where the platform actually gates the capability — on a target where it
-  # does not, this step is expected to fail, which is itself the honest signal.
+  # The button only exists where the platform gates the capability; on a target where it
+  # does not, this step is expected to fail, which is itself the signal.
   - tap: { id: location-perm-action }
   - pause: { secs: 3 }
   - screenshot: permission-prompt

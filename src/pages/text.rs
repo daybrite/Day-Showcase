@@ -8,12 +8,12 @@ use crate::widgets::page_trailing;
 /// Type / font-scale accessibility sizing), font weights, bold/italic, color, and accessibility-scaled
 /// custom sizes. See docs/text.md.
 ///
-/// The Selectable toggle in the heading's corner opts EVERY text piece on the page in and out of
-/// `.selectable()` (docs/text.md) — regular labels, custom-font specimens, and links alike. The
+/// The Selectable toggle in the heading's corner opts every text piece on the page in and out of
+/// `.selectable()` (docs/text.md): regular labels, custom-font specimens, and links alike. The
 /// body rebuilds through the `when` arms on each flip; the modifier itself is one-shot.
 pub(crate) fn text_page() -> AnyPiece {
     let sel_on = Signal::new(true);
-    // The markdown editor's buffer lives HERE, not in `sections`: flipping the Selectable toggle
+    // The markdown editor's buffer lives here, not in `sections`: flipping the Selectable toggle
     // rebuilds the body, and a signal created down there would reset whatever the user typed.
     let md = Signal::new(crate::res::str::text_markdown_sample().format());
     page_trailing(
@@ -36,14 +36,14 @@ pub(crate) fn text_page() -> AnyPiece {
 
 /// Apply the page's Selectable state to one text piece. Per piece, not on a containing
 /// section: `.selectable()` on a container only reaches the text within on backends whose
-/// selection affordance cascades (docs/text.md) — per-label is what works everywhere.
+/// selection affordance cascades (docs/text.md); per-label is what works everywhere.
 fn sel(on: bool, p: impl Piece) -> impl Piece {
     if on { p.selectable().any() } else { p.any() }
 }
 
 /// The page body, built for one Selectable state (the `when` arms above rebuild it on flip).
 fn sections(on: bool, md: Signal<String>) -> impl Piece {
-    // A style name (localized) rendered IN its own style — a self-documenting type specimen.
+    // A style name (localized) rendered in its own style, a self-documenting type specimen.
     // The dayscript id keeps the stable English style id regardless of locale.
     fn specimen(on: bool, id: &'static str, name: LocalizedText, f: Font) -> impl Piece {
         sel(on, label(name).font(f).id_keyed("text-style", id))
@@ -204,7 +204,7 @@ fn sections(on: bool, md: Signal<String>) -> impl Piece {
     ))
     .spacing(12.0),))
     .title(crate::res::str::text_colors_header());
-    // Custom sizes — Font::System(pt), still scaled by the platform accessibility text size.
+    // Custom sizes: Font::System(pt), still scaled by the platform accessibility text size.
     let custom = section((
         sel(
             on,
@@ -233,15 +233,15 @@ fn sections(on: bool, md: Signal<String>) -> impl Piece {
     ))
     .title(crate::res::str::text_custom_header());
     // Bundled custom fonts (docs/resources.md): the three families ship in the app's fonts/
-    // directory; `Font::Custom` references them by FAMILY name (what the font file reports),
+    // directory; `Font::Custom` references them by family name (what the font file reports),
     // and `day build` + the backend make that name resolve on every platform.
     let fonts = section((
         sel(
             on,
             label(crate::res::str::text_fonts_note()).font(Font::Footnote),
         ),
-        // The family NAMES stay Latin (proper nouns, and the sample must exercise the font);
-        // the descriptions localize — non-Latin glyphs fall back to the system font mid-line.
+        // The family names stay Latin (proper nouns, and the sample must exercise the font);
+        // the descriptions localize; non-Latin glyphs fall back to the system font mid-line.
         sel(
             on,
             label(crate::res::str::text_font_pacifico())
@@ -274,7 +274,7 @@ fn sections(on: bool, md: Signal<String>) -> impl Piece {
     // (or the mail client for `mailto:`) via the backend's `open_url`. `.color()` overrides the
     // default tint; `.font()` and `.bold()` style the run like a label. `.selectable()` on a
     // link is honored where the backend's link widget has a selection affordance, and is a
-    // silent no-op elsewhere — the tap keeps working either way.
+    // silent no-op elsewhere; the tap keeps working either way.
     let links = section((
         sel(
             on,
@@ -306,7 +306,7 @@ fn sections(on: bool, md: Signal<String>) -> impl Piece {
     ))
     .title(crate::res::str::text_links_section());
 
-    // The `.selectable()` core modifier itself (docs/text.md) — supported on every backend
+    // The `.selectable()` core modifier itself (docs/text.md), supported on every backend
     // (on iOS the label is rebuilt as a read-only text view, since a UILabel has no selection
     // affordance). This section rides the page toggle like everything else; its text explains
     // what the toggle is exercising.
@@ -382,10 +382,10 @@ fn rich(on: bool) -> impl Piece {
     .title(crate::res::str::text_runs_section())
 }
 
-/// Inline markdown parsed at RUN TIME (docs/markdown.md): a text area the user edits, and a
+/// Inline markdown parsed at run time (docs/markdown.md): a text area the user edits, and a
 /// `.markdown()` label under it that re-parses on every keystroke.
 ///
-/// This is the case a compile-time macro cannot serve — the string is not a literal — and it is
+/// This is the case a compile-time macro cannot serve (the string is not a literal), and it is
 /// the same path a translated string or a value off the network takes. The sample seeds a link,
 /// which makes the backing on iOS a text view from the start (docs/text-runs.md); tapping it
 /// reports through `.on_link()`, which here shows the target rather than opening it.
@@ -423,12 +423,12 @@ fn markdown_live(on: bool, md: Signal<String>) -> impl Piece {
 ///
 /// The rows are built to make the two states disagree as loudly as possible: each mixes a
 /// Body-size label, a control whose text is inset by its own border, and a trailing unit in
-/// Caption size. Aligned, all three sit on one line. Centered — what every row did before Day
-/// had a baseline concept — each text sits in the middle of its own box, so the three drift
+/// Caption size. Aligned, all three sit on one line. Centered (what every row did before Day
+/// had a baseline concept), each text sits in the middle of its own box, so the three drift
 /// apart by the difference in their heights.
 ///
 /// These use `row(..).align(..)` rather than `labeled`, which is baseline-aligned with no way to
-/// opt out: the point here is to show both states side by side in time.
+/// opt out: this section exists to show both states side by side in time.
 fn baseline() -> impl Piece {
     let aligned = Signal::new(true);
     let qty = Signal::new("12".to_string());

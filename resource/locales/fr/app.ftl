@@ -102,7 +102,7 @@ picker_segmented = Segmenté
 picker_menu = Menu
 picker_inline = Aligné
 
-# — day-piece-datetime —
+# --- day-piece-datetime ---
 nav_dates = Date et heure
 dates_date_section = Date
 dates_time_section = Heure
@@ -268,7 +268,7 @@ media_play = Lecture
 media_pause = Pause
 media_load = Charger
 
-# — Localization page (docs/localization.md) —
+# --- Localization page (docs/localization.md) ---
 nav_localization = Localisation
 loc_locale_section = Locale en direct
 loc_live_note = La locale est un signal — changer de langue re-rend chaque chaîne instantanément. Le sens de lecture est fixé au lancement (lancez en ar pour l'interface miroir).
@@ -396,7 +396,7 @@ map_caption = Une MKMapView native — plateformes Apple uniquement. Touchez un 
 map_boston = Boston
 map_paris = Paris
 
-# — page tweaks (docs/tweaks.md) —
+# --- page tweaks (docs/tweaks.md) ---
 nav_tweaks = Tweaks
 tweaks_stock = D'origine
 tweaks_tweaked = Ajustée
@@ -420,7 +420,7 @@ tweaks_label_caption = Un ajustement direct (AppKit, UIKit) atténue ce libellé
 tweaks_label_sample = Ce libellé est atténué par un ajustement natif.
 tweaks_label_class = Classe native : { $class }
 
-# — merged section pages (design overhaul) —
+# --- merged section pages (design overhaul) ---
 nav_canvas = Canevas et formes
 nav_system = Appareil et capteurs
 nav_network_http = Réseau et HTTP
@@ -449,7 +449,7 @@ canvas_image_loading = Décodage…
 canvas_image_failed = Ces octets ne sont pas une image que cette plateforme décode
 canvas_image_readout = { $format } · { $width } × { $height } px
 
-# — data strings localized for the walkthrough locales (option lists, specimen rows) —
+# --- data strings localized for the walkthrough locales (option lists, specimen rows) ---
 chocolate = chocolat
 size_small = Petit
 size_medium = Moyen
@@ -538,7 +538,7 @@ focus_probe_toggle = Interrupteur
 focus_probe_slider = Curseur
 focus_probe_button = Bouton
 
-# HTTP fetch demo (docs/http.md) — the status readout stays raw "<status> <body>" so the
+# HTTP fetch demo (docs/http.md): the status readout stays raw "<status> <body>" so the
 # walkthrough asserts it byte-for-byte in every locale.
 http_title = HTTP
 http_caption = Le module day-part-http passe par la pile HTTP de la plateforme — ses proxys, son VPN et son TLS.
@@ -605,12 +605,12 @@ identity_with = Se connecter avec un certificat
 network_needs_server = Ces démonstrations dialoguent avec un serveur de test intégré à l'app, qu'une page web ne peut pas faire tourner.
 network_needs_internet = Ces démonstrations visitent badssl.com et example.com : elles ont besoin d'une connexion Internet.
 
-# Scrolling page (docs/scroll.md) — programmatic scroll targets.
+# Scrolling page (docs/scroll.md): programmatic scroll targets.
 scroll_to_top = Aller en haut
 scroll_to_bottom = Aller en bas
 scroll_to_item = Aller à l'élément 100
 
-# Grid page (docs/grid.md) — grid/grid_row from basics to a stress test.
+# Grid page (docs/grid.md): grid/grid_row from basics to a stress test.
 nav_grid = Grille
 grid_tab_basics = Bases
 grid_tab_sizing = Dimensions
@@ -651,8 +651,9 @@ anim_curve_ease_out = Décéléré
 anim_curve_linear = Linéaire
 anim_duration_ms = { $ms } ms
 
-# — Page Benchmark (le benchmark Grilles de Day-Bench ; sur les backends Apple natifs, un
-#   sélecteur segmenté héberge aussi sa réplique SwiftUI via day-piece-swiftui, docs/swiftui.md) —
+# --- Page Benchmark (le benchmark Grilles de Day-Bench ; sur les backends Apple natifs, un
+#     sélecteur segmenté héberge aussi sa réplique SwiftUI via day-piece-swiftui,
+#     docs/swiftui.md) ---
 nav_benchmark = Benchmark
 bench_parameters = Paramètres
 bench_seed = Graine aléatoire
@@ -808,7 +809,7 @@ storage_idle = Rien d'enregistré pour l'instant
 
 prefs_window_title = Préférences
 
-# — Tree page (docs/tree.md) —
+# --- Tree page (docs/tree.md) ---
 nav_tree = Arborescence
 tree_caption = Un plan hiérarchique sur des lignes détenues par l'application : dépliage, sélection, révélation, glisser-déplacer et menus contextuels par ligne.
 tree_expand_all = Tout déplier
@@ -837,13 +838,13 @@ tree_ctx_move_up = Monter
 tree_ctx_move_down = Descendre
 tree_ctx_delete = Supprimer
 
-# — Toolbars page (docs/toolbars.md) —
+# --- Toolbars page (docs/toolbars.md) ---
 nav_toolbars = Barres d'outils
 toolbar_unsupported = Cette boîte à outils n'a pas de barre d'outils de fenêtre ; rien n'a donc été installé. Sur téléphone, ces commandes vont dans le contenu.
 toolbar_readout_title = Ce que fait la barre d'outils
 toolbar_controls_title = La piloter depuis ici
 toolbar_vocabulary_title = Le vocabulaire des éléments
-# Item labels — these appear IN the toolbar, so they stay short.
+# Item labels: these appear in the toolbar, so they stay short.
 toolbar_new = Nouvelle fenêtre
 toolbar_menu_open_scripting = Ouvrir la page Scripts
 toolbar_menu_copy_script = Copier le script
@@ -931,7 +932,7 @@ haptics_song_levelup = Niveau supérieur
 haptics_song_heartbeat = Battement
 haptics_song_cascade = Cascade
 
-# — scripting (enregistreur dayscript) —
+# --- scripting (enregistreur dayscript) ---
 nav_scripting = Scripts
 scripting_record = Enregistrer
 scripting_stop = Arrêter
@@ -1002,7 +1003,7 @@ cmd_star = Suivre
 cmd_unstar = Ne plus suivre
 cmd_toggle_pseudo_locale = Basculer la pseudo-locale
 
-# Speech (day-part-speech) : la référence daybridge — une API, un langage par plateforme.
+# Speech (day-part-speech) : la référence daybridge. Une API, un langage par plateforme.
 speech_title = Synthèse vocale
 speech_caption = Une seule API Rust ; la voix native en dessous — Swift sur Apple, Java sur Android, ArkTS sur HarmonyOS, JavaScript sur le web, C++ sur Windows.
 speech_phrase = Une journée claire, avec un risque de pluie plus tard.
@@ -1040,7 +1041,7 @@ vectors_pick_tint = Choisir une teinte
 vectors_tint_idioms = Deux sélecteurs de couleur, une seule couleur liée : le premier ouvre le sélecteur de la plateforme, le second ouvre le panneau que Day dessine lui-même — le même sélecteur sur chaque cible.
 
 # La page Liste de contenu (src/pages/content_list) : la liste et l'éditeur du modèle `day new`,
-# donc les clés ci-dessous sont celles du modèle, telles quelles — le code copié les lit par nom.
+# donc les clés ci-dessous sont celles du modèle, telles quelles ; le code copié les lit par nom.
 nav_content_list = Liste de contenu
 nav_navigate = Naviguer
 cmd_add = Nouvel élément

@@ -3,7 +3,7 @@
 use day::prelude::*;
 
 /// The current battery reading as a localized line (Fluent; the state name stays the API's
-/// enum debug form — it is a value, not prose). Shared by the Battery and About pages.
+/// enum debug form, since it is a value, not prose). Shared by the Battery and About pages.
 pub(crate) fn battery_line() -> LocalizedText {
     match day_part_battery::status() {
         Some(b) => crate::res::str::battery_reading(
@@ -16,7 +16,7 @@ pub(crate) fn battery_line() -> LocalizedText {
     }
 }
 
-/// The arc dial: a 270° track sweep with the value centered — RESPONSIVE, drawing a centered
+/// The arc dial: a 270° track sweep with the value centered. Responsive: it draws a centered
 /// square dial scaled to whatever size the caller lays it out at (the canvas re-records on
 /// `FrameChanged`). Size it with `.height`/`.grow_w` (or `.frame`) at the call site.
 pub(crate) fn gauge(value: Signal<f64>) -> impl Piece {
@@ -92,12 +92,12 @@ pub(crate) fn nothing() -> impl Piece {
 }
 
 /// A page's title heading. When the native nav shows the destination title in its own header
-/// (`Cap::NavHeader` — the phones, and the Windows NavigationView), the big in-content title is
+/// (`Cap::NavHeader`: the phones, and the Windows NavigationView), the big in-content title is
 /// redundant and the heading draws nothing: it used to render the title again in
 /// `Font::Subheadline` purely so a script had an anchor to assert, which put "About" under a nav
-/// bar already reading "About" — the same word twice, on every such page. The scripts assert the
-/// page's own content instead (`assert_route` proves the destination). Elsewhere — the desktops,
-/// where nothing else names the destination — it renders the `Font::Title` title.
+/// bar already reading "About", the same word twice, on every such page. The scripts assert the
+/// page's own content instead (`assert_route` proves the destination). Elsewhere (the desktops,
+/// where nothing else names the destination) it renders the `Font::Title` title.
 pub(crate) fn heading(title: LocalizedText, title_id: &'static str) -> impl Piece {
     if capability(Cap::NavHeader) == Support::Native {
         nothing().any()
@@ -111,11 +111,11 @@ pub(crate) fn heading(title: LocalizedText, title_id: &'static str) -> impl Piec
 /// A desktop window is far wider than a comfortable reading measure, and a form stretched to
 /// 1900px reads as a spreadsheet: labels drift a screen away from the controls they name, and a
 /// row of buttons scatters. Capping the column and centering the remainder gives every page the
-/// same spine, on every window size and every platform — and it is what makes the screenshots
+/// same spine, on every window size and every platform, and it is what makes the screenshots
 /// look composed rather than merely wide.
 ///
 /// The value is tuned against the window the screenshots are captured at (Day.toml `[window]`,
-/// 1000×720pt — about 760pt of content beside the sidebar), so the cap engages there and leaves a
+/// 1000×720pt, about 760pt of content beside the sidebar), so the cap engages there and leaves a
 /// visible margin. A phone is far narrower, so it never engages on mobile and that layout is
 /// unchanged; [`page_wide`] opts out for the pages whose content wants the whole canvas.
 pub(crate) const CONTENT_MAX_WIDTH: f64 = 680.0;
@@ -124,7 +124,7 @@ pub(crate) fn page(title: LocalizedText, title_id: &'static str, body: impl Piec
     page_inner(title, title_id, None, body, Some(CONTENT_MAX_WIDTH))
 }
 
-/// [`page`] with a control in the heading's corner slot — pushed to the trailing edge of the
+/// [`page`] with a control in the heading's corner slot, pushed to the trailing edge of the
 /// heading row (upper-right in LTR, mirrored under RTL), for a page-wide switch like the Text
 /// page's Selectable toggle.
 pub(crate) fn page_trailing(
@@ -142,7 +142,7 @@ pub(crate) fn page_trailing(
     )
 }
 
-/// [`page`] without the width cap — for pages whose content is the canvas itself (a benchmark
+/// [`page`] without the width cap, for pages whose content is the canvas itself (a benchmark
 /// patchwork, a map, a web view, a wide grid), where narrowing it would throw away the thing the
 /// page exists to show.
 pub(crate) fn page_wide(
@@ -163,7 +163,7 @@ fn page_inner<P1: Piece>(
     let head = heading(title, title_id);
     let head = match trailing {
         // The corner slot: beside the heading where the big in-content title renders. On
-        // native-header targets (the phones — the nav bar owns the title, so the heading draws
+        // native-header targets (the phones: the nav bar owns the title, so the heading draws
         // nothing) the control rides its own trailing-aligned row instead.
         Some(t) => {
             if capability(Cap::NavHeader) == Support::Native {
@@ -196,13 +196,13 @@ fn page_inner<P1: Piece>(
 ///
 /// A bare `label(move || format!("{v:.0}"))` beside a slider reflows the row on every drag: `1` is
 /// narrower than `8`, and `9` → `10` adds a glyph, so the slider shifts under the pointer that is
-/// dragging it. `reserving` measures `widest` in this label's own font and holds that much room,
+/// dragging it. `reserving` measures `widest` in this label's font and holds that much room,
 /// which is why this scales with the reader's accessibility text size where a fixed `.width()`
 /// would clip.
 ///
-/// Pass the widest string the field can ever show — `"100"` for a percentage, `"8888"` for a
+/// Pass the widest string the field can ever show: `"100"` for a percentage, `"8888"` for a
 /// count.
-/// The `id` goes on the LABEL, not on the wrapper `reserving` returns: a script asserting the
+/// The `id` goes on the label, not on the wrapper `reserving` returns: a script asserting the
 /// readout's text has to resolve to the piece that has text, and the reservation wrapper has none.
 pub(crate) fn numeric_readout(
     text: impl Fn() -> String + 'static,
@@ -222,7 +222,7 @@ pub(crate) fn numeric_readout(
 /// A filled, centered button in one of the palette's colors.
 ///
 /// `FilledButtonStyle` leaves the label at its natural position, which reads as off-center the
-/// moment `grow_w` stretches a button to share a grid column — so this centers it. Everything
+/// moment `grow_w` stretches a button to share a grid column, so this centers it. Everything
 /// here is plain composition (`padding`/`background`/`corner_radius`), so it needs no per-backend
 /// code and looks the same on all nine.
 /// A button fill in an arbitrary palette color. The label color is the platform's business:
@@ -232,7 +232,7 @@ pub(crate) fn tinted(color: Color) -> Color {
     color
 }
 
-/// The page's headline action — the one thing a visitor should press first.
+/// The page's headline action: the one thing a visitor should press first.
 pub(crate) fn primary() -> Color {
     crate::palette::SKY
 }
@@ -242,7 +242,7 @@ pub(crate) fn secondary() -> Color {
     crate::palette::TEAL
 }
 
-/// Destructive or irreversible — deleting, clearing, crashing on purpose.
+/// Destructive or irreversible: deleting, clearing, triggering a crash.
 pub(crate) fn danger() -> Color {
     crate::palette::RUST
 }
@@ -251,13 +251,13 @@ pub(crate) fn danger() -> Color {
 // "Not supported here" banners (docs/coverage-matrix.md)
 // ---------------------------------------------------------------------------
 
-/// A banner marking a demo the current target cannot actually run.
+/// A banner marking a demo the current target cannot run.
 ///
-/// The demo stays on screen: a visitor comparing two platforms should see the SAME pages, and a
+/// The demo stays on screen: a visitor comparing two platforms should see the same pages, and a
 /// missing section reads as a bug in the showcase rather than as a fact about the platform. The
 /// banner says which it is, right where the disappointment would otherwise happen.
 ///
-/// `Native` gets no banner at all — the overwhelmingly common case, and a banner on a working
+/// `Native` gets no banner at all: it is the overwhelmingly common case, and a banner on a working
 /// feature is noise. `Emulated` gets the amber one, because the demo does something but not the
 /// native thing. `Unsupported` gets the coral one.
 pub(crate) fn support_banner(support: Support) -> Option<AnyPiece> {
@@ -276,7 +276,7 @@ pub(crate) fn support_banner(support: Support) -> Option<AnyPiece> {
         row((
             // Untinted: the caution gold (#F2C94C) is authored into the glyph itself. Tinting
             // it here would leave it grey on the backends whose `vector` piece has no tint arm
-            // (Qt, web — docs/vectors.md), and the icon has to read as a caution mark rather
+            // (Qt, web; docs/vectors.md), and the icon has to read as a caution mark rather
             // than as the first letter of the sentence beside it.
             vector(crate::res::vectors::support_warning.clone()).frame(18.0, 18.0),
             // `grow_w`, not `grow`: the label takes the width but keeps the height of its text,
@@ -284,8 +284,8 @@ pub(crate) fn support_banner(support: Support) -> Option<AnyPiece> {
             label(text).font(Font::Footnote).color(color).grow_w(),
         ))
         .spacing(8.0)
-        // TOP, not center. This sentence wraps to two or three lines on a narrow window, and a
-        // centered icon then sits BETWEEN them — the mark belongs beside the line the reader
+        // Top, not center. This sentence wraps to two or three lines on a narrow window, and a
+        // centered icon then sits between them; the mark belongs beside the line the reader
         // starts on. `VAlign::FirstBaseline` would not help: a vector has no text baseline, so a
         // baseline row falls back to centering it (docs/baseline.md).
         .align(VAlign::Top)
@@ -307,14 +307,14 @@ pub(crate) fn support_note(support: Support) -> impl Piece {
 
 /// A button and the result it produces: side by side where they fit, stacked where they do not.
 ///
-/// Side by side, the button takes its natural width and the result takes what is left — which on a
+/// Side by side, the button takes its natural width and the result takes what is left, which on a
 /// phone is a few characters once the button carries a translated label ("Récupérer depuis
 /// localhost" is most of a 411dp row). The result then wraps mid-word, because at that width no
 /// break point helps: the remaining column is narrower than a single token like `day-http-ok`.
 /// Stacking at Compact width gives the result the whole row instead.
 ///
 /// `size_class()` is a tracked read (docs/size-classes.md), so this re-lays out when the window
-/// crosses a breakpoint — a rotation, a foldable opening, a desktop window dragged narrow.
+/// crosses a breakpoint: a rotation, a foldable opening, a desktop window dragged narrow.
 pub(crate) fn action_result(action: impl Piece, result: impl Piece) -> impl Piece {
     let compact = day::size_class()
         .map(|c| c.width == WidthClass::Compact)

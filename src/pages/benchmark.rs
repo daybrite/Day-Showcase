@@ -1,6 +1,6 @@
-//! The Benchmark page: Day-Bench's Grids benchmark — a pseudo-random patchwork of grid cells that
-//! must tile the pane exactly — with, on the Apple-native backends, a hand-written SwiftUI twin of
-//! the same benchmark hosted beside it under a segmented picker (day-piece-swiftui,
+//! The Benchmark page: Day-Bench's Grids benchmark, a pseudo-random patchwork of grid cells that
+//! must tile the pane exactly. On the Apple-native backends, a hand-written SwiftUI twin of the
+//! same benchmark is hosted beside it under a segmented picker (day-piece-swiftui,
 //! docs/swiftui.md). The twin lives in this repo's `swiftui/` package and reaches Rust as the
 //! generated `crate::swiftui::BenchGridsView` constructor.
 //!
@@ -8,37 +8,37 @@
 //! exactly [`COLUMNS`] columns, so the grid can only resolve by negotiating all of it at once:
 //! column widths come from the flexible-share rule, spans redistribute their deficit across the
 //! columns they cover, and row heights stretch to consume the leftover height. Nothing here can be
-//! solved per-cell — changing "Total Count" repacks the rows, which changes the spans, which
-//! changes the column split. That is the point: it is the layout engine under load, not the
+//! solved per-cell: changing "Total Count" repacks the rows, which changes the spans, which
+//! changes the column split. The benchmark exercises the layout engine under load, not the
 //! renderer. Drag Total Count and watch; Random Seed does the same work at a fixed cell count,
 //! which separates layout cost from the cost of creating and destroying views.
 //!
-//! Why it stays honest. The patchwork is a pure function of (seed, count) through [`Rng`], so the
-//! same parameters draw the same picture on every target — and in BOTH tabs, whose generators pin
-//! the same literal fixtures (`swiftui/Tests`, the `parity` tests below) — so two screenshots can
-//! be diffed. The colors step by the golden angle, so adjacent tiles never blur together and a
-//! mis-packed row is visible rather than merely slow.
+//! Why the comparison holds. The patchwork is a pure function of (seed, count) through [`Rng`],
+//! so the same parameters draw the same picture on every target, and in both tabs, whose
+//! generators pin the same literal fixtures (`swiftui/Tests`, the `parity` tests below), so two
+//! screenshots can be diffed. The colors step by the golden angle, so adjacent tiles never blur
+//! together and a mis-packed row is visible rather than merely slow.
 
 use day::prelude::*;
 
 /// The height reserved for the Parameters block, so the patchwork below it starts at the same y in
 /// the Day-native tab and the SwiftUI tab. Two slider rows plus the row-count line at the default
-/// text size. ONE constant for both implementations: the Day tab fixes its form to it, and it is
+/// text size. One constant for both implementations: the Day tab fixes its form to it, and it is
 /// passed through `BenchGridsView`'s initializer so the SwiftUI tab pins its GroupBox slot to the
-/// same number — the grids therefore begin at the identical y whichever tab is selected.
+/// same number, so the grids begin at the identical y whichever tab is selected.
 const PARAMS_HEIGHT: f64 = 132.0;
 
 use crate::widgets::heading;
 
 // --- The deterministic generator (ported from Day-Bench src/bench.rs) ---
 
-/// A 32-bit linear congruential generator. Not statistically strong — it does not need to be.
+/// A 32-bit linear congruential generator. Not statistically strong; it does not need to be.
 /// What it needs is to be cheap, reproducible, and identical everywhere: integer wrapping
 /// arithmetic is bit-identical on every architecture Day targets, wasm32 included.
 struct Rng(u32);
 
 impl Rng {
-    /// Seed the generator. The multiply spreads small, adjacent seeds (0, 1, 2 — what a slider
+    /// Seed the generator. The multiply spreads small, adjacent seeds (0, 1, 2: what a slider
     /// produces) across the state space, so consecutive seeds look unrelated instead of drawing
     /// near-identical layouts.
     fn new(seed: u32) -> Self {
@@ -46,7 +46,7 @@ impl Rng {
     }
 
     /// The next raw value. The high bits are the well-mixed ones in an LCG, so the low byte is
-    /// discarded rather than returned — taking `% n` of the raw state would expose its short
+    /// discarded rather than returned: taking `% n` of the raw state would expose its short
     /// low-bit cycles as visible banding in the patchwork.
     fn next(&mut self) -> u32 {
         self.0 = self.0.wrapping_mul(1_664_525).wrapping_add(1_013_904_223);
@@ -64,8 +64,8 @@ impl Rng {
 /// The color for cell `i`: a predictable sequence in which no two nearby cells collide.
 ///
 /// Stepping the hue by the golden angle (137°) is the standard trick for a sequence whose
-/// consecutive entries are as far apart on the wheel as possible — 0°, 137°, 274°, 51°, 188° —
-/// so neighbours stay distinct however the patchwork packs them, and cell `i` is always the same
+/// consecutive entries are as far apart on the wheel as possible (0°, 137°, 274°, 51°, 188°),
+/// so neighbors stay distinct however the patchwork packs them, and cell `i` is always the same
 /// color for a given `i`. Saturation and lightness are fixed, which keeps every cell equally
 /// readable against both the light and dark app grounds.
 fn cell_color(i: usize) -> Color {
@@ -74,7 +74,7 @@ fn cell_color(i: usize) -> Color {
 }
 
 /// HSL → RGB, the standard piecewise conversion. Arithmetic only (no transcendentals), so it
-/// gives bit-identical colors on every target — and to the SwiftUI twin, whose `hsl` is this
+/// gives bit-identical colors on every target, and in the SwiftUI twin, whose `hsl` is this
 /// function transliterated.
 fn hsl(h_deg: f64, s: f64, l: f64) -> Color {
     let c = (1.0 - (2.0 * l - 1.0).abs()) * s;
@@ -118,7 +118,7 @@ struct Row {
 ///
 /// The span is drawn from the generator and then clamped to what is left in the row, so a row
 /// always closes on the column boundary rather than overflowing into the next. The final row is
-/// short by construction — its last tile absorbs the remainder, which keeps the "every row fills
+/// short by construction: its last tile absorbs the remainder, which keeps the "every row fills
 /// the width" invariant true for the whole grid rather than all-but-one of it.
 fn pack(seed: u32, count: usize) -> Vec<Row> {
     let mut rng = Rng::new(seed);
@@ -148,22 +148,22 @@ fn pack(seed: u32, count: usize) -> Vec<Row> {
     rows
 }
 
-/// Tiles the page opens with. Deliberately modest: the slider reaches 2000, and a benchmark that
+/// Tiles the page opens with. Modest, because the slider reaches 2000 and a benchmark that
 /// cannot cold-start on its slowest target is not a benchmark. Sweep up from here.
 pub(crate) const DEFAULT_COUNT: f64 = 48.0;
 
 // --- The page ---
 
-/// The Day tab's parameter signals, GLOBAL so they outlive the page scope: both tabs keep their
-/// slider settings across tab switches and page revisits — the Day side through these, the
+/// The Day tab's parameter signals, global so they outlive the page scope: both tabs keep their
+/// slider settings across tab switches and page revisits: the Day side through these, the
 /// SwiftUI side through its `.state_key` (the retained hosting view keeps the `@State`). Guarded
 /// like `lifecycle_log` in lib.rs: `Signal::global` on every build would mint a fresh pair.
 fn bench_signals() -> (Signal<f64>, Signal<f64>) {
     crate::scene().bench
 }
 
-/// The Benchmark page: heading, then — where `day_piece_swiftui::support()` is Native (the
-/// macos-appkit and ios-uikit builds) — a segmented picker hosting the Day-native benchmark and
+/// The Benchmark page: heading, then, where `day_piece_swiftui::support()` is Native (the
+/// macos-appkit and ios-uikit builds), a segmented picker hosting the Day-native benchmark and
 /// its SwiftUI twin as tabs. Everywhere else, just the Day-native benchmark: the picker never
 /// exists, so the swiftui piece is never built and no placeholder can realize.
 pub(crate) fn benchmark_page() -> AnyPiece {
@@ -198,8 +198,8 @@ pub(crate) fn benchmark_page() -> AnyPiece {
         day_native(seed, count).any()
     };
 
-    // NOT widgets::page(): that scroll-wraps its body, and the patchwork must FILL the remaining
-    // pane exactly (the benchmark's whole invariant) — the tabs page sets the same precedent.
+    // Not widgets::page(): that scroll-wraps its body, and the patchwork must fill the remaining
+    // pane exactly (the benchmark's whole invariant). The tabs page sets the same precedent.
     column((
         heading(crate::res::str::nav_benchmark(), "benchmark-title"),
         body,
@@ -211,15 +211,15 @@ pub(crate) fn benchmark_page() -> AnyPiece {
     .any()
 }
 
-/// The Day-native benchmark: the parameter controls above, the patchwork filling everything below
-/// — the Day-Bench Grids page, with the heading hoisted into the page shell. The signals come
-/// from [`bench_signals`], so the parameters survive tab switches and page revisits.
+/// The Day-native benchmark: the parameter controls above, the patchwork filling everything
+/// below. It is the Day-Bench Grids page with the heading hoisted into the page shell. The
+/// signals come from [`bench_signals`], so the parameters survive tab switches and page revisits.
 fn day_native(seed: Signal<f64>, count: Signal<f64>) -> impl Piece {
     let rows = move || pack(seed.get() as u32, count.get() as usize);
 
     column((
         // Parameters. Both are sliders because a benchmark is driven by sweeping a value, not by
-        // typing one — and because a slider is the one control every backend renders natively.
+        // typing one, and because a slider is the one control every backend renders natively.
         form((section((
             labeled(
                 crate::res::str::bench_seed(),
@@ -259,13 +259,13 @@ fn day_native(seed: Signal<f64>, count: Signal<f64>) -> impl Piece {
             .id("bench-rows"),
         ))
         .title(crate::res::str::bench_parameters()),))
-        // A FIXED height, because the whole point of this page is that the two tabs draw the same
-        // scene at the same size: if the Day-native parameter block is a different height from the
-        // SwiftUI pane's own, the grids below them get different areas and stop being comparable.
-        // Sized for two slider rows plus the row-count line at the default text size.
+        // A fixed height, because the page's comparison depends on the two tabs drawing the
+        // same scene at the same size: if the Day-native parameter block is a different height
+        // from the SwiftUI pane's own, the grids below them get different areas and stop being
+        // comparable. Sized for two slider rows plus the row-count line at the default text size.
         .height(PARAMS_HEIGHT),
         // The patchwork. Every tile grows on both axes, so the grid resolves columns by the
-        // flexible share and stretches rows into the leftover height — it fills the pane exactly.
+        // flexible share and stretches rows into the leftover height; it fills the pane exactly.
         grid((each(items(rows, |r: &Row| r.key), |slot| {
             let tiles = slot.get().tiles;
             grid_row(PieceVec(
@@ -335,7 +335,7 @@ mod tests {
 
     #[test]
     fn nearby_cells_get_distinct_colors() {
-        // The golden-angle step only earns its keep if neighbours differ visibly; compare each of
+        // The golden-angle step is only useful if neighbors differ visibly; compare each of
         // the first 32 cells against its 3 predecessors.
         for i in 3..32usize {
             for back in 1..=3 {
@@ -347,8 +347,8 @@ mod tests {
     }
 
     /// The fixture the SwiftUI twin asserts too (`swiftui/Tests`, `PortParityTests`). Both sides
-    /// pin the SAME literal sequence, so a transliteration slip in either implementation — a
-    /// wrapping multiply that isn't wrapping, an off-by-one in the range — fails a test instead of
+    /// pin the same literal sequence, so a transliteration slip in either implementation (a
+    /// wrapping multiply that isn't wrapping, an off-by-one in the range) fails a test instead of
     /// quietly making the two tabs draw different pictures and the comparison meaningless.
     #[test]
     fn seed_one_draws_the_pinned_span_sequence() {
@@ -358,7 +358,7 @@ mod tests {
     }
 
     /// The invariant the whole page rests on: every row covers exactly [`COLUMNS`] columns, so
-    /// the grid tiles the pane's width with no ragged edge — including the final row, whose last
+    /// the grid tiles the pane's width with no ragged edge, including the final row, whose last
     /// tile absorbs the remainder. A screenshot shows this at one size; this shows it for a sweep
     /// of counts and seeds at once.
     #[test]
@@ -373,7 +373,7 @@ mod tests {
         }
     }
 
-    /// Every tile is placed exactly once, in order — the patchwork shows the whole count, and a
+    /// Every tile is placed exactly once, in order: the patchwork shows the whole count, and a
     /// tile's index (hence its color) is stable for a given seed.
     #[test]
     fn every_tile_is_placed_once_in_order() {

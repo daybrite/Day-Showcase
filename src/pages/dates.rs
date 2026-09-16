@@ -3,12 +3,12 @@ use day_piece_datetime::{DayDate, DayTime, date_picker, time_picker};
 
 use crate::widgets::page;
 
-/// Native date & time pickers (day-piece-datetime, an EXTERNAL standalone piece — the first with
+/// Native date & time pickers (day-piece-datetime, an external standalone piece, the first with
 /// renderers on all seven toolkits; docs/datepicker.md), with stable ids for the walkthrough
 /// (§14): a full-width embedded calendar above a form of the compact/bounded date stylings, the
 /// time stylings (compact + seconds), and combined date+time as composition.
 pub(crate) fn dates_page() -> AnyPiece {
-    // ONE civil date signal behind the compact field, the ISO readout, AND the full-width
+    // One civil date signal behind the compact field, the ISO readout, and the full-width
     // calendar (docs/datepicker.md): each is a two-way projection of the same state, so driving
     // `date-inline` moves the same `date-value` readout (the walkthrough asserts this). Kept at
     // page scope so the calendar can live outside the form.
@@ -41,7 +41,7 @@ fn date_section(date: Signal<DayDate>) -> impl Piece {
     // min/max, and always in the piece).
     let bounded = Signal::new(seed_date());
     section((
-        // Compact — a field/button that summons the platform's transient chooser.
+        // Compact: a field/button that summons the platform's transient chooser.
         labeled(
             crate::res::str::date_compact(),
             date_picker(date).id("date-compact"),
@@ -60,11 +60,11 @@ fn date_section(date: Signal<DayDate>) -> impl Piece {
             ))
             .spacing(8.0)
             // The readout is half the picker's height, so centering it would leave its digits
-            // riding above the picker's — a control and the value it produces belong on one
+            // riding above the picker's; a control and the value it produces belong on one
             // line (docs/baseline.md).
             .align(VAlign::FirstBaseline),
         ),
-        // Locale-independent ISO readout — what the walkthrough asserts on every backend.
+        // Locale-independent ISO readout: what the walkthrough asserts on every backend.
         labeled(
             crate::res::str::date_picked(),
             label(move || date.get().to_string())
@@ -76,7 +76,7 @@ fn date_section(date: Signal<DayDate>) -> impl Piece {
 }
 
 fn time_section() -> impl Piece {
-    // ONE time signal behind both time pickers: the seconds variant (honored natively on
+    // One time signal behind both time pickers: the seconds variant (honored natively on
     // AppKit/Qt; docs/datepicker.md) mirrors the compact one.
     let time = Signal::new(DayTime::new(9, 30, 0).expect("valid seed time"));
     section((
@@ -99,8 +99,8 @@ fn time_section() -> impl Piece {
 }
 
 fn composed_section() -> impl Piece {
-    // Combined date+time = COMPOSITION (a single combined control exists on only 3 of the 7
-    // toolkits, so Day doesn't paper over it — docs/datepicker.md).
+    // Combined date+time is composition (a single combined control exists on only 3 of the 7
+    // toolkits, so Day doesn't paper over it; docs/datepicker.md).
     let date = Signal::new(seed_date());
     let time = Signal::new(DayTime::new(18, 0, 0).expect("valid seed time"));
     section((labeled(

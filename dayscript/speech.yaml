@@ -12,7 +12,7 @@ flow:
   - wait_for: { id: nav }
   - navigate: { route: speech }
   - assert_route: { route: speech }
-  # The support label is the part's own answer for this target — Native, Emulated, or Unsupported.
+  # The support label is the part's answer for this target: Native, Emulated, or Unsupported.
   - wait_for: { id: speech-support }
   - screenshot:
       name: speech

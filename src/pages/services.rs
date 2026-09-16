@@ -7,7 +7,7 @@ use crate::widgets::page;
 
 /// Platform services (docs/http.md, docs/clipboard.md, docs/prefs.md, docs/sound.md,
 /// docs/haptics.md, docs/files.md, docs/notify.md, docs/bridge.md): the headless "do something
-/// with the OS" parts, one grouped form section each — text to speech (first: it is the daybridge
+/// with the OS" parts, one grouped form section each: text to speech (first: it is the daybridge
 /// reference), an HTTP fetch, clipboard round-trip, persisted preferences, sound effects, haptic
 /// feedback, local notifications, and the native file pickers.
 /// Network & HTTP: what the platform says about connectivity, then day-part-http through the
@@ -48,8 +48,8 @@ pub(crate) fn notify_page() -> AnyPiece {
     .any()
 }
 
-/// Speech, sound & haptics: the parts that talk to the person — the platform's voice, its sound
-/// engine, and its haptic engine.
+/// Speech, sound & haptics: the parts that talk to the person, meaning the platform's voice, its
+/// sound engine, and its haptic engine.
 pub(crate) fn speech_page() -> AnyPiece {
     page(
         crate::res::str::nav_speech_haptics(),
@@ -76,17 +76,18 @@ pub(crate) fn files_page() -> AnyPiece {
     .any()
 }
 
-/// Text to speech (docs/bridge.md): day-part-speech is daybridge's reference part — one Rust API
+/// Text to speech (docs/bridge.md): day-part-speech is daybridge's reference part, one Rust API
 /// whose implementation is Swift on Apple, Java on Android, ArkTS on HarmonyOS, JavaScript on the
-/// web, C++ (SAPI) on Windows, and C on Linux, all declared in one file. This section is deliberately the simplest thing
-/// that proves a bridged call ran: type a line (or take the placeholder's) and the device says it.
+/// web, C++ (SAPI) on Windows, and C on Linux, all declared in one file. This section is the
+/// simplest thing that proves a bridged call ran: type a line (or take the placeholder's) and
+/// the device says it.
 ///
-/// `available()` reports what THIS target's arm promises, so the label is the honest answer on a
+/// `available()` reports what this target's arm promises, so the label is the right answer on a
 /// target with no arm (Unsupported) or a partial one (HarmonyOS, whose voices are zh-CN only).
 ///
 /// The state line is the callback tier at work (docs/bridge.md "Callbacks"): `speak_future`
 /// resolves when the engine reports the end of the utterance, so "Speaking…" holds exactly as
-/// long as the voice does and then says how it ended — finished, or stopped by the Stop button.
+/// long as the voice does and then says how it ended: finished, or stopped by the Stop button.
 fn speech_section() -> impl Piece {
     // Empty means "say the localized sample", which is exactly what the placeholder shows.
     let phrase = Signal::new(String::new());
@@ -371,17 +372,17 @@ fn haptic_button(
             last.set(crate::res::str::haptics_last_played(format!("{h:?}")).format());
         })
         .id(id)
-        // `.grow_w()` is what makes the grid column FLEXIBLE. With every cell flexible the layout
+        // `.grow_w()` is what makes the grid column flexible. With every cell flexible the layout
         // splits the leftover width evenly between the columns (docs/grid.md §3), so the buttons
-        // come out identical whatever the label length or screen width — the reason a `row` was
-        // wrong here: it sized each button to its own text and ran off the edge.
+        // come out identical whatever the label length or screen width. That is the reason a
+        // `row` was wrong here: it sized each button to its own text and ran off the edge.
         .grow_w()
 }
 
 /// One step of a haptic "song": wait `delay_ms`, then fire `haptic`.
 type Beat = (u32, Haptic);
 
-/// Play a timed sequence on `day::task` (docs/async.md), which polls on the UI thread — where
+/// Play a timed sequence on `day::task` (docs/async.md), which polls on the UI thread, where
 /// `day_part_haptics::play` has to be called anyway, so no thread hop is needed. `playing` guards
 /// against a second tap overlapping the first, which would garble the rhythm into noise.
 fn play_song(
@@ -406,22 +407,22 @@ fn play_song(
 
 // The songs.
 //
-// TEMPO GRID. The beats are written against 120 BPM rather than in ad-hoc milliseconds, because
-// that is what separates a rhythm from a list of buzzes: repetition on a grid is what the ear —
-// and the hand — hears as musical. Accelerandos deliberately leave the grid, which is why those
-// runs carry explicit millisecond gaps.
+// Tempo grid. The beats are written against 120 BPM rather than in ad-hoc milliseconds, because
+// that is what separates a rhythm from a list of buzzes: repetition on a grid is what the ear
+// (and the hand) hears as musical. Accelerandos leave the grid, which is why those runs carry
+// explicit millisecond gaps.
 //
-// DYNAMIC RANGE, and what actually varies per platform. iOS maps the seven styles onto three
+// Dynamic range, and what varies per platform. iOS maps the seven styles onto three
 // impact intensities plus three multi-tap notification patterns, so all seven feel distinct.
-// Android collapses them: Light/Selection are both EFFECT_TICK, Heavy AND Warning are both
-// EFFECT_HEAVY_CLICK, Success AND Error are both EFFECT_DOUBLE_CLICK. So the honest palette these
-// songs compose against is four sensations — tick (quietest), click, heavy click (loudest single
-// hit), and double click (the accent) — and the contrast is built from Selection/Light against
+// Android collapses them: Light/Selection are both EFFECT_TICK, Heavy and Warning are both
+// EFFECT_HEAVY_CLICK, Success and Error are both EFFECT_DOUBLE_CLICK. So the palette these
+// songs compose against is four sensations (tick (quietest), click, heavy click (loudest single
+// hit), and double click (the accent)), and the contrast is built from Selection/Light against
 // Heavy, with Error reserved for phrase-ending crashes. Leaning on Warning-vs-Heavy would have
 // sounded like a difference on iPhone and like nothing at all on a Pixel.
 //
 // A notification-style haptic (Success/Error) plays its own multi-tap pattern over ~150-300 ms, so
-// nothing is scheduled tight behind one — it would collide rather than syncopate.
+// nothing is scheduled tight behind one; it would collide rather than syncopate.
 
 /// Quarter note at 120 BPM.
 const Q: u32 = 500;
@@ -429,12 +430,12 @@ const Q: u32 = 500;
 const E: u32 = 250;
 /// Sixteenth.
 const S: u32 = 125;
-/// Thirty-second — around the floor where the engine still resolves separate taps rather than
+/// Thirty-second, around the floor where the engine still resolves separate taps rather than
 /// smearing them into one buzz.
 const T: u32 = 63;
 
 /// 5.6 s. The Duolingo shape: a pickup that rises into a downbeat, a two-bar phrase answered by a
-/// denser repeat, a crash, and a resolve. Maximum contrast — near-silent Selection ticks a beat
+/// denser repeat, a crash, and a resolve. Maximum contrast: near-silent Selection ticks a beat
 /// away from full Heavy hits.
 const CELEBRATION: &[Beat] = &[
     // Pickup: three rising sixteenths into the bar line.
@@ -529,7 +530,7 @@ const HEARTBEAT: &[Beat] = &[
     (140, Haptic::Medium),
     (380, Haptic::Heavy),
     (130, Haptic::Medium),
-    // Panic — both halves of the beat at full force.
+    // Panic: both halves of the beat at full force.
     (300, Haptic::Heavy),
     (120, Haptic::Heavy),
     (240, Haptic::Heavy),
@@ -552,7 +553,7 @@ const HEARTBEAT: &[Beat] = &[
 ];
 
 /// 5.4 s. A fall and a climb, mirrored: heavy hits tumble away into a near-continuous tick, hold
-/// at the bottom, then rebuild — decelerating as they intensify — into a crash.
+/// at the bottom, then rebuild (decelerating as they intensify) into a crash.
 const CASCADE: &[Beat] = &[
     // Fall: loud and slow to quiet and fast.
     (0, Haptic::Heavy),
@@ -571,7 +572,7 @@ const CASCADE: &[Beat] = &[
     (40, Haptic::Selection),
     // Bottom of the arc.
     (Q, Haptic::Selection),
-    // Climb: the fall run backwards — slowing down as it gets heavier.
+    // Climb: the fall run backwards, slowing down as it gets heavier.
     (42, Haptic::Selection),
     (48, Haptic::Selection),
     (58, Haptic::Light),
@@ -582,7 +583,7 @@ const CASCADE: &[Beat] = &[
     (195, Haptic::Heavy),
     (250, Haptic::Heavy),
     (E, Haptic::Error),
-    // Second fall, heavier and shorter — the pattern the ear now expects, delivered harder.
+    // Second fall, heavier and shorter: the pattern the ear now expects, delivered harder.
     (Q, Haptic::Heavy),
     (S, Haptic::Heavy),
     (S, Haptic::Heavy),
@@ -680,9 +681,9 @@ fn haptics_section() -> impl Piece {
         ))
         .spacing(8.0),
         label(crate::res::str::haptics_songs_caption()).font(Font::Footnote),
-        // The songs get filled colors so they read as a different KIND of control from the single
+        // The songs get filled colors so they read as a different kind of control from the single
         // taps above. Each fill picks its own label color: the three saturated ones take white,
-        // and AMBER takes `tinted_pale`, which swaps in INK text — white on a pale fill is the
+        // and `AMBER` takes `tinted_pale`, which swaps in `INK` text; white on a pale fill is the
         // contrast case that variant exists for.
         grid((
             grid_row((
@@ -787,7 +788,7 @@ fn notify_section() -> impl Piece {
     let can_prompt = Signal::new(day_part_permissions::can_prompt(
         day_part_permissions::Permission::Notifications,
     ));
-    // Prime both from the AUTHORITATIVE status. Notifications are the one Apple permission with no
+    // Prime both from the authoritative status. Notifications are the one Apple permission with no
     // synchronous accessor: the first `status()` answers `Unknown` while it fills its cache in the
     // background, so `can_prompt()` (which is `status == Prompt` there) reads false on a fresh
     // install and the button would offer Open Settings when a real prompt was still available.
@@ -881,11 +882,12 @@ fn notify_section() -> impl Piece {
         // then dropped by the system with no error, so without this the page would look broken.
         //
         // What is offered depends on what the platform actually does about this permission
-        // (docs/permissions.md). `Gate::Absent`/`Ungated` mean no consent record exists — desktop
-        // Linux and Windows have no database to ask — so a Request button there would be a control
-        // that provably does nothing, and none is shown. Where the OS does prompt, the affordance
-        // still changes: once the answer is final, `request` no longer puts a dialog on screen and
-        // Settings is the only remedy, which is why `can_prompt` picks the label and the action.
+        // (docs/permissions.md). `Gate::Absent`/`Ungated` mean no consent record exists (desktop
+        // Linux and Windows have no database to ask), so a Request button there would be a
+        // control that provably does nothing, and none is shown. Where the OS does prompt, the
+        // affordance still changes: once the answer is final, `request` no longer puts a dialog
+        // on screen and Settings is the only remedy, which is why `can_prompt` picks the label
+        // and the action.
         when(
             move || prompts,
             move || {
@@ -915,8 +917,8 @@ fn notify_section() -> impl Piece {
                             .action(move || {
                                 if can_prompt.get() {
                                     // The callback can land on another thread, and Signal is
-                                    // !Send — a Setter is the sanctioned cross-thread door
-                                    // (DESIGN §3.3).
+                                    // !Send; a Setter is the sanctioned cross-thread door
+                                    // (DESIGN.md §3.3).
                                     let set = granted.setter();
                                     let still = can_prompt.setter();
                                     day_part_permissions::request(
@@ -1015,8 +1017,8 @@ fn badge_section() -> impl Piece {
     let can_text = capability(Cap::AppBadgeText) == Support::Native;
     let supported = can_count != Support::Unsupported;
 
-    // Three states, not two: `Emulated` means the call is made and the shell may ignore it — the
-    // web unless installed, and desktop Linux under a shell that skips the Unity protocol.
+    // Three states, not two: `Emulated` means the call is made and the shell may ignore it (the
+    // web unless installed, and desktop Linux under a shell that skips the Unity protocol).
     let caps_line = match can_count {
         Support::Native => crate::res::str::badge_caps_native(),
         Support::Emulated => crate::res::str::badge_caps_emulated(),
@@ -1026,7 +1028,7 @@ fn badge_section() -> impl Piece {
     section((
         crate::widgets::support_note(crate::support::cap(Cap::AppBadgeCount)),
         label(caps_line).font(Font::Footnote).id("badge-supported"),
-        // Named so a user on Android reads WHY rather than assuming it is broken.
+        // Named so a user on Android reads why rather than assuming it is broken.
         when(
             move || !supported,
             move || {
@@ -1072,7 +1074,7 @@ fn badge_section() -> impl Piece {
                     status.set(crate::res::str::badge_status_cleared().format());
                 })
                 .id("badge-clear"),
-            // Text is macOS-only, so the control simply is not offered elsewhere rather than
+            // Text is macOS-only, so the control is not offered elsewhere rather than
             // sitting there doing nothing.
             when(
                 move || can_text,
@@ -1179,8 +1181,8 @@ fn test_server() -> Result<&'static day_part_http::testing::Server, String> {
 fn local_url(path: &str) -> Result<String, String> {
     #[cfg(target_arch = "wasm32")]
     {
-        // Relative on purpose: resolves against the page origin (and subpath, e.g. the
-        // project-Pages /Day-Showcase/), keeping the request same-origin — no CORS.
+        // Relative, so it resolves against the page origin (and subpath, e.g. the
+        // project-Pages /Day-Showcase/), keeping the request same-origin with no CORS.
         if path == "/" {
             return Ok("day-http-ok".into());
         }
@@ -1205,7 +1207,7 @@ fn local_ws_url(path: &str) -> Result<String, String> {
     }
 }
 
-/// `"<status> <body>"` or `"error: …"`. Raw on purpose: identical in every locale, so the
+/// `"<status> <body>"` or `"error: …"`. Raw, so it is identical in every locale and the
 /// scripts can assert it exactly.
 fn status_line(result: Result<day_part_http::Response, day_part_http::HttpError>) -> String {
     match result {
@@ -1297,10 +1299,10 @@ fn metrics_line(m: &day_part_http::Metrics) -> String {
 
 fn http_section() -> impl Piece {
     let status = Signal::new(crate::res::str::http_idle().format());
-    // The callback idiom (docs/http.md): fetch_async completes on a BACKGROUND thread (the
-    // sole browser thread on web); the
-    // captured Setter hops to the UI thread itself and no-ops if the page is gone. Kept as the
-    // living Setter example — the rows below use the newer await/Resource rails (docs/async.md).
+    // The callback idiom (docs/http.md): fetch_async completes on a background thread (the
+    // sole browser thread on web); the captured Setter hops to the UI thread itself and no-ops
+    // if the page is gone. Kept as the living Setter example; the rows below use the newer
+    // await/Resource rails (docs/async.md).
     let done = status.setter();
     let patch_status = Signal::new(crate::res::str::http_idle().format());
     section((
@@ -1321,7 +1323,7 @@ fn http_section() -> impl Piece {
             label(move || status.get()).id("http-status").any(),
         ),
         // PATCH through the same engine, await-style (docs/async.md): the echo body proves the
-        // method crossed the platform stack — the historic Android HttpURLConnection gap.
+        // method crossed the platform stack (the historic Android HttpURLConnection gap).
         crate::widgets::action_result(
             button(crate::res::str::http_patch())
                 .bordered()
@@ -1405,17 +1407,17 @@ fn http_resource_row() -> impl Piece {
 }
 
 /// The second half of the HTTP section: type any http(s) URL, tap Check, and read back the
-/// response headers, the body size and the transfer metrics — a live view of what the platform
+/// response headers, the body size and the transfer metrics: a live view of what the platform
 /// stack returns (and of platform policy: iOS ATS rejecting a cleartext host shows up here as
 /// the error).
 fn url_check_field() -> impl Piece {
     // Pre-filled with a host that answers cross-origin requests (httpbin echoes with
-    // `Access-Control-Allow-Origin: *`), so Check works out of the box on web-dom too —
+    // `Access-Control-Allow-Origin: *`), so Check works out of the box on web-dom too;
     // an arbitrary site would be blocked by CORS in a browser (docs/web.md).
     let url = Signal::new("https://httpbin.org/get".to_string());
     let out = Signal::new(String::new());
     // The in-flight check, if any: re-tapping Check aborts the previous task, which drops its
-    // future and CANCELS the platform request (docs/async.md's drop-cancel rail) — type a
+    // future and cancels the platform request (docs/async.md's drop-cancel rail): type a
     // slow URL, tap Check twice, and only the second answer ever lands.
     let inflight: std::rc::Rc<std::cell::Cell<Option<day::TaskHandle>>> =
         std::rc::Rc::new(std::cell::Cell::new(None));
@@ -1439,10 +1441,10 @@ fn url_check_field() -> impl Piece {
                 let slot = inflight.clone();
                 let handle = day::task(async move {
                     // Await-style (docs/async.md): the future resumes on the UI thread, so the
-                    // readout is a plain Signal write — no Setter needed. A `Client` carries the
+                    // readout is a plain Signal write with no Setter needed. A `Client` carries the
                     // transfer metrics the crate-root calls leave out.
                     let text = match day_part_http::Client::new().fetch_future(req).await {
-                        // Raw readout on purpose (headers and sizes aren't locale material).
+                        // Raw readout (headers and sizes aren't locale material).
                         Ok(resp) => {
                             let mut s = format!("HTTP {} · {} bytes", resp.status, resp.body.len());
                             if let Some(line) = resp.metrics.as_ref().map(metrics_line)
@@ -1470,7 +1472,7 @@ fn url_check_field() -> impl Piece {
             .id("http-headers"),
     ))
     .spacing(8.0)
-    // Leading, like the section's other rows — the default centered alignment floated the
+    // Leading, like the section's other rows; the default centered alignment floated the
     // Check button and readout as islands mid-card on every platform.
     .align(HAlign::Leading)
 }
@@ -2469,8 +2471,8 @@ fn trust_section() -> impl Piece {
 }
 
 /// App-local file storage (docs/fs.md): day-part-fs write/read/list/remove through the async
-/// futures, so the SAME code runs on every target — real files natively, OPFS in the browser.
-/// Statuses are raw on purpose (walkthrough-asserted, identical across locales).
+/// futures, so the same code runs on every target: real files natively, OPFS in the browser.
+/// Statuses are raw (walkthrough-asserted, identical across locales).
 fn storage_section() -> impl Piece {
     const FILE: &str = "demo/showcase-note.txt";
     let note = Signal::new(String::new());
@@ -2564,7 +2566,7 @@ fn network_section() -> impl Piece {
 }
 
 /// The current connectivity snapshot as a localized line (Fluent; kind stays the API's enum
-/// debug form — it is a value, not prose).
+/// debug form; it is a value, not prose).
 fn network_line() -> LocalizedText {
     match day_part_network::status() {
         Some(n) => {

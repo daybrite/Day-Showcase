@@ -9,12 +9,12 @@ const DEFAULT_DELAY: &str = "0.25";
 // preserves the working script, the baseline it was last saved/loaded at (for the dirty check that
 // gates Save), and which file on disk it maps to (an in-place Save vs a prompt for a new name).
 /// The working script. `pub(crate)` because the toolbar's transport and the App menu record into
-/// and play from THIS buffer (commands.rs): one recording, whichever surface starts it.
+/// and play from this buffer (commands.rs): one recording, whichever surface starts it.
 pub(crate) fn buf_signal() -> Signal<String> {
     crate::scene().script_buf
 }
 
-/// The per-step playback delay, in seconds — persisted by the page's own field, and read here so
+/// The per-step playback delay, in seconds, persisted by the page's field and read here so
 /// a Play from the toolbar runs at the speed the page is set to.
 fn configured_delay_secs() -> f64 {
     day::prefs::get(DELAY_KEY)
@@ -27,7 +27,7 @@ fn configured_delay_secs() -> f64 {
 
 /// Start recording into the shared buffer, excluding the page's own controls. The one place that
 /// knows how this app records, so the page button and the toolbar cannot start it differently.
-/// The working buffer of the FRONT window, or `None` before any window has built — the app
+/// The working buffer of the front window, or `None` before any window has built: the app
 /// menu's transport items are lowered from surfaces that can run that early (docs/state.md).
 fn try_buf() -> Option<Signal<String>> {
     crate::try_scene().map(|s| s.script_buf)
@@ -39,7 +39,7 @@ pub(crate) fn record_into_buffer() {
     day::record::start_into(buf);
 }
 
-/// Is there a script to play — recorded, loaded or hand-typed?
+/// Whether there is a script to play: recorded, loaded or hand-typed.
 pub(crate) fn has_script() -> bool {
     try_buf().is_some_and(|b| b.with(|t| day::record::is_playable(t)))
 }
@@ -50,7 +50,7 @@ pub(crate) fn play_buffer() {
     let _ = day::record::play_with_delay(&buf.get_untracked(), configured_delay_secs());
 }
 
-/// Throw the recording away: the recorder's own steps AND the buffer the surfaces read.
+/// Throw the recording away: the recorder's own steps and the buffer the surfaces read.
 pub(crate) fn clear_buffer() {
     day::record::clear();
     if let Some(buf) = try_buf() {
@@ -58,7 +58,7 @@ pub(crate) fn clear_buffer() {
     }
 }
 fn baseline_signal() -> Signal<String> {
-    // Seeded to the initial buffer, so a page with nothing new is NOT dirty (Save disabled); a
+    // Seeded to the initial buffer, so a page with nothing new is not dirty (Save disabled); a
     // recording or an edit then diverges from it and enables Save.
     crate::scene().script_baseline
 }
@@ -82,7 +82,7 @@ pub(crate) fn scripting_page() -> AnyPiece {
     let recording = day::record::recording_signal();
     let status = Signal::new(String::new());
 
-    // "Delay between steps" (seconds): default 0.25, persisted across navigation AND restarts via
+    // "Delay between steps" (seconds): default 0.25, persisted across navigation and restarts via
     // prefs. Held as text so the field edits freely; the steppers nudge by a quarter second.
     let delay_text =
         Signal::new(day::prefs::get(DELAY_KEY).unwrap_or_else(|| DEFAULT_DELAY.into()));
@@ -99,7 +99,7 @@ pub(crate) fn scripting_page() -> AnyPiece {
     };
 
     // Saved-script dropdown: the app-container `scripts/` folder, listed at build (so it is
-    // populated on launch and refreshed whenever the page is re-entered — e.g. after a new Save).
+    // populated on launch and refreshed whenever the page is re-entered, e.g. after a new Save).
     // Index 0 is a placeholder; selecting a name loads that file's raw yaml into the buffer.
     let names = saved_script_names();
     let mut options = vec![crate::res::str::scripting_pick().format()];
@@ -132,7 +132,7 @@ pub(crate) fn scripting_page() -> AnyPiece {
         crate::res::str::nav_scripting(),
         "scripting-title",
         form((
-            // The editable script — streamed into while recording, hand-editable any time.
+            // The editable script: streamed into while recording, hand-editable any time.
             section((text_area(buf)
                 .min_lines(12)
                 .max_lines(24)
@@ -155,7 +155,7 @@ pub(crate) fn scripting_page() -> AnyPiece {
                         }
                     })
                     // Through the shared helper, so this button and the toolbar's transport
-                    // start the SAME recording into the SAME buffer (commands.rs).
+                    // start the same recording into the same buffer (commands.rs).
                     .action(move || {
                         if day::record::is_recording() {
                             day::record::stop();
@@ -163,7 +163,7 @@ pub(crate) fn scripting_page() -> AnyPiece {
                             record_into_buffer();
                         }
                     })
-                    // A REACTIVE tint: the native button recolors in place while recording,
+                    // A reactive tint: the native button recolors in place while recording,
                     // keeping its ripple/press rendering and its role (docs/buttons.md).
                     .tint(move || {
                         if recording.get() {
@@ -179,7 +179,7 @@ pub(crate) fn scripting_page() -> AnyPiece {
                     button(move || (crate::commands::play_pause().title)().format())
                         .bordered()
                         .enabled(move || {
-                            // Read the flags REACTIVELY (the signals, not the atomics) so the
+                            // Read the flags reactively (the signals, not the atomics) so the
                             // title and enablement follow a run that ends on its own. On web there
                             // is no in-process playback at all, so the button says so by being
                             // disabled (docs/web.md).
@@ -190,7 +190,7 @@ pub(crate) fn scripting_page() -> AnyPiece {
                                         && buf.with(|t| day::record::is_playable(t))))
                         })
                         .action(move || {
-                            // The delay the FIELD shows, which may be ahead of what prefs hold.
+                            // The delay the field shows, which may be ahead of what prefs hold.
                             match (day::record::is_playing(), day::record::is_paused()) {
                                 (true, false) => day::record::pause_playback(),
                                 (true, true) => day::record::resume_playback(),
@@ -205,7 +205,7 @@ pub(crate) fn scripting_page() -> AnyPiece {
                         .id("scripting-play"),
                     // Save to the app's scripts folder. Enabled only when the buffer differs from
                     // the last saved/loaded content (dirty). A script already mapped to a file
-                    // updates that file IN PLACE; an unsaved one prompts for a name.
+                    // updates that file in place; an unsaved one prompts for a name.
                     button(crate::res::str::scripting_save())
                         .bordered()
                         .enabled(move || buf.get() != baseline.get())
@@ -268,7 +268,7 @@ pub(crate) fn scripting_page() -> AnyPiece {
                         .id("scripting-export"),
                 ))
                 .spacing(8.0),
-                // "Delay between steps" — an editable field with - / + steppers (Day has no native
+                // "Delay between steps": an editable field with - / + steppers (Day has no native
                 // stepper piece), feeding the per-step Playback pause above.
                 row((
                     label(crate::res::str::scripting_delay_label()).font(Font::Footnote),
@@ -304,7 +304,7 @@ pub(crate) fn scripting_page() -> AnyPiece {
 /// The sandboxed sub-folder under the app's private container where saved scripts live.
 pub(crate) const SCRIPTS_DIR: &str = "scripts";
 
-/// Bundled sample scripts (name, yaml) written on launch if absent — a ready demonstration of
+/// Bundled sample scripts (name, yaml) written on launch if absent, a ready demonstration of
 /// record/playback that the dropdown shows the first time the app runs. Authored in the compact
 /// flow style; `seed_sample_scripts` normalizes them to the recorder's own on-disk shape so a
 /// loaded sample reads identically to a freshly recorded one.
@@ -339,7 +339,7 @@ fn script_path(name: &str) -> String {
     format!("{SCRIPTS_DIR}/{name}.yaml")
 }
 
-/// Write each bundled sample that is not already on disk — called once at launch (`lib::root`).
+/// Write each bundled sample that is not already on disk; called once at launch (`lib::root`).
 /// Absent-only, so a user's edits to a sample survive a relaunch. Each is round-tripped through the
 /// recorder (`steps_from_yaml` → `steps_to_yaml`) so the saved file is byte-for-byte the shape a
 /// recording produces; a malformed sample (should never happen) falls back to its literal text.
@@ -355,7 +355,7 @@ pub(crate) fn seed_sample_scripts() {
     }
 }
 
-/// The saved script names (file stems), sorted — the dropdown's items. Best-effort: an unreadable
+/// The saved script names (file stems), sorted: the dropdown's items. Best-effort: an unreadable
 /// folder yields an empty list, and the page still records/plays.
 fn saved_script_names() -> Vec<String> {
     let mut names: Vec<String> = day_part_fs::list(SCRIPTS_DIR)

@@ -4,7 +4,7 @@ use crate::palette::{AZURE, CORAL, INK, SKY, TEAL};
 
 day::routes! {
     /// The Grid example's sub-pages, typed (docs/grid.md): tabs on desktop, push/pop pages on
-    /// mobile — the same keys either way, so deep links and dayscript address both hosts alike.
+    /// mobile; the same keys either way, so deep links and dayscript address both hosts alike.
     enum GridDemo {
         Basics => "basics",
         Sizing => "sizing",
@@ -90,7 +90,7 @@ pub(crate) fn grid_page() -> AnyPiece {
             .any(),
         );
         nav_stack(path, menu)
-            // Five arms, five types — past two, one erasure reads better than nested `Either`s.
+            // Five arms, five types: past two, one erasure reads better than nested `Either`s.
             .destination(|demo: &GridDemo| match demo {
                 GridDemo::Basics => basics_demo().any(),
                 GridDemo::Sizing => sizing_demo().any(),
@@ -193,12 +193,12 @@ fn sizing_demo() -> impl Piece {
 }
 
 /// A week planner: a full-width title, seven day columns, and event cells spanning two and
-/// three columns via `.grid_span` — with `spacer()` holding the empty day slots.
+/// three columns via `.grid_span`, with `spacer()` holding the empty day slots.
 fn spanning_demo() -> impl Piece {
     fn day_cells(from: u32) -> impl Piece {
         let cells: Vec<AnyPiece> = (from..from + 7)
             .map(|n| {
-                // Grid modifiers go LAST so the facts land on the outermost (width) wrapper.
+                // Grid modifiers go last so the facts land on the outermost (width) wrapper.
                 label(n.to_string())
                     .tabular()
                     .width(32.0)
@@ -253,7 +253,7 @@ const BOLT: Color = Color {
     a: 1.0,
 };
 
-/// A sun: eight `line` rays around a `circle` disc, flattened into ONE canvas leaf.
+/// A sun: eight `line` rays around a `circle` disc, flattened into one canvas leaf.
 fn sun_glyph(size: f64) -> impl Piece {
     let mut shapes = vec![circle().fill(SUN).at(0.28, 0.28, 0.44, 0.44)];
     for k in 0..8 {
@@ -321,8 +321,8 @@ fn range_bar(low: f64, high: f64, wmin: f64, wmax: f64) -> impl Piece {
     .grow_w()
 }
 
-/// Shapes and grid together — the Day Skies forecast shape: content-sized day and temperature
-/// columns, glyph groups, and ONE flexible column (the range bar) taking the leftover width.
+/// Shapes and grid together, in the Day Skies forecast shape: content-sized day and temperature
+/// columns, glyph groups, and one flexible column (the range bar) taking the leftover width.
 fn composite_demo() -> impl Piece {
     const DAYS: [(i64, bool, f64, f64); 5] = [
         (1, true, 14.0, 24.0),

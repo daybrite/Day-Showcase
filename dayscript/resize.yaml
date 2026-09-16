@@ -22,7 +22,7 @@ flow:
 
   # --- Compact: phone-shaped ------------------------------------------------------------------
   # Android's idiomatic answer at this width is a bottom bar, and the sidebar page is not drawn
-  # at all — its rows ARE the chrome.
+  # at all; its rows are the chrome.
   - resize: { width: 420, height: 900, only_on: [android-mdc] }
   - assert_visible: { id: nav, only_on: [android-mdc] }
   - assert_visible: { id: layout-demo, only_on: [android-mdc] }
@@ -36,7 +36,7 @@ flow:
   - screenshot: { name: resize-medium, only_on: [android-mdc] }
 
   # --- Expanded: room for a sidebar beside the content -----------------------------------------
-  # SlidingPaneLayout decides at MEASURE time, so this is the platform re-presenting itself
+  # SlidingPaneLayout decides at measure time, so this is the platform re-presenting itself
   # rather than Day pushing a presentation into it.
   - resize: { width: 1100, height: 900, only_on: [android-mdc] }
   - assert_visible: { id: nav, only_on: [android-mdc] }

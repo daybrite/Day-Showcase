@@ -1,5 +1,5 @@
 //! The Day showcase (DESIGN.md Appendix A): every implemented piece behind a native navigation
-//! host (docs/navigation.md) — stack presentation on mobile, sidebar + detail split on desktop.
+//! host (docs/navigation.md): stack presentation on mobile, sidebar + detail split on desktop.
 //!
 //! This crate root wires the navigation together in [`root`] and owns the app-wide lifecycle
 //! plumbing; each navigation destination lives in its own module under [`pages`], and reusable
@@ -40,18 +40,18 @@ pub(crate) fn lifecycle_log() -> Signal<String> {
     LifecycleLog::app().0
 }
 
-/// Everything ONE WINDOW owns (docs/state.md): which page it is on, and the per-page editor
-/// state that belongs to a view rather than to the app.
+/// Everything a single window owns (docs/state.md): which page it is on, and the per-page
+/// editor state that belongs to a view rather than to the app.
 ///
-/// The showcase deliberately keeps two tiers. App-wide (`Ambient::app`) are the things one
-/// process has one of — the lifecycle and menu logs, the SQLite container behind the Query page,
-/// the model store, and the persisted preferences (starred pages, appearance). Per-window are
+/// The showcase keeps two tiers. App-wide (`Ambient::app`) are the things one process has one
+/// of: the lifecycle and menu logs, the SQLite container behind the Query page, the model
+/// store, and the persisted preferences (starred pages, appearance). Per-window are
 /// the ones a second window should get its own of: the sidebar selection, the scripting buffer,
 /// the toolbar demo's controls, the benchmark's parameters and the webview's fields.
 #[derive(Clone, Copy)]
 pub(crate) struct Scene {
-    /// The sidebar's selection — the app's own routing signal, hoisted so every surface can
-    /// READ it reactively (see `commands::section`).
+    /// The sidebar's selection: the app's routing signal, hoisted so every surface can read
+    /// it reactively (see `commands::section`).
     pub(crate) section: Signal<Option<crate::Section>>,
     /// The Scripting page's working buffer, its saved baseline, and the file it came from.
     pub(crate) script_buf: Signal<String>,
@@ -75,7 +75,7 @@ impl Ambient for Scene {
                 }),
             ),
             script_buf: Signal::new(day::record::script()),
-            // Seeded to the initial buffer, so a page with nothing new is NOT dirty.
+            // Seeded to the initial buffer, so a page with nothing new is not dirty.
             script_baseline: Signal::new(day::record::script()),
             script_file: Signal::new(None),
             bench: (
@@ -93,15 +93,15 @@ impl Ambient for Scene {
     }
 }
 
-/// This window's `Scene` — the ambient one while a piece BUILDS, the FOCUSED window's when a
+/// This window's `Scene`: the ambient one while a piece builds, the focused window's when a
 /// command runs later from a handler that belongs to no scope (docs/state.md).
 pub(crate) fn scene() -> Scene {
     try_scene().expect("no window is open, so there is no Scene to act on")
 }
 
-/// [`scene`] without the panic — for the app-wide surfaces (the menu bar) whose builders can be
+/// [`scene`] without the panic, for the app-wide surfaces (the menu bar) whose builders can be
 /// evaluated before any window has built, which is where the Android app-bar menu is lowered
-/// from. A command with no front window has nothing to act on and simply reports so.
+/// from. A command with no front window has nothing to act on and reports so.
 pub(crate) fn try_scene() -> Option<Scene> {
     Scene::try_ambient().or_else(Scene::focused)
 }
@@ -117,17 +117,18 @@ impl Ambient for LifecycleLog {
     }
 }
 
-/// Register app-lifecycle handlers (docs/lifecycle.md). Call this from `main` BEFORE `day::launch`
+/// Register app-lifecycle handlers (docs/lifecycle.md). Call this from `main` before `day::launch`
 /// so the launch phases are captured. Each handler logs to the console and to a live UI readout.
 ///
 /// The mobile-only phases are registered only where the compiled-in backend actually delivers them,
-/// using the compile-time-accurate guard `day::lifecycle::supported(..)` — on desktop those `if`s are
-/// `false` and the handlers are never registered, so no "unsupported phase" warning is produced.
+/// using the compile-time-accurate guard `day::lifecycle::supported(..)`. On desktop those `if`s
+/// are `false` and the handlers are never registered, so no "unsupported phase" warning is
+/// produced.
 pub fn install_lifecycle_handlers() {
     use day::Lifecycle::*;
 
     // Idempotent: desktop calls this from `main` (to catch WillLaunch), mobile from `root`.
-    // A run-once latch, not app state — `Once` says that directly.
+    // A run-once latch, not app state; `Once` says that directly.
     static INSTALLED: std::sync::Once = std::sync::Once::new();
     let mut first = false;
     INSTALLED.call_once(|| first = true);
@@ -139,16 +140,16 @@ pub fn install_lifecycle_handlers() {
         move || {
             // `info!`, because a lifecycle phase is normal operation (docs/logging.md). This was
             // a `println!` for a reason worth recording: day-android maps fd 1 to logcat INFO and
-            // fd 2 to ERROR, so `eprintln!` made every phase surface as `E Day` and drowned the
-            // level out as a filter. Choosing stdout to mean "info" is exactly the workaround a
-            // logging level replaces — and the line now reaches the browser console too, where
-            // `println!` was silently dropped.
+            // fd 2 to `ERROR`, so `eprintln!` made every phase surface as `E Day` and drowned
+            // the level out as a filter. Choosing stdout to mean "info" is exactly the
+            // workaround a logging level replaces, and the line now reaches the browser console
+            // too, where `println!` was silently dropped.
             info!("lifecycle: {}", phase.name());
             lifecycle_log().set(phase.name().into());
         }
     };
 
-    // Universal phases — every backend delivers these.
+    // Universal phases; every backend delivers these.
     for phase in [
         WillLaunch,
         DidLaunch,
@@ -158,7 +159,7 @@ pub fn install_lifecycle_handlers() {
     ] {
         day::on_lifecycle(phase, note(phase));
     }
-    // Mobile-only phases — guard so we register only where they're delivered (iOS / Android).
+    // Mobile-only phases; guard so we register only where they're delivered (iOS / Android).
     for phase in [
         WillEnterForeground,
         DidEnterBackground,
@@ -216,12 +217,12 @@ day::routes! {
 
 /// The GitHub repository the "Show Source" action opens.
 const SOURCE_REPO: &str = "https://github.com/daybrite/Day-Showcase";
-/// The git ref "Show Source" links against — `vX.Y.Z` for a tagged release, else `main` for a
+/// The git ref "Show Source" links against: `vX.Y.Z` for a tagged release, else `main` for a
 /// development build. Baked by `build.rs` from the release pipeline's `GITHUB_REF` (see there).
 const SOURCE_REF: &str = env!("DAY_SHOWCASE_SOURCE_REF");
 
 impl Section {
-    /// The repo-relative source file whose page this section shows — the "Show Source" target.
+    /// The repo-relative source file whose page this section shows, the "Show Source" target.
     /// Kept exhaustive by the compiler, so a new section must name its file here.
     fn source_file(self) -> &'static str {
         match self {
@@ -268,7 +269,7 @@ impl Section {
 /// Open one section's source on GitHub, pinned to this build's ref (a release tag, else `main`).
 ///
 /// Every caller names its own section: the sidebar rows' context-menu "Show Source"
-/// (docs/menus.md) so a right-click on ANY row works without navigating there first, and the
+/// (docs/menus.md) so a right-click on any row works without navigating there first, and the
 /// page's own toolbar button (pages/toolbars.rs) because a page-declared command knows which page
 /// it is on. Nothing here reads the live route.
 pub(crate) fn open_source_of(section: Section) {
@@ -278,7 +279,7 @@ pub(crate) fn open_source_of(section: Section) {
     ));
 }
 
-/// Arm crash reporting (docs/break.md) — the Crash Reporting page demonstrates it. Idempotent
+/// Arm crash reporting (docs/break.md); the Crash Reporting page demonstrates it. Idempotent
 /// (day-break's `init` is single-shot); safe to call from every entry point.
 pub fn install_crash_reporting() {
     let _ = day_break::Config::new()
@@ -290,7 +291,7 @@ pub fn install_crash_reporting() {
 pub fn root() -> impl Piece {
     // Arm crash capture before the UI mounts so the Crash Reporting page's crashes are recorded.
     install_crash_reporting();
-    // Narrate every action to the console for the app's whole life (§14.6) — the same lines the
+    // Narrate every action to the console for the app's whole life (§14.6): the same lines the
     // Scripting page's recorder echoes, in the same dayscript vocabulary:
     //
     //     dayscript ▸ navigate → dates  "Date & time"
@@ -298,8 +299,8 @@ pub fn root() -> impl Piece {
     //
     // Nothing is retained, so it costs the same as the recorder's observer and never grows. The
     // showcase leaves it on because it is a demonstration: the log is a live reading of what a
-    // recording WOULD capture, which makes the Scripting page's output legible before you record
-    // anything. Set DAY_LOG_ACTIONS=0 to silence it — the env is read first, so a launch can
+    // recording would capture, which makes the Scripting page's output legible before you record
+    // anything. Set DAY_LOG_ACTIONS=0 to silence it; the env is read first, so a launch can
     // override the app.
     if std::env::var("DAY_LOG_ACTIONS").as_deref() != Ok("0") {
         // The Scripting page's own controls stay out, exactly as they stay out of a recording.
@@ -307,9 +308,9 @@ pub fn root() -> impl Piece {
         day::record::log_actions(true);
     }
     // Every locale under `resource/locales/` (en, fr, ar, zh-CN), embedded and registered by the
-    // generated catalog (§18.5) — adding a language is a new directory, nothing to edit here.
+    // generated catalog (§18.5), so adding a language is a new directory, nothing to edit here.
     res::locales::install();
-    // Persisted theme/language overrides (docs/windows.md; the launch env wins — CI variant
+    // Persisted theme/language overrides (docs/windows.md; the launch env wins, so CI variant
     // loops with DAY_THEME/--locale stay deterministic).
     day_piece_settings::apply_startup("showcase.theme", "showcase.locale");
     // Write the bundled sample dayscripts into the app container on launch (absent-only), so the
@@ -330,7 +331,8 @@ pub fn root() -> impl Piece {
     );
     day::register_new_window(|| window_root(false));
     // Lifecycle handlers (docs/lifecycle.md). On mobile this is the registration point; on desktop
-    // `main` already registered them before launch (to also catch WillLaunch) — the call is idempotent.
+    // `main` already registered them before launch (to also catch WillLaunch); the call is
+    // idempotent.
     install_lifecycle_handlers();
     window_root(true)
 }
@@ -355,7 +357,7 @@ enum Group {
 }
 
 impl Group {
-    /// The header the sidebar shows over the group's first row — a `res::str` accessor, not a
+    /// The header the sidebar shows over the group's first row: a `res::str` accessor, not a
     /// resolved `String`, so it re-resolves on every derive and follows a locale switch.
     fn title(self) -> fn() -> day::LocalizedText {
         match self {
@@ -389,7 +391,7 @@ impl Group {
 /// `Clone` because `.items(…)` re-derives the list on every query keystroke; the fields are a
 /// key, two fn pointers and a name, so a clone is cheap.
 ///
-/// A TABLE, not a chain of `.item_icon(…)` calls, because the sidebar is filterable — its rows
+/// A table, not a chain of `.item_icon(…)` calls, because the sidebar is filterable: its rows
 /// are derived from the search query, and `.items(…)` wants a list it can re-derive. The table
 /// is also what `.destination` looks a key up in, so a row and its page can never drift apart.
 #[derive(Clone)]
@@ -417,8 +419,8 @@ struct Row {
 /// within a group from the general to the specialised. About is both first and the desktop
 /// split's default detail (the split selects the first row when nothing is chosen).
 ///
-/// A page whose central feature this target cannot run is not listed at all — a target with
-/// no toolbar has nothing to show on a Toolbars page — while a section inside a page that the
+/// A page whose central feature this target cannot run is not listed at all (a target with
+/// no toolbar has nothing to show on a Toolbars page), while a section inside a page that the
 /// target cannot run keeps its banner (support.rs). Two of the four such pages are decided at
 /// compile time because their crates carry no runtime probe (Map, Lottie), three at runtime.
 fn destinations() -> Vec<Dest> {
@@ -703,16 +705,16 @@ fn destinations() -> Vec<Dest> {
     all
 }
 
-/// One showcase shell — the primary window's content, and (via `register_new_window`) each
+/// One showcase shell: the primary window's content, and (via `register_new_window`) each
 /// File ▸ New Window's. Every call creates its own section signal, so windows navigate
 /// independently; app-global state (menu log, lifecycle log, controls prefs) is shared.
-/// Only the PRIMARY shell joins the route namespace — secondary windows are `.local()`
+/// Only the primary shell joins the route namespace; secondary windows are `.local()`
 /// (docs/navigation.md), so `navigate()`/dayscript keep driving the primary unambiguously.
 fn window_root(primary: bool) -> impl Piece {
     // One `Scene` per window (docs/state.md): the sidebar selection, the scripting buffer, the
     // toolbar demo's controls, the benchmark parameters and the webview's fields all belong to
-    // THIS window. What one process has one of — the logs, the SQLite container, the model
-    // store, the persisted preferences — stays app-wide behind `Ambient::app`.
+    // this window. What one process has one of (the logs, the SQLite container, the model
+    // store, the persisted preferences) stays app-wide behind `Ambient::app`.
     Scene::scoped(move |_scene| {
         // The Content List page's document, filter and selection: the scaffold's own `Scene`,
         // one per window like the showcase's, saved by the primary window only
@@ -727,8 +729,8 @@ fn window_root(primary: bool) -> impl Piece {
 }
 
 fn window_body(primary: bool) -> impl Piece {
-    // The app menu is ONE bar for the app, but its titles and enabled states read the front
-    // page — so it installs from inside a window's scope, once. Before any window exists there
+    // The app menu is one bar for the app, but its titles and enabled states read the front
+    // page, so it installs from inside a window's scope, once. Before any window exists there
     // is no page to describe.
     static MENU_ONCE: std::sync::Once = std::sync::Once::new();
     MENU_ONCE.call_once(install_app_menu);
@@ -736,14 +738,14 @@ fn window_body(primary: bool) -> impl Piece {
     // this app's prefs policy (controls.rs): a browser reload is normal life on the web, so the
     // store is installed there and the top-level nav's `.restore` persists the section;
     // native launches install no store, so `.restore` is a silent no-op and every run starts
-    // fresh — which is what the walkthrough asserts.
+    // fresh, which is what the walkthrough asserts.
     #[cfg(target_arch = "wasm32")]
     day::prefs::install_nav_store();
     // Deep-link: open directly on a section when `DAY_DEMO_ROUTE` is set (`day launch --env
     // DAY_DEMO_ROUTE=canvas`), else start at the root menu. Handy for driving the emulator when
     // synthetic input is unreliable.
     // The selection lives in commands.rs (hoisted there so the toolbar and the app menu can read
-    // it reactively — see `commands::section`); it still seeds from DAY_DEMO_ROUTE.
+    // it reactively; see `commands::section`); it still seeds from DAY_DEMO_ROUTE.
     let section = crate::commands::section();
     // Each destination carries a bundled vector glyph (resource/vectors/nav_*.svg) shown in the
     // native nav where the backend supports it (e.g. the Windows NavigationView pane).
@@ -766,7 +768,7 @@ fn window_body(primary: bool) -> impl Piece {
         // page (live, as the scaffold titles its editor), the section's own title elsewhere.
         .detail_title(move || match section.get() {
             // The open item's name, live; the section's own title while nothing is open (the
-            // scaffold's fallback names ITS section, which is not this app's).
+            // scaffold's fallback names its section, which is not this app's).
             Some(Section::ContentList) => {
                 match items.selected.get().and_then(|id| items.find(id)) {
                     Some(item) if !item.name.is_empty() => item.name,
@@ -781,13 +783,13 @@ fn window_body(primary: bool) -> impl Piece {
             None => crate::res::str::app_title().format(),
         })
         // Search belongs to the surface it filters, not to the toolbar (docs/search.md). Day
-        // resolves where to draw it: today the window's toolbar on every desktop, and — once the
-        // size-class work lands — the navigation list itself on a window too narrow for a
+        // resolves where to draw it: today the window's toolbar on every desktop, and, once the
+        // size-class work lands, the navigation list itself on a window too narrow for a
         // sidebar, with nothing here changing.
         .searchable(query)
         .search_prompt(crate::res::str::toolbar_search_placeholder())
         // Completions, drawn by whatever the platform's search field already has for them (a
-        // QCompleter popup, a <datalist>, an AutoSuggestBox — docs/search.md). Every section
+        // QCompleter popup, a <datalist>, an AutoSuggestBox; docs/search.md). Every section
         // title that starts with what has been typed, localized, so they follow a language
         // switch like the rows do.
         .search_suggestions(|q: &str| {
@@ -802,19 +804,19 @@ fn window_body(primary: bool) -> impl Piece {
                 .take(8)
                 .collect()
         })
-        // Reopen on the last-viewed section (web only — see the install_nav_store note above).
+        // Reopen on the last-viewed section (web only; see the install_nav_store note above).
         .restore("nav.section")
         .items(
             move || {
-                // TRACKED: reads the query AND (through `matches_search`) the locale, so the
+                // Tracked: reads the query and (through `matches_search`) the locale, so the
                 // rows re-filter on a keystroke and re-title on a language switch.
                 let q = query.get();
                 let rows: Vec<Dest> = destinations()
                     .into_iter()
                     .filter(|d| matches_search(&(d.title)().format(), &q))
                     .collect();
-                // Starred pages leave their groups for a Starred section at the top — the
-                // way a feed reader keeps its smart feeds above the subscriptions — and keep
+                // Starred pages leave their groups for a Starred section at the top (the
+                // way a feed reader keeps its smart feeds above the subscriptions) and keep
                 // their table order there. The rest keep table order under their group's
                 // header, which the first surviving row of each group carries, so a group
                 // whose rows the search filtered out disappears with them. Reading
@@ -840,8 +842,8 @@ fn window_body(primary: bool) -> impl Piece {
                 out
             },
             |r: &Row| {
-                // Each row's context menu (docs/menus.md): "Show Source" opens THIS row's
-                // page source on GitHub — the same handler surface as the toolbar button,
+                // Each row's context menu (docs/menus.md): "Show Source" opens this row's
+                // page source on GitHub, the same handler surface as the toolbar button,
                 // but per destination, so no navigation is needed first. The label re-lowers
                 // localized on every derive (locale switches re-run this mapper).
                 let d = &r.dest;
@@ -850,8 +852,8 @@ fn window_body(primary: bool) -> impl Piece {
                 let row = item(d.section, (d.title)())
                     .icon(d.icon.clone())
                     .icon_tint(d.group.tint())
-                    // Star/Unstar per ROW, so any page can be starred without navigating to it
-                    // first — the same handler surface "Show Source" already uses here.
+                    // Star/Unstar per row, so any page can be starred without navigating to it
+                    // first, through the same handler surface "Show Source" already uses here.
                     .context_menu(vec![
                         menu_item(
                             if starred {
@@ -871,8 +873,8 @@ fn window_body(primary: bool) -> impl Piece {
                     Some(h) => row.section(h()),
                     None => row,
                 };
-                // The marker itself: the app's own star, tinted the color a star IS rather
-                // than a theme accent (palette.rs AMBER).
+                // The marker itself: the app's star, tinted the color a star is rather
+                // than a theme accent (palette.rs `AMBER`).
                 if starred {
                     row.badge_icon(res::vectors::star.clone())
                         .badge_tint(crate::palette::AMBER)
@@ -881,8 +883,8 @@ fn window_body(primary: bool) -> impl Piece {
                 }
             },
         )
-        // Dynamic rows carry no page builder of their own — the key is looked up here. Each
-        // page carries the three commands that act on IT (docs/toolbars.md), so they arrive and
+        // Dynamic rows carry no page builder of their own; the key is looked up here. Each
+        // page carries the three commands that act on it (docs/toolbars.md), so they arrive and
         // leave with the page and every one of them knows its own section without asking the
         // route.
         .destination(|key: &Option<Section>| match key {
@@ -900,10 +902,10 @@ fn window_body(primary: bool) -> impl Piece {
             }
             None => column(()).any(),
         });
-    // The window's own commands ride THIS HOST's chrome (docs/toolbars.md): the sidebar column
-    // where the presentation has one, the root list's bar when it collapses. No capability probe
-    // — a contribution always has a chrome to land on, so the fallback branch this used to carry
-    // for HarmonyOS and the web is gone.
+    // The window's commands ride this host's chrome (docs/toolbars.md): the sidebar column
+    // where the presentation has one, the root list's bar when it collapses. No capability
+    // probe: a contribution always has a chrome to land on, so the fallback branch this used to
+    // carry for HarmonyOS and the web is gone.
     let nav = nav.toolbar(pages::toolbars::window_items());
     let nav = if primary { nav } else { nav.local() };
     nav.id("nav")

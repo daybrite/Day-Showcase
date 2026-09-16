@@ -3,7 +3,7 @@ use day::prelude::*;
 use crate::widgets::{battery_line, page};
 
 /// Device & sensors (docs/battery.md, docs/sensors.md, docs/network.md): every headless
-/// device-state part in one grouped form — the battery visualization with preview controls,
+/// device-state part in one grouped form: the battery visualization with preview controls,
 /// the connectivity snapshot, the motion sensors, and the device identity. Each group is a
 /// form `section`; the readout rows are `labeled`, so their labels align form-wide.
 pub(crate) fn system_page() -> AnyPiece {
@@ -113,7 +113,7 @@ fn sensors_section() -> impl Piece {
 /// One live sensor (docs/sensors.md): its readout on a line of its own, then its strip chart.
 ///
 /// Each section subscribes with `day_part_sensors::watch`, whose samples arrive on a background
-/// thread — so the value crosses to the UI through a `Setter`, the standard idiom (DESIGN §4.5).
+/// thread, so the value crosses to the UI through a `Setter`, the standard idiom (DESIGN §4.5).
 /// The subscription is tied to this page's scope: leaving the page drops the `Watch` handles and
 /// the platform stops sampling.
 ///
@@ -153,8 +153,8 @@ fn sensor_section(
 
     let available = day_part_sensors::is_available(kind);
     // The latest reading for the readout, and a rolling history for the chart: one stream, two
-    // views. The callbacks cross the RAW reading and nothing else: they run on the platform's
-    // sampling thread, where day-l10n's thread-local bundles are empty — formatting there
+    // views. The callbacks cross the raw reading and nothing else: they run on the platform's
+    // sampling thread, where day-l10n's thread-local bundles are empty; formatting there
     // resolved every reading to the ⟨sensor_reading⟩ miss marker. The label formats on the UI
     // side instead, which also re-renders readings in the new language on a live locale switch.
     let reading = Signal::new(None::<day_part_sensors::SensorReading>);
@@ -177,7 +177,7 @@ fn sensor_section(
             set.set(snapshot);
         }));
     }
-    // Holding the handles until the page goes away is what keeps the streams alive — and dropping
+    // Holding the handles until the page goes away is what keeps the streams alive, and dropping
     // them here is what stops the platform sampling when it doesn't.
     Scope::current().on_cleanup(move || drop(watches));
 
@@ -205,14 +205,14 @@ fn sensor_section(
     .title(title)
 }
 
-/// How many samples a strip chart keeps — at day-part-sensors' ~20 Hz, about six seconds.
+/// How many samples a strip chart keeps: at day-part-sensors' ~20 Hz, about six seconds.
 const CHART_SAMPLES: usize = 120;
 
 /// A live x/y/z strip chart: three polylines over a rolling window, newest on the right.
 ///
-/// Unlike `battery_view` below, this deliberately does NOT mirror under a right-to-left locale.
+/// Unlike `battery_view` below, this does not mirror under a right-to-left locale.
 /// A battery is a picture of an object and mirrors with the layout; a time series is a chart whose
-/// x axis IS time, and time reads left-to-right in a chart regardless of the reading direction of
+/// x axis is time, and time reads left-to-right in a chart regardless of the reading direction of
 /// the surrounding text.
 fn strip_chart(series: Signal<Vec<day_part_sensors::SensorReading>>) -> impl Piece {
     canvas(move |d, size| {
@@ -268,10 +268,9 @@ fn strip_chart(series: Signal<Vec<day_part_sensors::SensorReading>>) -> impl Pie
 
 /// A permission row: its live status, and a button that either asks or opens Settings.
 ///
-/// Worth being honest about what this demonstrates. Raw motion sensors need NO permission on iOS or
-/// Android (docs/sensors.md), so on most targets this reads `ungated / granted` and the button is
-/// hidden. The rows that really prompt are the web on iOS Safari, and HarmonyOS with its declared
-/// `ohos.permission.ACCELEROMETER`.
+/// Raw motion sensors need no permission on iOS or Android (docs/sensors.md), so on most targets
+/// this reads `ungated / granted` and the button is hidden. The rows that really prompt are the
+/// web on iOS Safari, and HarmonyOS with its declared `ohos.permission.ACCELEROMETER`.
 fn permission_row(
     title: day::LocalizedText,
     perm: day_part_permissions::Permission,
@@ -293,7 +292,7 @@ fn permission_row(
     // `can_prompt` decides which affordance to show: asking when the answer is already final would
     // do nothing, and Settings is the only remedy then.
     let can_prompt = perms::can_prompt(perm);
-    // Where the platform has no such gate at all, neither asking nor Settings can change anything —
+    // Where the platform has no such gate at all, neither asking nor Settings can change anything,
     // so offer no affordance rather than a button that does nothing.
     let gated = perms::gate(perm) != perms::Gate::Absent;
     let action_label = if can_prompt {
@@ -303,7 +302,7 @@ fn permission_row(
     };
     labeled(
         title,
-        // Status text plus a Request/Settings button outgrew a phone-portrait row — the
+        // Status text plus a Request/Settings button outgrew a phone-portrait row; the
         // button clipped at the panel's edge (docs/size-classes.md "Row fit policies").
         row((
             label(move || status.get()).id(id),
@@ -314,7 +313,8 @@ fn permission_row(
                         .bordered()
                         .action(move || {
                             if can_prompt {
-                                // The completion runs on an unspecified thread — a Setter crosses back.
+                                // The completion runs on an unspecified thread; a Setter
+                                // crosses back.
                                 let set = status.setter();
                                 perms::request(perm, move |s| {
                                     set.set(format!(
@@ -352,7 +352,7 @@ fn location_section() -> impl Piece {
     let altitude = Signal::new(crate::res::str::location_unknown().format());
     let accuracy = Signal::new(crate::res::str::location_unknown().format());
     let running = Signal::new(false);
-    // `Rc<RefCell<…>>` because the handle is created in a button action and dropped in another —
+    // `Rc<RefCell<…>>` because the handle is created in a button action and dropped in another,
     // both on the UI thread, so no lock is needed.
     let watch: std::rc::Rc<std::cell::RefCell<Option<day_part_location::Watch>>> =
         std::rc::Rc::new(std::cell::RefCell::new(None));
@@ -471,7 +471,7 @@ fn battery_view(level: Signal<f64>, charging: Signal<bool>) -> impl Piece {
         }
         // RTL (docs/localization): the layout engine mirrors widget *placement*, but a canvas draws
         // in its own coordinate space, so this custom drawing mirrors itself. Under a right-to-left
-        // locale (e.g. `ar`) the battery flips horizontally — terminal nub on the left, charge
+        // locale (e.g. `ar`) the battery flips horizontally: terminal nub on the left, charge
         // draining from the right. `mx` mirrors an x, `mrect` a rect; both are the identity in LTR.
         let rtl = is_rtl();
         let mx = |x: f64| if rtl { size.width - x } else { x };
@@ -517,7 +517,7 @@ fn battery_view(level: Signal<f64>, charging: Signal<bool>) -> impl Piece {
         d.stroke(Shape::RoundedRect(mrect(body), 12.0), outline, 3.0);
         d.fill(Shape::RoundedRect(mrect(nub), 3.0), outline);
 
-        // The charge fill, inset within the body and clipped to the level fraction — it grows from
+        // The charge fill, inset within the body and clipped to the level fraction. It grows from
         // the leading edge, so under RTL `mrect` makes it drain from the right.
         let well = body.inset(6.0);
         let fill_w = well.size.width * frac;

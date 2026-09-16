@@ -1,8 +1,8 @@
-//  PortParityTests.swift — the port is only useful if it is exact.
+//  PortParityTests.swift: the port is only useful if it is exact.
 //
 //  The Benchmark page hosts this package's view beside the Day-native implementation, so the two
 //  are only comparable if they lay out the same thing. These are the Rust tests from
-//  `src/pages/benchmark.rs` transliterated, PLUS the numbers those Rust tests pin.
+//  `src/pages/benchmark.rs` transliterated, plus the numbers those Rust tests pin.
 //  `pack(seed: 1, count: 48)` producing 10 rows here and 10 rows there is what makes the two tabs
 //  the same benchmark; if a transliteration slipped (a `&*` that should have been `*`, an
 //  off-by-one in the clamp), these fail rather than silently comparing two different pictures.
@@ -32,7 +32,7 @@ final class PortParityTests: XCTestCase {
         }
     }
 
-    /// `benchmark.rs`: `every_row_covers_exactly_twelve_columns` — the invariant the pane rests on.
+    /// `benchmark.rs`: `every_row_covers_exactly_twelve_columns`, the invariant the pane rests on.
     func testEveryRowCoversExactlyTwelveColumns() {
         for seed in [UInt32(0), 1, 42, 999] {
             for count in [1, 2, 7, 48, 120, 601, 2000] {
@@ -51,7 +51,7 @@ final class PortParityTests: XCTestCase {
     }
 
     /// `benchmark.rs`: `known_parameters_pack_to_known_row_counts`. These two numbers are the
-    /// contract between the two tabs — the Rust test asserts the same literals, and the
+    /// contract between the two tabs: the Rust test asserts the same literals, and the
     /// walkthrough asserts them against the live readout.
     func testKnownParametersPackToKnownRowCounts() {
         XCTAssertEqual(pack(seed: 1, count: 48).count, 10)

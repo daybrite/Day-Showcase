@@ -1,11 +1,11 @@
 //! Which demos this target can actually run (docs/coverage-matrix.md).
 //!
-//! Two rules, by granularity. A PAGE whose central feature the target cannot run is not in the
+//! Two rules, by granularity. A page whose central feature the target cannot run is not in the
 //! sidebar at all (lib.rs `destinations`): a target with no toolbar has nothing to show on a
-//! Toolbars page, and a screenshot of the excuse helps nobody. A SECTION inside a page that the
+//! Toolbars page, and a screenshot of the excuse helps nobody. A section inside a page that the
 //! target cannot run stays on screen and carries a banner instead
 //! ([`crate::widgets::support_note`]): a visitor comparing two platforms in the gallery should see
-//! the same page with an honest note, since a section that vanished would read as a bug in the
+//! the same page with a note, since a section that vanished would read as a bug in the
 //! showcase rather than as a fact about the platform.
 //!
 //! **Ask the runtime wherever it can answer.** `capability(...)` and a part's own `available()` /
@@ -43,7 +43,7 @@ pub(crate) fn notifications() -> Support {
 /// Crash reporting (day-break, docs/break.md).
 ///
 /// Declared: the crash handlers are signal/exception hooks with no capability to query, and the
-/// web build has no equivalent at all — a wasm trap ends the page, and there is nothing to catch
+/// web build has no equivalent at all: a wasm trap ends the page, and there is nothing to catch
 /// it with or anywhere to persist a report to for the next launch.
 pub(crate) fn crash_reporting() -> Support {
     unsupported_on(&["DOM"])
@@ -52,7 +52,7 @@ pub(crate) fn crash_reporting() -> Support {
 /// The device battery (docs/battery.md).
 ///
 /// Declared rather than read from `status()`, which answers `None` both for "this platform has no
-/// battery API" and for "this machine has no battery" — a desktop tower would otherwise wear a
+/// battery API" and for "this machine has no battery"; a desktop tower would otherwise wear a
 /// banner saying Day does not support batteries.
 pub(crate) fn battery() -> Support {
     unsupported_on(&["DOM"])

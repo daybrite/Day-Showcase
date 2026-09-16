@@ -3,8 +3,8 @@ use day_tweak_tree_style::{TreeStyle, TreeStyleTweak};
 
 use crate::widgets::heading;
 
-/// A hierarchical tree over app-owned rows (docs/tree.md): a mock project — folders, files,
-/// a nested folder — small enough to read, deep enough to exercise the API. The page drives
+/// A hierarchical tree over app-owned rows (docs/tree.md): a mock project (folders, files,
+/// a nested folder) small enough to read, deep enough to exercise the API. The page drives
 /// every portable option from real controls: an app-owned expansion set (Expand/Collapse
 /// All), two-way selection with a live readout, `reveal` (expands ancestors and scrolls),
 /// drag-to-reparent through `movable` + `on_move` with a `move_guard` the Lock toggle arms
@@ -12,7 +12,7 @@ use crate::widgets::heading;
 /// row's context menu too), per-row context menus built at summon time, native type-ahead,
 /// and a multi-select toggle that rebuilds the tree with the other flag.
 ///
-/// The rows are a plain `Vec` behind one signal — `branches(items, key, parent)` derives the
+/// The rows are a plain `Vec` behind one signal; `branches(items, key, parent)` derives the
 /// hierarchy from the parent keys, and sibling order is the Vec's order, which is what the
 /// context menu's Move Up/Down and a committed drag rotate.
 #[derive(Clone)]
@@ -52,7 +52,7 @@ fn seed() -> Vec<FileNode> {
 }
 
 /// Move `id` under `new_parent` at sibling position `index` (`None` = append): the exact
-/// contract `on_move` hands the app (docs/tree.md "Moving nodes"). Sibling order IS the
+/// contract `on_move` hands the app (docs/tree.md "Moving nodes"). Sibling order is the
 /// Vec's relative order, so the rotation is: take the node out, then insert it back where
 /// the target slot falls.
 fn apply_move(v: &mut Vec<FileNode>, id: u32, new_parent: Option<u32>, index: Option<usize>) {
@@ -84,7 +84,7 @@ fn apply_move(v: &mut Vec<FileNode>, id: u32, new_parent: Option<u32>, index: Op
     v.insert(at.min(v.len()), node);
 }
 
-/// Swap `id` with its previous/next SIBLING (same parent) in the Vec — the context menu's
+/// Swap `id` with its previous/next sibling (same parent) in the Vec: the context menu's
 /// Move Up/Down, which is what rearranges rows on the platforms without native tree drag.
 fn nudge(v: &mut [FileNode], id: u32, up: bool) {
     let Some(i) = v.iter().position(|n| n.id == id) else {
@@ -104,7 +104,7 @@ fn nudge(v: &mut [FileNode], id: u32, up: bool) {
     }
 }
 
-/// `id` and every descendant, gone — the context menu's Delete.
+/// `id` and every descendant, gone: the context menu's Delete.
 fn remove_subtree(v: &mut Vec<FileNode>, id: u32) {
     let mut doomed = vec![id];
     let mut i = 0;
@@ -119,7 +119,7 @@ fn remove_subtree(v: &mut Vec<FileNode>, id: u32) {
 pub(crate) fn tree_page() -> AnyPiece {
     let nodes: Signal<Vec<FileNode>> = Signal::new(seed());
     // The app-owned expansion set (docs/tree.md "Expansion"): src/ starts open, docs/ and
-    // pages/ closed — so both disclosure directions are one click (and one assert) away.
+    // pages/ closed, so both disclosure directions are one click (and one assert) away.
     let open: Signal<std::collections::HashSet<u32>> =
         Signal::new(std::collections::HashSet::from([1]));
     let selection: Signal<Vec<u32>> = Signal::new(Vec::new());
@@ -140,7 +140,7 @@ pub(crate) fn tree_page() -> AnyPiece {
     };
 
     let add_into = move || {
-        // Into the first SELECTED folder, else the root — and open the folder so the new
+        // Into the first selected folder, else the root, and open the folder so the new
         // row is visible immediately.
         let parent = selection
             .get_untracked()
@@ -165,7 +165,7 @@ pub(crate) fn tree_page() -> AnyPiece {
         selection.set(vec![id]);
     };
 
-    // One builder for both multi-select arms: the flag is a BUILD-TIME option, so the
+    // One builder for both multi-select arms: the flag is a build-time option, so the
     // toggle rebuilds the tree (a `when` swap) rather than patching it.
     let build_tree = move |multi_on: bool| {
         tree(
@@ -205,7 +205,7 @@ pub(crate) fn tree_page() -> AnyPiece {
             last_move.set(Some((id, parent, index)));
         })
         // The structural refusals (into itself, into a descendant, into a leaf) are built
-        // in; this is the APP's rule: docs/ takes no drops while the lock is on — macOS
+        // in; this is the app's rule: docs/ takes no drops while the lock is on; macOS
         // shows the native no-drop cursor live from this verdict.
         .move_guard(
             move |_id: &u32, parent: Option<&u32>, _index: Option<usize>| {
@@ -219,8 +219,9 @@ pub(crate) fn tree_page() -> AnyPiece {
         .type_ahead(move |id: &u32| name_of(*id))
         .reveal(reveal)
         .row_id(|id: &u32| format!("tree-node-{id}"))
-        // Built at SUMMON time (docs/menus.md "Dynamic context menus"), so the items match
-        // the row under the pointer — and a summon outside the selection selects it first.
+        // Built when the menu is summoned (docs/menus.md "Dynamic context menus"), so the
+        // items match the row under the pointer, and a summon outside the selection selects
+        // it first.
         .row_context_menu(move |id: &u32| {
             let id = *id;
             if !selection.get_untracked().contains(&id) {
@@ -281,12 +282,12 @@ pub(crate) fn tree_page() -> AnyPiece {
             );
             entries
         })
-        // `.id` chains on the TREE itself — the driver `expand:`/`tree_move:` address lives
+        // `.id` chains on the tree itself: the driver `expand:`/`tree_move:` address lives
         // on its node, and a decorator like `.height` wraps a new one (memory: .id before
         // wrapper decorators).
         .id("demo-tree")
-        // day-tweak-tree-style: the sidebar treatment — clear backgrounds over the pane on
-        // macOS, Adwaita's navigation-sidebar class on GTK — and a no-op on the toolkits
+        // day-tweak-tree-style: the sidebar treatment (clear backgrounds over the pane on
+        // macOS, Adwaita's navigation-sidebar class on GTK) and a no-op on the toolkits
         // whose trees are composed from day pieces (docs/tweaks.md).
         .tree_style(TreeStyle::sidebar())
         .height(340.0)
@@ -322,7 +323,7 @@ pub(crate) fn tree_page() -> AnyPiece {
                 button(crate::res::str::tree_reveal())
                     .bordered()
                     // Two collapsed ancestors sit above the target: reveal expands them through
-                    // the SAME app-owned signal the chevrons write, then scrolls.
+                    // the same app-owned signal the chevrons write, then scrolls.
                     .action(move || reveal.set(Some(REVEAL_TARGET)))
                     .id("tree-reveal"),
             ))

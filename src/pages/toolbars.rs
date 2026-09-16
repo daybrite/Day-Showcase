@@ -1,9 +1,9 @@
-//! Window toolbars (docs/toolbars.md). The demonstration is the MAIN WINDOW'S OWN toolbar —
+//! Window toolbars (docs/toolbars.md). The demonstration is the main window's toolbar, because
 //! a toolbar is window chrome, so there is nowhere on a page to put one. This page installs
 //! that bar, shows what each item is doing live, and drives the whole API from the content:
 //! add and remove an item, enable and disable one, and read the two-way bindings.
 //!
-//! Where the toolkit has no toolbar (`Cap::Toolbar` is `Unsupported` — the phones, the web)
+//! Where the toolkit has no toolbar (`Cap::Toolbar` is `Unsupported`: the phones, the web)
 //! nothing installs, and the page says so rather than drawing an imitation.
 
 use day::prelude::*;
@@ -19,9 +19,9 @@ pub(crate) struct ToolbarDemo {
     star_switch: Signal<bool>,
     /// How many times a plain toolbar button has been pressed.
     presses: Signal<i64>,
-    /// Whether the optional item is in the bar — the add/remove demonstration.
+    /// Whether the optional item is in the bar: the add/remove demonstration.
     extra: Signal<bool>,
-    /// Whether the disable-able item (Show Source) is enabled — the targeted-patch demo.
+    /// Whether the disable-able item (Show Source) is enabled: the targeted-patch demo.
     source_enabled: Signal<bool>,
     /// The last thing the toolbar did, in words.
     last: Signal<String>,
@@ -30,9 +30,9 @@ pub(crate) struct ToolbarDemo {
     theme: Signal<usize>,
 }
 
-/// The appearance chooser: ONE native segmented control, not three toggles (docs/toolbars.md).
+/// The appearance chooser: One native segmented control, not three toggles (docs/toolbars.md).
 ///
-/// Exactly one mode is in force, so this is what a segmented control is for — the platform draws
+/// Exactly one mode is in force, so this is what a segmented control is for: the platform draws
 /// the three as one grouped control, announces them as one radio group, and keeps the exclusivity
 /// itself. The sun/auto/moon glyphs are the standard symbols, so each desktop draws its own.
 fn appearance_item(mode: Signal<usize>) -> ToolbarEntry {
@@ -49,7 +49,7 @@ fn appearance_item(mode: Signal<usize>) -> ToolbarEntry {
     .action(move || {
         // The control has already written the chosen index into `mode`; turn it into the app's
         // setting. The mirroring effect in `install` writes the index back, which is a no-op when
-        // it agrees — and the backends suppress their own programmatic echo, so it stays one hop.
+        // it agrees, and the backends suppress their own programmatic echo, so it stays one hop.
         crate::commands::set_appearance(crate::commands::Appearance::from_index(
             mode.get_untracked(),
         ));
@@ -76,7 +76,7 @@ impl Ambient for ToolbarDemo {
     }
 }
 
-/// The toolbar demo's own controls — PER WINDOW (docs/state.md), like the toolbar they drive.
+/// The toolbar demo's controls, per window (docs/state.md), like the toolbar they drive.
 fn state() -> ToolbarDemo {
     ToolbarDemo::try_ambient()
         .or_else(ToolbarDemo::focused)
@@ -109,21 +109,21 @@ pub(crate) fn window_items() -> impl Fn() -> Vec<ToolbarEntry> + 'static {
             }
         },
     );
-    // The appearance group: the SETTING is the truth (commands.rs), and the control follows it.
+    // The appearance group: the control follows the setting (commands.rs).
     // So a mode chosen from the App menu presses the right button here, and pressing the mode
     // already on writes the same value back rather than turning the group off.
     Effect::new(move || s.theme.set(crate::commands::appearance().index()));
 
     // The window's own commands: New Window, and the appearance picker. Both act on the app
     // rather than on any one page, so they are declared where the window is
-    // (docs/toolbars.md) — the sidebar host's chrome, which is the sidebar column on a desktop
+    // (docs/toolbars.md): the sidebar host's chrome, which is the sidebar column on a desktop
     // and the root list's bar when that collapses.
     //
     // Reactive, because the builder reads `extra`: ticking that switch adds or removes the item,
     // and the add/remove API is just a different list. It also re-lowers on a language change,
     // which is why the labels are `res::str` calls rather than captured Strings.
     //
-    // The sidebar toggle is NOT here. A `nav(Sidebar)` draws the platform's own, so the app
+    // The sidebar toggle is not here. A `nav(Sidebar)` draws the platform's own, so the app
     // declares nothing for it.
     move || {
         let mut items = vec![
@@ -143,7 +143,7 @@ pub(crate) fn window_items() -> impl Fn() -> Vec<ToolbarEntry> + 'static {
         if s.extra.get() {
             // The add/remove demonstration, and a real command: saving a picture of the window
             // straight to the app's scripts-adjacent container is overkill, so this one copies
-            // the running toolkit's name — the thing a bug report always wants and nothing else
+            // the running toolkit's name, the thing a bug report always wants and nothing else
             // in the app puts on the clipboard.
             items.push(
                 toolbar_button("tb-extra", crate::res::str::toolbar_extra())
@@ -161,14 +161,14 @@ pub(crate) fn window_items() -> impl Fn() -> Vec<ToolbarEntry> + 'static {
                     }),
             );
         }
-        // The search field is NOT declared here. It belongs to the sidebar it filters
+        // The search field is not declared here. It belongs to the sidebar it filters
         // (`crate::showcase_nav`'s `.searchable(query)`, docs/search.md), and day places it
-        // itself — trailing, after everything above.
+        // itself: trailing, after everything above.
         items
     }
 }
 
-/// The three commands that act on THE PAGE THAT IS SHOWING, declared on the page itself so they
+/// The three commands that act on the page that is showing, declared on the page itself so they
 /// arrive and leave with it (docs/toolbars.md).
 ///
 /// Each takes the section directly, which is what makes this the whole of their wiring: before
@@ -176,15 +176,15 @@ pub(crate) fn window_items() -> impl Fn() -> Vec<ToolbarEntry> + 'static {
 /// and the star had to mirror its state into a signal the bar could read.
 pub(crate) fn page_commands(sec: crate::Section) -> Vec<ToolbarEntry> {
     let starred = Signal::new(crate::commands::is_starred(sec));
-    // The button follows the starred SET, which the row context menu and the App menu also
-    // write — one truth, three surfaces.
+    // The button follows the starred set, which the row context menu and the App menu also
+    // write: one state, three surfaces.
     Effect::new(move || starred.set(crate::commands::is_starred(sec)));
     // The one item the Toolbars page can disable, so the targeted-patch demo has a subject:
     // only this item changes, and a search in progress is undisturbed.
     let demo = state();
     vec![
         // "Show Source": open this page's source on GitHub. The standard symbol, which every
-        // toolkit draws from its own set — SF Symbols on Apple, Day's Material glyphs on Android.
+        // toolkit draws from its own set: SF Symbols on Apple, Day's Material glyphs on Android.
         toolbar_button("tb-source", crate::res::str::show_source())
             .icon(Symbol::Code)
             .tooltip(crate::res::str::show_source())
@@ -196,9 +196,9 @@ pub(crate) fn page_commands(sec: crate::Section) -> Vec<ToolbarEntry> {
         toolbar_toggle("tb-star", (crate::commands::star().title)(), starred)
             .image(crate::res::vectors::star.clone())
             .action(move || {
-                // Honour the state the toggle was moved TO, rather than flipping blindly.
+                // Honor the state the toggle was moved to, rather than flipping blindly.
                 // `toolbar_toggle` writes the requested value into the bound signal before
-                // running this, so that signal IS the intent — and a toggle asked to turn ON
+                // running this, so that signal is the intent, and a toggle asked to turn on
                 // while the page is already starred must be a no-op, not an unstar.
                 if starred.get_untracked() != crate::commands::is_starred(sec) {
                     crate::commands::toggle_star(sec);
@@ -222,7 +222,7 @@ pub(crate) fn toolbars_page() -> AnyPiece {
     .any()
 }
 
-/// What the bar is doing right now — the two-way bindings, read from the page.
+/// What the bar is doing right now: the two-way bindings, read from the page.
 fn readout_section() -> impl Piece {
     let s = state();
     section((
@@ -249,7 +249,7 @@ fn readout_section() -> impl Piece {
         ),
         labeled(
             crate::res::str::toolbar_star_label(),
-            // Read from the COMMAND, not from a mirror signal: the star button now belongs to
+            // Read from the command, not from a mirror signal: the star button now belongs to
             // the page it acts on, so there is no window-level copy of its state to read.
             label(move || {
                 if (crate::commands::star().checked)() {
@@ -260,7 +260,7 @@ fn readout_section() -> impl Piece {
             })
             .id("toolbar-star-state"),
         ),
-        // The appearance group's setting, and whether this toolkit acts on it — the three buttons
+        // The appearance group's setting, and whether this toolkit acts on it; the three buttons
         // lower disabled where it does not, and this says why.
         labeled(
             crate::res::str::toolbar_appearance_label(),

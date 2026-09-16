@@ -102,7 +102,7 @@ picker_segmented = Segmented
 picker_menu = Menu
 picker_inline = Inline
 
-# — day-piece-datetime —
+# --- day-piece-datetime ---
 nav_dates = Date & time
 dates_date_section = Date
 dates_time_section = Time
@@ -268,7 +268,8 @@ media_play = Play
 media_pause = Pause
 media_load = Load
 
-# — Localization page (docs/localization.md: live locale, NUMBER/DATETIME, plurals, collation) —
+# --- Localization page (docs/localization.md: live locale, NUMBER/DATETIME, plurals,
+#     collation) ---
 nav_localization = Localization
 loc_locale_section = Live locale
 loc_live_note = The locale is a signal — switching re-renders every string instantly. Layout direction is fixed at launch (launch with ar for the mirrored UI).
@@ -396,7 +397,7 @@ map_caption = A native MKMapView — Apple platforms only. Tap a preset to recen
 map_boston = Boston
 map_paris = Paris
 
-# — tweaks page (docs/tweaks.md) —
+# --- tweaks page (docs/tweaks.md) ---
 nav_tweaks = Tweaks
 tweaks_stock = Stock
 tweaks_tweaked = Tweaked
@@ -420,7 +421,7 @@ tweaks_label_caption = An inline tweak (AppKit, UIKit) dims this label through i
 tweaks_label_sample = This label is dimmed by a native tweak.
 tweaks_label_class = Native class: { $class }
 
-# — merged section pages (design overhaul) —
+# --- merged section pages (design overhaul) ---
 nav_canvas = Canvas & shapes
 nav_system = Device & sensors
 nav_network_http = Network & HTTP
@@ -449,7 +450,7 @@ canvas_image_loading = Decoding…
 canvas_image_failed = Those bytes are not an image this platform decodes
 canvas_image_readout = { $format } · { $width } × { $height } px
 
-# — data strings localized for the walkthrough locales (option lists, specimen rows) —
+# --- data strings localized for the walkthrough locales (option lists, specimen rows) ---
 chocolate = chocolate
 size_small = Small
 size_medium = Medium
@@ -538,7 +539,7 @@ focus_probe_toggle = Toggle
 focus_probe_slider = Slider
 focus_probe_button = Button
 
-# HTTP fetch demo (docs/http.md) — the status readout stays raw "<status> <body>" so the
+# HTTP fetch demo (docs/http.md): the status readout stays raw "<status> <body>" so the
 # walkthrough asserts it byte-for-byte in every locale.
 http_title = HTTP
 http_caption = The day-part-http part fetches through the platform's own HTTP stack — its proxies, VPN, and TLS.
@@ -605,12 +606,12 @@ identity_with = Connect with a certificate
 network_needs_server = These demonstrations talk to a test server inside the app, which a web page cannot run.
 network_needs_internet = These demonstrations visit badssl.com and example.com, so they need an internet connection.
 
-# Scrolling page (docs/scroll.md) — programmatic scroll targets.
+# Scrolling page (docs/scroll.md): programmatic scroll targets.
 scroll_to_top = Scroll to top
 scroll_to_bottom = Scroll to bottom
 scroll_to_item = Scroll to item 100
 
-# Grid page (docs/grid.md) — grid/grid_row from basics to a stress test.
+# Grid page (docs/grid.md): grid/grid_row from basics to a stress test.
 nav_grid = Grid
 grid_tab_basics = Basics
 grid_tab_sizing = Sizing
@@ -651,8 +652,8 @@ anim_curve_ease_out = Ease-out
 anim_curve_linear = Linear
 anim_duration_ms = { $ms } ms
 
-# — Benchmark page (the Day-Bench Grids benchmark; on the Apple-native backends a segmented
-#   picker also hosts its hand-written SwiftUI twin via day-piece-swiftui, docs/swiftui.md) —
+# --- Benchmark page (the Day-Bench Grids benchmark; on the Apple-native backends a segmented
+#     picker also hosts its hand-written SwiftUI twin via day-piece-swiftui, docs/swiftui.md) ---
 nav_benchmark = Benchmark
 bench_parameters = Parameters
 bench_seed = Random Seed
@@ -661,8 +662,9 @@ bench_rows = { $rows } { $rows ->
     [one] row
    *[other] rows
 }
-# %d templates for the hosted SwiftUI pane, whose row count lives in Swift @State (one/other only —
-# the same fidelity for every locale, since printf templates cannot carry Fluent's plural rules).
+# %d templates for the hosted SwiftUI pane, whose row count lives in Swift @State (one/other
+# only, the same fidelity for every locale, since printf templates cannot carry Fluent's plural
+# rules).
 bench_rows_one = %d row
 bench_rows_other = %d rows
 bench_tab_day = Day Native
@@ -810,7 +812,7 @@ storage_idle = Nothing stored yet
 # --- Preferences window (docs/windows.md) ---
 prefs_window_title = Preferences
 
-# — Tree page (docs/tree.md) —
+# --- Tree page (docs/tree.md) ---
 nav_tree = Tree
 tree_caption = A hierarchical outline over app-owned rows: expansion, selection, reveal, drag-to-move, and per-row context menus.
 tree_expand_all = Expand All
@@ -839,13 +841,13 @@ tree_ctx_move_up = Move Up
 tree_ctx_move_down = Move Down
 tree_ctx_delete = Delete
 
-# — Toolbars page (docs/toolbars.md) —
+# --- Toolbars page (docs/toolbars.md) ---
 nav_toolbars = Toolbars
 toolbar_unsupported = This toolkit has no window toolbar, so nothing was installed. A phone puts these commands in the content instead.
 toolbar_readout_title = What the toolbar is doing
 toolbar_controls_title = Driving it from here
 toolbar_vocabulary_title = The item vocabulary
-# Item labels — these appear IN the toolbar, so they stay short.
+# Item labels: these appear in the toolbar, so they stay short.
 toolbar_new = New Window
 toolbar_menu_open_scripting = Open the Scripting page
 toolbar_menu_copy_script = Copy the script
@@ -933,7 +935,7 @@ haptics_song_levelup = Level up
 haptics_song_heartbeat = Heartbeat
 haptics_song_cascade = Cascade
 
-# — scripting (dayscript recorder) —
+# --- scripting (dayscript recorder) ---
 nav_scripting = Scripting
 scripting_record = Record
 scripting_stop = Stop
@@ -1004,7 +1006,7 @@ cmd_star = Star
 cmd_unstar = Unstar
 cmd_toggle_pseudo_locale = Toggle Pseudo-Locale
 
-# Speech (day-part-speech): the daybridge reference part — one API, a different language per
+# Speech (day-part-speech): the daybridge reference part. One API, a different language per
 # platform (docs/bridge.md).
 speech_title = Text to speech
 speech_caption = One Rust API; the platform's own voice underneath — Swift on Apple, Java on Android, ArkTS on HarmonyOS, JavaScript on the web, C++ on Windows.
@@ -1038,15 +1040,15 @@ layout_count_label = Components
 layout_item = Item { $n }
 layout_item_wide = Item { $n } (wider)
 
-# The Resources page's Weight picker reuses the Text page's weight names (text_weight_*) —
-# same three words, same meaning — so only the notes below are new here.
+# The Resources page's Weight picker reuses the Text page's weight names (text_weight_*),
+# same three words, same meaning, so only the notes below are new here.
 vectors_alias_note = A plain SVG asked for Bold: it has no weight axis, so the alias resolves back to the base glyph rather than drawing nothing.
 # The two color wells beside Cycle (docs/colorpicker.md).
 vectors_pick_tint = Pick a tint
 vectors_tint_idioms = Two color wells, one bound color: the first opens the platform's own chooser, the second opens the panel Day draws itself — the same picker on every target.
 
 # The Content List page (src/pages/content_list): the `day new` scaffold's own item list and
-# editor, so the keys below are the scaffold's, verbatim — the copied code reads them by name.
+# editor, so the keys below are the scaffold's, verbatim; the copied code reads them by name.
 nav_content_list = Content list
 nav_navigate = Navigate
 cmd_add = New Item

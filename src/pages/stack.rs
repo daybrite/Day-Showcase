@@ -4,7 +4,7 @@ use day::prelude::*;
 
 /// The stack's typed destinations (docs/navigation.md): a data-carrying [`Route`].
 /// `Depth(n)` ↔ `"n"` and `Item { id }` ↔ `"item-<id>"`, so the wire route
-/// `stack/item-42?hint=linked` parses back into `Item { id: 42 }` — the destination builder
+/// `stack/item-42?hint=linked` parses back into `Item { id: 42 }`; the destination builder
 /// matches on the typed value instead of string-splitting keys.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 enum Drill {
@@ -27,7 +27,7 @@ impl Route for Drill {
     }
 }
 
-/// Genuine push/pop navigation (docs/navigation.md): `stack` bound to a `Signal<Vec<Drill>>`
+/// Push/pop navigation (docs/navigation.md): `stack` bound to a `Signal<Vec<Drill>>`
 /// path. Pushing a detail appends a typed value to the path; Day reconciles the native
 /// UINavigationController / AdwNavigationView / back-stack; the native back button writes the
 /// pop back into the path.
@@ -44,9 +44,9 @@ pub(crate) fn stack_page() -> AnyPiece {
     // native back gesture/button routes through this guard on every backend.
     let dirty = Signal::new(false);
     // Fullscreen cover (docs/cover.md): fullScreenCover-shaped, a projection of an app-owned
-    // Option signal — native modal on iOS/Android, a topmost full-window child elsewhere.
-    // The key is a UNIT route matching only "cover": a cover is also a route surface, and a
-    // String key would claim EVERY segment routed while this page is current (docs/cover.md).
+    // Option signal: native modal on iOS/Android, a topmost full-window child elsewhere.
+    // The key is a unit route matching only "cover": a cover is also a route surface, and a
+    // String key would claim every segment routed while this page is current (docs/cover.md).
     #[derive(Clone, Copy, PartialEq, Eq, Debug)]
     struct CoverKey;
     impl Route for CoverKey {
@@ -67,7 +67,7 @@ pub(crate) fn stack_page() -> AnyPiece {
                 .action(move || push(path))
                 .tint(crate::widgets::primary())
                 .id("stack-push"),
-            // An ABSOLUTE route with query params (docs/navigation.md), built typed: it anchors
+            // An absolute route with query params (docs/navigation.md), built typed: it anchors
             // the enclosing nav at Section::Stack, resets this stack, pushes Item { id: 42 };
             // the destination builder reads the ?hint= param via route_param().
             nav_link_to(
@@ -103,12 +103,12 @@ pub(crate) fn stack_page() -> AnyPiece {
     );
     nav_stack(path, root)
         .destination(move |d: &Drill| {
-            // The typed value arrives parsed — match, don't split strings.
+            // The typed value arrives parsed: match, don't split strings.
             let (title, depth) = match d {
                 Drill::Depth(n) => (crate::res::str::stack_detail_title(n.to_string()), *n),
                 Drill::Item { id } => (crate::res::str::stack_item_title(id.to_string()), 1),
             };
-            // Params travel with navigate() — a push performed by writing the path signal
+            // Params travel with navigate(): a push performed by writing the path signal
             // carries its data in the route value itself (docs/navigation.md). The hint row
             // exists only when the param does, so paramless pushes get no phantom gap.
             let mut parts: Vec<AnyPiece> = vec![
@@ -167,7 +167,7 @@ pub(crate) fn stack_page() -> AnyPiece {
         .any()
 }
 
-/// The page's motif: three offset cards, drawn as one canvas leaf — a stack you can see.
+/// The page's motif: three offset cards, drawn as one canvas leaf, a stack you can see.
 fn stack_glyph() -> impl Piece {
     shape_group([
         rounded_rectangle(8.0).fill(SKY).at(0.16, 0.0, 0.68, 0.42),
@@ -179,7 +179,7 @@ fn stack_glyph() -> impl Piece {
     .frame(84.0, 60.0)
 }
 
-/// The path so far, one numbered dot per level in the sunrise ramp's order — each push adds
+/// The path so far, one numbered dot per level in the sunrise ramp's order; each push adds
 /// a dot, each pop removes one, mirroring the `Vec<Drill>` behind the native stack.
 fn depth_dots(depth: u32) -> impl Piece {
     let dots: Vec<AnyPiece> = (1..=depth)

@@ -1,5 +1,5 @@
 //! The Preferences window (docs/windows.md): the app-wide appearance + language settings,
-//! persisted under `showcase.*` prefs keys and applied live everywhere — every open
+//! persisted under `showcase.*` prefs keys and applied live everywhere: every open
 //! window recolors on a theme change and re-strings on a language change. Opened via the
 //! auto Settings…/⌘, menu item (`day::register_preferences_with` in `root()`); on
 //! backends without secondary windows the same content presents as a fullscreen cover.

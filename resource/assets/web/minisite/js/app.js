@@ -1,4 +1,4 @@
-// Day mini site — loaded through a relative <script src>, proving bundled JS runs.
+// Day mini site: loaded through a relative <script src>, proving bundled JS runs.
 (function () {
   var clicks = 0;
   var btn = document.getElementById("count");

@@ -3,9 +3,9 @@ use day::prelude::*;
 use crate::widgets::page;
 
 /// Localization playground (docs/localization.md): the locale is a live Signal, and one set of
-/// Fluent translations renders ICU-correctly per locale — number formatting (grouping, digit
-/// systems), date/time formatting (CLDR patterns via `DATETIME()`), CLDR plural categories, and
-/// collation-aware sorting (zh = pinyin). Stable ids for the walkthrough (§14); the key-based
+/// Fluent translations renders ICU-correctly per locale, covering number formatting (grouping,
+/// digit systems), date/time formatting (CLDR patterns via `DATETIME()`), CLDR plural categories,
+/// and collation-aware sorting (zh = pinyin). Stable ids for the walkthrough (§14); the key-based
 /// asserts resolve through the same bundles as the labels, so they are locale-correct by
 /// construction.
 pub(crate) fn localization_page() -> AnyPiece {
@@ -25,7 +25,7 @@ pub(crate) fn localization_page() -> AnyPiece {
 }
 
 /// The live-locale demo: switching re-runs every `tr()`/`res::str` binding on the spot. Button
-/// labels are the languages' own names (autonyms — deliberately not localized). Reset restores
+/// labels are the languages' own names (autonyms, not localized). Reset restores
 /// the locale the run started in, so the walkthrough (and the rest of the app) continues in the
 /// launch locale after the demo.
 fn locale_section() -> impl Piece {
@@ -52,7 +52,7 @@ fn locale_section() -> impl Piece {
         .fit(RowFit::Wrap { run_spacing: 8.0 }),
         labeled(
             crate::res::str::loc_current_label(),
-            // The raw locale tag — a locale-independent value the walkthrough asserts literally.
+            // The raw locale tag, a locale-independent value the walkthrough asserts literally.
             label(move || day::locale().get()).id("loc-current"),
         ),
         row((
@@ -60,7 +60,7 @@ fn locale_section() -> impl Piece {
                 .action(move || set_locale(&initial))
                 .tint(crate::widgets::primary())
                 .id("locale-reset"),
-            // `en-XA` accents + expands every string — the layout stress-test pseudolocale.
+            // `en-XA`, the layout stress-test pseudolocale, accents + expands every string.
             button("Ⓔⓝ-ⓍⒶ")
                 .action(|| set_locale("en-XA"))
                 .id("locale-xa"),
@@ -70,7 +70,7 @@ fn locale_section() -> impl Piece {
     .title(crate::res::str::loc_locale_section())
 }
 
-/// `NUMBER()` and the bundle-wide formatter: the SAME translation renders `1,234,567.891` in en,
+/// `NUMBER()` and the bundle-wide formatter: the same translation renders `1,234,567.891` in en,
 /// `1.234.567,891` in de-style locales, narrow-NBSP groups in fr, Arabic-Indic digits where CLDR
 /// says so.
 fn numbers_section() -> impl Piece {
@@ -112,7 +112,7 @@ fn datetimes_section() -> impl Piece {
 }
 
 /// CLDR plural categories, live: Arabic exercises zero/one/two/few/many; French counts 0 as
-/// "one"; Chinese has no plural at all — the same key, the right grammar everywhere.
+/// "one"; Chinese has no plural at all. The same key produces the right grammar everywhere.
 fn plurals_section() -> impl Piece {
     let count = Signal::new(0i64);
     section((row((

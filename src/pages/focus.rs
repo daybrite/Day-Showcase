@@ -4,7 +4,7 @@ use crate::widgets::page;
 
 /// Keyboard focus as app state (docs/focus.md): one optional enum signal steering a whole form,
 /// a plain Bool binding on a single field, and focus on non-text controls where the platform
-/// allows it — each permutation in its own section with a live readout.
+/// allows it, each permutation in its own section with a live readout.
 pub(crate) fn focus_page() -> AnyPiece {
     page(
         crate::res::str::nav_focus(),
@@ -45,7 +45,7 @@ impl Field {
 
 /// One `Signal<Option<Field>>` steering three fields: clicking or tabbing writes it, the
 /// buttons write it back, and Return chains to the next field via `on_submit`. The "next"
-/// button cycles from the last field the signal named — not from the live value, which a
+/// button cycles from the last field the signal named, not from the live value, which a
 /// click-to-focus toolkit clears the moment the button itself is clicked.
 fn group_section() -> impl Piece {
     let focus = Signal::new(None::<Field>);

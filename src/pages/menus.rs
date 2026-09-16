@@ -2,22 +2,22 @@ use day::prelude::*;
 
 use crate::widgets::page;
 
-/// The last menu action fired — shared between the app menu and this page, so both demonstrate
-/// action dispatch. App-wide (docs/state.md): it records what the app's ONE menu bar did.
+/// The last menu action fired, shared between the app menu and this page, so both demonstrate
+/// action dispatch. App-wide (docs/state.md): it records what the app's one menu bar did.
 #[derive(Clone, Copy)]
 struct MenuLog(Signal<String>);
 
 impl Ambient for MenuLog {
     fn create() -> Self {
         // An em dash, not an empty string: the readout is a label, and an empty one has no
-        // frame at all — which is a walkthrough failure rather than a blank line.
+        // frame at all, which is a walkthrough failure rather than a blank line.
         MenuLog(Signal::new("—".into()))
     }
 }
 
 fn menu_log() -> Signal<String> {
     // App-scoped, not page-scoped: the readout and the app menu both reach it, and a
-    // scope-owned signal would die with whichever page created it — which is what wedged the
+    // scope-owned signal would die with whichever page created it, which is what wedged the
     // walkthrough's second and subsequent variants.
     MenuLog::app().0
 }
@@ -25,7 +25,7 @@ fn menu_log() -> Signal<String> {
 /// The application menu bar (native NSMenu / GtkPopoverMenuBar / QMenuBar; app-bar overflow on Android;
 /// UIMenuBuilder on iPadOS). Custom items carry keyboard shortcuts and update the shared `menu_log`;
 /// the Edit menu uses standard roles so Cut/Copy/Paste target the focused control natively.
-/// Installed REACTIVELY (docs/menus.md): the builder's localized reads re-run on a runtime
+/// Installed reactively (docs/menus.md): the builder's localized reads re-run on a runtime
 /// language change (the Preferences window's language picker), rebuilding the whole bar in
 /// the new language.
 pub(crate) fn install_app_menu() {
@@ -35,9 +35,9 @@ pub(crate) fn install_app_menu() {
 fn build_app_menu() -> Vec<MenuEntry> {
     let log = |what: String| move || menu_log().set(what.clone());
     // Localized menu names, resolved per install (the reactive builder re-resolves them on a
-    // locale change). The MENU_LOG readout composes from the SAME strings so it always
+    // locale change). The `menu_log` readout composes from the same strings so it always
     // matches the visible menus; `menu_role` items are localized by the OS itself.
-    // `report.pdf`/`budget.xlsx` are fixture FILENAMES (data, not prose) and stay raw.
+    // `report.pdf`/`budget.xlsx` are fixture file names (data, not prose) and stay raw.
     let file = crate::res::str::menu_file().format();
     let open = crate::res::str::menu_open().format();
     let recent = crate::res::str::menu_open_recent().format();
@@ -50,7 +50,7 @@ fn build_app_menu() -> Vec<MenuEntry> {
     vec![
         // `.bar_role(...)` claims the platform's standard slot for this menu, which is what puts
         // File/Edit/View in the platform's own order and stops the backend adding its stock copy
-        // beside them. The TAG, not the title, identifies the slot: day's catalog and this app's
+        // beside them. The tag, not the title, identifies the slot: day's catalog and this app's
         // may translate the same menu differently (day's `day-view` is "Présentation", this app's
         // is "Affichage"), and a bar showing both is exactly the bug that taught us so.
         sub_menu(
@@ -89,7 +89,7 @@ fn build_app_menu() -> Vec<MenuEntry> {
             ],
         )
         .bar_role(MenuBarRole::File),
-        // Standard edit commands — native items that target the focused control (default shortcuts).
+        // Standard edit commands: native items that target the focused control (default shortcuts).
         sub_menu(
             crate::res::str::menu_edit().format(),
             vec![
@@ -102,7 +102,7 @@ fn build_app_menu() -> Vec<MenuEntry> {
                 menu_role(MenuRole::SelectAll),
                 menu_separator(),
                 // The Content List page's row commands, as the scaffold's Edit menu carries
-                // them (src/pages/content_list): they act on the FRONT window's open item, and
+                // them (src/pages/content_list): they act on the front window's open item, and
                 // do nothing when that window has none open.
                 menu_item(crate::res::str::cmd_delete().format()).action(|| {
                     if let Some(items) = crate::pages::content_list::Scene::focused() {
@@ -120,17 +120,17 @@ fn build_app_menu() -> Vec<MenuEntry> {
         sub_menu(
             view.clone(),
             vec![
-                // The Star command (commands.rs). Its TITLE is the command's, so this item reads
-                // "Star" or "Unstar" for the page that is showing — `app_menu_reactive` re-lowers
+                // The Star command (commands.rs). Its title is the command's, so this item reads
+                // "Star" or "Unstar" for the page that is showing; `app_menu_reactive` re-lowers
                 // the bar when the starred set changes, which is what keeps it in step with the
                 // toolbar button and the sidebar rows without any of them knowing about the
                 // others. ⌘D / Ctrl+D, the platform's usual "bookmark this" key.
                 //
-                // The TITLE carries the state here, deliberately: "Star" / "Unstar" is the
-                // platform idiom for a command whose two directions are one item, where the
-                // check mark below is for a setting that is simply on or off. Both spellings are
-                // right; which one an item wants is a question about the command, not about what
-                // the menu model can express.
+                // The title carries the state here because "Star" / "Unstar" is the platform
+                // idiom for a command whose two directions are one item, where the check mark
+                // below is for a setting that is on or off. Both spellings are right; which one
+                // an item wants is a question about the command, not about what the menu model
+                // can express.
                 {
                     let star = crate::commands::star();
                     menu_item((star.title)().format())
@@ -148,7 +148,7 @@ fn build_app_menu() -> Vec<MenuEntry> {
                         .action(move || (shot.run)())
                 },
                 menu_separator(),
-                // A plain on/off SETTING, with the platform's own check mark: every string in
+                // A plain on/off setting, with the platform's check mark: every string in
                 // the app re-renders accented and expanded as this is toggled, live, because the
                 // locale is a signal every binding reads.
                 {
@@ -161,7 +161,7 @@ fn build_app_menu() -> Vec<MenuEntry> {
                 },
                 menu_separator(),
                 // Appearance (commands.rs): the same three commands the toolbar's segmented
-                // control carries. ⌘⌥1/2/3 — the digits are the group's order, and ⌥ keeps them
+                // control carries. ⌘⌥1/2/3: the digits are the group's order, and ⌥ keeps them
                 // clear of the tab-switching ⌘1..9 every desktop browser and editor already owns.
                 sub_menu(
                     crate::res::str::menu_appearance().format(),
@@ -185,14 +185,14 @@ fn build_app_menu() -> Vec<MenuEntry> {
         .bar_role(MenuBarRole::View),
         // A menu of its own for the recorder and the scripting page (docs/agent.md): neither a
         // File nor a View command, and burying a transport in another menu is how it stops being
-        // found. No `bar_role` — there is no standard slot for it, so it takes an ordinary custom
-        // menu. It is the ONLY home for these commands: they act on the app's recording, not on
+        // found. No `bar_role`: there is no standard slot for it, so it takes an ordinary custom
+        // menu. It is the only home for these commands: they act on the app's recording, not on
         // any page, so they earn no room on a page's bar.
         sub_menu(
             crate::res::str::menu_script().format(),
             vec![
                 // ⌘⇧R / ⌘⇧P: the recording pair, shifted clear of View ▸ Reload (⌘R) and the
-                // platform's Print (⌘P). Both TITLES carry their state, so one item is
+                // platform's Print (⌘P). Both titles carry their state, so one item is
                 // Record ▸ Stop and the other Play ▸ Pause ▸ Resume.
                 {
                     let rec = crate::commands::record();
@@ -235,14 +235,14 @@ fn build_app_menu() -> Vec<MenuEntry> {
     ]
 }
 
-/// One appearance mode as a menu item: ⌘⌥`key`, the command's own title, and a check mark on the
-/// mode in force. Reading `checked` HERE is what re-lowers the bar when the setting changes.
+/// One appearance mode as a menu item: ⌘⌥`key`, the command's title, and a check mark on the
+/// mode in force. Reading `checked` here is what re-lowers the bar when the setting changes.
 fn appearance_item(mode: crate::commands::Appearance, key: &str) -> MenuEntry {
     let cmd = crate::commands::appearance_command(mode);
     // A one-of-three choice: all three are checkable, so the group keeps the mark's column and
     // reads as a radio set rather than shifting sideways as the selection moves. `.checked` is a
     // tracked read of the appearance signal, so `app_menu_reactive` re-lowers the bar and the
-    // mark follows — no backend flips it (docs/menus.md).
+    // mark follows; no backend flips it (docs/menus.md).
     menu_item((cmd.title)().format())
         .id(cmd.id)
         .shortcut(Shortcut::new(key).alt())
@@ -251,7 +251,7 @@ fn appearance_item(mode: crate::commands::Appearance, key: &str) -> MenuEntry {
         .action(move || (cmd.run)())
 }
 
-/// Menus & dialogs — the app's transient native surfaces in one place: the menu bar and
+/// Menus & dialogs, the app's transient native surfaces in one place: the menu bar and
 /// context menus (docs/menus.md), and the imperative dialogs (docs/dialogs.md), each in its own
 /// themed section with a live result readout.
 pub(crate) fn menus_page() -> AnyPiece {
@@ -284,7 +284,7 @@ fn app_menu_section() -> impl Piece {
 }
 
 /// The context-menu section: a visually delineated target the user secondary-clicks
-/// (long-presses on mobile) — nested submenu, separator, and a standard role.
+/// (long-presses on mobile), with a nested submenu, a separator, and a standard role.
 fn context_section() -> impl Piece {
     // Localized like the app menu above; the log readout composes from the same strings.
     let log = |what: String| move || menu_log().set(what.clone());
@@ -295,9 +295,9 @@ fn context_section() -> impl Piece {
     let inbox = crate::res::str::menu_inbox().format();
     let archive = crate::res::str::menu_archive().format();
     let delete = crate::res::str::delete().format();
-    // Order matters: `.background`/`.corner_radius` build the pill CONTAINER (a native
-    // view), and `.context_menu` after them attaches to that container — the whole padded
-    // pill is the right-click / long-press surface, not just the label's text run.
+    // Order matters: `.background`/`.corner_radius` build the pill container (a native
+    // view), and `.context_menu` after them attaches to that container, so the whole padded
+    // pill is the right-click / long-press surface rather than only the label's text run.
     section((label(crate::res::str::menus_target())
         .padding(Insets::symmetric(24.0, 24.0))
         // A translucent brand-blue wash: tinted enough to read as "this spot is interactive"
@@ -329,9 +329,9 @@ fn context_section() -> impl Piece {
     .title(crate::res::str::menus_context_section())
 }
 
-/// Real-world per-ROW menus (docs/menus.md): every message row carries its own context menu,
-/// so the action names the row it came from — the mail-list idiom. The senders are fixture
-/// DATA (like the file names above) and stay raw; everything the user reads as UI is
+/// Per-row menus (docs/menus.md): every message row carries its own context menu, so the
+/// action names the row it came from, the mail-list idiom. The senders are fixture
+/// data (like the file names above) and stay raw; everything the user reads as UI is
 /// localized.
 fn messages_section() -> impl Piece {
     let log = |what: String| move || menu_log().set(what.clone());
@@ -375,8 +375,8 @@ fn messages_section() -> impl Piece {
     .title(crate::res::str::menus_messages_section())
 }
 
-/// A media card with the sharing-flavored menu every photo grid grows eventually — the
-/// context target is the IMAGE itself (the decorator attaches to whatever piece it follows).
+/// A media card with the sharing-flavored menu every photo grid grows eventually. The
+/// context target is the image itself (the decorator attaches to whatever piece it follows).
 fn photo_section() -> impl Piece {
     let log = |what: String| move || menu_log().set(what.clone());
     let share = crate::res::str::menu_share().format();

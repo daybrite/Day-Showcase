@@ -3,9 +3,9 @@ use day::prelude::*;
 use crate::palette::{AMBER, AZURE, CORAL, INK, RUST, SKY, SLATE, TEAL, VIOLET};
 use crate::widgets::{gauge, page_wide};
 
-/// Drawing & composition (docs/shapes.md, docs/canvas.md, DESIGN §8/§11): the unified `shape`
-/// piece in every kind, live canvas transforms and gestures, the slider-driven gauge, and the
-/// composition-tier widgets (rating, card, badge, button styles, ambient environment) — each
+/// Drawing & composition (docs/shapes.md, docs/canvas.md, DESIGN.md §8/§11): the unified
+/// `shape` piece in every kind, live canvas transforms and gestures, the slider-driven gauge, and
+/// the composition-tier widgets (rating, card, badge, button styles, ambient environment), each
 /// group in its own themed section.
 pub(crate) fn canvas_page() -> AnyPiece {
     page_wide(
@@ -29,7 +29,7 @@ pub(crate) fn canvas_page() -> AnyPiece {
 /// Canvas text in a chosen font (docs/fonts.md): a specimen line, the bold / italic / bold-italic
 /// faces, and a centered glyph, each framed by the box `measure_text` reports, so the anchor
 /// rule (a `Leading` anchor is the line box's top-leading corner) is visible. The menu lists
-/// every family `font_families()` knows — the platform's own plus the bundled ones — and
+/// every family `font_families()` knows (the platform's plus the bundled ones) and
 /// starts on the bundled Pacifico, which is exactly the family no platform ships.
 fn text_section() -> impl Piece {
     let mut families: Vec<String> = day::font_families()
@@ -57,9 +57,9 @@ fn text_section() -> impl Piece {
             let baseline_c = Color::rgba(0.9, 0.3, 0.3, 0.55);
             let cap_c = Color::rgba(0.95, 0.65, 0.15, 0.75);
             let ink_c = Color::rgba(0.35, 0.8, 0.55, 0.8);
-            // A line in the family under everything `measure_text` reports about it: the LINE BOX
-            // (grey — the typographic slot, identical for every string in this face at this size),
-            // the INK box (green — where the glyphs actually put marks), the baseline (red) and
+            // A line in the family under everything `measure_text` reports about it: the line
+            // box (grey; the typographic slot, identical for every string in this face at this
+            // size), the ink box (green; where the glyphs put marks), the baseline (red) and
             // the cap line (amber). The three boxes only coincide for text that happens to fill
             // its slot; a line of digits leaves the descender space empty, and the gap between
             // grey and green is exactly why a chart's y labels need the cap line to look centered
@@ -148,19 +148,19 @@ fn text_section() -> impl Piece {
                     font: font(None, false),
                 },
             );
-            // What the measuring above cost, read LAST so it counts this recording's own calls
+            // What the measuring above cost, read last so it counts this recording's own calls
             // (docs/fonts.md "It is cached"). Drawn inside the canvas rather than beside it
             // because that needs no reactivity at all: the numbers change when this closure runs,
             // and this closure is what draws them.
             //
             // Watch it move. Resizing the window re-records with the same strings, so `hits`
-            // climbs and `misses` does not — the measurements never reach the toolkit twice.
-            // Choosing another font changes the KEY of every specimen, so `misses` jumps by the
+            // climbs and `misses` does not; the measurements never reach the toolkit twice.
+            // Choosing another font changes the key of every specimen, so `misses` jumps by the
             // number of lines here and then stops again.
             let st = day::text_metrics_cache_stats();
             d.text(
-                // A generated `res::str` takes its arguments in ALPHABETICAL order, not the order
-                // the message mentions them — three `i64`s in the wrong order compile and render
+                // A generated `res::str` takes its arguments in alphabetical order, not the order
+                // the message mentions them; three `i64`s in the wrong order compile and render
                 // a plausible-looking lie. Named locals, so the call reads as a check.
                 &{
                     let (entries, hits, misses) =
@@ -195,10 +195,10 @@ fn text_section() -> impl Piece {
 /// Every `TextAnchor` placement, on a crosshair (docs/canvas.md "Anchors").
 ///
 /// Twelve cells: the three `TextAlign` values across, the four `TextVAlign` values down. Each
-/// cell draws the point `at` as a crosshair and then hangs the same word on it, so what an anchor
-/// MEANS is the picture rather than a sentence — and a backend that gets one wrong shows it here
-/// immediately, which is the reason this is a page and not a doc example. The sample has both an
-/// ascender and a descender so `Baseline` and `Bottom` are told apart.
+/// cell draws the anchor `at` as a crosshair and then hangs the same word on it, so what an
+/// anchor means is the picture rather than a sentence, and a backend that gets one wrong shows it
+/// here immediately, which is the reason this is a page and not a doc example. The sample has
+/// both an ascender and a descender so `Baseline` and `Bottom` are told apart.
 ///
 /// The placement names are API identifiers, shown verbatim like the Cursors page's `css_name`s;
 /// only the section title is localized.
@@ -249,7 +249,7 @@ fn anchors_section() -> impl Piece {
             {
                 let cy = head + ch * (j as f64 + 0.5);
                 if i == 0 {
-                    // The row's name, itself right-aligned against the grid — this section's own
+                    // The row's name, itself right-aligned against the grid: this section's own
                     // small use of the anchor it is documenting.
                     caption(
                         d,
@@ -261,7 +261,7 @@ fn anchors_section() -> impl Piece {
                         },
                     );
                 }
-                // The crosshair IS the point being anchored to.
+                // The crosshair marks the anchor position itself.
                 d.stroke(
                     Shape::Line(
                         Point::new(cx - cw * 0.45, cy),
@@ -296,10 +296,10 @@ fn anchors_section() -> impl Piece {
 
 /// Tap, drag and hover on one canvas (docs/canvas.md "Interaction").
 ///
-/// Three gestures, three marks, and the point of putting them together is that they are NOT
-/// interchangeable. Hover follows a pointer and is the only one a touch-only phone never reports;
-/// a tap is the one every device has; a drag is what a press that travels becomes — and on some
-/// backends what a press that barely travels becomes too. Anything reachable by hover has to be
+/// Three gestures, three marks, put together because they are not interchangeable. Hover
+/// follows a pointer and is the only one a touch-only phone never reports; a tap is the one every
+/// device has; a drag is what a press that travels becomes, and on some backends what a press
+/// that barely travels becomes too. Anything reachable by hover has to be
 /// reachable by a tap, which is why a chart's selection wires all three to the same signal.
 ///
 /// The readout names what each gesture last reported, so a run on any backend says plainly which
@@ -313,14 +313,14 @@ fn interaction_section() -> impl Piece {
     section((
         canvas(move |d, size| {
             let muted = Color::rgba(0.5, 0.5, 0.55, 0.7);
-            // A frame, so the canvas's own bounds are visible — a hover that reports nothing and
+            // A frame, so the canvas's bounds are visible; a hover that reports nothing and
             // a canvas that is not there look the same otherwise.
             d.stroke(
                 Shape::Rect(Rect::new(0.5, 0.5, size.width - 1.0, size.height - 1.0)),
                 muted,
                 1.0,
             );
-            // HOVER: a crosshair, drawn only while a pointer is inside.
+            // Hover: a crosshair, drawn only while a pointer is inside.
             if let Some(p) = hover.get() {
                 d.stroke(
                     Shape::Line(Point::new(0.0, p.y), Point::new(size.width, p.y)),
@@ -333,14 +333,14 @@ fn interaction_section() -> impl Piece {
                     1.0,
                 );
             }
-            // DRAG: the path travelled, as one stamped run of dots plus a line — the batched op
+            // Drag: the path travelled, as one stamped run of dots plus a line, the batched op
             // (docs/canvas.md "Stamping"), because a long drag is a lot of marks.
             let pts = trail.get();
             if pts.len() > 1 {
                 d.stroke(Shape::Polygon(pts.clone()), TEAL.with_alpha(0.45), 1.5);
                 d.stamp(Shape::Ellipse(Rect::new(-2.0, -2.0, 4.0, 4.0)), pts, TEAL);
             }
-            // TAP: a ring where the last one landed.
+            // Tap: a ring where the last one landed.
             if let Some(p) = tap.get() {
                 d.stroke(circle_at(p, 9.0), CORAL, 2.0);
                 d.fill(circle_at(p, 2.5), CORAL);
@@ -370,8 +370,8 @@ fn interaction_section() -> impl Piece {
                     Some(p) => format!("{:.0}, {:.0}", p.x, p.y),
                     None => crate::res::str::canvas_interaction_none().format(),
                 };
-                // A generated `res::str` takes its arguments ALPHABETICALLY, not in the order the
-                // message mentions them — named locals so the call reads as a check.
+                // A generated `res::str` takes its arguments alphabetically, not in the order the
+                // message mentions them; named locals so the call reads as a check.
                 let (hover_s, tap_s, trail_n) = (
                     fmt(hover.get()),
                     fmt(tap.get()),
@@ -386,7 +386,7 @@ fn interaction_section() -> impl Piece {
     .title(crate::res::str::canvas_interaction_title())
 }
 
-/// A circle centred on a point — the ring and dot the tap mark is made of.
+/// A circle centered on a point: the ring and dot the tap mark is made of.
 fn circle_at(at: Point, r: f64) -> Shape {
     Shape::Ellipse(Rect::new(at.x - r, at.y - r, r * 2.0, r * 2.0))
 }
@@ -401,10 +401,10 @@ fn circle_at(at: Point, r: f64) -> Shape {
 /// them.
 fn paths_section() -> impl Piece {
     section((row((
-        // Arcs as SEGMENTS (docs/canvas.md "Paths"): three figures that are each ONE closed
+        // Arcs as SEGMENTS (docs/canvas.md "Paths"): three figures that are each one closed
         // contour and could not be, without `arc_to`.
         //
-        // A donut wedge is two arcs — out along the far edge, back along the near one — and the
+        // A donut wedge is two arcs (out along the far edge, back along the near one), and the
         // hole between them exists because the same contour comes back. A gauge is a single arc
         // stroked with round caps. A leaf is two arcs bulging opposite ways, which is what a
         // shape built out of arcs looks like when neither of them is a circle's worth.
@@ -419,7 +419,7 @@ fn paths_section() -> impl Piece {
                         .build(),
                     TEAL,
                 );
-                // A gauge: one arc, no fill, round caps — the track and the value on it.
+                // A gauge: one arc, no fill, round caps; the track and the value on it.
                 let gauge = Point::new(105.0, 46.0);
                 for (sweep, color, w) in [(180.0, SLATE, 7.0), (118.0, AMBER, 7.0)] {
                     d.stroke_styled(
@@ -549,7 +549,7 @@ fn paths_section() -> impl Piece {
         .id("canvas-strokes")
         .aspect_ratio(DESIGN_RATIO)
         .grow_w(),
-        // SVG path data, parsed at COMPILE time into PathBuilder chains (build_path!). Each
+        // SVG path data, parsed at compile time into PathBuilder chains (build_path!). Each
         // glyph is authored in a 24x24 box; the 3x2 grid places them inside the design box.
         canvas(|d, size| {
             in_design_box(d, size, |d| {
@@ -573,8 +573,8 @@ fn paths_section() -> impl Piece {
                         CORAL,
                     );
                 });
-                // A PENTAGRAM — one self-intersecting contour, so the fill rules disagree:
-                // even-odd hollows the middle pentagon, non-zero would fill it solid.
+                // A pentagram: one self-intersecting contour, so the fill rules disagree.
+                // Even-odd hollows the middle pentagon, non-zero would fill it solid.
                 d.transformed(cell(1, 0), |d| {
                     d.fill(
                         build_path!("M12,2 L19.1,21.5 2.4,9.2 21.6,9.2 4.9,21.5 Z")
@@ -629,18 +629,18 @@ fn paths_section() -> impl Piece {
 
 /// The coordinate space the drawings above are written in, and the ratio the canvases hold.
 ///
-/// 3:2 because the SVG grid IS three cells by two rows, and because a square canvas taking a
+/// 3:2 because the SVG grid is three cells by two rows, and because a square canvas taking a
 /// third of a wide window would make this one section taller than the screen.
 const DESIGN_W: f64 = 150.0;
 const DESIGN_H: f64 = 100.0;
 const DESIGN_RATIO: f64 = DESIGN_W / DESIGN_H;
 
-/// Run `f` in the [`DESIGN_W`] x [`DESIGN_H`] box, scaled UNIFORMLY to fit `size` and centered.
+/// Run `f` in the [`DESIGN_W`] x [`DESIGN_H`] box, scaled uniformly to fit `size` and centered.
 ///
-/// One scale factor for both axes is the whole point: the canvas is whatever size the row gives
-/// it, and every shape inside keeps the proportions it was drawn with rather than stretching.
-/// The canvas is asked to hold the same ratio, so in practice the fit is exact and the centering
-/// terms are zero — they matter only if a backend hands the canvas a differently-shaped box.
+/// One scale factor for both axes, because the canvas is whatever size the row gives it, and
+/// every shape inside keeps the proportions it was drawn with rather than stretching.
+/// The canvas is asked to hold the same ratio, so the fit is exact and the centering terms are
+/// zero; they matter only if a backend hands the canvas a differently-shaped box.
 fn in_design_box(d: &mut Draw, size: Size, f: impl FnOnce(&mut Draw)) {
     let s = (size.width / DESIGN_W)
         .min(size.height / DESIGN_H)
@@ -654,7 +654,7 @@ fn in_design_box(d: &mut Draw, size: Size, f: impl FnOnce(&mut Draw)) {
     );
 }
 
-/// Rotate a gradient unit point about the box center (0.5, 0.5) — the shared angle applied to
+/// Rotate a gradient unit point about the box center (0.5, 0.5): the shared angle applied to
 /// every swatch's base geometry.
 fn spin(p: UnitPoint, deg: f64) -> UnitPoint {
     let (s, c) = deg.to_radians().sin_cos();
@@ -663,7 +663,7 @@ fn spin(p: UnitPoint, deg: f64) -> UnitPoint {
 }
 
 /// Linear + radial gradients (docs/shapes.md §7): `.fill_linear`/`.fill_radial` on shape pieces.
-/// ONE angle slider drives the whole group — each swatch's closure re-records with its base
+/// One angle slider drives the whole group; each swatch's closure re-records with its base
 /// geometry rotated by the shared signal (linear lines spin about the unit-box center; radial
 /// centers orbit it).
 fn gradients_section() -> impl Piece {
@@ -681,7 +681,7 @@ fn gradients_section() -> impl Piece {
     let radial = move |center: UnitPoint, radius: f64, stops: Vec<(f64, Color)>| {
         move || RadialGradient::new(spin(center, angle.get()), radius, stops.clone())
     };
-    // A 3×2 grid of width-flexible swatches (like the Kinds grid) — every swatch responds to
+    // A 3×2 grid of width-flexible swatches (like the Kinds grid); every swatch responds to
     // the shared angle: linear lines spin about the unit-box center, radial centers orbit it.
     const H: f64 = 72.0;
     section((
@@ -759,15 +759,15 @@ fn gradients_section() -> impl Piece {
 }
 
 /// The nine shape kinds in a 3×3 grid whose cells split the section width evenly (`grow_w`
-/// marks every column flexible — docs/grid.md) and whose drawing scales with the cell. ONE
+/// marks every column flexible; docs/grid.md) and whose drawing scales with the cell. One
 /// angle slider rotates every shape live. Each cell draws through [`shape_group_fn`], sizing
-/// its shape to the largest box that fits the laid-out cell at EVERY angle — so the slider
+/// its shape to the largest box that fits the laid-out cell at every angle, so the slider
 /// is a pure transform (the shape spins without resizing) and rotation never clips on
 /// backends that clip a canvas to its bounds (Qt, Android, the web).
 fn shapes_section() -> impl Piece {
     let angle = Signal::new(0.0f64);
     const H: f64 = 96.0;
-    // A Kinds cell: `make()`'s shape at `aspect` (height:width), centered, at a CONSTANT size
+    // A Kinds cell: `make()`'s shape at `aspect` (height:width), centered, at a constant size
     // independent of the shared rotation: a w × (w·aspect) box sweeps a circumcircle of
     // diameter w·√(1+aspect²), so capping that at the cell's short side fits every angle.
     // Reads `angle` inside the recorder, so the slider re-records live.
@@ -831,8 +831,8 @@ fn shapes_section() -> impl Piece {
                 })
                 .id("shape-polygon")
                 .grow_w(),
-                // A multi-shape group in ONE canvas leaf (docs/shapes.md §3.6): a target —
-                // ring, disc, four tick lines — spun by rotating just the LINES (each line's
+                // A multi-shape group in one canvas leaf (docs/shapes.md §3.6): a target
+                // (ring, disc, four tick lines) spun by rotating just the lines (each line's
                 // spec spans the group's box, so `.rotate` orbits its endpoints about the
                 // center); the centered ring and disc are rotation-invariant, and the figure
                 // stays inside its circumcircle, so it needs no shrink-to-fit.
@@ -878,7 +878,7 @@ fn shapes_section() -> impl Piece {
     .title(crate::res::str::shapes_kinds())
 }
 
-/// Three custom-drawn readings of ONE value signal — the arc dial, a VU-style segment
+/// Three custom-drawn readings of one value signal: the arc dial, a VU-style segment
 /// meter, and a sunrise (the sun climbs from the left horizon to the zenith and sets to the
 /// right as the value runs 0→100, under a sky whose light follows it). Laid out like the
 /// grids above: three width-flexible cells splitting the row evenly, each canvas
@@ -904,19 +904,19 @@ fn gauge_section() -> impl Piece {
 /// A raster image decoded from BYTES and drawn on a canvas (docs/images.md).
 ///
 /// The asset is read as a blob, handed to `day::decode_image`, and the returned handle is drawn
-/// with `Draw::image` — the path a downloaded, pasted, or user-picked image takes, with no staged
+/// with `Draw::image`, the path a downloaded, pasted, or user-picked image takes, with no staged
 /// image resource behind it. That these particular bytes happen to be bundled is incidental:
 /// nothing on this path knows where they came from.
 ///
-/// The readout names what the platform's OWN decoder said the bytes were, so a backend that reads
-/// them differently says so here rather than in a doc — which is the reason this runs on every
+/// The readout names what the platform's decoder said the bytes were, so a backend that reads
+/// them differently says so here rather than in a doc, which is the reason this runs on every
 /// toolkit.
 fn image_section() -> impl Piece {
     let shown: Signal<Option<day::Bitmap>> = Signal::new(None);
     let readout = Signal::new(crate::res::str::canvas_image_loading().format());
-    // EMBEDDED rather than read back through `resource()`: this section is about decoding a
-    // blob, and embedding makes it the same blob on every backend. It also keeps the demo honest
-    // on web-dom, where `resource()` has no reader at all — no backend installs an opener there,
+    // Embedded rather than read back through `resource()`: this section is about decoding a
+    // blob, and embedding makes it the same blob on every backend. It also keeps the demo working
+    // on web-dom, where `resource()` has no reader at all: no backend installs an opener there,
     // so it falls to the default one, which probes an env var and the executable's directory,
     // neither of which exists in a browser.
     const LOGO_PNG: &[u8] = include_bytes!("../../resource/images/day_logo.png");
@@ -966,7 +966,7 @@ fn image_section() -> impl Piece {
 }
 
 /// A VU-style segment meter: twelve bottom-anchored bars in a rising ramp, lit up to the
-/// level — teal through amber into coral at the top of the scale, the unlit tail dimmed.
+/// level: teal through amber into coral at the top of the scale, the unlit tail dimmed.
 fn led_meter(level: Signal<f64>) -> impl Piece {
     canvas(move |d, size| {
         const N: usize = 12;
@@ -1016,8 +1016,8 @@ fn mix(a: Color, b: Color, t: f64) -> Color {
     Color::rgba(l(a.r, b.r), l(a.g, b.g), l(a.b, b.b), l(a.a, b.a))
 }
 
-/// A sunrise meter: the sun travels a half-circle above the horizon — rising from the left
-/// at 0, zenith at 50, setting to the right at 100 — with rays, a faint path track, a
+/// A sunrise meter: the sun travels a half-circle above the horizon (rising from the left
+/// at 0, zenith at 50, setting to the right at 100) with rays, a faint path track, a
 /// ground line, and a sky gradient whose light follows the sun: night indigo over an amber
 /// glow at dawn, blue over haze at noon, dusk purple over coral at sunset. All geometry
 /// derives from the laid-out size.

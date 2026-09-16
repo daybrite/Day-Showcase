@@ -3,13 +3,13 @@
 //! them inside a single `with_animation`, so scale, rotation, opacity, offset, and color animate
 //! together with the chosen curve and duration.
 //!
-//! - **Animate!** — animate to the queued slider values.
-//! - **Randomize!** — set the sliders to random values, then animate.
-//! - **Reset** — set the sliders to their defaults, then animate.
+//! - **Animate!**: animate to the queued slider values.
+//! - **Randomize!**: set the sliders to random values, then animate.
+//! - **Reset**: set the sliders to their defaults, then animate.
 //!
 //! The Hue slider builds the box's color with `Color::hsl` (HSL is accepted at every color
-//! parameter). Animation is backend-executed: on the backends that map the seams the toolkit
-//! interpolates; elsewhere the value applies at commit.
+//! parameter). Animation is backend-executed: on the backends that animate these channels
+//! natively the toolkit interpolates; elsewhere the value applies at commit.
 
 use std::cell::Cell;
 
@@ -59,7 +59,7 @@ impl Anim {
         }
     }
 
-    /// Commit every queued value at once, under one animation — so all channels move together.
+    /// Commit every queued value at once, under one animation, so all channels move together.
     fn commit(self) {
         let spec = spec_for(self.curve.get_untracked(), self.dur.get_untracked() as u32);
         with_animation(spec, move || {
@@ -94,7 +94,7 @@ impl Anim {
         self.commit();
     }
 
-    /// Whether any queued target differs from the applied state — i.e. whether Animate!
+    /// Whether any queued target differs from the applied state, i.e. whether Animate!
     /// has anything to do. Tracked reads, so bindings on this re-run as the sliders move
     /// and as a commit applies the queue.
     fn dirty(self) -> bool {
@@ -110,8 +110,8 @@ impl Anim {
 pub(crate) fn animation_page() -> AnyPiece {
     let s = Anim::new();
 
-    // Three equal-width action buttons across the top, on the palette: the warm RUST carries
-    // the hero action (Animate!), VIOLET the dice roll, SLATE the quiet reset. Animate! is
+    // Three equal-width action buttons across the top, on the palette: the warm `RUST` carries
+    // the hero action (Animate!), `VIOLET` the dice roll, `SLATE` the quiet reset. Animate! is
     // dimmed and inert while the queued targets already match the applied state.
     let actions = row((
         action_button(
@@ -193,9 +193,9 @@ pub(crate) fn animation_page() -> AnyPiece {
     .any()
 }
 
-/// The box centered in a large stage that fills the page width. The box is a DIRECT child of the
-/// stage (no box-sized wrapper between them) and its `.transform` is the OUTERMOST modifier, so the
-/// transform moves it within the *stage's* bounds — the only clipping container above it. That's
+/// The box centered in a large stage that fills the page width. The box is a direct child of the
+/// stage (no box-sized wrapper between them) and its `.transform` is the outermost modifier, so the
+/// transform moves it within the *stage's* bounds, the only clipping container above it. That's
 /// what lets it travel outside its own frame on the toolkits that clip children (Android/GTK/Qt),
 /// which AppKit/UIKit allow natively. The slider ranges keep it inside the stage on any screen.
 fn stage(s: Anim) -> impl Piece {
@@ -280,14 +280,14 @@ fn duration_stepper(dur: Signal<i64>) -> impl Piece {
     .spacing(12.0)
 }
 
-/// A uniform random `f64` in `lo..=hi` — a tiny xorshift seeded once from the clock (no rand dep).
+/// A uniform random `f64` in `lo..=hi`: a tiny xorshift seeded once from the clock (no rand dep).
 fn rand_range(lo: f64, hi: f64) -> f64 {
     thread_local! { static SEED: Cell<u64> = const { Cell::new(0) }; }
     let x = SEED.with(|s| {
         let mut x = s.get();
         if x == 0 {
             // Seed from the clock where there is one; wasm has no SystemTime, and a fixed odd
-            // seed is fine — the demo only needs variety within a session, not across runs.
+            // seed is fine; the demo only needs variety within a session, not across runs.
             #[cfg(not(target_arch = "wasm32"))]
             {
                 x = std::time::SystemTime::now()

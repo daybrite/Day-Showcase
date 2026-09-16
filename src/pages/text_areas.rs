@@ -4,8 +4,8 @@ use day_piece_texteditor::text_editor;
 
 use crate::widgets::page;
 
-// Demo filler for the seed buttons — sample documents rather than interface text, so the two long
-// ones stay in English on every locale, the way a document a user opened would. The SHORT one is
+// Demo filler for the seed buttons: sample documents rather than interface text, so the two long
+// ones stay in English on every locale, the way a document a user opened would. The short one is
 // different: it is what the editor holds before anyone presses anything, so under a French UI it
 // is the page's own copy and it goes through the catalog (docs/localization.md).
 const LONG: &str = "\
@@ -33,7 +33,7 @@ See the [documentation](https://daybrite.dev/docs/textarea) for the per-toolkit 
     // a fenced code sample renders as plain text here
     text_area(content).editable(false).spellcheck(false)";
 
-/// The formatted note the styled editor opens on — Markdown, parsed into runs and paragraphs by
+/// The formatted note the styled editor opens on: Markdown, parsed into runs and paragraphs by
 /// `StyledText::markdown`, which is the same parse a `.markdown()` label does.
 const NOTE: &str = "\
 # Release notes
@@ -48,8 +48,8 @@ buffer, a XAML `RichEditBox`, the ArkTS `RichEditor`, and a `contenteditable` el
 
 > A quotation, to show a paragraph attribute travelling with its text.";
 
-/// The syntax-highlighting sample. Deliberately small: it is re-tokenized on EVERY keystroke, and
-/// the point is to show that re-styling does not disturb the caret.
+/// The syntax-highlighting sample. Small, because it is re-tokenized on every keystroke; it is
+/// here to show that re-styling does not disturb the caret.
 const CODE: &str = "\
 // A counter, in Day.
 fn counter() -> impl Piece{
@@ -72,7 +72,7 @@ enum Doc {
 
 pub(crate) fn text_areas_page() -> AnyPiece {
     page(crate::res::str::nav_textareas(), "textareas-title", {
-        // The STYLED editor leads: it is what the page is now about, and the plain
+        // The styled editor leads: it is what the page is now about, and the plain
         // `text_area` below it is the simpler control it grew out of.
         let (editor, seed, attrs) = plain_sections();
         form((styled_sections(), editor, seed, attrs)).any()
@@ -81,13 +81,13 @@ pub(crate) fn text_areas_page() -> AnyPiece {
 }
 
 // ---------------------------------------------------------------------------
-// The plain editor — still the right control for a chat composer, a commit message, a note.
+// The plain editor: still the right control for a chat composer, a commit message, a note.
 // ---------------------------------------------------------------------------
 
-/// The plain editor and its two control sections — unchanged from the page this one grew out of,
+/// The plain editor and its two control sections, unchanged from the page this one grew out of,
 /// because `text_area` is still the right control for a chat composer or a commit message.
 fn plain_sections() -> (impl Piece, impl Piece, impl Piece) {
-    // What the running toolkit can actually honor — an unsupported attribute grays out its toggle.
+    // What the running toolkit can honor; an unsupported attribute grays out its toggle.
     // `Emulated` counts as honored: the attribute behaves, it just isn't one native property behind
     // the scenes (XAML has no TextBox selection flag, so it collapses selections as they form).
     let cap_editable = capability(Cap::TextEditable) != Support::Unsupported;
@@ -102,9 +102,10 @@ fn plain_sections() -> (impl Piece, impl Piece, impl Piece) {
     let selectable = Signal::new(true);
     let spellcheck = Signal::new(cap_spellcheck);
 
-    // Editing implies selection — no backend can present editable-but-unselectable text (on Android
-    // an editable field is always selectable, so read-only is the only way to stop selection). So
-    // turning Selectable off also turns Editable off, and the Editable toggle disables while it is.
+    // Editing implies selection: no backend can present editable-but-unselectable text (on
+    // Android an editable field is always selectable, so read-only is the only way to stop
+    // selection). So turning Selectable off also turns Editable off, and the Editable toggle
+    // disables while it is.
     Effect::new(move || {
         if !selectable.get() {
             editable.set(false);
@@ -138,7 +139,7 @@ fn plain_sections() -> (impl Piece, impl Piece, impl Piece) {
     .title(crate::res::str::textareas_seed_section());
 
     // Each toggle is disabled where the running toolkit can't honor the attribute (GTK can't stop
-    // selection; GTK/Qt/ArkUI have no spell-check) — the `capability()` gating idiom. Editable also
+    // selection; GTK/Qt/ArkUI have no spell-check): the `capability()` gating idiom. Editable also
     // disables whenever Selectable is off, since editing without selection is not a valid state.
     let attrs = section((
         labeled(
@@ -177,8 +178,8 @@ fn styled_sections() -> impl Piece {
     // The document the export section last wrote, and which format it used.
     let exported = Signal::new(String::new());
 
-    // Live syntax highlighting: re-tokenize whenever the TEXT changes, and only then. The guard is
-    // what makes this terminate — writing runs back into `doc` re-runs this effect, and the second
+    // Live syntax highlighting: re-tokenize whenever the text changes, and only then. The guard is
+    // what makes this terminate: writing runs back into `doc` re-runs this effect, and the second
     // pass sees the same text and stops. Because only the attributes changed, the piece sends an
     // attributes patch rather than a document one, so the caret never moves.
     let last = Signal::new(String::new());
@@ -283,7 +284,7 @@ fn styled_sections() -> impl Piece {
             .max_lines(14)
             .id("styled-editor"),
         // The selection inspector: what the app knows about the caret, with no round trip into
-        // the toolkit — `style_of` is a pure function over the document.
+        // the toolkit; `style_of` is a pure function over the document.
         label(move || {
             let range = sel.get();
             let style = doc.with(|d| d.style_of(range.clone(), Font::Body));
@@ -307,8 +308,8 @@ fn styled_sections() -> impl Piece {
             } else {
                 marks.join(" + ")
             };
-            // The generated accessor takes a message's arguments in NAME order, not in the order
-            // they appear in the text — so this reads `end, marks, scale, start`.
+            // The generated accessor takes a message's arguments in name order, not in the order
+            // they appear in the text, so this reads `end, marks, scale, start`.
             crate::res::str::textareas_inspector(
                 range.end as i64,
                 marks,
@@ -321,7 +322,7 @@ fn styled_sections() -> impl Piece {
         .id("ed-inspector"),
         // What the selection actually covers. Together with the button beside it this is the
         // regression guard for a class of bug the web arm had: a restyle that rebuilds the view
-        // has to put the selection back on the SAME characters, and this line says which ones.
+        // has to put the selection back on the same characters, and this line says which ones.
         row((
             button(crate::res::str::textareas_select_word())
                 .action(move || {
@@ -384,8 +385,8 @@ fn styled_sections() -> impl Piece {
             button(crate::res::str::textareas_export_rtf())
                 .action(move || exported.set(doc.with_untracked(|d| d.to_rtf(Font::Body))))
                 .id("ed-export-rtf"),
-            // The round trip: read the exported text back in as the document. Lossy by design —
-            // see docs/texteditor.md for what each format cannot carry.
+            // The round trip: read the exported text back in as the document. It is lossy; see
+            // docs/texteditor.md for what each format cannot carry.
             button(crate::res::str::textareas_import())
                 .action(move || {
                     let text = exported.get_untracked();
@@ -417,12 +418,12 @@ fn styled_sections() -> impl Piece {
     column((toolbar, editor, export)).any()
 }
 
-/// The byte range of the first word AFTER the document's first line break — what the "Select a
-/// word" button selects.
+/// The byte range of the first word after the document's first line break, which is what the
+/// "Select a word" button selects.
 ///
-/// Past a line break on purpose. A backend that rebuilds its view to restyle has to put the
+/// Past a line break because a backend that rebuilds its view to restyle has to put the
 /// selection back by offset, and the web arm's two offset directions once disagreed by one byte
-/// per line above the selection — a bug the first line of the document cannot show.
+/// per line above the selection, a bug the first line of the document cannot show.
 fn word_past_first_break(text: &str) -> std::ops::Range<usize> {
     let from = text.find('\n').map(|i| i + 1).unwrap_or(0);
     let start = text[from..]
@@ -455,7 +456,7 @@ fn style_button(
         .action(move || {
             let range = sel.get_untracked();
             if range.is_empty() {
-                // No selection: the change belongs to the NEXT keystroke.
+                // No selection: the change belongs to the next keystroke.
                 typing.update(|s| f(s));
             } else {
                 doc.update(|d| d.apply(range.clone(), Font::Body, f));
@@ -465,7 +466,7 @@ fn style_button(
 }
 
 // ---------------------------------------------------------------------------
-// A toy Rust highlighter — enough to show live re-styling, not a parser.
+// A toy Rust highlighter: enough to show live re-styling, not a parser.
 // ---------------------------------------------------------------------------
 
 const KEYWORDS: &[&str] = &[
@@ -473,14 +474,14 @@ const KEYWORDS: &[&str] = &[
     "while", "loop", "return", "use", "crate", "self", "true", "false",
 ];
 
-/// Tokenize `src` into runs. Byte offsets throughout, which is what the document indexes by — and
+/// Tokenize `src` into runs. Byte offsets throughout, which is what the document indexes by, and
 /// why a multi-byte character in a comment cannot shift the styling of the code after it.
 fn highlight_rust(src: &str) -> Vec<TextRun> {
     let mut runs: Vec<TextRun> = Vec::new();
     let bytes = src.as_bytes();
     let mut i = 0usize;
     // Everything the tokenizer does not claim still has to be a run, because a code sample is
-    // monospaced end to end — the gaps between tokens are the punctuation and the identifiers.
+    // monospaced end to end; the gaps between tokens are the punctuation and the identifiers.
     let mut plain_from = 0usize;
     let close_gap = |runs: &mut Vec<TextRun>, upto: usize, from: &mut usize| {
         if *from < upto {
@@ -549,7 +550,7 @@ fn highlight_rust(src: &str) -> Vec<TextRun> {
     runs
 }
 
-/// A monospaced run in one color — every token this highlighter emits, since a code sample is
+/// A monospaced run in one color: every token this highlighter emits, since a code sample is
 /// monospaced from end to end.
 fn colored(range: std::ops::Range<usize>, color: Color, italic: bool) -> TextRun {
     let mut style = RunStyle::plain(Font::Body);

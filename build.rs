@@ -1,10 +1,10 @@
-//! Generate typed resource constants from `resource/` (§18.5) — the same one-liner `day new`
+//! Generate typed resource constants from `resource/` (§18.5), the same one-liner `day new`
 //! scaffolds into every app. `day-build` writes `$OUT_DIR/day_resources.rs`, surfaced as the `res`
 //! module in lib.rs, so the showcase references its bundled icons/data/fonts by checked symbol.
 fn main() {
     day_build::generate_resources().expect("day-build: resource codegen");
     // Bake the app identity (Day.toml `[app].id`, exported by `day build`/`day launch` as
-    // `DAY_APP_ID` — crates/day-cli/src/ops.rs::apply_app_identity) so the About page can show
+    // `DAY_APP_ID` in crates/day-cli/src/ops.rs::apply_app_identity) so the About page can show
     // the bundle id without a runtime manifest read. Same pattern as day-break's build.rs:
     // re-exporting through `cargo:rustc-env` makes a value change invalidate the compile.
     println!("cargo:rerun-if-env-changed=DAY_APP_ID");
@@ -25,7 +25,7 @@ fn main() {
 /// The source ref to link against: a release tag when this is a tagged build, else `main`.
 fn source_ref() -> String {
     // The CI release path: the workflow only fires on `v[0-9]+.[0-9]+.[0-9]+*` tags, so a `tag`
-    // ref type already implies a release tag — trust its name.
+    // ref type already implies a release tag; trust its name.
     if std::env::var("GITHUB_REF_TYPE").as_deref() == Ok("tag")
         && let Ok(name) = std::env::var("GITHUB_REF_NAME")
         && name.starts_with('v')

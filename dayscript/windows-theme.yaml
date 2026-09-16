@@ -8,7 +8,7 @@ flow:
   - wait_for: { id: prefs-title }
   - assert_visible: { id: theme-picker }
 
-  # Dark applies app-wide, live — the prefs window AND the primary recolor.
+  # Dark applies app-wide, live: the prefs window and the primary recolor.
   - select: { id: theme-picker, index: 1 }
   - pause: 0.3
   - screenshot: { name: prefs-dark, window: day.preferences }

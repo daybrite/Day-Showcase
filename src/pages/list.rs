@@ -5,36 +5,36 @@ use day_piece_pullrefresh::pull_to_refresh;
 
 use crate::widgets::heading;
 
-/// A native recycling list (docs/list.md): 500 rows, but only the visible cells are ever built —
+/// A native recycling list (docs/list.md): 500 rows, but only the visible cells are ever built;
 /// the platform's NSTableView / RecyclerView / GtkListView / QListView owns scrolling + reuse.
-/// The list is wrapped in `pull_to_refresh` (day-piece-pullrefresh) — the recycling-list example:
+/// The list is wrapped in `pull_to_refresh` (day-piece-pullrefresh), the recycling-list example:
 /// a pull (or dayscript `toggle: {id: list-refresh}`) adds 100 rows, same as the button.
 ///
 /// Selection (docs/list.md): the rows are multi-selectable where the toolkit supports it, the
 /// full selection lives in an app signal summarized above the list (with ranges compressed,
 /// "4-10"), and Clear Selection syncs an empty selection back into the native list.
-/// The row "Scroll to item 100" targets — a row NUMBER, which is also its key. The button
+/// The row "Scroll to item 100" targets: a row number, which is also its key. The button
 /// resolves it to a position at press time, so the jump follows the row through a shuffle.
 const TARGET_ROW: i64 = 100;
 
 pub(crate) fn list_page() -> AnyPiece {
     // A real Vec of row numbers (not a derived range): drag-to-reorder rotates it, shuffle
-    // permutes it, and the refresh paths append to it — the order is app-owned state.
+    // permutes it, and the refresh paths append to it; the order is app-owned state.
     let rows: Signal<Vec<i64>> = Signal::new((1..=500).collect());
     let refreshing = Signal::new(false);
     // Programmatic scrolling (docs/list.md): a row-jump signal + an end trigger drive the
-    // native list — the row rail's counterpart to `scroll(...).scroll_target(...)`.
+    // native list, the row rail's counterpart to `scroll(...).scroll_target(...)`.
     let jump_row: Signal<Option<usize>> = Signal::new(None);
     let jump_end = Trigger::new();
-    // The selected ROW NUMBERS (1-based, matching the row labels), fed from the native list's
+    // The selected row numbers (1-based, matching the row labels), fed from the native list's
     // selection reports; single-selection toolkits contribute one-element sets.
     let activated = Signal::new(0i64);
     let selected: Signal<BTreeSet<i64>> = Signal::new(BTreeSet::new());
     // The one reload path for every begin (pull, toggle, programmatic): a timed task on the
-    // main-loop executor (`day::sleep`, docs/async.md) stands in for the network — the same
+    // main-loop executor (`day::sleep`, docs/async.md) stands in for the network: the same
     // code on every platform, including the single-threaded web backend.
     // The target row total. The async refresh below bumps it through a `Setter` (Send), and this
-    // watch appends the new rows — reorder-safe, because appending never disturbs the order.
+    // watch appends the new rows, reorder-safe because appending never disturbs the order.
     let total = Signal::new(500i64);
     watch(
         move || total.get(),
@@ -81,7 +81,7 @@ pub(crate) fn list_page() -> AnyPiece {
             .tabular()
             .id("list-caption"),
         // The tier this backend realizes for the pull (docs/pullrefresh.md): native on the
-        // phones and HarmonyOS, an elastic overshoot on the desktops — CI-visible documentation.
+        // phones and HarmonyOS, an elastic overshoot on the desktops, visible in the CI captures.
         label(match day_piece_pullrefresh::support() {
             Support::Native => crate::res::str::refresh_tier_native(),
             _ => crate::res::str::refresh_tier_emulated(),
@@ -89,10 +89,10 @@ pub(crate) fn list_page() -> AnyPiece {
         .font(Font::Footnote)
         .id("list-tier"),
         // Programmatic scrolling + order controls, merged from the old Scrolling page: the
-        // buttons drive the RECYCLING list (scroll-to-row realizes virtualized rows), and
-        // Shuffle/Reset permute the backing Vec — animated as native row moves where the
+        // buttons drive the recycling list (scroll-to-row realizes virtualized rows), and
+        // Shuffle/Reset permute the backing Vec, animated as native row moves where the
         // toolkit supports it (docs/list.md). Wrapped, because five buttons overflow a
-        // phone-portrait window — a plain row left Shuffle and Reset offscreen and untappable
+        // phone-portrait window: a plain row left Shuffle and Reset offscreen and untappable
         // (docs/size-classes.md "Row fit policies").
         row((
             button(crate::res::str::scroll_to_top())
@@ -101,8 +101,8 @@ pub(crate) fn list_page() -> AnyPiece {
                 .id("list-scroll-top"),
             button(crate::res::str::scroll_to_item())
                 .bordered()
-                // Find the row by IDENTITY, not by position. The list's keys ARE the row
-                // numbers, but `scroll_to_row` addresses a POSITION — and shuffle and
+                // Find the row by identity, not by position. The list's keys are the row
+                // numbers, but `scroll_to_row` addresses a position, and shuffle and
                 // drag-to-reorder move row 100 elsewhere, so a hardcoded index 99 scrolls to
                 // whatever row happens to have landed there. Selecting it too makes the landing
                 // unambiguous once the row is no longer where its number suggests.
@@ -122,7 +122,7 @@ pub(crate) fn list_page() -> AnyPiece {
                 .tint(crate::widgets::secondary())
                 .id("list-shuffle"),
             // Reset rebuilds the full set rather than sorting in place: rows can now be
-            // swiped away, and a sort would faithfully restore the ORDER of whatever survived
+            // swiped away, and a sort would faithfully restore the order of whatever survived
             // while leaving the deleted ones gone.
             button(crate::res::str::list_reset())
                 .bordered()
@@ -178,11 +178,11 @@ pub(crate) fn list_page() -> AnyPiece {
             )
             .row_height(RowHeight::Uniform(36.0))
             .multi_select(true)
-            // Keys ARE the row numbers, so the selection set is the report itself.
+            // Keys are the row numbers, so the selection set is the report itself.
             .on_activate(move |key| activated.set(key))
             .on_selection(move |keys: Vec<i64>| selected.set(keys.into_iter().collect()))
-            // Two-way: app-state changes (Clear Selection) sync into the native list —
-            // indices are the rows' CURRENT positions (reorder can move them).
+            // Two-way: app-state changes (Clear Selection) sync into the native list;
+            // indices are the rows' current positions (reorder can move them).
             .selected_rows(move || {
                 let v = rows.get();
                 selected
@@ -193,7 +193,7 @@ pub(crate) fn list_page() -> AnyPiece {
             })
             .scroll_to_row(jump_row)
             .scroll_to_end(jump_end)
-            // Native drag-to-reorder, with a guard demo: the first row is pinned — it cannot be
+            // Native drag-to-reorder, with a guard demo: the first row is pinned: it cannot be
             // dragged, and a drop aimed at its slot lands just below it instead (Retarget).
             .reorderable(true)
             .reorder_guard(|from, to| {
@@ -212,7 +212,7 @@ pub(crate) fn list_page() -> AnyPiece {
                 });
             })
             // Native swipe-to-delete where the toolkit has the gesture (probe `Cap::ListDelete`;
-            // the desktops answer Unsupported and simply show no swipe). The same first row is
+            // the desktops answer Unsupported and show no swipe). The same first row is
             // pinned as for reorder, so one demo shows both guards agreeing about it.
             .deletable(true)
             .delete_label(crate::res::str::list_delete().format())
@@ -235,7 +235,7 @@ pub(crate) fn list_page() -> AnyPiece {
 }
 
 /// Fisher–Yates over a hand-rolled xorshift64 (no rand dependency; the seed is fixed and
-/// advances per call, so the sequence is deterministic per launch — CI-friendly — while
+/// advances per call, so the sequence is deterministic per launch, which suits CI, while
 /// successive shuffles differ).
 fn shuffle(v: &mut [i64]) {
     thread_local! {
@@ -252,7 +252,7 @@ fn shuffle(v: &mut [i64]) {
 }
 
 /// Compress sorted row numbers into the display value: runs of three or more become a range
-/// ("4-10"), everything else lists out ("1,2,8"). A value, not prose — identical per locale.
+/// ("4-10"), everything else lists out ("1,2,8"). A value, not prose: identical per locale.
 fn format_rows(rows: &BTreeSet<i64>) -> String {
     let mut out = String::new();
     let mut iter = rows.iter().copied().peekable();

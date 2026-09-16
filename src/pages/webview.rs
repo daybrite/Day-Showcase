@@ -7,14 +7,14 @@ use day_piece_webview::{
 use crate::widgets::heading;
 
 // Page state that outlives the page. Day rebuilds a destination's whole subtree on every
-// navigation, so anything declared inside `webview_page()` is minted fresh each visit — the URL bar
+// navigation, so anything declared inside `webview_page()` is minted fresh each visit: the URL bar
 // would snap back, the console would clear. `Signal::global` allocates in the root scope instead,
-// and the `OnceCell` keeps the SAME signal across rebuilds (calling `global` per build would mint a
+// and the `OnceCell` keeps the same signal across rebuilds (calling `global` per build would mint a
 // new one every time). Same idiom as pages/scripting.rs.
 //
 // This is transient, not persisted: it lives as long as the process and is never written to disk.
 
-/// `(url, script, result)` — created once, reused by every visit to this page.
+/// `(url, script, result)`: created once, reused by every visit to this page.
 fn state() -> (Signal<String>, Signal<String>, Signal<String>) {
     crate::scene().web
 }
@@ -23,24 +23,24 @@ fn embed_status() -> Signal<(u8, String)> {
     crate::scene().web_embed_status
 }
 
-/// A native web view (day-piece-webview, an EXTERNAL standalone piece), in two tabs:
+/// A native web view (day-piece-webview, an external standalone piece), in two tabs:
 ///
-/// - **Remote** — WKWebView / QWebEngineView / android.webkit.WebView browsing the live web. The
+/// - **Remote**: WKWebView / QWebEngineView / android.webkit.WebView browsing the live web. The
 ///   URL bar is bound two-way, Back/Forward/Stop/Reload drive history via `Trigger`s, and the JS
 ///   console round-trips `eval` where the engine allows it. web-dom is the exception: an
-///   `<iframe>` under the same-origin policy — the piece reports `Support::Emulated`, the history
+///   `<iframe>` under the same-origin policy; the piece reports `Support::Emulated`, the history
 ///   buttons are disabled, and a footnote says why (docs/webview.md).
-/// - **Embedded** — `web_view_inline`: a complete site (pages, css, js, images) bundled under
+/// - **Embedded**: `web_view_inline`, a complete site (pages, css, js, images) bundled under
 ///   `resource/assets/web/minisite/` and served from inside the app (§18.5, docs/webview.md).
 ///   Relative links resolve within the site; external links open in the system browser by
-///   default; `day-showcase://` links are intercepted by `on_external_link` and navigate THIS
-///   app — the custom-policy hook, demonstrated end to end.
+///   default; `day-showcase://` links are intercepted by `on_external_link` and navigate this
+///   app: the custom-policy hook, demonstrated end to end.
 ///
 /// Both tabs come back as they were left: the selection rides a hoisted signal, and each view
 /// rides its own retained `WebSession`, so the engines that retain (WebKit here, docs/webview.md)
-/// re-attach the SAME native view — page, scroll position and JS state intact.
+/// re-attach the same native view: page, scroll position and JS state intact.
 ///
-/// The JS console sits BELOW the tabs, outside both panes: each view carries its own bound
+/// The JS console sits below the tabs, outside both panes: each view carries its own bound
 /// [`JsHandle`], and Run evaluates against whichever tab is selected.
 pub(crate) fn webview_page() -> AnyPiece {
     let tab = crate::scene().web_tab;
@@ -69,10 +69,10 @@ pub(crate) fn webview_page() -> AnyPiece {
     .any()
 }
 
-/// The JS console, below both tabs: script in, JSON out, evaluated against WHICHEVER web view
-/// the selected tab shows — each view binds its own [`JsHandle`], and Run picks by the tab
+/// The JS console, below both tabs: script in, JSON out, evaluated against whichever web view
+/// the selected tab shows: each view binds its own [`JsHandle`], and Run picks by the tab
 /// signal. `eval` returns a future, so the click spawns a task and the result lands in the
-/// bound signal whenever the engine answers. Sized in LINES, not points, so the editors track
+/// bound signal whenever the engine answers. Sized in lines, not points, so the editors track
 /// the platform accessibility text scale (day-dom used to ignore the hints; it measures them
 /// now, docs/textarea.md).
 fn js_console(tab: Signal<usize>, js_remote: JsHandle, js_embedded: JsHandle) -> impl Piece {
@@ -192,16 +192,16 @@ fn remote_pane(js: JsHandle) -> impl Piece {
 
 /// The bundled mini site (docs/webview.md): `resource/assets/web/minisite/**` ships with the app,
 /// `web_view_inline` serves it through each backend's local-content channel, and the
-/// `on_external_link` hook shows both dispositions — system browser for real URLs, in-app
-/// navigation for `day-showcase://` ones. The site's own text is sample CONTENT (like the bundled
+/// `on_external_link` hook shows both dispositions: system browser for real URLs, in-app
+/// navigation for `day-showcase://` ones. The site's own text is sample content (like the bundled
 /// font specimens), so it ships in English only; the chrome around it localizes as usual. The
-/// shared JS console below the tabs evaluates in THIS view while the tab is selected, through
+/// shared JS console below the tabs evaluates in this view while the tab is selected, through
 /// the bound `js`.
 fn embedded_pane(js: JsHandle) -> impl Piece {
     let status = embed_status();
     let arm = inline_support();
     let body: AnyPiece = if arm == Support::Unsupported {
-        // No web engine in this toolkit build (docs/webview.md) — say so instead of showing a
+        // No web engine in this toolkit build (docs/webview.md): say so instead of showing a
         // blank frame.
         label(crate::res::str::webview_embedded_unsupported())
             .font(Font::Footnote)
@@ -213,7 +213,7 @@ fn embedded_pane(js: JsHandle) -> impl Piece {
             .js(js)
             .on_external_link(move |url| {
                 if let Some(route) = url.strip_prefix("day-showcase://") {
-                    // The custom hook: a link the SITE authors as day-showcase://<route>
+                    // The custom hook: a link the site authors as day-showcase://<route>
                     // navigates this app on the deep-link rail instead of leaving it.
                     let route = route.trim_matches('/').to_string();
                     status.set((2, route.clone()));

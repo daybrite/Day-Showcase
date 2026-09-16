@@ -1,18 +1,18 @@
-//  GridsView.swift — the SwiftUI twin of the Benchmark page's Day-native patchwork, ported from
+//  GridsView.swift: the SwiftUI twin of the Benchmark page's Day-native patchwork, ported from
 //  Day-Bench (`versus/swiftui/DayBenchSwiftUI/GridsView.swift`).
 //
 //  What this measures. Every cell is flexible on both axes and every row is packed to exactly
 //  `columns` columns, so the grid can only resolve by negotiating all of it at once: column widths
 //  come from the flexible cells, spans redistribute across the columns they cover, and row heights
-//  stretch to consume the leftover height. Nothing here can be solved per-cell — changing "Total
+//  stretch to consume the leftover height. Nothing here can be solved per-cell: changing "Total
 //  Count" repacks the rows, which changes the spans, which changes the column split.
 //
 //  The Day original builds this from `grid`/`grid_row`/`.grid_span(n)`/`.grow()`; the SwiftUI
 //  counterparts are `Grid`/`GridRow`/`.gridCellColumns(n)` and a maximal frame. The packing
 //  function below is the same algorithm, transliterated, so both tabs lay out the same patchwork.
 //
-//  Unlike the standalone Day-Bench app this renders as a SUBVIEW (a tab of the Benchmark page), so
-//  it carries no title, caption, or navigation chrome — the page's Rust heading owns those — and
+//  Unlike the standalone Day-Bench app this renders as a subview (a tab of the Benchmark page), so
+//  it carries no title, caption, or navigation chrome (the page's Rust heading owns those), and
 //  its labels arrive localized from Rust through the view's initializer (the page passes the same
 //  res::str values its own tab shows).
 
@@ -23,7 +23,7 @@ import SwiftUI
 private let columns: UInt32 = 12
 /// The widest a single tile may span. Wider spans make the span-distribution path do more work.
 private let maxSpan: UInt32 = 4
-/// Tiles the tab opens with — matches the Day tab so the two cold-start identically.
+/// Tiles the tab opens with; matches the Day tab so the two cold-start identically.
 private let defaultCount: Double = 48
 
 /// One tile: its index (which fixes its color) and how many columns it covers.
@@ -45,7 +45,7 @@ struct Row: Identifiable, Equatable {
 ///
 /// The span is drawn from the generator and then clamped to what is left in the row, so a row
 /// always closes on the column boundary rather than overflowing into the next. The final row is
-/// short by construction — its last tile absorbs the remainder, which keeps the "every row fills
+/// short by construction: its last tile absorbs the remainder, which keeps the "every row fills
 /// the width" invariant true for the whole grid rather than all-but-one of it.
 func pack(seed: UInt32, count: Int) -> [Row] {
     var rng = Rng(seed: seed)
@@ -84,7 +84,7 @@ public struct BenchGridsView: View {
     let rowsOne: String
     let rowsOther: String
     /// The exact height of the Parameters block, passed from Rust (the page's PARAMS_HEIGHT)
-    /// so the patchwork below starts at the same y as the Day tab's — the pixel the two
+    /// so the patchwork below starts at the same y as the Day tab's, the pixel the two
     /// implementations are compared at.
     let paramsHeight: Double
 
@@ -106,7 +106,7 @@ public struct BenchGridsView: View {
 
     private var rows: [Row] { pack(seed: UInt32(seed), count: Int(count)) }
 
-    /// The shared label-column width — the widest row label, measured via the preference below.
+    /// The shared label-column width: the widest row label, measured via the preference below.
     /// The Day tab's `labeled` does the same: every label sits trailing-aligned in one column
     /// as wide as the widest, so the sliders all start at the same x.
     @State private var labelColumn: CGFloat?
@@ -114,8 +114,8 @@ public struct BenchGridsView: View {
     /// One parameter row, laid out exactly as the Day tab's `labeled(label, row(slider,
     /// readout))`: the trailing-aligned label column, a 12pt gap (day-pieces' LABELED_GAP),
     /// the slider, an 8pt gap, and a readout whose slot reserves the widest value so the
-    /// slider's right edge never shifts as digits change. No `step:` on the slider — on macOS
-    /// a stepped SwiftUI slider draws tick marks the Day slider doesn't have — so the binding
+    /// slider's right edge never shifts as digits change. No `step:` on the slider: on macOS
+    /// a stepped SwiftUI slider draws tick marks the Day slider doesn't have, so the binding
     /// snaps to integers instead.
     private func parameterRow(
         _ label: String,
@@ -139,7 +139,7 @@ public struct BenchGridsView: View {
                     in: range
                 )
                 // The Day readout's `reserving`: the widest value sits hidden under the live
-                // one, so the slot holds its width — the value leading-aligned inside it, the
+                // one, so the slot holds its width, with the value leading-aligned inside it, the
                 // way Day's Label sits in its reserved box.
                 ZStack(alignment: .leading) {
                     Text(widest).hidden()
@@ -149,7 +149,7 @@ public struct BenchGridsView: View {
             }
         }
         // The Day row's pitch: its slider row stands 21pt tall, and the section stacks rows
-        // 10pt apart — pinned so the two tabs' rows land on the same lines.
+        // 10pt apart, pinned so the two tabs' rows land on the same lines.
         .frame(height: 21)
     }
 
@@ -160,7 +160,7 @@ public struct BenchGridsView: View {
             //
             // `GroupBox`, not `Form`: Day's `form`/`section` is a card that hugs its content, and
             // so is a GroupBox. A `Form` is backed by a scroll view that claims all the height it
-            // is offered, which would starve the grid below — capping it with a fixed frame just
+            // is offered, which would starve the grid below; capping it with a fixed frame just
             // trades that for dead space. The card must hug so the grid gets exactly the rest,
             // which is the geometry the Day tab lays out.
             GroupBox(parametersLabel) {
@@ -181,19 +181,19 @@ public struct BenchGridsView: View {
                 .padding(.top, 11)
                 .padding(.leading, 13.5)
                 .padding(.trailing, 5.5)
-                // Greedy, so the CARD stretches to the fixed slot below rather than hugging
-                // and leaving slack under it — the Day tab's form fills its slot the same way.
+                // Greedy, so the card stretches to the fixed slot below rather than hugging
+                // and leaving slack under it; the Day tab's form fills its slot the same way.
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             }
-            // The SAME fixed height the Day tab reserves (its PARAMS_HEIGHT, passed through the
-            // initializer): the box hugs its content, the frame pins the SLOT, and the grid
+            // The same fixed height the Day tab reserves (its PARAMS_HEIGHT, passed through the
+            // initializer): the box hugs its content, the frame pins the slot, and the grid
             // below therefore begins at the identical y under either tab. Top-aligned so any
             // platform-to-platform slack in the box's natural height opens downward, never by
             // re-centring the card.
             .frame(maxWidth: .infinity, minHeight: paramsHeight, maxHeight: paramsHeight, alignment: .topLeading)
 
             // The patchwork. Every tile grows on both axes, so the grid resolves columns by the
-            // flexible share and stretches rows into the leftover height — it fills the pane
+            // flexible share and stretches rows into the leftover height; it fills the pane
             // exactly, the same invariant the Day tab holds.
             Grid(horizontalSpacing: 2, verticalSpacing: 2) {
                 ForEach(rows) { row in
@@ -213,7 +213,7 @@ public struct BenchGridsView: View {
     }
 }
 
-/// The widest parameter label, folded across the rows — how the two labels share one
+/// The widest parameter label, folded across the rows: how the two labels share one
 /// trailing-aligned column the way the Day form's shared label column does.
 private struct LabelColumnKey: PreferenceKey {
     static let defaultValue: CGFloat = 0

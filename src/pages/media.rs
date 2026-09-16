@@ -3,7 +3,7 @@ use day_piece_media::media;
 
 use crate::widgets::page_wide;
 
-/// A native media player (day-piece-media, an EXTERNAL standalone piece): AVPlayerView /
+/// A native media player (day-piece-media, an external standalone piece): AVPlayerView /
 /// AVPlayerViewController / QMediaPlayer+QVideoWidget / android.widget.VideoView / GtkVideo.
 /// Transport is imperative via `Trigger`s the piece watches; native chrome (where the toolkit
 /// has one) offers its own controls too. The bundled Lottie animation has a page of its own
@@ -16,7 +16,7 @@ pub(crate) fn media_page() -> AnyPiece {
     let pause = Trigger::new();
     let load = Trigger::new();
     let video = section((
-        // muted: CI walkthroughs screenshot this page — don't blast audio on runners. The
+        // muted: CI walkthroughs screenshot this page, so don't blast audio on runners. The
         // fixed height keeps the 16:9 sample balanced against the transport row instead of
         // flooding the page with letterboxing.
         media(url)
@@ -52,7 +52,7 @@ pub(crate) fn media_page() -> AnyPiece {
     .any()
 }
 
-/// The bundled Lottie animation on its own page (day-piece-lottie, an EXTERNAL standalone
+/// The bundled Lottie animation on its own page (day-piece-lottie, an external standalone
 /// piece): a LottieAnimationView driven by airbnb's lottie-ios (SwiftPM) / lottie-android
 /// (Gradle), rendering `resource/assets/hello.json` in a loop. The page exists only where the
 /// piece has an arm: the crate carries no `support()` and `Cap::Lottie` goes unanswered on
@@ -119,7 +119,7 @@ pub(crate) fn lottie_page() -> AnyPiece {
             .spacing(8.0),
         ),
         // Presets: the same signal the slider writes, so a tap moves the slider and the
-        // readout together — and gives a script a deterministic value to assert.
+        // readout together, and gives a script a deterministic value to assert.
         row((
             preset("\u{bd}\u{d7}", 0.5, "lottie-speed-half"),
             preset("1\u{d7}", 1.0, "lottie-speed-one"),

@@ -8,7 +8,7 @@ import PackageDescription
 
 let package = Package(
     name: "ShowcaseSwiftUI",
-    // SwiftUI `Grid`/`GridRow` — the same floors the Cargo.toml metadata raises the app to.
+    // SwiftUI `Grid`/`GridRow`: the same floors the Cargo.toml metadata raises the app to.
     platforms: [.macOS("13.0"), .iOS("16.0")],
     products: [.library(name: "ShowcaseSwiftUI", targets: ["ShowcaseSwiftUI"])],
     targets: [

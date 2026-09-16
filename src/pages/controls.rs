@@ -11,14 +11,14 @@ use crate::widgets::{gauge, page};
 
 /// Every control Day ships, on one page, family by family: the reference a reader scrolls
 /// when they ask "does Day have a…". One `labeled` row per control, named after the control,
-/// and every control bound to live state — the State section at the foot reads it all back,
+/// and every control bound to live state; the State section at the foot reads it all back,
 /// which is what proves the bindings. The composition-tier pieces and the external control
 /// crates (stepper, combo box, search field, date and time pickers, color picker, rating,
 /// activity) sit beside the built-ins and are named at the foot of the page.
 ///
 /// Where one value can feed several controls it does: the slider, the stepped slider, the
 /// progress bar and the gauge share `level`, and a preset snaps it, so moving one moves the
-/// rest — the one idea kept from the page's earlier life as a six-control mixer.
+/// rest, the one idea kept from the page's earlier life as a six-control mixer.
 pub(crate) fn controls_page() -> AnyPiece {
     let st = Catalog::new();
     page(
@@ -56,7 +56,7 @@ struct Catalog {
     name: Signal<String>,
     /// The search field's query, over the combo box's list.
     query: Signal<String>,
-    /// The combo box's text — a value that may or may not be in the list.
+    /// The combo box's text: a value that may or may not be in the list.
     voice: Signal<String>,
     /// The text area.
     notes: Signal<String>,
@@ -99,7 +99,7 @@ impl Catalog {
             move |idx, _| st.level.set(PRESET_LEVELS[(*idx).min(2)]),
         );
         // On the web a reload is part of normal life, so the switch and the level survive it
-        // (docs/web.md). Native launches start fresh on purpose, and the walkthrough asserts that.
+        // (docs/web.md). Native launches start fresh, and the walkthrough asserts that.
         #[cfg(target_arch = "wasm32")]
         {
             day::prefs::bind("controls.level", st.level);
@@ -135,7 +135,7 @@ impl Catalog {
         self.presses.update(|p| *p += 1);
     }
 
-    /// Everything below the master switch dims when it is off — the one visual cue that the
+    /// Everything below the master switch dims when it is off, the one visual cue that the
     /// toggle governs the controls that take a value.
     fn dim(self) -> impl Fn() -> f64 {
         move || if self.on.get() { 1.0 } else { 0.45 }
@@ -143,7 +143,7 @@ impl Catalog {
 }
 
 /// The button in each of its styles. Every one counts a press, so the readout beside them
-/// proves each fired — the styles are presentation, the action is one.
+/// proves each fired: the styles are presentation, the action is one.
 fn buttons_section(st: Catalog) -> impl Piece {
     let press = crate::res::str::ctl_press;
     let playing = Signal::new(false);
@@ -239,12 +239,12 @@ fn buttons_section(st: Catalog) -> impl Piece {
     .title(crate::res::str::ctl_buttons())
 }
 
-/// The value controls, most of them over ONE number: the slider writes `level`, the progress
+/// The value controls, most of them over one number: the slider writes `level`, the progress
 /// bar reports it, and the switch above gates the lot; the stepped slider keeps a value of its
 /// own (see `Catalog::steps`).
 /// The stepper (day-piece-stepper: an NSStepper field, a GtkSpinButton, a QDoubleSpinBox, and
-/// a composed field elsewhere) keeps its own count, shown twice — once native where the
-/// toolkit has one, once composed — so the two idioms sit side by side.
+/// a composed field elsewhere) keeps its own count, shown twice (once native where the
+/// toolkit has one, once composed) so the two idioms sit side by side.
 fn switches_section(st: Catalog) -> impl Piece {
     let dim = st.dim();
     section((
@@ -369,7 +369,7 @@ fn text_section(st: Catalog) -> impl Piece {
                         .id("search-clear"),
                 ))
                 .spacing(8.0),
-                // The first match in the SAME list the combo offers — a value, or an em-dash.
+                // The first match in the same list the combo offers: a value, or an em-dash.
                 label(move || first_match(&st.query.get(), &voices.get()))
                     .font(Font::Footnote)
                     .id("search-result"),
@@ -379,7 +379,7 @@ fn text_section(st: Catalog) -> impl Piece {
         ),
         labeled(
             crate::res::str::ctl_combo_box(),
-            // The bound value reads BELOW the field, not at the end of the row: on the same row
+            // The bound value reads below the field, not at the end of the row: on the same row
             // it grew with every keystroke and pushed Add sideways as you typed.
             column((
                 row((
@@ -429,7 +429,7 @@ fn text_section(st: Catalog) -> impl Piece {
     .title(crate::res::str::ctl_text_entry())
 }
 
-/// Pickers: the built-in picker in its three stylings over ONE selection (docs/picker.md),
+/// Pickers: the built-in picker in its three stylings over one selection (docs/picker.md),
 /// then the date, time and color pickers from their crates. The date and time pickers appear
 /// here compact; the inline calendar has the Date & time page to itself.
 fn pickers_section(st: Catalog) -> impl Piece {
@@ -471,7 +471,7 @@ fn pickers_section(st: Catalog) -> impl Piece {
             crate::res::str::ctl_time(),
             time_picker(st.time).compact().id("ctl-time"),
         ),
-        // Native chooser or a composed one per toolkit (docs/colorpicker.md) — never a banner:
+        // Native chooser or a composed one per toolkit (docs/colorpicker.md), never a banner:
         // there is no target where it does not work, only which picker differs.
         labeled(
             crate::res::str::ctl_color(),

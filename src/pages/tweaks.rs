@@ -6,8 +6,8 @@ use day_tweak_tooltip::TooltipTweak;
 
 use crate::widgets::heading;
 
-// Tweaks (docs/tweaks.md): packaged per-toolkit configuration of BUILT-IN pieces. Each card shows
-// a stock piece beside its Tweaked Piece; the captions name the toolkits the tweak affects — on
+// Tweaks (docs/tweaks.md): packaged per-toolkit configuration of built-in pieces. Each card shows
+// a stock piece beside its Tweaked Piece; the captions name the toolkits the tweak affects; on
 // every other toolkit the tweak is a documented no-op and the two sides look identical.
 pub(crate) fn tweaks_page() -> AnyPiece {
     let free = Signal::new(50.0f64);
@@ -47,7 +47,7 @@ pub(crate) fn tweaks_page() -> AnyPiece {
     .align(HAlign::Leading)
     .modifier(Card);
 
-    // day-tweak-slider-tickmarks: the full-range tweak — six toolkits, incl. its own Qt/XAML/
+    // day-tweak-slider-tickmarks: the full-range tweak: six toolkits, incl. its own Qt/XAML/
     // ArkUI native code. The tweaked slider snaps to its marks where the platform supports it.
     let ticks_card = column((
         label(crate::res::str::tweaks_ticks_title()).font(Font::Headline),
@@ -80,7 +80,7 @@ pub(crate) fn tweaks_page() -> AnyPiece {
     .align(HAlign::Leading)
     .modifier(Card);
 
-    // NativeRef: imperative access with liveness — unmount the Tweaked Piece and the ref clears.
+    // NativeRef: imperative access with liveness; unmount the Tweaked Piece and the ref clears.
     let ref_card = column((
         label(crate::res::str::tweaks_ref_title()).font(Font::Headline),
         label(crate::res::str::tweaks_ref_caption()).font(Font::Footnote),
@@ -117,11 +117,11 @@ pub(crate) fn tweaks_page() -> AnyPiece {
     .align(HAlign::Leading)
     .modifier(Card);
 
-    // Inline `.appkit(…)`/`.uikit(…)` on a text label with a CONDITIONAL backing
+    // Inline `.appkit(…)`/`.uikit(…)` on a text label with a conditional backing
     // (docs/tweaks.md "Conditional backings"): with Selectable on, iOS realizes the label as a
     // read-only UITextView instead of a UILabel (docs/text.md). The tweak stays correct because
-    // it sits AFTER `.selectable()` in the chain and pokes view-level surface (alpha), which
-    // lands on either class; the caption line reports the concrete class the tweak saw — flip
+    // it sits after `.selectable()` in the chain and pokes view-level surface (alpha), which
+    // lands on either class; the caption line reports the concrete class the tweak saw. Flip
     // the toggle on iOS and watch it change. AppKit keeps NSTextField for both states; every
     // other toolkit shows the stock label and an em-dash class.
     let label_sel = Signal::new(false);
@@ -166,9 +166,9 @@ pub(crate) fn tweaks_page() -> AnyPiece {
     .any()
 }
 
-/// The label-card sample for one Selectable state: `.selectable()` FIRST — it may REBUILD the
-/// backing (UIKit) — then the tweak, so it runs against the widget that ships and reports that
-/// widget's class (docs/tweaks.md "Conditional backings").
+/// The label-card sample for one Selectable state: `.selectable()` first, since it may rebuild
+/// the backing (UIKit), then the tweak, so it runs against the widget that ships and reports
+/// that widget's class (docs/tweaks.md "Conditional backings").
 fn tweaked_label(selectable: bool, seen: Signal<String>) -> impl Piece {
     let l = label(crate::res::str::tweaks_label_sample()).id("tweak-label-sample");
     let l = if selectable { l.selectable() } else { l };
@@ -177,7 +177,7 @@ fn tweaked_label(selectable: bool, seen: Signal<String>) -> impl Piece {
         use day_appkit::AppKitExt;
         l.appkit(move |view, class, _mtm| {
             seen.set(class.to_string());
-            // View-level surface on purpose: alpha lands identically on any backing class.
+            // View-level surface, because alpha lands identically on any backing class.
             view.setAlphaValue(0.55);
         })
     };

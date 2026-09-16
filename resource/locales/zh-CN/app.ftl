@@ -99,7 +99,7 @@ picker_segmented = 分段
 picker_menu = 菜单
 picker_inline = 内联
 
-# — day-piece-datetime —
+# --- day-piece-datetime ---
 nav_dates = 日期与时间
 dates_date_section = 日期
 dates_time_section = 时间
@@ -264,7 +264,7 @@ media_play = 播放
 media_pause = 暂停
 media_load = 加载
 
-# — Localization page (docs/localization.md) —
+# --- Localization page (docs/localization.md) ---
 nav_localization = 本地化
 loc_locale_section = 实时语言
 loc_live_note = 语言是一个信号——切换后所有文本立即重新渲染。布局方向在启动时固定（以 ar 启动可见镜像界面）。
@@ -391,7 +391,7 @@ map_caption = 原生 MKMapView——仅限 Apple 平台。点按预设可实时�
 map_boston = 波士顿
 map_paris = 巴黎
 
-# — tweaks page (docs/tweaks.md) —
+# --- tweaks page (docs/tweaks.md) ---
 nav_tweaks = 微调
 tweaks_stock = 原样
 tweaks_tweaked = 已微调
@@ -415,7 +415,7 @@ tweaks_label_caption = 内联微调（AppKit、UIKit）通过原生视图调暗�
 tweaks_label_sample = 此标签由原生微调调暗。
 tweaks_label_class = 原生类：{ $class }
 
-# — merged section pages (design overhaul) —
+# --- merged section pages (design overhaul) ---
 nav_canvas = 画布与形状
 nav_system = 设备与传感器
 nav_network_http = 网络与 HTTP
@@ -444,7 +444,7 @@ canvas_image_loading = 正在解码…
 canvas_image_failed = 这些字节不是本平台可解码的图像
 canvas_image_readout = { $format } · { $width } × { $height } 像素
 
-# — data strings localized for the walkthrough locales (option lists, specimen rows) —
+# --- data strings localized for the walkthrough locales (option lists, specimen rows) ---
 chocolate = 巧克力
 size_small = 小
 size_medium = 中
@@ -533,7 +533,7 @@ focus_probe_toggle = 开关
 focus_probe_slider = 滑块
 focus_probe_button = 按钮
 
-# HTTP fetch demo (docs/http.md) — the status readout stays raw "<status> <body>" so the
+# HTTP fetch demo (docs/http.md): the status readout stays raw "<status> <body>" so the
 # walkthrough asserts it byte-for-byte in every locale.
 http_title = HTTP
 http_caption = day-part-http 部件通过平台自带的 HTTP 栈发起请求——系统代理、VPN 与 TLS 一并生效。
@@ -600,12 +600,12 @@ identity_with = 带证书连接
 network_needs_server = 这些演示与应用内的测试服务器通信，网页无法运行该服务器。
 network_needs_internet = 这些演示会访问 badssl.com 和 example.com，因此需要联网。
 
-# Scrolling page (docs/scroll.md) — programmatic scroll targets.
+# Scrolling page (docs/scroll.md): programmatic scroll targets.
 scroll_to_top = 滚动到顶部
 scroll_to_bottom = 滚动到底部
 scroll_to_item = 滚动到第 100 项
 
-# Grid page (docs/grid.md) — grid/grid_row from basics to a stress test.
+# Grid page (docs/grid.md): grid/grid_row from basics to a stress test.
 nav_grid = 网格
 grid_tab_basics = 基础
 grid_tab_sizing = 尺寸
@@ -646,8 +646,8 @@ anim_curve_ease_out = 缓出
 anim_curve_linear = 线性
 anim_duration_ms = { $ms } 毫秒
 
-# — 基准测试页（Day-Bench 的网格基准测试；在 Apple 原生后端上，分段选择器还通过
-#   day-piece-swiftui 承载其手写的 SwiftUI 孪生实现，docs/swiftui.md）—
+# --- 基准测试页（Day-Bench 的网格基准测试；在 Apple 原生后端上，分段选择器还通过
+#     day-piece-swiftui 承载其手写的 SwiftUI 孪生实现，docs/swiftui.md）---
 nav_benchmark = 基准测试
 bench_parameters = 参数
 bench_seed = 随机种子
@@ -802,7 +802,7 @@ storage_idle = 尚未存储任何内容
 
 prefs_window_title = 偏好设置
 
-# — Tree page (docs/tree.md) —
+# --- Tree page (docs/tree.md) ---
 nav_tree = 树
 tree_caption = 基于应用自有数据行的层级大纲：展开、选择、定位显示、拖动移动，以及每行的上下文菜单。
 tree_expand_all = 全部展开
@@ -829,13 +829,13 @@ tree_ctx_move_up = 上移
 tree_ctx_move_down = 下移
 tree_ctx_delete = 删除
 
-# — Toolbars page (docs/toolbars.md) —
+# --- Toolbars page (docs/toolbars.md) ---
 nav_toolbars = 工具栏
 toolbar_unsupported = 此工具包没有窗口工具栏，因此没有安装任何内容。手机会把这些命令放进页面内容里。
 toolbar_readout_title = 工具栏正在做什么
 toolbar_controls_title = 从这里驱动它
 toolbar_vocabulary_title = 工具栏项的种类
-# Item labels — these appear IN the toolbar, so they stay short.
+# Item labels: these appear in the toolbar, so they stay short.
 toolbar_new = 新建窗口
 toolbar_menu_open_scripting = 打开脚本页面
 toolbar_menu_copy_script = 复制脚本
@@ -922,7 +922,7 @@ haptics_song_levelup = 升级
 haptics_song_heartbeat = 心跳
 haptics_song_cascade = 级联
 
-# — 脚本录制（dayscript 录制器）—
+# --- 脚本录制（dayscript 录制器）---
 nav_scripting = 脚本录制
 scripting_record = 录制
 scripting_stop = 停止

@@ -7,7 +7,8 @@ authors = ["Daybrite <hello@daybrite.dev>"]
 repository = "https://github.com/daybrite/Day-Showcase"
 homepage = "https://daybrite.dev"
 # Generate typed resource constants (`res::images::…`, `res::assets::…`, `res::fonts::…`) from
-# `resource/` on every build (§18.5) — dogfoods day-build; see build.rs and the `res` module in lib.rs.
+# `resource/` on every build (§18.5), which dogfoods day-build; see build.rs and the `res` module
+# in lib.rs.
 build = "build.rs"
 
 [features]
@@ -29,18 +30,18 @@ mock = ["day/mock"]
 
 # rlib for the desktop bin; the iOS staticlib and Android cdylib are requested explicitly by
 # the mobile pipeline via `cargo rustc --crate-type` (day-cli mobile.rs). Keeping cdylib here
-# would make every desktop build emit it too — and a Rust cdylib blows past the PE export cap
+# would make every desktop build emit it too, and a Rust cdylib blows past the PE export cap
 # on the windows-gnu ABI (windows-gtk / windows-qt): "too many exported symbols, max 65535".
 [lib]
-# A CONSTANT name, not the package's. Every artifact Day stages is named after the LIB target —
-# `libdayapp.a` for the iOS/macOS staticlib, `libdayapp.so` for the Android cdylib, and the
-# `dayapp::` path `src/main.rs` imports — so none of them move when the package is renamed.
+# A constant name, not the package's. Every artifact Day stages is named after the lib target
+# (`libdayapp.a` for the iOS/macOS staticlib, `libdayapp.so` for the Android cdylib, and the
+# `dayapp::` path `src/main.rs` imports), so none of them move when the package is renamed.
 # Renaming this app is a one-line edit to `[package] name` above (DESIGN.md §17.5).
 name = "dayapp"
 crate-type = ["rlib"]
 
 [build-dependencies]
-# Resource-constant codegen (§18.5) — the same crate a scaffolded app's build.rs uses.
+# Resource-constant codegen (§18.5): the same crate a scaffolded app's build.rs uses.
 day-build = { git = "https://github.com/daybrite/day.git" }
 
 [dependencies]
@@ -49,14 +50,15 @@ day = { git = "https://github.com/daybrite/day.git", features = ["model"] }
 # scaffold it copies does (src/pages/content_list/model.rs).
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-# Consent-first crash reporting (docs/break.md) — the Crash Reporting page arms it and shows the
+# Consent-first crash reporting (docs/break.md): the Crash Reporting page arms it and shows the
 # previous run's report. Optional in general; here it demonstrates the whole flow. Its consent UI
 # (`ui` feature, on by default) is built from ordinary pieces, so no per-backend wiring is needed.
 day-break = { git = "https://github.com/daybrite/day.git" }
-# A HEADLESS capability crate (no UI Piece): app Rust code calls day_part_battery::status() directly.
+# A headless capability crate (no UI Piece): app Rust code calls day_part_battery::status()
+# directly.
 day-part-battery = { git = "https://github.com/daybrite/day.git" }
 # daybridge's reference part (docs/bridge.md): one API, a different language per platform. The
-# first PART in its own repository, on the same terms as day-piece-lottie below: a bare git line,
+# first part in its own repository, on the same terms as day-piece-lottie below: a bare git line,
 # so Cargo.lock picks one day revision for the whole graph. `day patch --local ../day-part-speech`
 # builds against a checkout of it.
 day-part-speech = { git = "https://github.com/daybrite/day-part-speech.git" }
@@ -67,21 +69,22 @@ day-part-clipboard = { git = "https://github.com/daybrite/day.git" }
 day-part-network = { git = "https://github.com/daybrite/day.git" }
 day-piece-combobox = { git = "https://github.com/daybrite/day.git" }
 day-piece-stepper = { git = "https://github.com/daybrite/day.git" }
-# A COMPOSE piece (pure composition — no native code, no cargo features): a plain dep, available on
-# every backend for free. No per-backend feature wiring above, the composition-first payoff.
+# A compose piece (pure composition, without native code or cargo features): a plain dep,
+# available on every backend with no extra work. It needs no per-backend feature wiring above,
+# which is the composition-first payoff.
 day-piece-rating = { git = "https://github.com/daybrite/day.git" }
 day-piece-pullrefresh = { git = "https://github.com/daybrite/day.git" }
 day-piece-datetime = { git = "https://github.com/daybrite/day.git" }
-# The color picker (docs/colorpicker.md): the Resources page opens it in BOTH idioms — the
-# platform's own chooser, and Day's composed panel, which is the same picker on every target.
+# The color picker (docs/colorpicker.md): the Resources page opens it in both idioms, the
+# platform's chooser and Day's composed panel, which is the same picker on every target.
 day-piece-colorpicker = { git = "https://github.com/daybrite/day.git" }
 # The styled-text editor (docs/texteditor.md): the Text areas page edits a formatted note and a
-# live-highlighted code sample in each platform's own rich-text view.
+# live-highlighted code sample in each platform's rich-text view.
 day-piece-texteditor = { git = "https://github.com/daybrite/day.git" }
 # Tweaks (docs/tweaks.md): packaged per-toolkit configuration of built-in pieces.
 day-tweak-button-bezel = { git = "https://github.com/daybrite/day.git" }
-# The Apple toolkit crates directly, for the Tweaks page's INLINE `.appkit(…)`/`.uikit(…)`
-# label card (docs/tweaks.md "Per-toolkit access") — each rides only its backend's feature.
+# The Apple toolkit crates directly, for the Tweaks page's inline `.appkit(…)`/`.uikit(…)`
+# label card (docs/tweaks.md "Per-toolkit access"); each rides only its backend's feature.
 day-appkit = { git = "https://github.com/daybrite/day.git", optional = true }
 day-uikit = { git = "https://github.com/daybrite/day.git", optional = true }
 day-tweak-tooltip = { git = "https://github.com/daybrite/day.git" }
@@ -108,7 +111,7 @@ day-piece-searchfield = { git = "https://github.com/daybrite/day.git" }
 day-piece-map = { git = "https://github.com/daybrite/day.git" }
 # day-piece-lottie is iOS/Android only; the front-end compiles everywhere but the `lottie` page is
 # `#[cfg]`-gated to those targets. Its backend features are enabled only in `uikit`/`mdc`. The
-# first piece in its OWN repository: a bare git line like day's, so Cargo.lock picks one day
+# first piece in its own repository: a bare git line like day's, so Cargo.lock picks one day
 # revision for the whole graph (day/DESIGN.md §15.2). `day patch --local ../day-piece-lottie`
 # builds against a checkout of it.
 day-piece-lottie = { git = "https://github.com/daybrite/day-piece-lottie.git" }
@@ -120,24 +123,24 @@ day-piece-camera = { git = "https://github.com/daybrite/day-piece-camera.git" }
 # The last photo the Camera page took is shown through the bytes-backed image piece.
 day-piece-remote-image = { git = "https://github.com/daybrite/day.git" }
 # SwiftUI embedding (docs/swiftui.md): hosts the swiftui/ package's views on the Benchmark page.
-# Apple-native only, but a plain dep with no cfg anywhere — the front-end compiles on every
+# Apple-native only, but a plain dep with no cfg anywhere: the front-end compiles on every
 # backend and `day_piece_swiftui::support()` gates the UI, so no placeholder can ever realize.
 day-piece-swiftui = { git = "https://github.com/daybrite/day.git" }
 
 
 # Its own workspace root, which is what `day new app` generates too. Without this, cloning the app
-# into a directory that is itself a cargo workspace — daybrite/day's CI checks it out inside the
-# framework checkout — makes cargo walk up, find that workspace, and refuse to build a package the
+# into a directory that is itself a cargo workspace (daybrite/day's CI checks it out inside the
+# framework checkout) makes cargo walk up, find that workspace, and refuse to build a package the
 # workspace does not list as a member.
 [workspace]
 
-# --- SwiftUI embedding (docs/swiftui.md): the app's own SwiftPM package ---
+# --- SwiftUI embedding (docs/swiftui.md): the app's SwiftPM package ---
 # `day build` wires swiftui/ into the generated DayPieces module on each Apple leg (with its
 # transitive SwiftPM dependencies) and generates hosting glue for its public views; day-build
 # (build.rs) generates the matching typed Rust constructors, surfaced as `crate::swiftui::*` in
 # lib.rs. `products` is named because the library product ("ShowcaseSwiftUI") differs from the
-# directory ("swiftui"); `platform` raises the deployment floor — SwiftUI `Grid` needs iOS 16 /
-# macOS 13 — which `day build` conveys to xcodebuild / `swift build` without touching scaffolds.
+# directory ("swiftui"); `platform` raises the deployment floor (SwiftUI `Grid` needs iOS 16 /
+# macOS 13), which `day build` conveys to xcodebuild / `swift build` without touching scaffolds.
 [package.metadata.day.ios]
 swift-packages = [{ path = "swiftui", products = ["ShowcaseSwiftUI"] }]
 platform = "16.0"

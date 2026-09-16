@@ -1,21 +1,21 @@
-//  Bench.swift — the deterministic generator behind the Benchmark page's SwiftUI twin, ported
+//  Bench.swift: the deterministic generator behind the Benchmark page's SwiftUI twin, ported
 //  from Day-Bench (`versus/swiftui/DayBenchSwiftUI/Bench.swift`, itself a line-for-line port of
 //  the Rust `bench.rs` that src/pages/benchmark.rs carries).
 //
 //  The generator is transliterated rather than rewritten idiomatically: the same LCG constants,
 //  the same discarded low byte, the same golden-angle color sequence. Swift's `&*`/`&+` are Rust's
-//  `wrapping_mul`/`wrapping_add`, so both tabs draw byte-identical patchworks from the same seed —
+//  `wrapping_mul`/`wrapping_add`, so both tabs draw byte-identical patchworks from the same seed,
 //  which is what makes the two implementations comparable at all. The parity tests pin the same
 //  literal fixtures the Rust tests do.
 
 import SwiftUI
 
-/// A 32-bit linear congruential generator. Not statistically strong — it does not need to be.
+/// A 32-bit linear congruential generator. Not statistically strong; it does not need to be.
 /// What it needs is to be cheap, reproducible, and identical everywhere (`benchmark.rs`: `Rng`).
 struct Rng {
     private var state: UInt32
 
-    /// Seed the generator. The multiply spreads small, adjacent seeds (0, 1, 2 — what a slider
+    /// Seed the generator. The multiply spreads small, adjacent seeds (0, 1, 2: what a slider
     /// produces) across the state space, so consecutive seeds look unrelated instead of drawing
     /// near-identical layouts.
     init(seed: UInt32) {
@@ -23,7 +23,7 @@ struct Rng {
     }
 
     /// The next raw value. The high bits are the well-mixed ones in an LCG, so the low byte is
-    /// discarded rather than returned — taking `% n` of the raw state would expose its short
+    /// discarded rather than returned; taking `% n` of the raw state would expose its short
     /// low-bit cycles as visible banding in the patchwork.
     private mutating func next() -> UInt32 {
         state = state &* 1_664_525 &+ 1_013_904_223
@@ -40,8 +40,8 @@ struct Rng {
 /// The color for cell `i`: a predictable sequence in which no two nearby cells collide.
 ///
 /// Stepping the hue by the golden angle (137°) is the standard trick for a sequence whose
-/// consecutive entries are as far apart on the wheel as possible — 0°, 137°, 274°, 51°, 188° —
-/// so neighbours stay distinct however the patchwork packs them, and cell `i` is always the same
+/// consecutive entries are as far apart on the wheel as possible (0°, 137°, 274°, 51°, 188°),
+/// so neighbors stay distinct however the patchwork packs them, and cell `i` is always the same
 /// color for a given `i`.
 func cellColor(_ i: Int) -> Color {
     let hue = (UInt32(truncatingIfNeeded: i) &* 137) % 360

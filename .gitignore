@@ -21,10 +21,10 @@ local.properties
 # it via the generated DayPieces package, `swift test` uses this local scratch.
 swiftui/.build/
 
-# Xcode local state (DayApp.xcodeproj itself is hand-written source — do NOT ignore it)
+# Xcode local state (DayApp.xcodeproj itself is hand-written source; do not ignore it)
 xcuserdata/
 DerivedData/
-# Xcode writes SwiftPM bookkeeping INSIDE the .xcodeproj the first time it resolves packages.
+# Xcode writes SwiftPM bookkeeping inside the .xcodeproj the first time it resolves packages.
 # It is regenerated state, and project.xcworkspace cannot be relocated out of the project.
 **/*.xcodeproj/project.xcworkspace/
 
