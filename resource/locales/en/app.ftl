@@ -1119,7 +1119,7 @@ ctl_icon_only = Icon only
 ctl_image = Bundled image
 
 nav_drag_drop = Drag & Drop
-dnd_hint = Drag the image, a chosen file, or custom data to another tile or Showcase window. Red strips reject drops. Moves within this page preserve the object; other windows receive a copy.
+dnd_hint = Drag the image, a chosen file, or custom data to another tile or Showcase window. Circles marked with an X reject drops. Moves within this page preserve the object; other windows receive a copy.
 dnd_ready = Ready to receive a drop.
 dnd_empty = Drop here
 dnd_new_window = New window
@@ -1130,3 +1130,5 @@ dnd_data = { $mime }: { $count } bytes
 
 files_reopen = Reopen last file
 files_bookmark_failed = Access to the saved file could not be restored. Choose it again using Open.
+
+dnd_disallowed = Add disallowed regions

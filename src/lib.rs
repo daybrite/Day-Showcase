@@ -549,7 +549,7 @@ fn destinations() -> Vec<Dest> {
             Data,
             Section::DragDrop,
             crate::res::str::nav_drag_drop,
-            vectors::nav_tree,
+            vectors::nav_drag_drop,
             drag_drop_page,
         ),
         d(

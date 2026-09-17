@@ -1102,7 +1102,7 @@ ctl_icon_only = 仅图标
 ctl_image = 内置图像
 
 nav_drag_drop = 拖放
-dnd_hint = 将图像、所选文件或自定义数据拖到另一个方框或窗口。红色区域拒绝放置。同一页面内移动，窗口之间复制。
+dnd_hint = 将图像、所选文件或自定义数据拖到另一个方框或窗口。标有 X 的圆圈拒绝放置。同一页面内移动，窗口之间复制。
 dnd_ready = 等待拖入内容。
 dnd_empty = 放置于此
 dnd_new_window = 新建窗口
@@ -1113,3 +1113,5 @@ dnd_data = { $mime }：{ $count } 字节
 
 files_reopen = 重新打开上次的文件
 files_bookmark_failed = 无法恢复对已保存文件的访问权限。请使用“打开”重新选择文件。
+
+dnd_disallowed = 添加禁止放置区域
