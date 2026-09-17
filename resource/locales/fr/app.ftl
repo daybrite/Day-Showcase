@@ -1120,3 +1120,6 @@ dnd_choose_file = Choisir un fichier…
 dnd_accept = Accepter les dépôts
 
 dnd_data = { $mime } : { $count } octets
+
+files_reopen = Rouvrir le dernier fichier
+files_bookmark_failed = Impossible de rétablir l’accès au fichier enregistré. Sélectionnez-le à nouveau avec Ouvrir.

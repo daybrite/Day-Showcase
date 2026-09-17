@@ -1110,3 +1110,6 @@ dnd_choose_file = 选择文件…
 dnd_accept = 接受拖放
 
 dnd_data = { $mime }：{ $count } 字节
+
+files_reopen = 重新打开上次的文件
+files_bookmark_failed = 无法恢复对已保存文件的访问权限。请使用“打开”重新选择文件。

@@ -1127,3 +1127,6 @@ dnd_choose_file = Choose file…
 dnd_accept = Accept drops
 
 dnd_data = { $mime }: { $count } bytes
+
+files_reopen = Reopen last file
+files_bookmark_failed = Access to the saved file could not be restored. Choose it again using Open.

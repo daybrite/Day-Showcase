@@ -82,6 +82,17 @@ height = 720
 [signing.macos]
 identity = "${DAY_SIGN_MACOS_IDENTITY}" # "Developer ID Application: …"
 
+# App Store builds use the AppKit bundle. Qt/GTK remain separate development targets.
+[sandbox.macos-appkit]
+enabled = true
+user-selected-files = "read-write"
+bookmarks = true
+network-client = true
+# The Network & HTTP page runs its own loopback demonstration server, even in Release.
+network-server = true
+camera = true
+location = true
+
 [signing.macos.notarize]
 key-id = "${DAY_NOTARY_KEY_ID}"
 issuer = "${DAY_NOTARY_ISSUER}"

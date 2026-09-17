@@ -1137,3 +1137,6 @@ dnd_choose_file = اختر ملفًا…
 dnd_accept = قبول الإفلات
 
 dnd_data = { $mime }: { $count } بايت
+
+files_reopen = إعادة فتح آخر ملف
+files_bookmark_failed = تعذرت استعادة الوصول إلى الملف المحفوظ. حدده مجددًا باستخدام فتح.

@@ -1099,10 +1099,12 @@ fn badge_section() -> impl Piece {
 }
 
 fn files_section() -> impl Piece {
+    const BOOKMARK: &str = "showcase.files.security-bookmark";
     // The editor text: what "Save" writes and what "Open" loads into.
     let content = Signal::new(crate::res::str::files_initial_content().format());
     let status = Signal::new(String::new());
     let opened = Signal::new(String::new());
+    let remembered = Signal::new(day::prefs::get(BOOKMARK).is_some());
     section((
         crate::widgets::support_note(crate::support::cap(Cap::FileDialogs)),
         label(crate::res::str::files_caption()).font(Font::Footnote),
@@ -1123,6 +1125,12 @@ fn files_section() -> impl Piece {
                                     content.set(text);
                                     opened.set(file.file_name().unwrap_or_default());
                                     status.set("opened".into());
+                                    if let Ok(bytes) = file.bookmark(true)
+                                        && let Ok(saved) = serde_json::to_string(&bytes)
+                                        && day::prefs::set(BOOKMARK, &saved)
+                                    {
+                                        remembered.set(true);
+                                    }
                                 }
                                 Err(_) => status.set("open-error".into()),
                             },
@@ -1150,6 +1158,37 @@ fn files_section() -> impl Piece {
                     });
                 })
                 .id("btn-save-file"),
+            when(
+                || cfg!(target_os = "macos"),
+                move || {
+                    button(tr("files_reopen"))
+                        .enabled(move || remembered.get())
+                        .action(move || {
+                            // Keep the access guard alive through reading and bookmark renewal.
+                            let restored = (|| {
+                                let saved = day::prefs::get(BOOKMARK)?;
+                                let bytes: Vec<u8> = serde_json::from_str(&saved).ok()?;
+                                let access = FileUrl::resolve_bookmark(&bytes).ok()?;
+                                let text = access.file().read_to_string().ok()?;
+                                if access.was_stale()
+                                    && let Ok(bytes) = access.file().bookmark(true)
+                                    && let Ok(saved) = serde_json::to_string(&bytes)
+                                {
+                                    day::prefs::set(BOOKMARK, &saved);
+                                }
+                                content.set(text);
+                                opened.set(access.file().file_name().unwrap_or_default());
+                                Some(())
+                            })();
+                            status.set(if restored.is_some() {
+                                "opened".into()
+                            } else {
+                                tr("files_bookmark_failed").format()
+                            });
+                        })
+                        .id("btn-reopen-file")
+                },
+            ),
             label(move || status.get()).id("files-status"),
         ))
         .spacing(8.0),
