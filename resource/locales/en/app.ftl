@@ -1117,3 +1117,13 @@ list_activated = Last activated row: { $row } (0 = none)
 ctl_icon_label = Icon and label
 ctl_icon_only = Icon only
 ctl_image = Bundled image
+
+nav_drag_drop = Drag & Drop
+dnd_hint = Drag the image, a chosen file, or custom data to another tile or Showcase window. Red strips reject drops. Moves within this page preserve the object; other windows receive a copy.
+dnd_ready = Ready to receive a drop.
+dnd_empty = Drop here
+dnd_new_window = New window
+dnd_choose_file = Choose file…
+dnd_accept = Accept drops
+
+dnd_data = { $mime }: { $count } bytes

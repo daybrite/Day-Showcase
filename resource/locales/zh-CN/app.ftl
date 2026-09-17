@@ -1100,3 +1100,13 @@ list_activated = 上次激活的行：{ $row }（0 表示无）
 ctl_icon_label = 图标和文字
 ctl_icon_only = 仅图标
 ctl_image = 内置图像
+
+nav_drag_drop = 拖放
+dnd_hint = 将图像、所选文件或自定义数据拖到另一个方框或窗口。红色区域拒绝放置。同一页面内移动，窗口之间复制。
+dnd_ready = 等待拖入内容。
+dnd_empty = 放置于此
+dnd_new_window = 新建窗口
+dnd_choose_file = 选择文件…
+dnd_accept = 接受拖放
+
+dnd_data = { $mime }：{ $count } 字节

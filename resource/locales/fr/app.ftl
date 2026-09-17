@@ -1110,3 +1110,13 @@ list_activated = Dernière ligne activée : { $row } (0 = aucune)
 ctl_icon_label = Icône et libellé
 ctl_icon_only = Icône seule
 ctl_image = Image intégrée
+
+nav_drag_drop = Glisser-déposer
+dnd_hint = Glissez une image, un fichier ou des données vers une autre case ou fenêtre. Les bandes rouges refusent les dépôts. Déplacement sur cette page, copie entre fenêtres.
+dnd_ready = Prêt à recevoir un dépôt.
+dnd_empty = Déposer ici
+dnd_new_window = Nouvelle fenêtre
+dnd_choose_file = Choisir un fichier…
+dnd_accept = Accepter les dépôts
+
+dnd_data = { $mime } : { $count } octets

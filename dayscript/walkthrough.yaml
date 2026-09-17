@@ -1680,3 +1680,9 @@ flow:
       only_on: [web-dom]
       allow: [day.piece.activity, day.piece.combobox, day.piece.datepicker, day.piece.searchfield,
               day.piece.timepicker]
+
+  # Data-transfer policy/OS gestures are covered separately; this verifies the page mounts.
+  - navigate: { route: drag-drop }
+  - wait_for: { id: dnd-slot-0 }
+  - assert_text: { id: dnd-value-0, text: image/png }
+  - screenshot: drag-drop

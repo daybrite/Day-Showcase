@@ -1127,3 +1127,13 @@ list_activated = آخر صف تم تفعيله: { $row } (0 = لا يوجد)
 ctl_icon_label = أيقونة وتسمية
 ctl_icon_only = أيقونة فقط
 ctl_image = صورة مضمّنة
+
+nav_drag_drop = السحب والإفلات
+dnd_hint = اسحب الصورة أو ملفًا أو بيانات إلى مربع أو نافذة أخرى. ترفض الأشرطة الحمراء الإفلات. تُنقل العناصر داخل الصفحة وتُنسخ بين النوافذ.
+dnd_ready = جاهز لاستقبال عنصر.
+dnd_empty = أفلت هنا
+dnd_new_window = نافذة جديدة
+dnd_choose_file = اختر ملفًا…
+dnd_accept = قبول الإفلات
+
+dnd_data = { $mime }: { $count } بايت

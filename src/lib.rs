@@ -190,6 +190,7 @@ day::routes! {
         Layout => "layout",
         List => "list",
         Tree => "tree",
+        DragDrop => "drag-drop",
         Model => "model",
         Query => "query",
         Tabs => "tabs",
@@ -260,6 +261,7 @@ impl Section {
             Section::TextAreas => "src/pages/text_areas.rs",
             Section::Toolbars => "src/pages/toolbars.rs",
             Section::Tree => "src/pages/tree.rs",
+            Section::DragDrop => "src/pages/drag_drop.rs",
             Section::Tweaks => "src/pages/tweaks.rs",
             Section::WebView => "src/pages/webview.rs",
         }
@@ -542,6 +544,13 @@ fn destinations() -> Vec<Dest> {
             crate::res::str::nav_list,
             vectors::nav_list,
             list_page,
+        ),
+        d(
+            Data,
+            Section::DragDrop,
+            crate::res::str::nav_drag_drop,
+            vectors::nav_tree,
+            drag_drop_page,
         ),
         d(
             Data,

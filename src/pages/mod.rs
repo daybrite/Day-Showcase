@@ -71,3 +71,6 @@ pub(crate) use toolbars::toolbars_page;
 pub(crate) use tree::tree_page;
 pub(crate) use tweaks::tweaks_page;
 pub(crate) use webview::webview_page;
+
+pub(crate) mod drag_drop;
+pub(crate) use drag_drop::drag_drop_page;

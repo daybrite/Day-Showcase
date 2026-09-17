@@ -1,0 +1,5 @@
+name: drag-drop-page
+flow:
+  - navigate: { route: drag-drop }
+  - wait_for: { id: dnd-slot-0 }
+  - screenshot: drag-drop

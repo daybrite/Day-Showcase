@@ -15,6 +15,8 @@ targets = [
   "macos-gtk",
   "macos-qt",
   "windows-xaml",
+  "windows-qt",
+  "windows-gtk",
   "linux-gtk",
   "linux-qt",
   "ios-uikit",
