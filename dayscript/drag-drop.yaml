@@ -2,4 +2,6 @@ name: drag-drop-page
 flow:
   - navigate: { route: drag-drop }
   - wait_for: { id: dnd-slot-0 }
+  - assert_text: { id: dnd-value-0, text: image/png }
+  - assert_text: { id: dnd-value-2, text: application/vnd.day.showcase-card }
   - screenshot: drag-drop

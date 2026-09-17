@@ -68,9 +68,10 @@ google-play-id = "dev.daybrite.showcase"
 [web]
 background-color = "#123246"
 
-# The desktop window (docs/cli.md). Kept in lockstep with main.rs's WindowOptions; the CLI
-# sizes headless X servers (xvfb) from this, so a mismatch would crop or letterbox the
-# root-capture screenshot fallback on linux-gtk.
+# The desktop window (docs/cli.md). Kept in lockstep with main.rs's WindowOptions. A scripted
+# run does not open at this size: it captures at the [screenshots] size, 2560x1600 pixels by
+# default, which is a 1280x800-point window at 2x and a size the Mac App Store accepts. Add a
+# [screenshots] table to change that for this app.
 [window]
 width = 1000
 height = 720

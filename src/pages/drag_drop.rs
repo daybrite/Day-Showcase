@@ -217,8 +217,8 @@ pub(crate) fn drag_drop_page() -> AnyPiece {
                     .unwrap_or_else(|| crate::res::str::dnd_empty().format())
             })
             .font(Font::Caption)
-            .width(170.)
-            .id(format!("dnd-value-{index}")),
+            .id(format!("dnd-value-{index}"))
+            .width(170.),
         ))
         .drag_source(source)
         .drop_target(target)
