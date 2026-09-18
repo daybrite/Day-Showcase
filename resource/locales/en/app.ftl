@@ -237,6 +237,7 @@ battery_level = Level
 battery_charging = Charging
 battery_reading = Battery: { $percent } · { $state }
 battery_reading_none = Battery: no battery API on this platform
+battery_reading_absent = Battery: this device has no battery
 
 # Sensors playground (docs/sensors.md)
 sensor_accelerometer = Accelerometer

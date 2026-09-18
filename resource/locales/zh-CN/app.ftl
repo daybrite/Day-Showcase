@@ -233,6 +233,7 @@ battery_level = 电量
 battery_charging = 充电中
 battery_reading = 电池：{ $percent } · { $state }
 battery_reading_none = 电池：此平台没有电池 API
+battery_reading_absent = 电池：此设备没有电池
 
 # Sensors playground (docs/sensors.md)
 sensor_accelerometer = 加速度计

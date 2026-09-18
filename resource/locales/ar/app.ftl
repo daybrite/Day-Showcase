@@ -241,6 +241,7 @@ battery_level = المستوى
 battery_charging = يُشحن
 battery_reading = البطارية: { $percent } · { $state }
 battery_reading_none = البطارية: لا توجد واجهة برمجة للبطارية على هذه المنصة
+battery_reading_absent = البطارية: لا توجد بطارية في هذا الجهاز
 
 # Sensors playground (docs/sensors.md)
 sensor_accelerometer = مقياس التسارع

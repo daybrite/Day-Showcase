@@ -12,7 +12,13 @@ pub(crate) fn battery_line() -> LocalizedText {
                 .unwrap_or_else(|| "?".into()),
             format!("{:?}", b.state),
         ),
-        None => crate::res::str::battery_reading_none(),
+        // `status()` answers `None` for two unrelated facts — this platform has no battery API,
+        // and this machine has no battery — and saying the first on a desktop PC is simply wrong.
+        // `support::battery()` knows which case applies, so the readout can name the real one.
+        None if crate::support::battery() == Support::Unsupported => {
+            crate::res::str::battery_reading_none()
+        }
+        None => crate::res::str::battery_reading_absent(),
     }
 }
 

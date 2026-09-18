@@ -237,6 +237,7 @@ battery_level = Niveau
 battery_charging = En charge
 battery_reading = Batterie : { $percent } · { $state }
 battery_reading_none = Batterie : aucune API batterie sur cette plateforme
+battery_reading_absent = Batterie : cet appareil n’a pas de batterie
 
 # Aire de jeu Capteurs (docs/sensors.md)
 sensor_accelerometer = Accéléromètre
