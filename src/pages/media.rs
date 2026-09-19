@@ -53,15 +53,20 @@ pub(crate) fn media_page() -> AnyPiece {
 }
 
 /// The bundled Lottie animation on its own page (day-piece-lottie, an external standalone
-/// piece): a LottieAnimationView driven by airbnb's lottie-ios (SwiftPM) / lottie-android
-/// (Gradle), rendering `resource/assets/hello.json` in a loop. The page exists only where the
-/// piece has an arm: the crate carries no `support()` and `Cap::Lottie` goes unanswered on
-/// every backend, so the target cfg is the gate, here and in lib.rs `destinations`.
-#[cfg(any(target_os = "ios", target_os = "android"))]
+/// piece), rendering the picked file in a loop. Two renderers behind one API: iOS and Android
+/// get Airbnb's own players (lottie-ios via SwiftPM, lottie-android via Gradle), and every other
+/// backend plays the same file with lottie-web in a web view through day-piece-webview.
+///
+/// The page exists only where the piece has an arm: the crate carries no `support()` and
+/// `Cap::Lottie` goes unanswered on every backend, so the target cfg is the gate, here and in
+/// lib.rs `destinations`. The one gap is `macos-gtk` and `windows-gtk`, which ship no WebKitGTK
+/// to host the player, so the piece would realize Day's placeholder there.
+#[cfg(not(all(feature = "gtk", any(target_os = "macos", target_os = "windows"))))]
 pub(crate) fn lottie_page() -> AnyPiece {
     // Which bundled animation plays: the picker writes it, `lottie(closure)` reads it and swaps
-    // the native view's file live (a `Name` patch), and the facts panel reads it too. Pin jump
-    // opens the page (LOTTIE_DEFAULT): the liveliest of the set at a glance.
+    // the view's file live (a `Name` patch on the native arms, an evaluated call into the player
+    // page on the web-view ones), and the facts panel reads it too. Pin jump opens the page
+    // (LOTTIE_DEFAULT): the liveliest of the set at a glance.
     let selected = Signal::new(LOTTIE_DEFAULT);
     let name = move || {
         LOTTIE_ANIMATIONS[selected.get().min(LOTTIE_ANIMATIONS.len() - 1)]
@@ -95,12 +100,15 @@ pub(crate) fn lottie_page() -> AnyPiece {
             .menu()
             .id("lottie-animation"),
         ),
+        // `.id()` before `.frame()`: a decoration takes the id of whatever it wraps, and on the
+        // web-view backends the id is what `web_eval` resolves to the engine. Put it on the frame
+        // instead and a script can see the view but not ask the player whether it is playing.
         column((lottie(name)
             .looping(true)
             .autoplay(true)
             .speed(speed)
-            .frame(280.0, 280.0)
-            .id("lottie-view"),))
+            .id("lottie-view")
+            .frame(280.0, 280.0),))
         .align(HAlign::Center)
         .grow_w(),
         labeled(
@@ -139,10 +147,10 @@ pub(crate) fn lottie_page() -> AnyPiece {
 /// The bundled animations the Lottie page offers: the name `lottie()` loads by (a `/` path under
 /// `resource/assets/`), and the file's text for the facts panel. `hello.json` is hand-authored;
 /// the rest are Airbnb's samples (resource/assets/lottie/README.md). The picker's order.
-#[cfg(any(target_os = "ios", target_os = "android"))]
+#[cfg(not(all(feature = "gtk", any(target_os = "macos", target_os = "windows"))))]
 const LOTTIE_DEFAULT: usize = 4; // pin jump
 
-#[cfg(any(target_os = "ios", target_os = "android"))]
+#[cfg(not(all(feature = "gtk", any(target_os = "macos", target_os = "windows"))))]
 const LOTTIE_ANIMATIONS: [(&str, &str); 6] = [
     ("hello", include_str!("../../resource/assets/hello.json")),
     (
@@ -167,10 +175,10 @@ const LOTTIE_ANIMATIONS: [(&str, &str); 6] = [
     ),
 ];
 
-/// The selected file read by the piece's headless `model` module: the same bytes the native view
+/// The selected file read by the piece's headless `model` module: the same bytes the view
 /// plays, so the page states each animation's length beside it and the walkthrough asserts the
-/// reader's answers inside the iOS and Android builds. Every row follows the picker.
-#[cfg(any(target_os = "ios", target_os = "android"))]
+/// reader's answers inside the built app. Every row follows the picker.
+#[cfg(not(all(feature = "gtk", any(target_os = "macos", target_os = "windows"))))]
 fn lottie_facts(selected: Signal<usize>) -> AnyPiece {
     use day_piece_lottie::LottieModel;
     let fact = move |pick: fn(&LottieModel) -> String| {
@@ -205,5 +213,5 @@ fn lottie_facts(selected: Signal<usize>) -> AnyPiece {
     .any()
 }
 
-#[cfg(any(target_os = "ios", target_os = "android"))]
+#[cfg(not(all(feature = "gtk", any(target_os = "macos", target_os = "windows"))))]
 use day_piece_lottie::lottie;

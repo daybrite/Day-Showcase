@@ -109,8 +109,12 @@ day-part-fs = { git = "https://github.com/daybrite/day.git" }
 day-piece-activity = { git = "https://github.com/daybrite/day.git" }
 day-piece-searchfield = { git = "https://github.com/daybrite/day.git" }
 day-piece-map = { git = "https://github.com/daybrite/day.git" }
-# day-piece-lottie is iOS/Android only; the front-end compiles everywhere but the `lottie` page is
-# `#[cfg]`-gated to those targets. Its backend features are enabled only in `uikit`/`mdc`. The
+# day-piece-lottie renders on every backend that has an engine to draw with: Airbnb's own players
+# on iOS and Android, lottie-web in a day-piece-webview elsewhere. The front-end compiles
+# everywhere and the `lottie` page is `#[cfg]`-gated away only on `macos-gtk`/`windows-gtk`, which
+# ship no WebKitGTK to host the player. No per-backend feature line is needed here: `day build`
+# unions `day-piece-lottie/<backend>` in from the piece's own
+# `[package.metadata.day.piece].backends`. The
 # first piece in its own repository: a bare git line like day's, so Cargo.lock picks one day
 # revision for the whole graph (day/DESIGN.md §15.2). `day patch --local ../day-piece-lottie`
 # builds against a checkout of it.

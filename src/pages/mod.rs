@@ -52,7 +52,7 @@ pub(crate) use list::list_page;
 pub(crate) use localization::localization_page;
 #[cfg(any(target_os = "macos", target_os = "ios"))]
 pub(crate) use map::map_page;
-#[cfg(any(target_os = "ios", target_os = "android"))]
+#[cfg(not(all(feature = "gtk", any(target_os = "macos", target_os = "windows"))))]
 pub(crate) use media::lottie_page;
 pub(crate) use media::media_page;
 pub(crate) use menus::{install_app_menu, menus_page};

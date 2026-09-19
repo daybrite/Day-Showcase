@@ -601,7 +601,7 @@ fn destinations() -> Vec<Dest> {
             vectors::nav_media,
             media_page,
         ),
-        #[cfg(any(target_os = "ios", target_os = "android"))]
+        #[cfg(not(all(feature = "gtk", any(target_os = "macos", target_os = "windows"))))]
         d(
             Graphics,
             Section::Lottie,
