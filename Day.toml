@@ -79,7 +79,7 @@ height = 720
 # Release signing (§16.5): values resolve from the environment at pack time: an unset variable
 # degrades that section to the dev tier, loudly (ad-hoc / dev keystore / self-signed); it never
 # fails the pack (§20). Populate the DAY_* variables (CI: repository secrets) to light up release
-# signing; `day sign --check` reports readiness without printing any secret.
+# signing; `day sign check` reports readiness without printing any secret.
 [signing.macos]
 identity = "${DAY_SIGN_MACOS_IDENTITY}" # "Developer ID Application: …"
 
