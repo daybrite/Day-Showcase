@@ -709,7 +709,7 @@ files_initial_content =
     来自 Day 的问候！
     编辑我，然后保存。
 
-# 崩溃报告页面（day-break，docs/break.md）
+# 崩溃报告页面（day-piece-break，docs/break.md）
 nav_crash = 崩溃报告
 crash_trigger_section = 触发崩溃
 crash_report_section = 最近的崩溃报告

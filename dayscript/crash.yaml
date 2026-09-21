@@ -1,6 +1,6 @@
 name: crash
 description: >
-  Intentionally crash the showcase to exercise day-break's capture (docs/break.md). Tapping
+  Intentionally crash the showcase to exercise day-piece-break's capture (docs/break.md). Tapping
   crash-abort schedules a native abort ~150 ms out — enough for this step to reply before the
   process dies — and expect_exit then tolerates the app terminating. Pair with crash-report.yaml
   on the NEXT launch to see the saved report.

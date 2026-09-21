@@ -2,12 +2,12 @@ use day::prelude::*;
 
 use crate::widgets::page;
 
-/// Crash Reporting demonstrates day-break (docs/break.md). The buttons crash (or
+/// Crash Reporting demonstrates day-piece-break (docs/break.md). The buttons crash (or
 /// trip day-core's panic containment); on the next launch the saved report shows in the scrollable
 /// viewer, and "Send report" opens a prefilled email to the developer. Nothing leaves the device
 /// without the user's action.
 ///
-/// The three crash flavors cover day-break's capture paths: a native `abort` (SIGABRT) and a
+/// The three crash flavors cover day-piece-break's capture paths: a native `abort` (SIGABRT) and a
 /// `segfault` (SIGSEGV) both die and are recorded by the signal handler; the "contained panic"
 /// stays alive (day-core catches panics at its trampoline boundaries; see docs/break.md) and is
 /// recorded as a non-fatal report on the next launch.
@@ -31,10 +31,10 @@ fn crash_action(explanation: String, action: impl Piece + 'static) -> impl Piece
 pub(crate) fn crash_page() -> AnyPiece {
     // The report viewer text, refreshed whenever the pending list changes (send/discard/relaunch).
     let report = Signal::new(String::new());
-    let pending = day_break::pending();
+    let pending = day_piece_break::pending();
     Effect::new(move || {
         pending.get(); // track
-        report.set(day_break::latest_report_text().unwrap_or_default());
+        report.set(day_piece_break::latest_report_text().unwrap_or_default());
     });
 
     let crash_controls = section((
@@ -68,7 +68,7 @@ pub(crate) fn crash_page() -> AnyPiece {
     .title(crate::res::str::crash_trigger_section());
 
     // What "Send report" will do, disclosed to the user (from the configured reporter).
-    let disclosure = day_break::reporter_description().unwrap_or_default();
+    let disclosure = day_piece_break::reporter_description().unwrap_or_default();
     let has_disclosure = !disclosure.is_empty();
 
     let report_view = section((
@@ -154,13 +154,17 @@ fn segfault() {
 /// Send the newest pending report through the configured reporter (here, an email compose). The
 /// email app opening is the feedback; the report clears from the pending list once handed off.
 fn send_newest() {
-    if let Some(meta) = day_break::pending().get_untracked().into_iter().next() {
-        day_break::send(&meta, |_result| {});
+    if let Some(meta) = day_piece_break::pending()
+        .get_untracked()
+        .into_iter()
+        .next()
+    {
+        day_piece_break::send(&meta, |_result| {});
     }
 }
 
 fn clear_reports() {
-    for meta in day_break::pending().get_untracked() {
-        day_break::discard(&meta);
+    for meta in day_piece_break::pending().get_untracked() {
+        day_piece_break::discard(&meta);
     }
 }

@@ -716,7 +716,7 @@ files_initial_content =
     Bonjour de Day !
     Modifiez-moi, puis Enregistrer.
 
-# Page Rapports de plantage (day-break, docs/break.md)
+# Page Rapports de plantage (day-piece-break, docs/break.md)
 nav_crash = Rapports de plantage
 crash_trigger_section = Déclencher un plantage
 crash_report_section = Dernier rapport de plantage

@@ -718,7 +718,7 @@ files_initial_content =
     Hello from Day!
     Edit me, then Save.
 
-# Crash Reporting page (day-break, docs/break.md)
+# Crash Reporting page (day-piece-break, docs/break.md)
 nav_crash = Crash Reporting
 crash_trigger_section = Trigger a crash
 crash_report_section = Last crash report

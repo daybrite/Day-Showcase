@@ -1605,7 +1605,7 @@ flow:
       source: src/pages/benchmark.rs
   - select: { id: bench-impl, index: 0, only_on: [macos-appkit, ios-uikit] }
 
-  # Crash Reporting (day-break, docs/break.md): the walkthrough only visits the page (empty state);
+  # Crash Reporting (day-piece-break, docs/break.md): the walkthrough only visits the page (empty state);
   # the actual crash + next-launch report are driven by crash.yaml / crash-report.yaml so the
   # walkthrough itself never dies mid-run. The page is hidden on web-dom (no crash reporting in a
   # browser sandbox, lib.rs `destinations`), so the section skips there.

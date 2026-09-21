@@ -53,7 +53,7 @@ serde_json = "1"
 # Consent-first crash reporting (docs/break.md): the Crash Reporting page arms it and shows the
 # previous run's report. Optional in general; here it demonstrates the whole flow. Its consent UI
 # (`ui` feature, on by default) is built from ordinary pieces, so no per-backend wiring is needed.
-day-break = { git = "https://github.com/daybrite/day.git" }
+day-piece-break = { git = "https://github.com/daybrite/day-piece-break" }
 # A headless capability crate (no UI Piece): app Rust code calls day_part_battery::status()
 # directly.
 day-part-battery = { git = "https://github.com/daybrite/day.git" }

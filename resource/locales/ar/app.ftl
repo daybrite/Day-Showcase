@@ -726,7 +726,7 @@ files_initial_content =
     مرحبًا من Day!
     حرِّرني ثم احفظ.
 
-# صفحة الإبلاغ عن الأعطال (day-break, docs/break.md)
+# صفحة الإبلاغ عن الأعطال (day-piece-break, docs/break.md)
 nav_crash = الإبلاغ عن الأعطال
 crash_trigger_section = إحداث عطل
 crash_report_section = آخر تقرير عطل

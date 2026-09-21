@@ -40,7 +40,7 @@ pub(crate) fn notifications() -> Support {
     from_bool(day_part_local_notify::is_supported())
 }
 
-/// Crash reporting (day-break, docs/break.md).
+/// Crash reporting (day-piece-break, docs/break.md).
 ///
 /// Declared: the crash handlers are signal/exception hooks with no capability to query, and the
 /// web build has no equivalent at all: a wasm trap ends the page, and there is nothing to catch

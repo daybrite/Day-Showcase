@@ -282,11 +282,13 @@ pub(crate) fn open_source_of(section: Section) {
 }
 
 /// Arm crash reporting (docs/break.md); the Crash Reporting page demonstrates it. Idempotent
-/// (day-break's `init` is single-shot); safe to call from every entry point.
+/// (day-piece-break's `init` is single-shot); safe to call from every entry point.
 pub fn install_crash_reporting() {
-    let _ = day_break::Config::new()
+    let _ = day_piece_break::Config::new()
         // "Send report" opens a prefilled email to the developer (no server needed).
-        .reporter(day_break::EmailReporter::new("crashdemo@daybrite.dev"))
+        .reporter(day_piece_break::EmailReporter::new(
+            "crashdemo@daybrite.dev",
+        ))
         .init();
 }
 
