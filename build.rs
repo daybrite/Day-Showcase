@@ -2,7 +2,7 @@
 //! scaffolds into every app. `day-build` writes `$OUT_DIR/day_resources.rs`, surfaced as the `res`
 //! module in lib.rs, so the showcase references its bundled icons/data/fonts by checked symbol.
 fn main() {
-    day_build::generate_resources().expect("day-build: resource codegen");
+    day_build::prebuild_project().expect("day-build: prebuild");
     // Bake the app identity (Day.toml `[app].id`, exported by `day build`/`day launch` as
     // `DAY_APP_ID` in crates/day-cli/src/ops.rs::apply_app_identity) so the About page can show
     // the bundle id without a runtime manifest read. Same pattern as day-piece-break's build.rs:
