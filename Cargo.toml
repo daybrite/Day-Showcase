@@ -1,6 +1,6 @@
 [package]
 name = "day-showcase"
-version = "0.4.8"
+version.workspace = true
 edition = "2024"
 license = "Apache-2.0"
 authors = ["Daybrite <hello@daybrite.dev>"]
@@ -157,3 +157,6 @@ platform = "13.0"
 # stays in memory (rusqlite has no place in the wasm binary), so the engine is target-gated.
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 day = { git = "https://github.com/daybrite/day.git", features = ["model", "persistence"] }
+
+[workspace.package]
+version = "0.4.8"
