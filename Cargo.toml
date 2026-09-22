@@ -159,4 +159,4 @@ platform = "13.0"
 day = { git = "https://github.com/daybrite/day.git", features = ["model", "persistence"] }
 
 [workspace.package]
-version = "0.4.8"
+version = "0.4.9"
