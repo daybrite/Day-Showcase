@@ -28,20 +28,19 @@ jobs:
       # The gallery's variant ids: one run per theme × locale, the same matrix day's own CI drives.
       themes: light dark
       locales: en fr ar zh-CN
-      # The phone leg runs `pixel_5` rather than the shared workflow's generic `medium_phone`,
-      # which is `pixel_7`'s panel: 1080x2400 at 420 dpi, 2.59 Mpx. That is 2.5% more pixels than
-      # `pixel_5` and it is 2.5% too many. A headless runner rasterizes every one of them in
-      # software on two cores, and this app's Web view page loads the live daybrite.dev (21 hero
-      # PNGs and 31 inline SVGs), which is what tips it: the guest freezes whole, adbd included,
-      # partway through the eight-variant matrix. `pixel_5` (2.53 Mpx) clears it, and the tablet
-      # clears it by more, since `day devices boot` halves any headless panel past three million
-      # pixels and `medium_tablet` comes back at 1280x800.
-      #
-      # So this is a load ceiling, not a name: any profile at or above that panel will find it
-      # again. `small_phone` (720x1280, 0.92 Mpx) is the generic profile with room to spare if the
-      # naming matters more than the capture size later on.
+      # The phone leg runs `pixel` (1080x1920, 2.07 Mpx) rather than the shared workflow's
+      # generic `medium_phone`, for two reasons. Load: `medium_phone` is `pixel_7`'s panel,
+      # 1080x2400 at 2.59 Mpx, and a headless runner rasterizes every pixel in software on two
+      # cores; this app's Web view page loads the live daybrite.dev (21 hero PNGs and 31 inline
+      # SVGs), which tipped the guest into freezing whole, adbd included, partway through the
+      # eight-variant matrix. `pixel_5` (2.53 Mpx) cleared that ceiling, so anything at or above
+      # 1080x2400 will find it again. The store: Google Play takes a screenshot whose long side
+      # is at most twice its short, and `pixel_5` (1080x2340) and `medium_phone` (20:9) both
+      # exceed it; `pixel` is 9:16. The tablet clears the load ceiling by more, since `day
+      # devices boot` halves any headless panel past three million pixels and `medium_tablet`
+      # comes back at 1280x800.
       android-devices: |
-        device=pixel_5,       os=36, orientation=portrait,  slug=phone
+        device=pixel,         os=36, orientation=portrait,  slug=phone
         device=medium_tablet, os=36, orientation=landscape, slug=tablet
       app-id: dev.daybrite.showcase
       deploy-web: true
@@ -66,6 +65,10 @@ jobs:
       # and the keystore must be the upload key Play App Signing was enrolled with.
       upload-play: "true"
       play-upload-lane: android release
+      # Both uploads replace the stores' screenshots with the eight the walkthrough marks
+      # `store: N`, taken from this run's own screenshot artifacts and checked against each
+      # store's sizes first (daybrite/actions README, Store screenshots).
+      store-screenshots: true
 
   # The Content List page copies the `day new` scaffold's list, editor and model
   # (scripts/template-sync.sh). A template change that is not mirrored here fails the build.
