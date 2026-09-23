@@ -195,21 +195,50 @@ public struct BenchGridsView: View {
             // The patchwork. Every tile grows on both axes, so the grid resolves columns by the
             // flexible share and stretches rows into the leftover height; it fills the pane
             // exactly, the same invariant the Day tab holds.
-            Grid(horizontalSpacing: 2, verticalSpacing: 2) {
+            if #available(iOS 16, macOS 13, *) {
+                Grid(horizontalSpacing: 2, verticalSpacing: 2) {
+                    ForEach(rows) { row in
+                        GridRow {
+                            ForEach(row.tiles) { tile in
+                                RoundedRectangle(cornerRadius: 3)
+                                    .fill(cellColor(tile.index))
+                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                    .gridCellColumns(Int(tile.span))
+                            }
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                stackedPatchwork
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+    }
+}
+
+extension BenchGridsView {
+    /// The patchwork before `Grid` (iOS 15): rows of stacks sized by hand. Every row fills all
+    /// `columns` columns and every tile is flexible, so the columns come out equal and a tile
+    /// is `span` column widths plus the gaps it covers, which is what `Grid` resolves to.
+    var stackedPatchwork: some View {
+        GeometryReader { geometry in
+            let gaps = 2 * CGFloat(columns - 1)
+            let unit = max(0, (geometry.size.width - gaps) / CGFloat(columns))
+            VStack(spacing: 2) {
                 ForEach(rows) { row in
-                    GridRow {
+                    HStack(spacing: 2) {
                         ForEach(row.tiles) { tile in
                             RoundedRectangle(cornerRadius: 3)
                                 .fill(cellColor(tile.index))
-                                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                                .gridCellColumns(Int(tile.span))
+                                .frame(width: unit * CGFloat(tile.span) + 2 * CGFloat(tile.span - 1))
+                                .frame(maxHeight: .infinity)
                         }
                     }
                 }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 

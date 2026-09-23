@@ -37,12 +37,9 @@ CURRENT_PROJECT_VERSION = 1
 // ===========================================================================
 // Platform
 // ===========================================================================
-// The minimum iOS version. 16.0 rather than 15.0 because that is what actually ships: the
-// generated DayPieces SwiftPM package floors itself at 16.0 (day-cli pieces.rs), so every
-// `day build` was raising this per-invocation and an install on an iOS 15 simulator failed
-// with "Have 15.5; need 16.0". Declaring the real floor keeps an Xcode-IDE build, `day build`
-// and LSMinimumSystemVersion in agreement. `day build` still raises it further if a piece asks.
-IPHONEOS_DEPLOYMENT_TARGET = 16.0
+// The minimum iOS version. `day build` raises it per-invocation when a Day piece requires
+// a newer floor, so raise it here only when your own code needs it.
+IPHONEOS_DEPLOYMENT_TARGET = 15.0
 // 1 = iPhone, 2 = iPad. Drop the 2 for an iPhone-only app.
 TARGETED_DEVICE_FAMILY = 1,2
 

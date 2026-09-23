@@ -143,11 +143,12 @@ day-piece-swiftui = { git = "https://github.com/daybrite/day.git" }
 # transitive SwiftPM dependencies) and generates hosting glue for its public views; day-build
 # (build.rs) generates the matching typed Rust constructors, surfaced as `crate::swiftui::*` in
 # lib.rs. `products` is named because the library product ("ShowcaseSwiftUI") differs from the
-# directory ("swiftui"); `platform` raises the deployment floor (SwiftUI `Grid` needs iOS 16 /
-# macOS 13), which `day build` conveys to xcodebuild / `swift build` without touching scaffolds.
+# directory ("swiftui"); `platform` raises the deployment floor (SwiftUI `Grid` needs macOS 13),
+# which `day build` conveys to xcodebuild / `swift build` without touching scaffolds. iOS names no
+# floor: the package runs on the app's own iOS 15, drawing the patchwork with stacks where `Grid`
+# (iOS 16) is missing.
 [package.metadata.day.ios]
 swift-packages = [{ path = "swiftui", products = ["ShowcaseSwiftUI"] }]
-platform = "16.0"
 
 [package.metadata.day.macos]
 swift-packages = [{ path = "swiftui", products = ["ShowcaseSwiftUI"] }]

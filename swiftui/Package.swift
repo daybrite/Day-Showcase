@@ -8,8 +8,9 @@ import PackageDescription
 
 let package = Package(
     name: "ShowcaseSwiftUI",
-    // SwiftUI `Grid`/`GridRow`: the same floors the Cargo.toml metadata raises the app to.
-    platforms: [.macOS("13.0"), .iOS("16.0")],
+    // macOS 13 for SwiftUI `Grid`/`GridRow`, the floor the Cargo.toml metadata raises the Mac app
+    // to. iOS stays at the app's own 15.0: GridsView falls back to stacks where `Grid` is missing.
+    platforms: [.macOS("13.0"), .iOS("15.0")],
     products: [.library(name: "ShowcaseSwiftUI", targets: ["ShowcaseSwiftUI"])],
     targets: [
         .target(name: "ShowcaseSwiftUI"),
