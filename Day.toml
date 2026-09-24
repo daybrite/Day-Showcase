@@ -9,7 +9,7 @@ id = "dev.daybrite.showcase"
 # default is the id\'s last segment, which is not what this app published.
 scheme = "dayshowcase"
 title = "Day Showcase"
-build = 13
+build = 14
 targets = [
   "macos-appkit",
   "macos-gtk",
