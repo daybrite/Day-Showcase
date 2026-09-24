@@ -31,15 +31,16 @@ jobs:
       # Both profiles are chosen for the store listing and for the runner's load ceiling. Load:
       # a headless runner rasterizes every pixel in software on two cores, and this app's Web
       # view page loads the live daybrite.dev (21 hero PNGs and 31 inline SVGs), which tipped a
-      # 2.59 Mpx guest (`medium_phone`, 1080x2400) into freezing whole, adbd included; `pixel`
-      # (1080x1920, 2.07 Mpx) is well under. The store: Google Play's API takes 1080 px on the
-      # short side at least, so the shared workflow's default `medium_tablet`, which `day
-      # devices boot` halves to 1280x800 past three million pixels, is refused (v0.4.13);
-      # `Nexus 7 2013` captures 1920x1200 whole (2.3 Mpx) and at density 240 lays out as the
-      # same 1280x800 points the walkthrough is written against.
+      # 2.59 Mpx guest (`medium_phone`, 1080x2400) into freezing whole, adbd included, and did
+      # the same to `Nexus 7 2013` (1920x1200, 2.3 Mpx, laid out desktop-wide at density 240,
+      # v0.4.14); `pixel` (1080x1920, 2.07 Mpx) is well under. The tablet is the workflow's
+      # default `medium_tablet`, which `day devices boot` halves to 1280x800 past three million
+      # pixels (1280x800 points, the layout the walkthrough is written against); Google Play's
+      # API takes 1080 px on the short side at least, so `day store stage` scales that capture
+      # up x2 to 2560x1600 before placing it, as the store rules allow for Play's tablet kinds.
       android-devices: |
         device=pixel,         os=36, orientation=portrait,  slug=phone
-        device=Nexus 7 2013,  os=36, orientation=landscape, density=240, slug=tablet
+        device=medium_tablet, os=36, orientation=landscape, slug=tablet
       app-id: dev.daybrite.showcase
       deploy-web: true
       # Tag builds sign and notarize the .dmg in a job that checks out nothing and runs only
