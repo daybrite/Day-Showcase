@@ -1,0 +1,221 @@
+# Store listing metadata that is not localized. The localized text lives in store/<locale>/.
+#
+# [storefront.submission-info] is shared by every store; a target's submission-info and a
+# store's override it key by key. bundle-id is omitted, so `day store` falls back to the
+# Day.toml [app] id, which the app builds with; set it here only to publish under an id the app
+# does not build with.
+#
+# Screenshots: per target, [storefront.<target>.screenshots] is what the website's page for the
+# target shows, one row per device kind (`default` for the kinds not named), and what its stores
+# fall back to; [storefront.<target>.<store>.screenshots] is the store's own set. A name is the
+# light capture of a dayscript `screenshot:` step; { name = "…", theme = "dark" } the dark one.
+# Store keys the CLI does not stage (altstore, f-droid, mac-app-store, …) ride through
+# gallery.json for whatever publishes there. `day lint` checks every name against the dayscripts.
+
+[storefront.submission-info]
+copyright = "2026 Daybrite"
+contact-email = "hello@daybrite.dev"
+review-notes = """
+Day Showcase is a demonstration app for the Day UI framework. Every screen is reachable from the
+navigation list on the first launch; no account, network connection, or configuration is needed.
+
+The Device & sensors page requests camera, location and motion permissions to demonstrate how a
+permission prompt looks on this platform. Declining every prompt leaves the rest of the app fully
+usable — the page shows the denied state instead of the sensor values.
+"""
+
+# --- iOS ------------------------------------------------------------------------------------
+# The website's iOS page: an overview of what the toolkit draws, phone and tablet rows of their
+# own. A locale table (`fr`, `zh-CN`, `ar`) specializes the lists for captures of that locale;
+# a list is a device kind, a table is a locale.
+[storefront.ios-uikit.screenshots]
+default = ["canvas", "controls", "text", "resources", "tree", "dates", "animation", "map"]
+ipad = ["canvas", "layout", "text", "grid", "resources", "tree", "map", "toolbars"]
+
+[storefront.ios-uikit.screenshots.fr]
+default = ["localization", "canvas", "controls", "text", "dates", "resources", "tree", "map"]
+
+[storefront.ios-uikit.screenshots.ar]
+default = ["localization", "text", "canvas", "controls", "dates", "tree"]
+
+[storefront.ios-uikit.apple-app-store.submission-info]
+apple-category = "DEVELOPER_TOOLS"
+
+[storefront.ios-uikit.apple-app-store.screenshots]
+iphone = ["canvas", { name = "controls", theme = "dark" }, "text", "textareas-code", "dates", "animation", "tree", "localization"]
+ipad = ["canvas", "layout", "grid", "map", "text", { name = "dates", theme = "dark" }, "toolbars", "localization"]
+
+[storefront.ios-uikit.apple-app-store.screenshots.zh-CN]
+iphone = ["localization", "text", "canvas", { name = "controls", theme = "dark" }, "dates", "animation", "tree", "textareas-code"]
+
+[storefront.ios-uikit.apple-app-store.metadata]
+subtitle = "Native UIKit, written in Rust"
+promo = "Thirty-five live demos of the Day framework, from controls and layout to sensors and crash reporting, all drawn by UIKit."
+keywords = ["rust", "native", "uikit", "swiftui", "widgets", "framework", "cross-platform", "demo", "developer", "toolkit"]
+
+[storefront.ios-uikit.apple-app-store.metadata.fr]
+subtitle = "UIKit natif, écrit en Rust"
+promo = "Trente-cinq démos en direct du framework Day, des contrôles et de la mise en page jusqu'aux capteurs et aux rapports de plantage, toutes dessinées par UIKit."
+
+[storefront.ios-uikit.apple-app-store.metadata.zh-CN]
+subtitle = "原生 UIKit，用 Rust 编写"
+promo = "Day 框架的三十五个现场演示，从控件、布局到传感器和崩溃报告，全部由 UIKit 绘制。"
+
+[storefront.ios-uikit.altstore.screenshots]
+default = ["home", "canvas", "map", "resources", { name = "lottie", theme = "dark" }]
+
+# --- Android --------------------------------------------------------------------------------
+[storefront.android-mdc.screenshots]
+default = ["canvas", "controls", "text", "resources", "tree", "dates", "animation", "lottie"]
+tablet = ["canvas", "layout", "text", "grid", "resources", "tree", "menus", "lottie"]
+
+[storefront.android-mdc.screenshots.fr]
+default = ["localization", "canvas", "controls", "text", "dates", "resources", "tree", "lottie"]
+
+[storefront.android-mdc.google-play-store.submission-info]
+review-notes = """
+Built with the Day framework. Every screen is reachable from the navigation list on the first
+launch; the Device & sensors page asks for camera, location and motion permissions to show how
+the prompts look, and declining them leaves the rest of the app usable.
+"""
+
+[storefront.android-mdc.google-play-store.screenshots]
+default = ["canvas", "controls", "text", "textareas-code", "dates", "animation", "tree", "localization"]
+tablet = ["canvas", "layout", "grid", "text", { name = "controls", theme = "dark" }, "dates", "list", "localization"]
+
+[storefront.android-mdc.google-play-store.screenshots.zh-CN]
+default = ["localization", "text", "canvas", "controls", "dates", "animation", "tree", "textareas-code"]
+
+[storefront.android-mdc.google-play-store.metadata]
+short = "Live demos of the Day framework: Material widgets from one Rust codebase."
+release-notes = "First Google Play release. 35 pages in eight groups, from controls and layout to sensors and crash reporting, in English, French, Arabic, and Simplified Chinese."
+
+[storefront.android-mdc.google-play-store.metadata.fr]
+short = "Démos en direct du framework Day : des widgets Material, une seule base Rust."
+release-notes = "Première version sur Google Play. 35 pages en huit groupes, des contrôles et de la mise en page jusqu'aux capteurs et aux rapports de plantage, en anglais, français, arabe et chinois simplifié."
+
+[storefront.android-mdc.google-play-store.metadata.zh-CN]
+short = "Day 框架的现场演示：Material 控件，出自同一份 Rust 代码。"
+release-notes = "首次登陆 Google Play。35 个页面，分为八组，从控件、布局到传感器和崩溃报告，提供英语、法语、阿拉伯语和简体中文。"
+
+[storefront.android-mdc.f-droid.screenshots]
+default = ["home", "canvas", "resources", "list"]
+
+# --- Desktop and web ------------------------------------------------------------------------
+[storefront.macos-appkit.screenshots]
+default = ["canvas", "text", "textareas-code", "resources", "menus", "toolbars", "tree", "dates"]
+
+[storefront.macos-appkit.screenshots.ar]
+default = ["localization", "text", "canvas", "menus", "toolbars", "tree"]
+
+[storefront.macos-appkit.mac-app-store.submission-info]
+apple-category = "DEVELOPER_TOOLS"
+
+[storefront.macos-appkit.mac-app-store.screenshots]
+default = ["canvas", "controls", "text", "textareas-code", "menus", "toolbars", "tree", { name = "dates", theme = "dark" }, "localization"]
+
+[storefront.macos-appkit.mac-app-store.metadata]
+subtitle = "Native AppKit, written in Rust"
+
+[storefront.linux-gtk.screenshots]
+default = ["canvas", "text", "resources", "list", "menus", "tree"]
+
+[storefront.linux-gtk.flathub.screenshots]
+default = ["canvas", "layout", "text", "list", { name = "tree", theme = "dark" }]
+
+[storefront.linux-qt.screenshots]
+default = ["canvas", "text", "grid", "resources", "tree", "dates"]
+
+[storefront.windows-xaml.screenshots]
+default = ["canvas", "controls", "text", "resources", "menus", "tree"]
+
+[storefront.windows-xaml.microsoft-store.screenshots]
+default = ["canvas", "controls", "text", "layout", { name = "list", theme = "dark" }, "localization"]
+
+[storefront.web-dom.screenshots]
+default = ["canvas", "text", "textareas-code", "resources", "webview", "localization"]
+
+[storefront.web-dom.screenshots.fr]
+default = ["localization", "canvas", "text", "resources", "webview"]
+
+# The web build's home-screen manifest takes the web target's name and short description.
+[storefront.web-dom.metadata]
+short = "Try the Day framework's demos in your browser: native-feeling widgets from one Rust codebase."
+
+[storefront.web-dom.metadata.fr]
+short = "Essayez les démos du framework Day dans votre navigateur : des widgets au rendu natif, une seule base Rust."
+
+[storefront.harmony-arkui.screenshots]
+default = ["canvas", "controls", "text", "resources", "list", "tree"]
+
+[storefront.harmony-arkui.appgallery.screenshots]
+default = ["canvas", "controls", "text", "layout", { name = "list", theme = "dark" }]
+
+# --- Listing text ---------------------------------------------------------------------------
+# [storefront.metadata] is the default locale's (en) text; every other locale's table carries
+# what differs, and inherits the rest (the name and the URLs are set once, here). Arabic lives
+# in store/storefront.ar.toml, the same tables in a file of their own; the Chinese description is a
+# `-ref`, a project file a translator edits without touching this one. A target's or a store's
+# `metadata` table below specializes the wording for that storefront alone.
+[storefront.metadata]
+name = "Day Showcase"
+subtitle = "Day App Dev Framework Demo"
+short = "Live demos of the Day framework: native widgets from one Rust codebase."
+description = """
+Day Showcase is the demo app for Day (daybrite.dev), a framework for creating mobile and desktop apps in Rust.
+
+Each screen in the app is a demonstration of one part of the framework:
+
+Controls: buttons, switches, sliders, steppers, pickers, text fields, a multi-line editor, date and time pickers, keyboard focus, and pointer cursors.
+Layout: rows, columns, and layers under each fit policy, and a grid with spanning cells.
+Navigation & chrome: a push stack, tabs, menus and dialogs, the window toolbar, and a content list that opens each item in an editor.
+Data: a list and a tree over live models, and queries against a local store.
+Graphics & media: shapes, paths, gradients, and transforms on a canvas, animation, Lottie playback, bundled resources, media playback, a map, and a web view.
+Platform: battery and connectivity, accelerometer, gyroscope, and magnetometer traces, HTTP requests, notifications and the app badge, speech and haptics, and files.
+App & tooling: localization, scripting, tweaks, a benchmark against SwiftUI, and crash reporting.
+
+The toolbar on every page has a code button that opens that page's Rust source on GitHub, so you can read the code beside the result. The star button pins a page to the top of the list, and the theme button switches the appearance.
+
+The app is translated into English, French, Arabic, and Simplified Chinese. Switching the language on the Localization page updates every page in place, and Arabic mirrors the layout.
+
+Day and this app are open source. The framework is at github.com/daybrite/day and the app's source is at github.com/daybrite/Day-Showcase. Each page in the app contains a link to the underlying source code.
+
+"""
+keywords = ["rust", "native", "ui", "widgets", "framework", "cross-platform", "uikit", "demo", "sample", "developer", "toolkit"]
+release-notes = "First App Store release. 35 pages in eight groups, from controls and layout to sensors and crash reporting, in English, French, Arabic, and Simplified Chinese."
+marketing-url = "https://daybrite.dev"
+support-url = "https://github.com/daybrite/day/issues"
+privacy-url = "https://daybrite.dev/privacy"
+
+[storefront.metadata.fr]
+subtitle = "Démo du framework d'apps Day"
+short = "Démos en direct du framework Day : des widgets natifs, une seule base Rust."
+description = """
+Day Showcase est l'application de démonstration de Day (daybrite.dev), un framework pour créer des applications mobiles et de bureau en Rust.
+
+Chaque écran de l'application est une démonstration d'une partie du framework :
+
+Contrôles : boutons, interrupteurs, curseurs, compteurs, sélecteurs, champs de texte, un éditeur multiligne, des sélecteurs de date et d'heure, le focus clavier et les curseurs de pointeur.
+Mise en page : lignes, colonnes et couches selon chaque règle d'ajustement, et une grille avec des cellules fusionnées.
+Navigation et interface : une pile de navigation, des onglets, des menus et des dialogues, la barre d'outils de la fenêtre, et une liste de contenu qui ouvre chaque élément dans un éditeur.
+Données : une liste et un arbre sur des modèles vivants, et des requêtes sur un stockage local.
+Graphismes et médias : formes, tracés, dégradés et transformations sur un canevas, animation, lecture Lottie, ressources embarquées, lecture de médias, une carte et une vue web.
+Plateforme : batterie et connectivité, relevés de l'accéléromètre, du gyroscope et du magnétomètre, requêtes HTTP, notifications et pastille de l'application, synthèse vocale et retour haptique, et fichiers.
+Application et outillage : localisation, scripts, réglages, un banc d'essai face à SwiftUI, et rapports de plantage.
+
+La barre d'outils de chaque page comporte un bouton code qui ouvre le code Rust de cette page sur GitHub, pour lire le code à côté du résultat. Le bouton étoile épingle une page en haut de la liste, et le bouton thème change l'apparence.
+
+L'application est traduite en anglais, français, arabe et chinois simplifié. Changer de langue sur la page Localisation met à jour chaque page sur place, et l'arabe inverse la mise en page.
+
+Day et cette application sont open source. Le framework est sur github.com/daybrite/day et le code de l'application sur github.com/daybrite/Day-Showcase. Chaque page de l'application contient un lien vers son code source.
+
+"""
+keywords = ["rust", "natif", "interface", "framework", "widgets", "multiplateforme", "développeur", "démo", "uikit", "material"]
+release-notes = "Première version sur l'App Store. 35 pages en huit groupes, des contrôles et de la mise en page jusqu'aux capteurs et aux rapports de plantage, en anglais, français, arabe et chinois simplifié."
+
+[storefront.metadata.zh-CN]
+subtitle = "Day 应用开发框架演示"
+short = "Day 框架的现场演示：原生控件，出自同一份 Rust 代码。"
+description-ref = "store/metadata/zh-CN/description.txt"
+keywords = ["rust", "原生", "界面", "框架", "控件", "跨平台", "开发者", "演示", "uikit", "material"]
+release-notes = "首次登陆 App Store。35 个页面，分为八组，从控件、布局到传感器和崩溃报告，提供英语、法语、阿拉伯语和简体中文。"

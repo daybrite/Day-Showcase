@@ -139,12 +139,8 @@ flow:
   # names the page there is no in-content title to scroll to, so the first button stands in.
   - scroll_to: { id: controls-title, skip_on: [ios-uikit, android-mdc, harmony-arkui, windows-xaml] }
   - scroll_to: { id: btn-plain, only_on: [ios-uikit, android-mdc, harmony-arkui, windows-xaml] }
-  # `store: N` marks the capture as the Nth screenshot of the App Store and Google Play
-  # listings, in every locale and on every phone and tablet profile; the release upload
-  # replaces the stores' screenshots with these eight (docs/store.md).
   - screenshot:
       name: controls
-      store: 2
       title: { en: "Controls", fr: "Contrôles", ar: "عناصر التحكّم", zh-CN: "控件" }
       source: src/pages/controls.rs
   - scroll_to: { id: ctl-date }
@@ -273,7 +269,6 @@ flow:
   - assert_text: { id: date-bounded-value, text: "2026-12-31" }
   - screenshot:
       name: dates
-      store: 4
       title: { en: "Date & time", fr: "Date et heure", ar: "التاريخ والوقت", zh-CN: "日期与时间" }
       source: src/pages/dates.rs
 
@@ -347,7 +342,6 @@ flow:
   - assert_visible: { id: layout-demo }
   - screenshot:
       name: layout
-      store: 3
       title: { en: "Layout", fr: "Disposition", ar: "التخطيط", zh-CN: "布局" }
       caption: { en: "One row under each fit policy.", fr: "Une même rangée selon chaque politique d'ajustement.", ar: "صف واحد وفق كل سياسة ملاءمة.", zh-CN: "同一行在各种适配策略下的表现。" }
       source: src/pages/layout.rs
@@ -789,7 +783,6 @@ flow:
   - assert_text: { id: list-selection, key: list_selection, args: { count: 1, rows: "2" } }
   - screenshot:
       name: list
-      store: 7
       title: { en: "List", fr: "Liste", ar: "القائمة", zh-CN: "列表" }
       source: src/pages/list.rs
   - tap: { id: list-clear }
@@ -870,7 +863,6 @@ flow:
   - pause: { secs: 0.7 }
   - screenshot:
       name: tree
-      store: 6
       title: { en: "Tree", fr: "Arborescence", ar: "شجرة", zh-CN: "树" }
       source: src/pages/tree.rs
 
@@ -1049,7 +1041,6 @@ flow:
   - a11y_audit: {}
   - screenshot:
       name: canvas
-      store: 1
       title: { en: "Canvas & shapes", fr: "Canevas et formes", ar: "اللوحة والأشكال", zh-CN: "画布与形状" }
       source: src/pages/canvas.rs
 
@@ -1065,7 +1056,6 @@ flow:
   - pause: { secs: 1.0 }
   - screenshot:
       name: animation
-      store: 5
       title: { en: "Animation", fr: "Animation", ar: "الرسوم المتحركة", zh-CN: "动画" }
       source: src/pages/animation.rs
 
@@ -1534,7 +1524,6 @@ flow:
   - tap: { id: locale-reset }
   - screenshot:
       name: localization
-      store: 8
       title: { en: "Localization", fr: "Localisation", ar: "التوطين", zh-CN: "本地化" }
       source: src/pages/localization.rs
 

@@ -1,1 +1,0 @@
-Live demos of the Day framework: native widgets from one Rust codebase.

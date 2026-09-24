@@ -1,3 +1,10 @@
+# The Arabic listing text: the same tables as store/storefront.toml's [storefront.metadata], in a
+# file of their own so a translator edits one file per language. What it leaves out (the
+# name, the URLs) is the default locale's. A locale file carries `metadata` tables alone.
+[storefront.metadata]
+subtitle = "عرض إطار تطوير تطبيقات Day"
+short = "عروض حية لإطار Day: عناصر واجهة أصلية من كود Rust واحد."
+description = """
 ‏Day Showcase هو التطبيق التوضيحي لإطار Day (daybrite.dev)، وهو إطار لإنشاء تطبيقات الجوال وسطح المكتب بلغة Rust.
 
 كل شاشة في التطبيق عرض لجزء من الإطار:
@@ -15,3 +22,14 @@
 التطبيق مترجم إلى الإنجليزية والفرنسية والعربية والصينية المبسطة. تغيير اللغة من صفحة التوطين يحدّث كل صفحة في مكانها، والعربية تعكس اتجاه التخطيط.
 
 ‏Day وهذا التطبيق مفتوحا المصدر. الإطار على github.com/daybrite/day وكود التطبيق على github.com/daybrite/Day-Showcase. وكل صفحة في التطبيق تحتوي على رابط إلى كودها المصدري.
+
+"""
+keywords = ["rust", "أصلي", "واجهة", "إطار عمل", "عناصر واجهة", "متعدد المنصات", "مطور", "عرض توضيحي", "uikit", "material"]
+release-notes = "الإصدار الأول على App Store. 35 صفحة في ثماني مجموعات، من عناصر التحكّم والتخطيط إلى المستشعرات والإبلاغ عن الأعطال، بالإنجليزية والفرنسية والعربية والصينية المبسطة."
+
+[storefront.ios-uikit.apple-app-store.metadata]
+subtitle = "‏UIKit أصلي، مكتوب بلغة Rust"
+promo = "خمسة وثلاثون عرضًا حيًا لإطار Day، من عناصر التحكّم والتخطيط إلى المستشعرات والإبلاغ عن الأعطال، كلها مرسومة بواسطة UIKit."
+
+[storefront.android-mdc.google-play-store.metadata]
+short = "عروض حية لإطار Day: عناصر واجهة Material من كود Rust واحد."
