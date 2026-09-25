@@ -1135,14 +1135,16 @@ files_bookmark_failed = Access to the saved file could not be restored. Choose i
 dnd_disallowed = Add disallowed regions
 
 # Native display frame demo
-frame_title = Rainbow bounce
-frame_hint = Tap anywhere to send the ball bouncing through a rainbow.
+frame_title = Marbles
+frame_hint = Tap the canvas to bounce every ball in a different direction. Increase the count to test performance.
 frame_bounce = Bounce
 frame_pause = Pause / resume
 frame_waiting = Waiting for a frame
 frame_running = Running
 frame_paused = Paused
 frame_resting = Resting
-frame_count = { $count } frames · { $delta } ms
-frame_explanation = Native display callbacks drive this canvas. When the ball settles, frame requests stop.
+frame_explanation = FPS shows the last 2 seconds of frame callbacks, excluding pauses. Each bounce starts a new measurement.
 frame_native_title = Native widget animations
+frame_balls_label = Balls
+frame_balls = Balls: { $count }
+frame_fps = FPS · min { $min } · max { $max } · avg { $avg }

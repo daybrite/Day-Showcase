@@ -1128,14 +1128,16 @@ files_bookmark_failed = Impossible de rétablir l’accès au fichier enregistr�
 dnd_disallowed = Ajouter des zones interdites
 
 # Native display frame demo
-frame_title = Rebond arc-en-ciel
-frame_hint = Touchez la scène pour faire rebondir la balle dans un arc-en-ciel.
+frame_title = Billes
+frame_hint = Touchez le canevas pour faire rebondir chaque bille dans une direction différente. Augmentez le nombre pour tester les performances.
 frame_bounce = Rebondir
 frame_pause = Pause / reprendre
 frame_waiting = En attente d’une image
 frame_running = En mouvement
 frame_paused = En pause
 frame_resting = Au repos
-frame_count = { $count } images · { $delta } ms
-frame_explanation = Les callbacks natifs d’affichage animent ce canevas. Au repos, les demandes d’images s’arrêtent.
+frame_explanation = Les FPS couvrent les 2 dernières secondes de callbacks d’affichage, hors pauses. Chaque rebond lance une nouvelle mesure.
 frame_native_title = Animations des composants natifs
+frame_balls_label = Billes
+frame_balls = Billes : { $count }
+frame_fps = FPS · min { $min } · max { $max } · moy { $avg }

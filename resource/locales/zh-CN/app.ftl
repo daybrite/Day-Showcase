@@ -1118,14 +1118,16 @@ files_bookmark_failed = 无法恢复对已保存文件的访问权限。请使�
 dnd_disallowed = 添加禁止放置区域
 
 # Native display frame demo
-frame_title = 彩虹弹跳
-frame_hint = 轻点任意位置，让小球划出彩虹般的轨迹。
+frame_title = 玻璃弹珠
+frame_hint = 轻点画布，让每颗弹珠朝不同方向弹跳。增加数量以测试性能。
 frame_bounce = 弹跳
 frame_pause = 暂停 / 继续
 frame_waiting = 等待下一帧
 frame_running = 运动中
 frame_paused = 已暂停
 frame_resting = 静止
-frame_count = { $count } 帧 · { $delta } 毫秒
-frame_explanation = 此画布由原生显示回调驱动。小球静止后便停止请求帧。
+frame_explanation = FPS 统计最近 2 秒的显示回调，不包含暂停时间。每次弹跳都会开始新的测量。
 frame_native_title = 原生控件动画
+frame_balls_label = 弹珠数量
+frame_balls = 弹珠数量：{ $count }
+frame_fps = FPS · 最低 { $min } · 最高 { $max } · 平均 { $avg }

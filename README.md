@@ -60,7 +60,11 @@ platform cannot run stays, with a note.
 - **Controls, Text, Text areas, Focus.** Buttons, toggles, sliders, pickers, and fields, each bound
   two ways to a signal; styled text, selection, editing, and live syntax highlighting.
 - **Canvas & shapes, Animation, Grid, Layout.** Paths, gradients, transforms, and gestures on a
-  native drawing surface, next to the layout containers.
+  native drawing surface, next to the layout containers. Animation includes 1–250 glass marbles
+  with randomized launches and collisions against all four canvas edges. The native frame clock
+  drives fixed-step physics; minimum/maximum/average callback FPS uses a rolling two-second window,
+  excludes paused intervals, and starts fresh on each bounce, count change, or Reset. Marbles move
+  independently (no inter-ball collisions), and frame requests stop when they settle.
 - **List, Tree, Tabs, Stack, Refresh.** The native recycling list and outline, tab and stack
   navigation, a fullscreen cover, and pull to refresh.
 - **Menus & dialogs, Toolbars, Preferences.** The platform's own chrome, including a preferences
