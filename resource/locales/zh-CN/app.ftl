@@ -1116,3 +1116,16 @@ files_reopen = 重新打开上次的文件
 files_bookmark_failed = 无法恢复对已保存文件的访问权限。请使用“打开”重新选择文件。
 
 dnd_disallowed = 添加禁止放置区域
+
+# Native display frame demo
+frame_title = 彩虹弹跳
+frame_hint = 轻点任意位置，让小球划出彩虹般的轨迹。
+frame_bounce = 弹跳
+frame_pause = 暂停 / 继续
+frame_waiting = 等待下一帧
+frame_running = 运动中
+frame_paused = 已暂停
+frame_resting = 静止
+frame_count = { $count } 帧 · { $delta } 毫秒
+frame_explanation = 此画布由原生显示回调驱动。小球静止后便停止请求帧。
+frame_native_title = 原生控件动画

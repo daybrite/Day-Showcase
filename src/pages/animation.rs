@@ -11,6 +11,9 @@
 //! parameter). Animation is backend-executed: on the backends that animate these channels
 //! natively the toolkit interpolates; elsewhere the value applies at commit.
 
+#[path = "animation_ball.rs"]
+mod ball;
+
 use std::cell::Cell;
 
 use day::prelude::*;
@@ -139,6 +142,8 @@ pub(crate) fn animation_page() -> AnyPiece {
     .spacing(10.0);
 
     let body = column((
+        ball::demo(),
+        label(crate::res::str::frame_native_title()).font(Font::Headline),
         actions,
         stage(s),
         form((section((

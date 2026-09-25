@@ -1143,3 +1143,16 @@ files_reopen = إعادة فتح آخر ملف
 files_bookmark_failed = تعذرت استعادة الوصول إلى الملف المحفوظ. حدده مجددًا باستخدام فتح.
 
 dnd_disallowed = إضافة مناطق محظورة
+
+# Native display frame demo
+frame_title = ارتداد قوس قزح
+frame_hint = المس أي مكان لترتد الكرة بألوان قوس قزح.
+frame_bounce = ارتداد
+frame_pause = إيقاف / استئناف
+frame_waiting = بانتظار إطار
+frame_running = تتحرك
+frame_paused = متوقفة مؤقتًا
+frame_resting = ساكنة
+frame_count = { $count } إطار · { $delta } مللي ثانية
+frame_explanation = تحرّك إشارات العرض الأصلية هذه اللوحة. تتوقف طلبات الإطارات عندما تستقر الكرة.
+frame_native_title = حركات عناصر الواجهة الأصلية

@@ -1133,3 +1133,16 @@ files_reopen = Reopen last file
 files_bookmark_failed = Access to the saved file could not be restored. Choose it again using Open.
 
 dnd_disallowed = Add disallowed regions
+
+# Native display frame demo
+frame_title = Rainbow bounce
+frame_hint = Tap anywhere to send the ball bouncing through a rainbow.
+frame_bounce = Bounce
+frame_pause = Pause / resume
+frame_waiting = Waiting for a frame
+frame_running = Running
+frame_paused = Paused
+frame_resting = Resting
+frame_count = { $count } frames · { $delta } ms
+frame_explanation = Native display callbacks drive this canvas. When the ball settles, frame requests stop.
+frame_native_title = Native widget animations

@@ -1,0 +1,36 @@
+name: frame-animation
+description: Native frames advance a canvas, pause, resume, settle, and survive navigation.
+flow:
+  - wait_for: { id: nav }
+  - navigate: { route: animation }
+  - assert_visible: { id: frame-ball }
+  - assert_text: { id: frame-status, text: Resting }
+  - tap: { id: frame-bounce }
+  - pause: { secs: 0.3 }
+  # Running is set only by a delivered native frame, never by the button.
+  - assert_text: { id: frame-status, text: Running }
+  - tap: { id: frame-pause }
+  - assert_text: { id: frame-status, text: Paused }
+  - screenshot: rainbow-paused
+  - pause: { secs: 0.5 }
+  - assert_text: { id: frame-status, text: Paused }
+  - tap: { id: frame-pause }
+  - pause: { secs: 0.2 }
+  - assert_text: { id: frame-status, text: Running }
+  - pause: { secs: 5.0 }
+  - assert_text: { id: frame-status, text: Resting }
+  - tap: { id: frame-ball }
+  - pause: { secs: 0.2 }
+  - assert_text: { id: frame-status, text: Running }
+  - tap: { id: frame-reset }
+  - assert_text: { id: frame-status, text: Resting }
+  - tap: { id: frame-bounce }
+  - navigate: { route: about }
+  - navigate: { route: animation }
+  - tap: { id: frame-reset }
+  - tap: { id: frame-bounce }
+  - pause: { secs: 0.25 }
+  - assert_text: { id: frame-status, text: Running }
+  - tap: { id: frame-pause }
+  - screenshot: rainbow-bounce
+  - tap: { id: frame-reset }
