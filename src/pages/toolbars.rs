@@ -100,12 +100,15 @@ pub(crate) fn window_items() -> impl Fn() -> Vec<ToolbarEntry> + 'static {
     // Two-way, both hops guarded on disagreement: the effect follows the command's state from
     // whichever surface changed it, and the watch runs the command only when the switch was
     // moved to something the set does not already say.
-    Effect::new(move || s.star_switch.set((crate::commands::star().checked)()));
+    Effect::new(move || {
+        s.star_switch
+            .set(crate::commands::star().is_checked().unwrap_or(false))
+    });
     watch(
         move || s.star_switch.get(),
         move |on, _| {
-            if *on != (crate::commands::star().checked)() {
-                (crate::commands::star().run)();
+            if *on != crate::commands::star().is_checked().unwrap_or(false) {
+                crate::commands::star().invoke();
             }
         },
     );
@@ -175,10 +178,6 @@ pub(crate) fn window_items() -> impl Fn() -> Vec<ToolbarEntry> + 'static {
 /// the toolbar knew which page it was over, all three resolved `current_route()` at press time
 /// and the star had to mirror its state into a signal the bar could read.
 pub(crate) fn page_commands(sec: crate::Section) -> Vec<ToolbarEntry> {
-    let starred = Signal::new(crate::commands::is_starred(sec));
-    // The button follows the starred set, which the row context menu and the App menu also
-    // write: one state, three surfaces.
-    Effect::new(move || starred.set(crate::commands::is_starred(sec)));
     // The one item the Toolbars page can disable, so the targeted-patch demo has a subject:
     // only this item changes, and a search in progress is undisturbed.
     let demo = state();
@@ -193,17 +192,7 @@ pub(crate) fn page_commands(sec: crate::Section) -> Vec<ToolbarEntry> {
         // The Star command (commands.rs), not a demo toggle. Its label comes from the one
         // `Command`, so this button, the App menu's item and the row's context menu can never
         // disagree.
-        toolbar_toggle("tb-star", (crate::commands::star().title)(), starred)
-            .image(crate::res::vectors::star.clone())
-            .action(move || {
-                // Honor the state the toggle was moved to, rather than flipping blindly.
-                // `toolbar_toggle` writes the requested value into the bound signal before
-                // running this, so that signal is the intent, and a toggle asked to turn on
-                // while the page is already starred must be a no-op, not an unstar.
-                if starred.get_untracked() != crate::commands::is_starred(sec) {
-                    crate::commands::toggle_star(sec);
-                }
-            }),
+        crate::commands::star_page(sec).toolbar_item().id("tb-star"),
     ]
 }
 
@@ -252,7 +241,7 @@ fn readout_section() -> impl Piece {
             // Read from the command, not from a mirror signal: the star button now belongs to
             // the page it acts on, so there is no window-level copy of its state to read.
             label(move || {
-                if (crate::commands::star().checked)() {
+                if crate::commands::star().is_checked().unwrap_or(false) {
                     crate::res::str::toolbar_on().format()
                 } else {
                     crate::res::str::toolbar_off().format()
@@ -265,9 +254,8 @@ fn readout_section() -> impl Piece {
         labeled(
             crate::res::str::toolbar_appearance_label(),
             label(move || {
-                let mode = (crate::commands::appearance_command(crate::commands::appearance())
-                    .title)()
-                .format();
+                let mode =
+                    crate::commands::appearance_command(crate::commands::appearance()).label();
                 if crate::commands::appearance_supported() {
                     mode
                 } else {

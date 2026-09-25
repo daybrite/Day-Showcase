@@ -866,15 +866,7 @@ fn window_body(primary: bool) -> impl Piece {
                     // Star/Unstar per row, so any page can be starred without navigating to it
                     // first, through the same handler surface "Show Source" already uses here.
                     .context_menu(vec![
-                        menu_item(
-                            if starred {
-                                crate::res::str::cmd_unstar()
-                            } else {
-                                crate::res::str::cmd_star()
-                            }
-                            .format(),
-                        )
-                        .action(move || crate::commands::toggle_star(section)),
+                        crate::commands::star_page(section).menu_item(),
                         menu_item(crate::res::str::show_source().format())
                             .action(move || open_source_of(section)),
                     ]);

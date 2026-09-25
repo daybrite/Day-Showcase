@@ -1141,3 +1141,7 @@ frame_native_title = Animations des composants natifs
 frame_balls_label = Billes
 frame_balls = Billes : { $count }
 frame_fps = FPS · min { $min } · max { $max } · moy { $avg }
+
+commands_title = Commandes réutilisables
+commands_add = Ajouter un
+commands_hint = Les boutons, la barre d’outils et le menu contextuel partagent les mêmes actions. Ajoutez jusqu’à trois, puis réinitialisez ; leur disponibilité reste synchronisée.

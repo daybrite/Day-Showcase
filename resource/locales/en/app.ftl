@@ -1148,3 +1148,7 @@ frame_native_title = Native widget animations
 frame_balls_label = Balls
 frame_balls = Balls: { $count }
 frame_fps = FPS · min { $min } · max { $max } · avg { $avg }
+
+commands_title = Reusable commands
+commands_add = Add one
+commands_hint = Buttons, toolbar items, and the context menu share the same actions. Add up to three, then reset; availability stays in sync.

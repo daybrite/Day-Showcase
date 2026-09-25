@@ -1,0 +1,38 @@
+name: reusable-commands
+description: Shared content buttons and toolbar commands stay in sync across rebuilds.
+flow:
+  - wait_for: { id: nav }
+  - navigate: { route: menus }
+  - scroll_to: { id: commands-demo }
+  - assert_text: { id: commands-count, text: '0' }
+  - tap: { id: command-add }
+  - assert_text: { id: commands-count, text: '1' }
+  - navigate: { route: toolbars }
+  - toolbar: { item: tb-star, on: true, skip_on: [harmony-arkui] }
+  - assert_text: { id: toolbar-star-state, key: toolbar_on, skip_on: [harmony-arkui] }
+  # Repeating a desired state must not invoke the toggle command a second time.
+  - toolbar: { item: tb-star, on: true, skip_on: [harmony-arkui] }
+  - assert_text: { id: toolbar-star-state, key: toolbar_on, skip_on: [harmony-arkui] }
+  - menu: { key: cmd_unstar, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - assert_text: { id: toolbar-star-state, key: toolbar_off, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - toolbar: { item: tb-star, on: false, skip_on: [harmony-arkui] }
+  - assert_text: { id: toolbar-star-state, key: toolbar_off, skip_on: [harmony-arkui] }
+  - navigate: { route: menus }
+  - scroll_to: { id: commands-demo }
+  - tap: { id: command-add }
+  - toolbar: { item: command-add-toolbar, skip_on: [harmony-arkui] }
+  - assert_text: { id: commands-count, text: '2', skip_on: [harmony-arkui] }
+  - tap: { id: command-add }
+  - assert_text: { id: commands-count, text: '3', skip_on: [harmony-arkui] }
+  - screenshot: reusable-commands
+  - toolbar: { item: command-reset-toolbar, skip_on: [harmony-arkui] }
+  - tap: { id: command-reset, skip_on: [macos-appkit, macos-gtk, macos-qt, ios-uikit, android-mdc, web-dom, windows-xaml] }
+  - assert_text: { id: commands-count, text: '0' }
+  - tap: { id: command-add }
+  - tap: { id: command-reset }
+  - assert_text: { id: commands-count, text: '0' }
+  - navigate: { route: about }
+  - navigate: { route: menus }
+  - scroll_to: { id: commands-demo }
+  - tap: { id: command-add }
+  - assert_text: { id: commands-count, text: '1' }

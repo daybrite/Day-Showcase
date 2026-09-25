@@ -16,7 +16,7 @@ pub(crate) fn buf_signal() -> Signal<String> {
 
 /// The per-step playback delay, in seconds, persisted by the page's field and read here so
 /// a Play from the toolbar runs at the speed the page is set to.
-fn configured_delay_secs() -> f64 {
+pub(crate) fn configured_delay_secs() -> f64 {
     day::prefs::get(DELAY_KEY)
         .unwrap_or_else(|| DEFAULT_DELAY.into())
         .trim()
@@ -45,9 +45,9 @@ pub(crate) fn has_script() -> bool {
 }
 
 /// Play the shared buffer at the page's configured delay.
-pub(crate) fn play_buffer() {
+pub(crate) fn play_buffer_with_delay(delay: f64) {
     let Some(buf) = try_buf() else { return };
-    let _ = day::record::play_with_delay(&buf.get_untracked(), configured_delay_secs());
+    let _ = day::record::play_with_delay(&buf.get_untracked(), delay);
 }
 
 /// Throw the recording away: the recorder's own steps and the buffer the surfaces read.
@@ -176,32 +176,9 @@ pub(crate) fn scripting_page() -> AnyPiece {
                     // Play ↔ Pause ↔ Resume, the same transport the toolbar carries: the title
                     // follows the run so one button covers all three, and it is disabled while
                     // recording and when the script is empty or does not parse.
-                    button(move || (crate::commands::play_pause().title)().format())
+                    crate::commands::play_pause_with_delay(delay_secs)
+                        .button()
                         .bordered()
-                        .enabled(move || {
-                            // Read the flags reactively (the signals, not the atomics) so the
-                            // title and enablement follow a run that ends on its own. On web there
-                            // is no in-process playback at all, so the button says so by being
-                            // disabled (docs/web.md).
-                            let playing = day::record::playing_signal().get();
-                            day::record::playback_supported()
-                                && (playing
-                                    || (!recording.get()
-                                        && buf.with(|t| day::record::is_playable(t))))
-                        })
-                        .action(move || {
-                            // The delay the field shows, which may be ahead of what prefs hold.
-                            match (day::record::is_playing(), day::record::is_paused()) {
-                                (true, false) => day::record::pause_playback(),
-                                (true, true) => day::record::resume_playback(),
-                                _ => {
-                                    let _ = day::record::play_with_delay(
-                                        &buf.get_untracked(),
-                                        delay_secs(),
-                                    );
-                                }
-                            }
-                        })
                         .id("scripting-play"),
                     // Save to the app's scripts folder. Enabled only when the buffer differs from
                     // the last saved/loaded content (dirty). A script already mapped to a file

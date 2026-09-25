@@ -1,46 +1,9 @@
-//! The window's shared commands: one declaration each, consumed by every surface.
-//!
-//! A command in this app is reachable from four places at once: the window toolbar, the
-//! application menu, a navigation row's context menu, and (for state-bearing ones) the row's own
-//! decoration. Writing it four times is how those drift: the toolbar keeps saying "Star" after
-//! the menu learned to say "Unstar", or one of them stops being disabled when the others are.
-//!
-//! So a command is declared once here as a [`Command`]: its id, the title for its current state,
-//! whether it is available, whether it is on, and what it does. Every surface renders the same
-//! struct. Because the title/enabled/checked members are read inside the surfaces' own reactive
-//! builders (`toolbar_reactive`, `app_menu_reactive`, the nav's `.items` mapper), touching
-//! the state behind them re-lowers all four with no coordination code between them: the signal
-//! is the coordination.
-//!
-//! Star is the first of these. The rest of the Showcase's menu items are still decorative, and
-//! this is the shape they move into as they become real. There is no `all()` list
-//! yet: with one command it would be a speculative API with no caller, and the surfaces differ in
-//! what they need around a command (a toolbar toggle wants a bound signal, a menu item wants a
-//! key), so what the list should carry is better decided against a second real command than
-//! guessed at now.
-
-use day::prelude::*;
+//! Application command definitions shared across native menus, toolbars, and content buttons.
+//! Day owns presentation adapters and invocation guards; this module owns application behavior.
+//! Factories targeting a page capture that page, while app-menu factories resolve the active scene.
 
 use crate::Section;
-
-/// One command, in the form every surface can render.
-///
-/// The three state members are plain `fn()` rather than captured closures so a `Command` stays
-/// `Copy` and can be handed to a `'static` toolbar/menu builder without cloning ceremony. They
-/// are called inside those builders, which is what subscribes each surface to the state.
-#[derive(Clone, Copy)]
-pub(crate) struct Command {
-    /// Stable id: the toolbar item id and the menu action key. Also what a dayscript step names.
-    pub id: &'static str,
-    /// The label for the current state ("Star" vs "Unstar"), localized on every read.
-    pub title: fn() -> day::LocalizedText,
-    /// Whether the command applies right now.
-    pub enabled: fn() -> bool,
-    /// Whether it reads as "on": a toolbar toggle's pressed state, a menu item's check mark.
-    pub checked: fn() -> bool,
-    /// Perform it.
-    pub run: fn(),
-}
+use day::prelude::*;
 
 // ── Starred pages ───────────────────────────────────────────────────────────────────────────
 //
@@ -130,21 +93,27 @@ fn active_section() -> Option<Section> {
 /// The Star command for the active page: "Star" when it is not starred, "Unstar" when it is.
 ///
 /// Disabled when there is no active page to star, which on mobile is the root list itself.
-pub(crate) fn star() -> Command {
+pub(crate) fn star() -> CommandHandle {
     Command {
         id: "cmd-star",
-        title: || match active_section() {
-            Some(s) if is_starred(s) => crate::res::str::cmd_unstar(),
-            _ => crate::res::str::cmd_star(),
+        label: move || {
+            match active_section() {
+                Some(s) if is_starred(s) => crate::res::str::cmd_unstar(),
+                _ => crate::res::str::cmd_star(),
+            }
+            .format()
         },
-        enabled: || active_section().is_some(),
-        checked: || active_section().is_some_and(is_starred),
-        run: || {
+        action: || {
             if let Some(s) = active_section() {
                 toggle_star(s);
             }
         },
     }
+    .build()
+    .enabled(|| active_section().is_some())
+    .checked(|| active_section().is_some_and(is_starred))
+    .shortcut(Shortcut::new("d"))
+    .icon(Symbol::Star)
 }
 
 // ── Pseudo-locale ───────────────────────────────────────────────────────────────────────────
@@ -164,13 +133,11 @@ pub(crate) fn pseudo_locale() -> bool {
 /// accented and expanded; off strips it again. Toggled while a French run is in force it
 /// stresses the French strings, not the English ones, which is what makes it a menu item rather
 /// than the Localization page's fixed `en-XA` button.
-pub(crate) fn pseudo_locale_command() -> Command {
+pub(crate) fn pseudo_locale_command() -> CommandHandle {
     Command {
         id: "cmd-pseudo-locale",
-        title: crate::res::str::cmd_toggle_pseudo_locale,
-        enabled: || true,
-        checked: pseudo_locale,
-        run: || {
+        label: crate::res::str::cmd_toggle_pseudo_locale(),
+        action: || {
             let current = day::locale().get_untracked();
             match current.strip_suffix("-XA") {
                 Some(base) => set_locale(base),
@@ -178,6 +145,9 @@ pub(crate) fn pseudo_locale_command() -> Command {
             }
         },
     }
+    .build()
+    .checked(pseudo_locale)
+    .shortcut(Shortcut::new("x").shift())
 }
 
 /// Save a picture of this window (docs/window-image.md).
@@ -189,15 +159,12 @@ pub(crate) fn pseudo_locale_command() -> Command {
 ///
 /// Disabled where the toolkit cannot rasterize itself, so the affordance is absent rather than
 /// present-and-failing (`Cap::Snapshot`; today that is web-dom).
-pub(crate) fn screenshot() -> Command {
+pub(crate) fn screenshot() -> CommandHandle {
     Command {
         id: "cmd-screenshot",
-        title: || crate::res::str::cmd_screenshot(),
-        enabled: || day::window_image_support() == Support::Native,
-        checked: || false,
-        run: || {
+        label: crate::res::str::cmd_screenshot(),
+        action: || {
             day::task(async move {
-                // Let the menu dismiss (and the toolbar button un-press) before the shutter.
                 day::sleep(150).await;
                 let png = match day::window_image().capture() {
                     Ok(bytes) => bytes,
@@ -214,6 +181,9 @@ pub(crate) fn screenshot() -> Command {
             });
         },
     }
+    .build()
+    .enabled(|| day::window_image_support() == Support::Native)
+    .shortcut(Shortcut::new("s").alt())
 }
 
 // ── Appearance ──────────────────────────────────────────────────────────────────────────────
@@ -344,30 +314,16 @@ pub(crate) fn set_appearance(mode: Appearance) {
 /// Android below API 31), so the affordance is visibly inert rather than silently doing nothing.
 /// Android answers that capability from the device rather than for the backend, which is why this
 /// asks rather than testing the target.
-pub(crate) fn appearance_command(mode: Appearance) -> Command {
-    match mode {
-        Appearance::Light => Command {
-            id: Appearance::Light.id(),
-            title: || Appearance::Light.title(),
-            enabled: appearance_supported,
-            checked: || appearance() == Appearance::Light,
-            run: || set_appearance(Appearance::Light),
-        },
-        Appearance::System => Command {
-            id: Appearance::System.id(),
-            title: || Appearance::System.title(),
-            enabled: appearance_supported,
-            checked: || appearance() == Appearance::System,
-            run: || set_appearance(Appearance::System),
-        },
-        Appearance::Dark => Command {
-            id: Appearance::Dark.id(),
-            title: || Appearance::Dark.title(),
-            enabled: appearance_supported,
-            checked: || appearance() == Appearance::Dark,
-            run: || set_appearance(Appearance::Dark),
-        },
+pub(crate) fn appearance_command(mode: Appearance) -> CommandHandle {
+    Command {
+        id: mode.id(),
+        label: move || mode.title().format(),
+        action: move || set_appearance(mode),
     }
+    .build()
+    .enabled(appearance_supported)
+    .checked(move || appearance() == mode)
+    .shortcut(Shortcut::new((mode.index() + 1).to_string()).alt())
 }
 
 /// Whether this backend honours an appearance override at all.
@@ -381,90 +337,85 @@ pub(crate) fn appearance_supported() -> bool {
 // recording started from the toolbar is the script the page shows, and one started on the page is
 // what the toolbar's Play plays. Anything else would be two recorders with one Record button.
 
-/// Record ↔ Stop. The title carries the state, as Star does; the item does not need a check mark
-/// to say which half it is on.
-pub(crate) fn record() -> Command {
+/// Record ↔ Stop. The title and optional check both follow the recorder state.
+pub(crate) fn record() -> CommandHandle {
     Command {
         id: "cmd-record",
-        // Through the SIGNALS, not `is_recording()` / `is_playing()`: those read a RefCell and an
-        // atomic, so a surface that consulted them would never learn the state had changed. The
-        // signal read is what subscribes the toolbar's builder and each item's `enabled_when`.
-        title: || match day::record::recording_signal().get() {
-            true => crate::res::str::cmd_stop_recording(),
-            false => crate::res::str::cmd_record(),
+        label: move || {
+            match day::record::recording_signal().get() {
+                true => crate::res::str::cmd_stop_recording(),
+                false => crate::res::str::cmd_record(),
+            }
+            .format()
         },
-        // Recording during a replay would capture the replay's own synthesized actions.
-        enabled: || !day::record::playing_signal().get(),
-        checked: || day::record::recording_signal().get(),
-        run: || {
+        action: || {
             if day::record::is_recording() {
                 day::record::stop();
-                // Stopping lands the user ON the script they just recorded: it is the only
-                // surface that shows the buffer, and staying wherever the recording happened to
-                // end reads as the whole thing having gone nowhere. Ordered after `stop()`,
-                // which unhooks the nav observer; otherwise this jump would be the recording's
-                // last step, and replaying it would navigate away before the rest could run.
                 navigate_to(&Section::Scripting);
             } else {
                 crate::pages::scripting::record_into_buffer();
             }
         },
     }
+    .build()
+    .enabled(|| !day::record::playing_signal().get())
+    .checked(|| day::record::recording_signal().get())
+    .shortcut(Shortcut::new("r").shift())
 }
 
 /// Play ↔ Pause over the recorded script: Play when idle, Pause while it runs, Play again to
 /// resume. One button, because that is what a transport control is; Stop is the recorder's.
-pub(crate) fn play_pause() -> Command {
+pub(crate) fn play_pause() -> CommandHandle {
+    play_pause_with_delay(crate::pages::scripting::configured_delay_secs)
+}
+
+/// The content field may hold an edit before its preferences write has flushed.
+pub(crate) fn play_pause_with_delay(delay: impl Fn() -> f64 + 'static) -> CommandHandle {
     Command {
         id: "cmd-play",
-        title: || match (
-            day::record::playing_signal().get(),
-            day::record::paused_signal().get(),
-        ) {
-            (true, false) => crate::res::str::cmd_pause(),
-            (true, true) => crate::res::str::cmd_resume(),
-            _ => crate::res::str::cmd_play(),
+        label: move || {
+            match (
+                day::record::playing_signal().get(),
+                day::record::paused_signal().get(),
+            ) {
+                (true, false) => crate::res::str::cmd_pause(),
+                (true, true) => crate::res::str::cmd_resume(),
+                _ => crate::res::str::cmd_play(),
+            }
+            .format()
         },
-        // Nothing to play until something is recorded (or typed on the Scripting page), and
-        // never while recording, because a replay must not record itself.
-        //
-        // All three reads happen every time, before the logic: `||`/`&&` would short-circuit
-        // past one of them, and a read that does not happen is a dependency not subscribed,
-        // which is how Play stayed disabled after a recording ended (nothing had subscribed to
-        // the buffer while recording was live).
-        enabled: || {
-            let playing = day::record::playing_signal().get();
-            let recording = day::record::recording_signal().get();
-            let has = crate::pages::scripting::has_script();
-            // In-process playback needs a background thread, which wasm has not got: on web the
-            // control lowers disabled rather than sitting there doing nothing when pressed
-            // (docs/web.md; drive the page over the dayscript socket instead). Recording itself
-            // works on every target.
-            day::record::playback_supported() && (playing || (!recording && has))
-        },
-        checked: || day::record::playing_signal().get() && !day::record::paused_signal().get(),
-        run: || match (day::record::is_playing(), day::record::is_paused()) {
+        action: move || match (day::record::is_playing(), day::record::is_paused()) {
             (true, false) => day::record::pause_playback(),
             (true, true) => day::record::resume_playback(),
-            _ => crate::pages::scripting::play_buffer(),
+            _ => crate::pages::scripting::play_buffer_with_delay(delay()),
         },
     }
+    .build()
+    .enabled(|| {
+        let playing = day::record::playing_signal().get();
+        let recording = day::record::recording_signal().get();
+        let has = crate::pages::scripting::has_script();
+        day::record::playback_supported() && (playing || (!recording && has))
+    })
+    .checked(|| day::record::playing_signal().get() && !day::record::paused_signal().get())
+    .shortcut(Shortcut::new("p").shift())
 }
 
 /// Throw the recording away: the transport's reset, and the one destructive command here.
-pub(crate) fn clear_recording() -> Command {
+pub(crate) fn clear_recording() -> CommandHandle {
     Command {
         id: "cmd-clear-recording",
-        title: || crate::res::str::cmd_clear_recording(),
-        enabled: || {
-            let recording = day::record::recording_signal().get();
-            let playing = day::record::playing_signal().get();
-            let has = crate::pages::scripting::has_script();
-            !recording && !playing && has
-        },
-        checked: || false,
-        run: crate::pages::scripting::clear_buffer,
+        label: crate::res::str::cmd_clear_recording(),
+        action: crate::pages::scripting::clear_buffer,
     }
+    .build()
+    .enabled(|| {
+        let recording = day::record::recording_signal().get();
+        let playing = day::record::playing_signal().get();
+        let has = crate::pages::scripting::has_script();
+        !recording && !playing && has
+    })
+    .shortcut(Shortcut::new("k").shift())
 }
 
 /// `Day-Showcase-YYYY-MM-DD-HH-MM-SS.png`, a sortable name the user can still change in the
@@ -476,4 +427,23 @@ fn default_shot_name() -> String {
         "Day-Showcase-{:04}-{:02}-{:02}-{:02}-{:02}-{:02}.png",
         d.year, d.month, d.day, t.hour, t.minute, t.second
     )
+}
+
+/// Star a particular page, independent of whichever window is frontmost at invocation.
+pub(crate) fn star_page(section: Section) -> CommandHandle {
+    Command {
+        id: "cmd-star",
+        label: move || {
+            if is_starred(section) {
+                crate::res::str::cmd_unstar()
+            } else {
+                crate::res::str::cmd_star()
+            }
+            .format()
+        },
+        action: move || toggle_star(section),
+    }
+    .build()
+    .checked(move || is_starred(section))
+    .image(crate::res::vectors::star.clone())
 }

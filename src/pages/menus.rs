@@ -131,34 +131,13 @@ fn build_app_menu() -> Vec<MenuEntry> {
                 // below is for a setting that is on or off. Both spellings are right; which one
                 // an item wants is a question about the command, not about what the menu model
                 // can express.
-                {
-                    let star = crate::commands::star();
-                    menu_item((star.title)().format())
-                        .id(star.id)
-                        .key("d")
-                        .enabled((star.enabled)())
-                        .action(move || (star.run)())
-                },
-                {
-                    let shot = crate::commands::screenshot();
-                    menu_item((shot.title)().format())
-                        .id(shot.id)
-                        .key("s")
-                        .enabled((shot.enabled)())
-                        .action(move || (shot.run)())
-                },
+                crate::commands::star().menu_item(),
+                crate::commands::screenshot().menu_item(),
                 menu_separator(),
                 // A plain on/off setting, with the platform's check mark: every string in
                 // the app re-renders accented and expanded as this is toggled, live, because the
                 // locale is a signal every binding reads.
-                {
-                    let pseudo = crate::commands::pseudo_locale_command();
-                    menu_item((pseudo.title)().format())
-                        .id(pseudo.id)
-                        .shortcut(Shortcut::new("x").shift())
-                        .checked((pseudo.checked)())
-                        .action(move || (pseudo.run)())
-                },
+                crate::commands::pseudo_locale_command().menu_item(),
                 menu_separator(),
                 // Appearance (commands.rs): the same three commands the toolbar's segmented
                 // control carries. ⌘⌥1/2/3: the digits are the group's order, and ⌥ keeps them
@@ -166,9 +145,12 @@ fn build_app_menu() -> Vec<MenuEntry> {
                 sub_menu(
                     crate::res::str::menu_appearance().format(),
                     vec![
-                        appearance_item(crate::commands::Appearance::Light, "1"),
-                        appearance_item(crate::commands::Appearance::System, "2"),
-                        appearance_item(crate::commands::Appearance::Dark, "3"),
+                        crate::commands::appearance_command(crate::commands::Appearance::Light)
+                            .menu_item(),
+                        crate::commands::appearance_command(crate::commands::Appearance::System)
+                            .menu_item(),
+                        crate::commands::appearance_command(crate::commands::Appearance::Dark)
+                            .menu_item(),
                     ],
                 ),
                 menu_separator(),
@@ -194,28 +176,10 @@ fn build_app_menu() -> Vec<MenuEntry> {
                 // ⌘⇧R / ⌘⇧P: the recording pair, shifted clear of View ▸ Reload (⌘R) and the
                 // platform's Print (⌘P). Both titles carry their state, so one item is
                 // Record ▸ Stop and the other Play ▸ Pause ▸ Resume.
-                {
-                    let rec = crate::commands::record();
-                    menu_item((rec.title)().format())
-                        .shortcut(Shortcut::new("r").shift())
-                        .enabled((rec.enabled)())
-                        .action(move || (rec.run)())
-                },
-                {
-                    let play = crate::commands::play_pause();
-                    menu_item((play.title)().format())
-                        .shortcut(Shortcut::new("p").shift())
-                        .enabled((play.enabled)())
-                        .action(move || (play.run)())
-                },
+                crate::commands::record().menu_item(),
+                crate::commands::play_pause().menu_item(),
                 menu_separator(),
-                {
-                    let clear = crate::commands::clear_recording();
-                    menu_item((clear.title)().format())
-                        .shortcut(Shortcut::new("k").shift())
-                        .enabled((clear.enabled)())
-                        .action(move || (clear.run)())
-                },
+                crate::commands::clear_recording().menu_item(),
                 menu_separator(),
                 menu_item(crate::res::str::toolbar_menu_open_scripting().format()).action(|| {
                     navigate_to(&crate::Section::Scripting);
@@ -235,22 +199,6 @@ fn build_app_menu() -> Vec<MenuEntry> {
     ]
 }
 
-/// One appearance mode as a menu item: ⌘⌥`key`, the command's title, and a check mark on the
-/// mode in force. Reading `checked` here is what re-lowers the bar when the setting changes.
-fn appearance_item(mode: crate::commands::Appearance, key: &str) -> MenuEntry {
-    let cmd = crate::commands::appearance_command(mode);
-    // A one-of-three choice: all three are checkable, so the group keeps the mark's column and
-    // reads as a radio set rather than shifting sideways as the selection moves. `.checked` is a
-    // tracked read of the appearance signal, so `app_menu_reactive` re-lowers the bar and the
-    // mark follows; no backend flips it (docs/menus.md).
-    menu_item((cmd.title)().format())
-        .id(cmd.id)
-        .shortcut(Shortcut::new(key).alt())
-        .enabled((cmd.enabled)())
-        .checked((cmd.checked)())
-        .action(move || (cmd.run)())
-}
-
 /// Menus & dialogs, the app's transient native surfaces in one place: the menu bar and
 /// context menus (docs/menus.md), and the imperative dialogs (docs/dialogs.md), each in its own
 /// themed section with a live result readout.
@@ -260,6 +208,7 @@ pub(crate) fn menus_page() -> AnyPiece {
         "menus-title",
         form((
             app_menu_section(),
+            commands_section(),
             context_section(),
             messages_section(),
             photo_section(),
@@ -486,4 +435,45 @@ fn dialogs_section() -> impl Piece {
         ),
     ))
     .title(crate::res::str::menus_dialogs_section())
+}
+
+/// One definition per operation, presented as content buttons, a context menu, and toolbar items.
+fn commands_section() -> impl Piece {
+    let count = Signal::new(0i64);
+    let add = Command {
+        id: "command-add",
+        label: crate::res::str::commands_add(),
+        action: move || count.update(|n| *n += 1),
+    }
+    .build()
+    .enabled(move || count.get() < 3)
+    .icon(Symbol::Add);
+    let reset = Command {
+        id: "command-reset",
+        label: crate::res::str::anim_reset_label(),
+        action: move || count.set(0),
+    }
+    .build()
+    .enabled(move || count.get() != 0)
+    .icon(Symbol::Refresh);
+    let (menu_add, menu_reset) = (add.clone(), reset.clone());
+    section((
+        label(crate::res::str::commands_hint()).font(Font::Callout),
+        label(move || count.get().to_string())
+            .tabular()
+            .id("commands-count"),
+        row((add.button().grow_w(), reset.button().grow_w())).spacing(10.0),
+        label(crate::res::str::menus_target())
+            .padding(16.0)
+            .id("commands-context")
+            .context_menu_fn(move |_| vec![menu_add.menu_item(), menu_reset.menu_item()]),
+    ))
+    .title(crate::res::str::commands_title())
+    .id("commands-demo")
+    .toolbar(move || {
+        vec![
+            add.toolbar_item().id("command-add-toolbar"),
+            reset.toolbar_item().id("command-reset-toolbar"),
+        ]
+    })
 }

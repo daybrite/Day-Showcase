@@ -1131,3 +1131,7 @@ frame_native_title = 原生控件动画
 frame_balls_label = 弹珠数量
 frame_balls = 弹珠数量：{ $count }
 frame_fps = FPS · 最低 { $min } · 最高 { $max } · 平均 { $avg }
+
+commands_title = 可复用命令
+commands_add = 加一
+commands_hint = 按钮、工具栏和上下文菜单共享相同的操作。最多加到三，然后重置；可用状态保持同步。
