@@ -142,7 +142,6 @@ pub(crate) fn animation_page() -> AnyPiece {
     .spacing(10.0);
 
     let body = column((
-        ball::demo(),
         label(crate::res::str::frame_native_title()).font(Font::Headline),
         actions,
         stage(s),
@@ -187,6 +186,7 @@ pub(crate) fn animation_page() -> AnyPiece {
             ),
             labeled(crate::res::str::anim_duration(), duration_stepper(s.dur)),
         )),)),
+        ball::demo(),
     ))
     .spacing(16.0);
 
