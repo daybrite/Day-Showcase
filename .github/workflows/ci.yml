@@ -8,6 +8,9 @@ on:
     branches: [main]
     tags: ["v[0-9]+.[0-9]+.[0-9]+*"]
   pull_request:
+  # Marking a pre-release as a release (or publishing one) rebuilds the website against it.
+  release:
+    types: [released]
   workflow_dispatch:
   schedule:
     - cron: "30 6,18 * * *"
