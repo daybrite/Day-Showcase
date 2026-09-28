@@ -75,7 +75,6 @@ refresh_tier_emulated = 下拉刷新：模拟
 layout_row = 第 { $n } 项
 nav_webview = 网页视图
 nav_lottie = Lottie
-lottie_playback_section = 播放
 nav_about = 关于
 
 # Sidebar group headers (lib.rs `Group`): the sections the destinations sit under.
@@ -170,19 +169,6 @@ webview_embedded_status_none = 尚未跟随任何外部链接。
 webview_embedded_opened = 已在应用外打开：{ $url }
 webview_embedded_intercepted = 已拦截——已在应用内导航到“{ $route }”。
 
-lottie_speed = 速度
-lottie_model_section = 文件内容
-lottie_model_frames = 帧数
-lottie_model_duration = 时长
-lottie_model_layers = 图层
-lottie_model_issues = 问题
-lottie_animation = 动画
-lottie_anim_hello = 旋转的方块
-lottie_anim_hamburger = 汉堡箭头
-lottie_anim_heart = 爱心
-lottie_anim_watermelon = 西瓜
-lottie_anim_pin = 跳动的图钉
-lottie_anim_logo = Lottie 标志
 stack_root_body = 真正的推入/弹出堆栈。其路径是应用持有的信号。
 stack_push = 推入一个详情页
 stack_detail_title = 第 { $depth } 层
@@ -418,6 +404,7 @@ tweaks_label_class = 原生类：{ $class }
 
 # --- merged section pages (design overhaul) ---
 nav_canvas = 画布与形状
+nav_charts = 图表
 nav_system = 设备与传感器
 nav_network_http = 网络与 HTTP
 network_status_section = 连接状态

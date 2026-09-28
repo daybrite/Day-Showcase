@@ -58,7 +58,7 @@ day-piece-break = { git = "https://github.com/daybrite/day-piece-break" }
 # directly.
 day-part-battery = { git = "https://github.com/daybrite/day.git" }
 # daybridge's reference part (docs/bridge.md): one API, a different language per platform. The
-# first part in its own repository, on the same terms as day-piece-lottie below: a bare git line,
+# first part in its own repository, on the same terms as the day-piece-lottie gallery below: a bare git line,
 # so Cargo.lock picks one day revision for the whole graph. `day patch --local ../day-part-speech`
 # builds against a checkout of it.
 day-part-speech = { git = "https://github.com/daybrite/day-part-speech.git" }
@@ -109,16 +109,22 @@ day-part-fs = { git = "https://github.com/daybrite/day.git" }
 day-piece-activity = { git = "https://github.com/daybrite/day.git" }
 day-piece-searchfield = { git = "https://github.com/daybrite/day.git" }
 day-piece-map = { git = "https://github.com/daybrite/day.git" }
-# day-piece-lottie renders on every backend that has an engine to draw with: Airbnb's own players
-# on iOS and Android, lottie-web in a day-piece-webview elsewhere. The front-end compiles
-# everywhere and the `lottie` page is `#[cfg]`-gated away only on `macos-gtk`/`windows-gtk`, which
-# ship no WebKitGTK to host the player. No per-backend feature line is needed here: `day build`
-# unions `day-piece-lottie/<backend>` in from the piece's own
-# `[package.metadata.day.piece].backends`. The
-# first piece in its own repository: a bare git line like day's, so Cargo.lock picks one day
-# revision for the whole graph (day/DESIGN.md §15.2). `day patch --local ../day-piece-lottie`
-# builds against a checkout of it.
-day-piece-lottie = { git = "https://github.com/daybrite/day-piece-lottie.git" }
+# The Lottie page mounts day-piece-lottie's own example pages and animations (its Lottie Demo app
+# is a sidebar of the same ones), so the two apps show one copy of the code and one set of files.
+# The gallery's animations arrive in this bundle as its data assets, and it forwards the player's
+# backend features itself: no per-backend feature line here, no animation under resource/. The
+# player renders on every backend that has an engine to draw with (Airbnb's own players on iOS
+# and Android, lottie-web in a day-piece-webview elsewhere); the page is `#[cfg]`-gated away only
+# on `macos-gtk`/`windows-gtk`, which ship no WebKitGTK to host it. A bare git line like day's, so
+# Cargo.lock picks one day revision for the whole graph; `day patch --local ../day-piece-lottie`
+# builds against a checkout.
+day-piece-lottie-gallery = { git = "https://github.com/daybrite/day-piece-lottie.git" }
+# The Charts page mounts day-piece-charts' own example pages (its Charts Demo app is a sidebar of
+# the same ones), so the two apps show one copy of the code. A library of pages with a private
+# string catalog: nothing to wire per backend, and its strings resolve here without being
+# installed. A bare git line, like lottie's; `day patch --local ../day-piece-charts` builds
+# against a checkout.
+day-piece-charts-gallery = { git = "https://github.com/daybrite/day-piece-charts.git" }
 # day-piece-camera renders on iOS, Android and HarmonyOS; the front-end compiles everywhere and
 # `day_piece_camera::support()` decides at run time whether the Camera page is listed. Its own
 # repository, like lottie: a bare git line, and `day patch --local ../day-piece-camera` builds

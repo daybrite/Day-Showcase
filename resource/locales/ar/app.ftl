@@ -81,7 +81,6 @@ refresh_tier_emulated = السحب للتحديث: محاكى
 layout_row = عنصر { $n }
 nav_webview = عرض الويب
 nav_lottie = Lottie
-lottie_playback_section = التشغيل
 nav_about = حول
 
 # Sidebar group headers (lib.rs `Group`): the sections the destinations sit under.
@@ -178,19 +177,6 @@ webview_embedded_status_none = لم يُتبع أي رابط خارجي بعد.
 webview_embedded_opened = فُتح خارج التطبيق: { $url }
 webview_embedded_intercepted = اعتُرض — انتقل التطبيق إلى "{ $route }".
 
-lottie_speed = السرعة
-lottie_model_section = في الملف
-lottie_model_frames = الإطارات
-lottie_model_duration = المدة
-lottie_model_layers = الطبقات
-lottie_model_issues = المشكلات
-lottie_animation = الرسم المتحرّك
-lottie_anim_hello = مربّع دوّار
-lottie_anim_hamburger = سهم الهامبرغر
-lottie_anim_heart = قلب تويتر
-lottie_anim_watermelon = بطيخة
-lottie_anim_pin = دبوس يقفز
-lottie_anim_logo = شعار Lottie
 stack_root_body = مكدّس دفع/سحب حقيقي. مساره إشارة يملكها التطبيق.
 stack_push = ادفع صفحة تفاصيل
 stack_detail_title = المستوى { $depth }
@@ -430,6 +416,7 @@ tweaks_label_class = الفئة الأصلية: { $class }
 
 # --- merged section pages (design overhaul) ---
 nav_canvas = اللوحة والأشكال
+nav_charts = المخططات
 nav_system = الجهاز والمستشعرات
 nav_network_http = الشبكة وHTTP
 network_status_section = الاتصال

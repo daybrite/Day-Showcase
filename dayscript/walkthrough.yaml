@@ -1047,6 +1047,22 @@ flow:
       title: { en: "Canvas & shapes", fr: "Canevas et formes", ar: "اللوحة والأشكال", zh-CN: "画布与形状" }
       source: src/pages/canvas.rs
 
+  # Charts (day-piece-charts): the piece's own example pages, from its gallery crate, the same
+  # code its Charts Demo app runs. The picker opens a chart; its title comes from the gallery's
+  # private catalog, so the assertion names the gallery's qualified key and holds in every
+  # locale this app ships. The chart itself is drawn on a canvas and rides the screenshot.
+  - navigate: { route: charts }
+  - assert_route: { route: charts }
+  - wait_for: { id: charts-gallery-picker }
+  - select: { id: charts-gallery-picker, index: 10 }
+  - wait_for: { id: scatter }
+  - assert_text: { id: charts-example-title, key: day_piece_charts_gallery::ex_scatter }
+  - pause: { secs: 1.0 } # let the chart's entrance settle
+  - screenshot:
+      name: charts
+      title: { en: "Charts", fr: "Graphiques", ar: "المخططات", zh-CN: "图表" }
+      source: src/pages/charts.rs
+
   # Declarative animation (§8.4, docs/animation.md): queue deterministic targets (fixed values,
   # not Randomize!, since screenshots must reproduce), commit them inside one with_animation via
   # Animate!, and let the backend interpolation settle before capturing.
@@ -1133,9 +1149,9 @@ flow:
       title: { en: "Media", fr: "Médias", ar: "الوسائط", zh-CN: "媒体" }
       source: src/pages/media.rs
 
-  # Lottie (day-piece-lottie): lottie-ios / lottie-android drawing the bundled JSON in a loop.
-  # The page exists only on iOS and Android (media.rs, lib.rs `destinations`), so the whole
-  # section is gated. The preset buttons write the same speed signal the slider does, which gives
+  # Lottie (day-piece-lottie): the piece's own example pages, from its gallery crate, the same
+  # code its Lottie Demo app runs; the section opens on the gallery's playground. lottie-ios /
+  # lottie-android draw the bundled JSON in a loop. This section is gated to iOS and Android. The preset buttons write the same speed signal the slider does, which gives
   # the run a deterministic value to assert; the readout follows, and `.speed()` pushes it to
   # the native view live.
   - navigate: { route: lottie, only_on: [ios-uikit, android-mdc] }
@@ -1145,23 +1161,23 @@ flow:
   - assert_text: { id: lottie-speed-value, text: "1.00×", only_on: [ios-uikit, android-mdc] }
   - tap: { id: lottie-speed-double, only_on: [ios-uikit, android-mdc] }
   - assert_text: { id: lottie-speed-value, text: "2.00×", only_on: [ios-uikit, android-mdc] }
-  # The picker of bundled animations (resource/assets/lottie/): a bound name swaps the file under
-  # the same native view, and the facts rows follow. The page opens on pin jump; the capture shows
-  # the Twitter heart, then the run puts pin jump back.
-  - assert_text: { id: lottie-model-frames, text: "93 @ 30 fps", only_on: [ios-uikit, android-mdc] }
-  - select: { id: lottie-animation, index: 2, only_on: [ios-uikit, android-mdc] }
+  # The playground's picker of the gallery's animations: a bound name swaps the file under the same
+  # native view, and the facts rows follow. The playground opens on the hello square; the capture
+  # shows the heart, then the run puts the square back.
+  - assert_text: { id: lottie-model-frames, text: "60 @ 30 fps", only_on: [ios-uikit, android-mdc] }
+  - select: { id: lottie-animation, index: 8, only_on: [ios-uikit, android-mdc] }
   - assert_text: { id: lottie-model-frames, text: "116 @ 60 fps", only_on: [ios-uikit, android-mdc] }
   - pause: { secs: 1.0, only_on: [ios-uikit, android-mdc] }
   - screenshot:
       name: lottie
       only_on: [ios-uikit, android-mdc]
       title: { en: "Lottie", fr: "Lottie", ar: "رسوم Lottie", zh-CN: "Lottie 动画" }
-      source: src/pages/media.rs
+      source: src/pages/lottie.rs
   # Back to 1× and the first animation so the page reads pristine if a later variant revisits it.
   - tap: { id: lottie-speed-one, only_on: [ios-uikit, android-mdc] }
   - assert_text: { id: lottie-speed-value, text: "1.00×", only_on: [ios-uikit, android-mdc] }
-  - select: { id: lottie-animation, index: 4, only_on: [ios-uikit, android-mdc] }
-  - assert_text: { id: lottie-model-frames, text: "93 @ 30 fps", only_on: [ios-uikit, android-mdc] }
+  - select: { id: lottie-animation, index: 0, only_on: [ios-uikit, android-mdc] }
+  - assert_text: { id: lottie-model-frames, text: "60 @ 30 fps", only_on: [ios-uikit, android-mdc] }
 
   # Map (day-piece-map, docs/map.md): a native MKMapView, so the page exists only on the two
   # Apple targets (map.rs, lib.rs `destinations`) and the whole section is gated. A preset

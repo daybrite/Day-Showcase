@@ -5,6 +5,7 @@ pub(crate) mod animation;
 pub(crate) mod benchmark;
 pub(crate) mod camera;
 pub(crate) mod canvas;
+pub(crate) mod charts;
 pub(crate) mod content_list;
 pub(crate) mod controls;
 pub(crate) mod crash;
@@ -15,6 +16,7 @@ pub(crate) mod grid;
 pub(crate) mod layout;
 pub(crate) mod list;
 pub(crate) mod localization;
+pub(crate) mod lottie;
 #[cfg(any(target_os = "macos", target_os = "ios"))]
 pub(crate) mod map;
 pub(crate) mod media;
@@ -40,6 +42,7 @@ pub(crate) use animation::animation_page;
 pub(crate) use benchmark::benchmark_page;
 pub(crate) use camera::camera_page;
 pub(crate) use canvas::canvas_page;
+pub(crate) use charts::charts_page;
 pub(crate) use content_list::content_list_page;
 pub(crate) use controls::controls_page;
 pub(crate) use crash::crash_page;
@@ -50,10 +53,10 @@ pub(crate) use grid::grid_page;
 pub(crate) use layout::layout_page;
 pub(crate) use list::list_page;
 pub(crate) use localization::localization_page;
+#[cfg(not(all(feature = "gtk", any(target_os = "macos", target_os = "windows"))))]
+pub(crate) use lottie::lottie_page;
 #[cfg(any(target_os = "macos", target_os = "ios"))]
 pub(crate) use map::map_page;
-#[cfg(not(all(feature = "gtk", any(target_os = "macos", target_os = "windows"))))]
-pub(crate) use media::lottie_page;
 pub(crate) use media::media_page;
 pub(crate) use menus::{install_app_menu, menus_page};
 pub(crate) use model::model_page;

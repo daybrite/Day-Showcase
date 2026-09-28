@@ -44,7 +44,7 @@ SBOM beside every package. The web build runs at
 Thirty-three screens in eight groups, each a working demo of the pieces it names: an overview;
 the controls (a catalogue of every control Day ships, text, text editing, date and time, focus);
 layout and grid; navigation and window chrome; data (list, tree, model, query); graphics and
-media (canvas, animation, resources, video, Lottie, map, web view); the platform (device and
+media (canvas, charts, animation, resources, video, Lottie, map, web view); the platform (device and
 sensors, network and HTTP, notifications and badge, speech, sound and haptics, files and storage); and
 the app's own tooling (localization, scripting, tweaks, benchmark, crash reporting). A page whose
 central feature a platform cannot run is left out of that platform's sidebar; a section a

@@ -78,7 +78,6 @@ refresh_tier_emulated = Tirer pour actualiser : émulé
 layout_row = Élément { $n }
 nav_webview = Vue Web
 nav_lottie = Lottie
-lottie_playback_section = Lecture
 nav_about = À propos
 
 # Sidebar group headers (lib.rs `Group`): the sections the destinations sit under.
@@ -174,19 +173,6 @@ webview_embedded_status_none = Aucun lien externe suivi pour l'instant.
 webview_embedded_opened = Ouvert hors de l'app : { $url }
 webview_embedded_intercepted = Intercepté — navigation dans l'app vers « { $route } ».
 
-lottie_speed = Vitesse
-lottie_model_section = Dans le fichier
-lottie_model_frames = Images
-lottie_model_duration = Durée
-lottie_model_layers = Calques
-lottie_model_issues = Problèmes
-lottie_animation = Animation
-lottie_anim_hello = Carré tournant
-lottie_anim_hamburger = Flèche hamburger
-lottie_anim_heart = Cœur
-lottie_anim_watermelon = Pastèque
-lottie_anim_pin = Épingle qui saute
-lottie_anim_logo = Logo Lottie
 stack_root_body = Une vraie pile push/pop. Son chemin est un signal de l'application.
 stack_push = Empiler un détail
 stack_detail_title = Niveau { $depth }
@@ -423,6 +409,7 @@ tweaks_label_class = Classe native : { $class }
 
 # --- merged section pages (design overhaul) ---
 nav_canvas = Canevas et formes
+nav_charts = Graphiques
 nav_system = Appareil et capteurs
 nav_network_http = Réseau et HTTP
 network_status_section = Connectivité
