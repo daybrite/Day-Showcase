@@ -25,9 +25,9 @@ jobs:
   app:
     uses: daybrite/actions/.github/workflows/dayapp.yml@main
     permissions:
-    contents: write # release assets on tags
-    pages: write # deploy-web
-    id-token: write # deploy-pages OIDC
+      contents: write # release assets on tags
+      pages: write # deploy-web
+      id-token: write # deploy-pages OIDC
     secrets: inherit
     with:
       targets: windows-xaml, macos-appkit, linux-gtk, linux-qt, ios-uikit, android-mdc, harmony-arkui, web-dom
