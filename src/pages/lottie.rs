@@ -20,9 +20,9 @@ use day_piece_lottie_gallery::{LottiePage, gallery};
 use crate::widgets::heading;
 
 thread_local! {
-    /// The open page, kept for the life of the app, so leaving the section and coming back
-    /// returns to the same animation.
-    static OPEN: Signal<LottiePage> = Signal::global(LottiePage::Playground);
+    /// The animation playing, kept for the life of the app, so leaving the section and coming
+    /// back returns to the same one. It opens on pin jump, the liveliest of the set at a glance.
+    static OPEN: Signal<LottiePage> = Signal::global(LottiePage::PinJump);
 }
 
 #[cfg(not(all(feature = "gtk", any(target_os = "macos", target_os = "windows"))))]
@@ -32,7 +32,8 @@ pub(crate) fn lottie_page() -> AnyPiece {
     // it is given, which a scroll view never offers.
     column((
         heading(crate::res::str::nav_lottie(), "lottie-title"),
-        gallery(open),
+        // The gallery scrolls on its own, so it takes the height the heading leaves.
+        gallery(open).grow(),
     ))
     .spacing(8.0)
     .padding(20.0)

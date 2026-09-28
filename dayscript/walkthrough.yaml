@@ -1161,10 +1161,10 @@ flow:
   - assert_text: { id: lottie-speed-value, text: "1.00×", only_on: [ios-uikit, android-mdc] }
   - tap: { id: lottie-speed-double, only_on: [ios-uikit, android-mdc] }
   - assert_text: { id: lottie-speed-value, text: "2.00×", only_on: [ios-uikit, android-mdc] }
-  # The playground's picker of the gallery's animations: a bound name swaps the file under the same
-  # native view, and the facts rows follow. The playground opens on the hello square; the capture
-  # shows the heart, then the run puts the square back.
-  - assert_text: { id: lottie-model-frames, text: "60 @ 30 fps", only_on: [ios-uikit, android-mdc] }
+  # The one picker of the gallery's animations: a bound name swaps the file under the same native
+  # view, and the facts rows follow. The page opens on pin jump; the capture shows the heart, then
+  # the run puts pin jump back.
+  - assert_text: { id: lottie-model-frames, text: "93 @ 30 fps", only_on: [ios-uikit, android-mdc] }
   - select: { id: lottie-animation, index: 8, only_on: [ios-uikit, android-mdc] }
   - assert_text: { id: lottie-model-frames, text: "116 @ 60 fps", only_on: [ios-uikit, android-mdc] }
   - pause: { secs: 1.0, only_on: [ios-uikit, android-mdc] }
@@ -1173,11 +1173,11 @@ flow:
       only_on: [ios-uikit, android-mdc]
       title: { en: "Lottie", fr: "Lottie", ar: "رسوم Lottie", zh-CN: "Lottie 动画" }
       source: src/pages/lottie.rs
-  # Back to 1× and the first animation so the page reads pristine if a later variant revisits it.
+  # Back to 1× and pin jump so the page reads pristine if a later variant revisits it.
   - tap: { id: lottie-speed-one, only_on: [ios-uikit, android-mdc] }
   - assert_text: { id: lottie-speed-value, text: "1.00×", only_on: [ios-uikit, android-mdc] }
-  - select: { id: lottie-animation, index: 0, only_on: [ios-uikit, android-mdc] }
-  - assert_text: { id: lottie-model-frames, text: "60 @ 30 fps", only_on: [ios-uikit, android-mdc] }
+  - select: { id: lottie-animation, index: 7, only_on: [ios-uikit, android-mdc] }
+  - assert_text: { id: lottie-model-frames, text: "93 @ 30 fps", only_on: [ios-uikit, android-mdc] }
 
   # Map (day-piece-map, docs/map.md): a native MKMapView, so the page exists only on the two
   # Apple targets (map.rs, lib.rs `destinations`) and the whole section is gated. A preset
