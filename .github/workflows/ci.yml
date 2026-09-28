@@ -15,14 +15,19 @@ on:
   schedule:
     - cron: "30 6,18 * * *"
 
+# The repository's own jobs run this checkout's code with a read-only token. The write grants
+# sit on the job that calls the shared workflow, whose release and Pages jobs alone use them;
+# its build legs, which run this code too, narrow their token to read-only themselves.
 permissions:
-  contents: write # release assets on tags
-  pages: write # deploy-web
-  id-token: write # deploy-pages OIDC
+  contents: read
 
 jobs:
   app:
     uses: daybrite/actions/.github/workflows/dayapp.yml@main
+    permissions:
+    contents: write # release assets on tags
+    pages: write # deploy-web
+    id-token: write # deploy-pages OIDC
     secrets: inherit
     with:
       targets: windows-xaml, macos-appkit, linux-gtk, linux-qt, ios-uikit, android-mdc, harmony-arkui, web-dom
