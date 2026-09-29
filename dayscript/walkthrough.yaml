@@ -1221,19 +1221,14 @@ flow:
   # then `pause` (runner-side, since the engine must not block the UI thread) so the page finishes
   # loading before the capture. Visited after the stack/tabs route assertions so a heavy
   # embedded browser can't disturb them.
-  # skip_on harmony-arkui: the x86_64 emulator image ships ArkWebCore.hap with arm64-only native
-  # libs (`bm install` rejects it: "the Abi type supported by the device does not match"), so the
-  # Web component's engine is null, and its RosenWeb surface then wedges the window's compositor
-  # for the rest of the process, staling every screenshot after this page. The piece's arkui arm is
-  # implemented and renders on a real device; drop this skip once the emulator image carries an
-  # x86_64 engine. (measured on the API-18 x86_64 emulator, docs/harmonyos.md)
-  - navigate: { route: webview, skip_on: [harmony-arkui] }
-  - assert_route: { route: webview, skip_on: [harmony-arkui] }
-  - assert_visible: { id: webview-tab, skip_on: [harmony-arkui] }
+  # Shared Harmony CI installs the x86_64 ArkWeb runtime before this walkthrough.
+  - navigate: { route: webview }
+  - assert_route: { route: webview }
+  - assert_visible: { id: webview-tab }
   # web-dom embeds an <iframe>, so history is unreachable and the page says so (docs/webview.md).
   # Only that backend renders the footnote; everywhere else the piece reports Support::Native.
   - assert_visible: { id: webview-note, only_on: [web-dom] }
-  - pause: { secs: 5, skip_on: [harmony-arkui] }
+  - pause: { secs: 5 }
   # JS evaluation (docs/webview-eval.md), on the combos whose arm is written and has an engine;
   # windows-qt ships no Qt6 WebEngine, and the other backends report Unsupported. These three
   # assertions are engine-independent: JSON.stringify's output and a TypeError's name/message are
@@ -1260,7 +1255,6 @@ flow:
       }
   - screenshot:
       name: webview
-      skip_on: [harmony-arkui]
       title: { en: "Web view", fr: "Vue Web", ar: "عرض الويب", zh-CN: "网页视图" }
       source: src/pages/webview.rs
   # Session retention (docs/webview.md): plant a marker in the live JS context, leave the page
@@ -1324,21 +1318,19 @@ flow:
   # served through web_view_inline on the backends with a local-content arm. The status line is a
   # day label (asserted everywhere the page shows); what renders inside the web view is native web
   # content dayscript cannot reach, so the screenshot is the visual record.
-  - select: { id: webview-tab, index: 1, skip_on: [harmony-arkui] }
-  - assert_visible: { id: webview-embedded-status, skip_on: [harmony-arkui] }
+  - select: { id: webview-tab, index: 1 }
+  - assert_visible: { id: webview-embedded-status }
   - assert_text:
       {
         id: webview-embedded-status,
         key: webview_embedded_status_none,
-        skip_on: [harmony-arkui],
       }
-  - pause: { secs: 2, skip_on: [harmony-arkui] }
+  - pause: { secs: 2 }
   - screenshot:
       name: webview-embedded
-      skip_on: [harmony-arkui]
       title: { en: "Web view · embedded site", fr: "Vue Web · site embarqué", ar: "عرض الويب · موقع مضمّن", zh-CN: "网页视图 · 内嵌站点" }
       source: src/pages/webview.rs
-  - select: { id: webview-tab, index: 0, skip_on: [harmony-arkui] }
+  - select: { id: webview-tab, index: 0 }
 
   # ---------------------------------------------------------------------------------------------
   # Platform
@@ -1714,7 +1706,7 @@ flow:
   - assert_no_placeholders:
       only_on: [harmony-arkui]
       allow: [day.piece.activity, day.piece.colorpicker, day.piece.combobox, day.piece.media,
-              day.piece.searchfield, day.piece.webview]
+              day.piece.searchfield]
   # (measured on web-dom; media() landed as a <video>, so it is not listed here.)
   - assert_no_placeholders:
       only_on: [web-dom]
