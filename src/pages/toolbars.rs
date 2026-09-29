@@ -139,7 +139,9 @@ pub(crate) fn window_items() -> impl Fn() -> Vec<ToolbarEntry> + 'static {
                     day::open_new_window();
                     note(s, crate::res::str::toolbar_last_new());
                 }),
-            toolbar_separator("tb-sep"),
+            // Every item has an id, a separator too: the id is what lets Day add and remove
+            // one item at a time instead of rebuilding the bar.
+            toolbar_separator("tb-sep-new"),
             // ── Appearance: one segmented control over one setting (commands.rs) ─────────
             appearance_item(s.theme),
         ];
