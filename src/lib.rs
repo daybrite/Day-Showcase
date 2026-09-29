@@ -186,6 +186,7 @@ day::routes! {
         Canvas => "canvas",
         Charts => "charts",
         Animation => "animation",
+        Physics => "physics",
         Benchmark => "benchmark",
         Grid => "grid",
         Layout => "layout",
@@ -230,6 +231,7 @@ impl Section {
         match self {
             Section::About => "src/pages/about.rs",
             Section::Animation => "src/pages/animation.rs",
+            Section::Physics => "src/pages/physics.rs",
             Section::Benchmark => "src/pages/benchmark.rs",
             Section::Canvas => "src/pages/canvas.rs",
             Section::Charts => "src/pages/charts.rs",
@@ -597,6 +599,13 @@ fn destinations() -> Vec<Dest> {
             crate::res::str::nav_animation,
             vectors::nav_animation,
             animation_page,
+        ),
+        d(
+            Graphics,
+            Section::Physics,
+            crate::res::str::nav_physics,
+            vectors::nav_physics,
+            physics_page,
         ),
         d(
             Graphics,

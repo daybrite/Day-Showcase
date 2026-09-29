@@ -1063,6 +1063,21 @@ flow:
       title: { en: "Charts", fr: "Graphiques", ar: "المخططات", zh-CN: "图表" }
       source: src/pages/charts.rs
 
+  # Physics: marbles under adjustable gravity, filling the page. A tap throws every marble toward
+  # the tapped point; once they have come back down and settled, the capture is repeatable.
+  - navigate: { route: physics }
+  - assert_route: { route: physics }
+  - set_value: { id: frame-ball-slider, value: 40 }
+  # The page opens at zero-G, where the marbles would still be drifting at capture time.
+  - set_value: { id: physics-gravity-slider, value: 9.81 }
+  - tap: { id: frame-ball, at: [160, 80] }
+  - pause: { secs: 5.0 }
+  - assert_visible: { id: physics-gravity-slider }
+  - screenshot:
+      name: physics
+      title: { en: "Physics", fr: "Physique", ar: "الفيزياء", zh-CN: "物理" }
+      source: src/pages/physics.rs
+
   # Declarative animation (§8.4, docs/animation.md): queue deterministic targets (fixed values,
   # not Randomize!, since screenshots must reproduce), commit them inside one with_animation via
   # Animate!, and let the backend interpolation settle before capturing.

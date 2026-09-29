@@ -615,6 +615,7 @@ grid_stress_add = 增加 50 行
 grid_stress_bump = 递增首个单元格
 
 nav_animation = 动画
+nav_physics = 物理
 
 # 动画页面
 anim_scale = 缩放
@@ -1105,8 +1106,7 @@ files_bookmark_failed = 无法恢复对已保存文件的访问权限。请使�
 dnd_disallowed = 添加禁止放置区域
 
 # Native display frame demo
-frame_title = 玻璃弹珠
-frame_hint = 轻点画布，让每颗弹珠朝不同方向弹跳。增加数量以测试性能。
+frame_hint = 轻点任意位置，把所有小球抛向该点。增加数量以测试性能。
 frame_bounce = 弹跳
 frame_pause = 暂停 / 继续
 frame_waiting = 等待下一帧
@@ -1122,3 +1122,13 @@ frame_fps = FPS · 最低 { $min } · 最高 { $max } · 平均 { $avg }
 commands_title = 可复用命令
 commands_add = 加一
 commands_hint = 按钮、工具栏和上下文菜单共享相同的操作。最多加到三，然后重置；可用状态保持同步。
+
+# The Physics page (src/pages/physics.rs): the gravity slider and the bodies its readout names.
+physics_gravity_label = 重力
+physics_gravity = 重力：{ $value } m/s²
+physics_gravity_named = 重力：{ $value } m/s²（{ $body }）
+physics_zero_g = 零重力
+physics_moon = 月球
+physics_mars = 火星
+physics_earth = 地球
+physics_jupiter = 木星

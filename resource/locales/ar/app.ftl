@@ -627,6 +627,7 @@ grid_stress_add = أضف 50 صفًا
 grid_stress_bump = زد الخلية الأولى
 
 nav_animation = الرسوم المتحركة
+nav_physics = الفيزياء
 
 # صفحة الحركة
 anim_scale = المقياس
@@ -1132,8 +1133,7 @@ files_bookmark_failed = تعذرت استعادة الوصول إلى الملف
 dnd_disallowed = إضافة مناطق محظورة
 
 # Native display frame demo
-frame_title = كرات زجاجية
-frame_hint = المس اللوحة لترتد كل كرة في اتجاه مختلف. زد عدد الكرات لاختبار الأداء.
+frame_hint = المس أي مكان لقذف كل الكرات نحو تلك النقطة. زِد العدد لاختبار الأداء.
 frame_bounce = ارتداد
 frame_pause = إيقاف / استئناف
 frame_waiting = بانتظار إطار
@@ -1149,3 +1149,13 @@ frame_fps = إطار/ث · الأدنى { $min } · الأقصى { $max } · ا�
 commands_title = أوامر قابلة لإعادة الاستخدام
 commands_add = إضافة واحد
 commands_hint = تستخدم الأزرار وشريط الأدوات والقائمة السياقية الإجراءات نفسها. أضف حتى ثلاثة ثم أعد الضبط؛ تظل حالة الإتاحة متزامنة.
+
+# The Physics page (src/pages/physics.rs): the gravity slider and the bodies its readout names.
+physics_gravity_label = الجاذبية
+physics_gravity = الجاذبية: { $value } م/ث²
+physics_gravity_named = الجاذبية: { $value } م/ث² ({ $body })
+physics_zero_g = انعدام الجاذبية
+physics_moon = القمر
+physics_mars = المريخ
+physics_earth = الأرض
+physics_jupiter = المشتري

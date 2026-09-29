@@ -621,6 +621,7 @@ grid_stress_add = Add 50 rows
 grid_stress_bump = Bump the first cell
 
 nav_animation = Animation
+nav_physics = Physics
 
 # Animation page (localized labels; the ! is part of the button voice)
 anim_scale = Scale
@@ -1122,8 +1123,7 @@ files_bookmark_failed = Access to the saved file could not be restored. Choose i
 dnd_disallowed = Add disallowed regions
 
 # Native display frame demo
-frame_title = Marbles
-frame_hint = Tap the canvas to bounce every ball in a different direction. Increase the count to test performance.
+frame_hint = Tap anywhere to throw every ball toward that point. Raise the count to test performance.
 frame_bounce = Bounce
 frame_pause = Pause / resume
 frame_waiting = Waiting for a frame
@@ -1139,3 +1139,13 @@ frame_fps = FPS · min { $min } · max { $max } · avg { $avg }
 commands_title = Reusable commands
 commands_add = Add one
 commands_hint = Buttons, toolbar items, and the context menu share the same actions. Add up to three, then reset; availability stays in sync.
+
+# The Physics page (src/pages/physics.rs): the gravity slider and the bodies its readout names.
+physics_gravity_label = Gravity
+physics_gravity = Gravity: { $value } m/s²
+physics_gravity_named = Gravity: { $value } m/s² ({ $body })
+physics_zero_g = zero-G
+physics_moon = Moon
+physics_mars = Mars
+physics_earth = Earth
+physics_jupiter = Jupiter

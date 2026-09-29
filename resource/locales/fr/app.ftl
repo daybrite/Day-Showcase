@@ -620,6 +620,7 @@ grid_stress_add = Ajouter 50 lignes
 grid_stress_bump = Incrémenter la première cellule
 
 nav_animation = Animation
+nav_physics = Physique
 
 # Page Animation
 anim_scale = Échelle
@@ -1115,8 +1116,7 @@ files_bookmark_failed = Impossible de rétablir l’accès au fichier enregistr�
 dnd_disallowed = Ajouter des zones interdites
 
 # Native display frame demo
-frame_title = Billes
-frame_hint = Touchez le canevas pour faire rebondir chaque bille dans une direction différente. Augmentez le nombre pour tester les performances.
+frame_hint = Touchez n’importe où pour lancer toutes les billes vers ce point. Augmentez leur nombre pour tester les performances.
 frame_bounce = Rebondir
 frame_pause = Pause / reprendre
 frame_waiting = En attente d’une image
@@ -1132,3 +1132,13 @@ frame_fps = FPS · min { $min } · max { $max } · moy { $avg }
 commands_title = Commandes réutilisables
 commands_add = Ajouter un
 commands_hint = Les boutons, la barre d’outils et le menu contextuel partagent les mêmes actions. Ajoutez jusqu’à trois, puis réinitialisez ; leur disponibilité reste synchronisée.
+
+# The Physics page (src/pages/physics.rs): the gravity slider and the bodies its readout names.
+physics_gravity_label = Gravité
+physics_gravity = Gravité : { $value } m/s²
+physics_gravity_named = Gravité : { $value } m/s² ({ $body })
+physics_zero_g = apesanteur
+physics_moon = Lune
+physics_mars = Mars
+physics_earth = Terre
+physics_jupiter = Jupiter
