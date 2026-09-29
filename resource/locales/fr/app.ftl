@@ -1118,6 +1118,7 @@ dnd_disallowed = Ajouter des zones interdites
 # Native display frame demo
 frame_hint = Touchez n’importe où pour lancer toutes les billes vers ce point. Augmentez leur nombre pour tester les performances.
 frame_bounce = Rebondir
+frame_shuffle = Mélanger
 frame_pause = Pause / reprendre
 frame_waiting = En attente d’une image
 frame_running = En mouvement
@@ -1126,17 +1127,19 @@ frame_resting = Au repos
 frame_explanation = Les FPS couvrent les 2 dernières secondes de callbacks d’affichage, hors pauses. Chaque rebond lance une nouvelle mesure.
 frame_native_title = Animations des composants natifs
 frame_balls_label = Billes
-frame_balls = Billes : { $count }
 frame_fps = FPS · min { $min } · max { $max } · moy { $avg }
 
 commands_title = Commandes réutilisables
 commands_add = Ajouter un
 commands_hint = Les boutons, la barre d’outils et le menu contextuel partagent les mêmes actions. Ajoutez jusqu’à trois, puis réinitialisez ; leur disponibilité reste synchronisée.
 
-# The Physics page (src/pages/physics.rs): the gravity slider and the bodies its readout names.
-physics_gravity_label = Gravité
-physics_gravity = Gravité : { $value } m/s²
-physics_gravity_named = Gravité : { $value } m/s² ({ $body })
+# The Physics page (src/pages/physics.rs): the ball mass and planetary gravity sliders, and the
+# bodies the gravity readout names.
+physics_gravity_label = Gravité planétaire
+physics_gravity = { $value } m/s²
+physics_gravity_named = { $value } m/s² ({ $body })
+physics_mass_label = Masse des billes
+physics_mass = { $value } Mt
 physics_zero_g = apesanteur
 physics_moon = Lune
 physics_mars = Mars

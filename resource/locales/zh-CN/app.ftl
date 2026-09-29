@@ -1108,6 +1108,7 @@ dnd_disallowed = 添加禁止放置区域
 # Native display frame demo
 frame_hint = 轻点任意位置，把所有小球抛向该点。增加数量以测试性能。
 frame_bounce = 弹跳
+frame_shuffle = 随机
 frame_pause = 暂停 / 继续
 frame_waiting = 等待下一帧
 frame_running = 运动中
@@ -1116,17 +1117,19 @@ frame_resting = 静止
 frame_explanation = FPS 统计最近 2 秒的显示回调，不包含暂停时间。每次弹跳都会开始新的测量。
 frame_native_title = 原生控件动画
 frame_balls_label = 弹珠数量
-frame_balls = 弹珠数量：{ $count }
 frame_fps = FPS · 最低 { $min } · 最高 { $max } · 平均 { $avg }
 
 commands_title = 可复用命令
 commands_add = 加一
 commands_hint = 按钮、工具栏和上下文菜单共享相同的操作。最多加到三，然后重置；可用状态保持同步。
 
-# The Physics page (src/pages/physics.rs): the gravity slider and the bodies its readout names.
-physics_gravity_label = 重力
-physics_gravity = 重力：{ $value } m/s²
-physics_gravity_named = 重力：{ $value } m/s²（{ $body }）
+# The Physics page (src/pages/physics.rs): the ball mass and planetary gravity sliders, and the
+# bodies the gravity readout names.
+physics_gravity_label = 行星重力
+physics_gravity = { $value } m/s²
+physics_gravity_named = { $value } m/s²（{ $body }）
+physics_mass_label = 小球质量
+physics_mass = { $value } 百万吨
 physics_zero_g = 零重力
 physics_moon = 月球
 physics_mars = 火星

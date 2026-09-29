@@ -1125,6 +1125,7 @@ dnd_disallowed = Add disallowed regions
 # Native display frame demo
 frame_hint = Tap anywhere to throw every ball toward that point. Raise the count to test performance.
 frame_bounce = Bounce
+frame_shuffle = Shuffle
 frame_pause = Pause / resume
 frame_waiting = Waiting for a frame
 frame_running = Running
@@ -1133,17 +1134,19 @@ frame_resting = Resting
 frame_explanation = FPS shows the last 2 seconds of frame callbacks, excluding pauses. Each bounce starts a new measurement.
 frame_native_title = Native widget animations
 frame_balls_label = Balls
-frame_balls = Balls: { $count }
 frame_fps = FPS · min { $min } · max { $max } · avg { $avg }
 
 commands_title = Reusable commands
 commands_add = Add one
 commands_hint = Buttons, toolbar items, and the context menu share the same actions. Add up to three, then reset; availability stays in sync.
 
-# The Physics page (src/pages/physics.rs): the gravity slider and the bodies its readout names.
-physics_gravity_label = Gravity
-physics_gravity = Gravity: { $value } m/s²
-physics_gravity_named = Gravity: { $value } m/s² ({ $body })
+# The Physics page (src/pages/physics.rs): the ball mass and planetary gravity sliders, and the
+# bodies the gravity readout names.
+physics_gravity_label = Planetary gravity
+physics_gravity = { $value } m/s²
+physics_gravity_named = { $value } m/s² ({ $body })
+physics_mass_label = Ball mass
+physics_mass = { $value } Mt
 physics_zero_g = zero-G
 physics_moon = Moon
 physics_mars = Mars

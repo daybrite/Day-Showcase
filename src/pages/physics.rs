@@ -35,6 +35,25 @@ pub(crate) const JUPITER: f64 = 24.79;
 const FLIGHT_SECS_PER_POINT: f64 = 1.0 / 900.0;
 const FLIGHT_MIN_SECS: f64 = 0.25;
 const FLIGHT_MAX_SECS: f64 = 0.9;
+/// Newton's constant, m³/(kg·s²). Mutual attraction uses the real one; what makes it visible at
+/// the scale of a screen is the marbles' mass, which the Ball mass slider sets in megatonnes.
+const NEWTON_G: f64 = 6.674e-11;
+/// The heaviest a marble can be made, in megatonnes (10⁹ kg). How strong the pull is depends on
+/// the count as much as on the mass (a thousand marbles weigh a thousand times one): at this
+/// much a crowd bends visibly toward itself as it flies, without every throw ending in one
+/// clump, and a handful of marbles barely notice each other.
+pub(crate) const MAX_MASS_MT: f64 = 0.5;
+/// No marble moves faster than this, points per second. Only the heaviest settings reach it:
+/// a marble falling through a dense core there would otherwise cross the box in one step.
+const MAX_SPEED: f64 = 3000.0;
+/// The mutual-gravity mesh: its spacing is the canvas's longer side over this many cells, never
+/// finer than a marble.
+const MESH_CELLS: f64 = 20.0;
+/// While marbles pull on each other nothing comes to rest on its own, so the simulation settles
+/// once every marble has stayed slower than this for [`CALM_STEPS`] steps in a row.
+const CALM_SPEED: f64 = 5.0;
+const CALM_STEPS: u32 = 60;
+
 /// How far off the line to the tapped point a marble may be thrown, in radians either way (about
 /// 7°): enough that a crowd keeps some entropy and scatters around the point, little enough that
 /// every one of them plainly leaps toward it.
@@ -126,6 +145,16 @@ struct Simulation {
     rng: u64,
     /// Downward acceleration in points per second squared ([`POINTS_PER_METRE`] × m/s²).
     gravity: f64,
+    /// Each marble's mass in kilograms, which is what pulls it toward every other marble.
+    mass: f64,
+    /// The field those masses make, rebuilt every step while there is any mass.
+    mesh: Mesh,
+    /// Each marble's acceleration toward the others this step, points per second squared.
+    pull: Vec<(f64, f64)>,
+    /// Consecutive steps every marble has been slower than [`CALM_SPEED`], and whether that has
+    /// lasted long enough to call the simulation settled.
+    calm: u32,
+    settled: bool,
 }
 impl Simulation {
     fn new(count: usize) -> Self {
@@ -136,6 +165,11 @@ impl Simulation {
             steps: 0,
             rng: 0x9E37_79B9_7F4A_7C15,
             gravity: EARTH * POINTS_PER_METRE,
+            mass: 0.0,
+            mesh: Mesh::default(),
+            pull: Vec::with_capacity(MAX_BALLS),
+            calm: 0,
+            settled: false,
         };
         sim.set_count(count);
         sim
@@ -153,6 +187,7 @@ impl Simulation {
     }
     fn set_count(&mut self, count: usize) {
         let count = count.clamp(1, MAX_BALLS);
+        self.unsettle();
         self.balls.truncate(count);
         let r = self.radius();
         while self.balls.len() < count {
@@ -178,11 +213,34 @@ impl Simulation {
         }
         self.remainder = 0.0;
         self.steps = 0;
+        self.unsettle();
     }
     /// Set gravity in m/s². A marble left floating by zero-G starts to fall again as soon as there
     /// is gravity to pull it; the caller wakes the frame clock ([`Simulation::alive`] says so).
     fn set_gravity(&mut self, metres_per_sec2: f64) {
-        self.gravity = metres_per_sec2.max(0.0) * POINTS_PER_METRE;
+        let g = metres_per_sec2.max(0.0) * POINTS_PER_METRE;
+        if g != self.gravity {
+            self.gravity = g;
+            self.unsettle();
+        }
+    }
+    /// Set each marble's mass in megatonnes. Any mass at all makes the marbles pull on each
+    /// other; the caller wakes the frame clock, as for gravity.
+    fn set_mass(&mut self, megatonnes: f64) {
+        let kg = megatonnes.max(0.0) * 1e9;
+        if kg != self.mass {
+            self.mass = kg;
+            self.unsettle();
+        }
+    }
+    /// Whether the marbles pull on each other: they have mass, and there is more than one.
+    fn mutual(&self) -> bool {
+        self.mass > 0.0 && self.balls.len() > 1
+    }
+    /// Something changed that can set marbles moving again: start the settling count over.
+    fn unsettle(&mut self) {
+        self.calm = 0;
+        self.settled = false;
     }
     /// Whether a marble is above the floor rather than resting on it.
     fn floating(&self, ball: &Ball) -> bool {
@@ -206,6 +264,7 @@ impl Simulation {
         }
     }
     fn kick(&mut self) {
+        self.unsettle();
         for i in 0..self.balls.len() {
             let vx = self.random(-220.0, 220.0);
             let vy = self.random(-650.0, -420.0);
@@ -219,6 +278,7 @@ impl Simulation {
     /// exact, so a crowd fans out around the point with some entropy instead of converging on one
     /// spot. With zero gravity each path is a straight line.
     fn kick_toward(&mut self, target: Point) {
+        self.unsettle();
         let g = self.gravity;
         for i in 0..self.balls.len() {
             let (x, y) = (self.balls[i].x, self.balls[i].y);
@@ -235,9 +295,27 @@ impl Simulation {
         self.remainder = 0.0;
     }
     fn alive(&self) -> bool {
+        if self.mutual() {
+            return !self.settled;
+        }
         self.balls
             .iter()
             .any(|b| b.moving() || (self.gravity > 0.0 && self.floating(b)))
+    }
+    /// Random values for every control, for the Shuffle button: a ball count, planetary gravity
+    /// in m/s² and a ball mass in megatonnes, each rounded to its slider's step.
+    fn shuffled(&mut self) -> (f64, f64, f64) {
+        let count = self.random(1.0, MAX_BALLS as f64).round();
+        let gravity = (self.random(0.0, JUPITER) * 100.0).round() / 100.0;
+        let mass = (self.random(0.0, MAX_MASS_MT) * 1000.0).round() / 1000.0;
+        (count, gravity, mass)
+    }
+    /// A random point inside the canvas, for Shuffle's throw.
+    fn random_point(&mut self) -> Point {
+        let r = self.radius();
+        let x = self.random(r, self.size.width - r);
+        let y = self.random(r, self.size.height - r);
+        Point::new(x, y)
     }
     fn advance(&mut self, elapsed: f64) {
         // Bound catch-up after stalls; neither physics speed nor work depends on refresh rate.
@@ -245,15 +323,35 @@ impl Simulation {
         let r = self.radius();
         let (right, bottom) = (self.size.width - r, self.size.height - r);
         let g = self.gravity;
+        let mutual = self.mutual();
+        if mutual && self.settled {
+            self.remainder = 0.0;
+            return;
+        }
         while self.remainder + 1e-10 >= STEP {
             self.remainder = (self.remainder - STEP).max(0.0);
             self.steps += 1;
-            for ball in &mut self.balls {
-                // At rest on the floor, or floating at rest with nothing to pull it down.
-                if !ball.moving() && (ball.y >= bottom - 1e-9 || g == 0.0) {
+            if mutual {
+                self.mesh
+                    .pull(&self.balls, self.size, self.mass, &mut self.pull);
+            }
+            for (i, ball) in self.balls.iter_mut().enumerate() {
+                // At rest on the floor, or floating at rest with nothing to pull it down. With
+                // mutual attraction every marble is pulled by the others, so none is skipped.
+                if !mutual && !ball.moving() && (ball.y >= bottom - 1e-9 || g == 0.0) {
                     continue;
                 }
+                if mutual {
+                    let (ax, ay) = self.pull[i];
+                    ball.vx += ax * STEP;
+                    ball.vy += ay * STEP;
+                }
                 ball.vy += g * STEP;
+                let speed = ball.vx.hypot(ball.vy);
+                if speed > MAX_SPEED {
+                    ball.vx *= MAX_SPEED / speed;
+                    ball.vy *= MAX_SPEED / speed;
+                }
                 ball.vx *= 1.0 - DRAG_PER_SEC * STEP;
                 ball.vy *= 1.0 - DRAG_PER_SEC * STEP;
                 ball.x += ball.vx * STEP;
@@ -279,12 +377,137 @@ impl Simulation {
                         ball.vx = 0.0;
                     }
                 }
-                if g == 0.0 && ball.vx.hypot(ball.vy) < FLOAT_REST_SPEED {
+                // Floating marbles come to rest one by one only without mutual attraction:
+                // with it, a slow marble is one the others are just starting to pull.
+                if !mutual && g == 0.0 && ball.vx.hypot(ball.vy) < FLOAT_REST_SPEED {
                     ball.vx = 0.0;
                     ball.vy = 0.0;
                 }
             }
+            if mutual {
+                let calm = self.balls.iter().all(|b| b.vx.hypot(b.vy) < CALM_SPEED);
+                self.calm = if calm { self.calm + 1 } else { 0 };
+                if self.calm >= CALM_STEPS {
+                    for ball in &mut self.balls {
+                        ball.vx = 0.0;
+                        ball.vy = 0.0;
+                    }
+                    self.settled = true;
+                    self.remainder = 0.0;
+                    return;
+                }
+            }
         }
+    }
+}
+
+/// Mutual gravity on a coarse mesh: every marble deposits its mass on the four mesh nodes around
+/// it (cloud-in-cell), the pull at each occupied node is summed directly over every other
+/// occupied node, and each marble reads its pull back from the same four nodes with the same
+/// weights.
+///
+/// Direct summation over marbles is n² pairs, 500,000 of them at a thousand marbles, 120 times a
+/// second; this costs the square of the occupied nodes instead, a few hundred at most, however many
+/// marbles there are. The price is resolution: closer than about one mesh cell, the pull softens
+/// to nothing rather than growing without bound, which is also what keeps a close pass from
+/// flinging a marble across the box. Because the pair term is antisymmetric and deposit and
+/// read-back use the same weights, a marble exerts no net pull on itself and momentum is
+/// conserved.
+#[derive(Default)]
+struct Mesh {
+    cols: usize,
+    rows: usize,
+    cell: f64,
+    /// The pair term by node offset, `(dx, dy) / (r² + ε²)^(3/2)` in mesh units, indexed by
+    /// [`Mesh::offset`]; rebuilt when the mesh's shape changes.
+    kernel: Vec<(f64, f64)>,
+    mass: Vec<f64>,
+    field: Vec<(f64, f64)>,
+    occupied: Vec<usize>,
+}
+
+impl Mesh {
+    fn shape(&mut self, size: Size) {
+        let cell = (size.width.max(size.height) / MESH_CELLS).max(RADIUS * 2.0);
+        let cols = (size.width / cell).ceil() as usize + 2;
+        let rows = (size.height / cell).ceil() as usize + 2;
+        if (cols, rows, cell) == (self.cols, self.rows, self.cell) {
+            return;
+        }
+        (self.cols, self.rows, self.cell) = (cols, rows, cell);
+        let (w, h) = (2 * cols - 1, 2 * rows - 1);
+        self.kernel = (0..w * h)
+            .map(|k| {
+                let dx = (k % w) as f64 - (cols - 1) as f64;
+                let dy = (k / w) as f64 - (rows - 1) as f64;
+                // Softened by one cell: the pull peaks about a cell out and fades inside it.
+                let d = (dx * dx + dy * dy + 1.0).powf(1.5);
+                (dx / d, dy / d)
+            })
+            .collect();
+        self.mass = vec![0.0; cols * rows];
+        self.field = vec![(0.0, 0.0); cols * rows];
+    }
+    /// The kernel index for the offset from node `a` to node `b`.
+    fn offset(&self, a: usize, b: usize) -> usize {
+        let (ax, ay) = ((a % self.cols) as isize, (a / self.cols) as isize);
+        let (bx, by) = ((b % self.cols) as isize, (b / self.cols) as isize);
+        let w = 2 * self.cols - 1;
+        let dx = (bx - ax + self.cols as isize - 1) as usize;
+        let dy = (by - ay + self.rows as isize - 1) as usize;
+        dy * w + dx
+    }
+    /// The four nodes around `(x, y)` and their cloud-in-cell weights.
+    fn corners(&self, x: f64, y: f64) -> [(usize, f64); 4] {
+        let (fx, fy) = (x / self.cell, y / self.cell);
+        let i = (fx.floor().max(0.0) as usize).min(self.cols - 2);
+        let j = (fy.floor().max(0.0) as usize).min(self.rows - 2);
+        let (tx, ty) = (
+            (fx - i as f64).clamp(0.0, 1.0),
+            (fy - j as f64).clamp(0.0, 1.0),
+        );
+        let n = j * self.cols + i;
+        [
+            (n, (1.0 - tx) * (1.0 - ty)),
+            (n + 1, tx * (1.0 - ty)),
+            (n + self.cols, (1.0 - tx) * ty),
+            (n + self.cols + 1, tx * ty),
+        ]
+    }
+    /// Every marble's acceleration toward the others, in points per second squared, into `out`.
+    fn pull(&mut self, balls: &[Ball], size: Size, mass: f64, out: &mut Vec<(f64, f64)>) {
+        self.shape(size);
+        self.mass.iter_mut().for_each(|m| *m = 0.0);
+        self.occupied.clear();
+        for b in balls {
+            for (n, w) in self.corners(b.x, b.y) {
+                if w > 0.0 {
+                    if self.mass[n] == 0.0 {
+                        self.occupied.push(n);
+                    }
+                    self.mass[n] += w;
+                }
+            }
+        }
+        // G·m in points³/s² for one marble, with the kernel's cell units turned into points.
+        let points_g = NEWTON_G * POINTS_PER_METRE.powi(3) * mass / (self.cell * self.cell);
+        for &a in &self.occupied {
+            let (mut fx, mut fy) = (0.0, 0.0);
+            for &b in &self.occupied {
+                let (kx, ky) = self.kernel[self.offset(a, b)];
+                fx += kx * self.mass[b];
+                fy += ky * self.mass[b];
+            }
+            self.field[a] = (fx * points_g, fy * points_g);
+        }
+        out.clear();
+        out.extend(balls.iter().map(|b| {
+            self.corners(b.x, b.y)
+                .iter()
+                .fold((0.0, 0.0), |(ax, ay), &(n, w)| {
+                    (ax + self.field[n].0 * w, ay + self.field[n].1 * w)
+                })
+        }));
     }
 }
 
@@ -323,6 +546,18 @@ impl Demo {
     fn kick_toward(&self, target: Point) {
         self.simulation.borrow_mut().kick_toward(target);
         self.start();
+    }
+    /// Set every slider to a random value, then throw the marbles toward a random point, as if
+    /// it had been tapped. The sliders' effects run first (a new count re-seeds the marbles, a
+    /// new gravity or mass reaches the simulation), so the throw is the last word.
+    fn shuffle(&self, count: Signal<f64>, gravity: Signal<f64>, mass: Signal<f64>) {
+        let (n, g, m) = self.simulation.borrow_mut().shuffled();
+        count.set(n);
+        gravity.set(g);
+        mass.set(m);
+        day::reactive::flush_now();
+        let at = self.simulation.borrow_mut().random_point();
+        self.kick_toward(at);
     }
     /// Run the frame clock for a fresh burst of motion.
     fn start(&self) {
@@ -367,8 +602,41 @@ fn gravity_text(g: f64) -> String {
     }
 }
 
+/// Readout for the ball mass slider.
+fn mass_text(megatonnes: f64) -> String {
+    crate::res::str::physics_mass(day::format_decimal(megatonnes, 3)).format()
+}
+
+/// One row of the controls form: its title in a column as wide as the widest title, the slider,
+/// and its value read out at the trailing end in a box as wide as `widest`. Both reservations
+/// keep the three sliders aligned, and keep each one still as its digits change.
+fn control(
+    title: day::LocalizedText,
+    widest_title: String,
+    slider: impl Piece,
+    readout: impl Fn() -> String + 'static,
+    widest: String,
+    readout_id: &'static str,
+) -> impl Piece {
+    row((
+        label(title).reserving(widest_title),
+        column((slider,)).grow_w(),
+        // `widgets::numeric_readout`, trailing-aligned inside its reserved box.
+        label(readout)
+            .tabular()
+            .align(TextAlign::Trailing)
+            .id(readout_id)
+            .reserving(widest),
+    ))
+    .spacing(12.0)
+    .align(VAlign::Center)
+}
+
 pub(crate) fn physics_page() -> AnyPiece {
     let count = Signal::new(1.0_f64);
+    // Each marble's mass in megatonnes. Massless to start: the marbles ignore each other until
+    // the slider gives them weight.
+    let mass = Signal::new(0.0_f64);
     // Zero-G to start: a tap sends the marbles drifting toward the point, and the slider adds
     // whatever pull the reader wants.
     let gravity = Signal::new(0.0);
@@ -437,14 +705,16 @@ pub(crate) fn physics_page() -> AnyPiece {
             }
         }
     });
-    // Gravity reaches the simulation live. A marble left floating by zero-G falls as soon as
-    // there is gravity again, so a sleeping clock is woken for it (unless the demo is paused).
+    // Gravity and mass reach the simulation live. A marble left floating by zero-G falls as soon
+    // as there is gravity again, and marbles given mass start pulling on each other, so a
+    // sleeping clock is woken for either (unless the demo is paused).
     let pull = ui.clone();
     Effect::new(move || {
-        let g = gravity.get();
+        let (g, m) = (gravity.get(), mass.get());
         let wake = {
             let mut sim = pull.simulation.borrow_mut();
             sim.set_gravity(g);
+            sim.set_mass(m);
             sim.alive()
         };
         let handle = pull.handle.borrow();
@@ -457,40 +727,45 @@ pub(crate) fn physics_page() -> AnyPiece {
             handle.resume();
         }
     });
-    let (draw, tap, bounce, pause, reset) =
-        (ui.clone(), ui.clone(), ui.clone(), ui.clone(), ui.clone());
+    let (draw, tap, bounce, shuffle, pause, reset) = (
+        ui.clone(),
+        ui.clone(),
+        ui.clone(),
+        ui.clone(),
+        ui.clone(),
+        ui.clone(),
+    );
+    // The widest each readout can be in this locale, so the three sliders line up and hold
+    // still: every named gravity reading, and the extremes of the other two.
+    let widest_gravity = [0.0, MOON, MARS, EARTH, JUPITER, 88.88]
+        .into_iter()
+        .map(gravity_text)
+        .max_by_key(|t| t.chars().count())
+        .unwrap_or_default();
+    // One width for all three readouts, so the sliders end together as well as start together.
+    let widest_value = [
+        day::format_decimal(8888.0, 0),
+        mass_text(8.888),
+        widest_gravity,
+    ]
+    .into_iter()
+    .max_by_key(|t| t.chars().count())
+    .unwrap_or_default();
+    let widest_title = [
+        crate::res::str::frame_balls_label(),
+        crate::res::str::physics_mass_label(),
+        crate::res::str::physics_gravity_label(),
+    ]
+    .into_iter()
+    .map(|t| t.format())
+    .max_by_key(|t| t.chars().count())
+    .unwrap_or_default();
     let (status, fps) = (ui.status, ui.fps);
     // Not `widgets::page`: that scrolls, and the marbles' box takes every point the page has
     // left, which a scroll view never offers.
     column((
         crate::widgets::heading(crate::res::str::nav_physics(), "physics-title"),
         label(crate::res::str::frame_hint()).font(Font::Callout),
-        row((
-            column((
-                label(move || crate::res::str::frame_balls(count.get().round() as i64).format())
-                    .id("frame-ball-count"),
-                slider(count)
-                    .range(1.0..=MAX_BALLS as f64)
-                    .step(1.0)
-                    .a11y(|a| a.label(crate::res::str::frame_balls_label().format()))
-                    .id("frame-ball-slider")
-                    .grow_w(),
-            ))
-            .spacing(4.0)
-            .grow_w(),
-            column((
-                label(move || gravity_text(gravity.get())).id("physics-gravity-value"),
-                slider(gravity)
-                    .range(0.0..=JUPITER)
-                    .step(0.01)
-                    .a11y(|a| a.label(crate::res::str::physics_gravity_label().format()))
-                    .id("physics-gravity-slider")
-                    .grow_w(),
-            ))
-            .spacing(4.0)
-            .grow_w(),
-        ))
-        .spacing(16.0),
         canvas(move |d, size| {
             draw.repaint.track();
             let mut sim = draw.simulation.borrow_mut();
@@ -505,10 +780,53 @@ pub(crate) fn physics_page() -> AnyPiece {
         })
         .id("frame-ball")
         .grow(),
+        // The three controls as one form under the marbles, each slider with its value beside it.
+        section((column((
+            control(
+                crate::res::str::frame_balls_label(),
+                widest_title.clone(),
+                slider(count)
+                    .range(1.0..=MAX_BALLS as f64)
+                    .step(1.0)
+                    .a11y(|a| a.label(crate::res::str::frame_balls_label().format()))
+                    .id("frame-ball-slider"),
+                move || day::format_decimal(count.get().round(), 0),
+                widest_value.clone(),
+                "frame-ball-count",
+            ),
+            control(
+                crate::res::str::physics_mass_label(),
+                widest_title.clone(),
+                slider(mass)
+                    .range(0.0..=MAX_MASS_MT)
+                    .step(0.001)
+                    .a11y(|a| a.label(crate::res::str::physics_mass_label().format()))
+                    .id("physics-mass-slider"),
+                move || mass_text(mass.get()),
+                widest_value.clone(),
+                "physics-mass-value",
+            ),
+            control(
+                crate::res::str::physics_gravity_label(),
+                widest_title.clone(),
+                slider(gravity)
+                    .range(0.0..=JUPITER)
+                    .step(0.01)
+                    .a11y(|a| a.label(crate::res::str::physics_gravity_label().format()))
+                    .id("physics-gravity-slider"),
+                move || gravity_text(gravity.get()),
+                widest_value,
+                "physics-gravity-value",
+            ),
+        ))
+        .spacing(8.0),)),
         row((
             button(crate::res::str::frame_bounce())
                 .action(move || bounce.kick())
                 .id("frame-bounce"),
+            button(crate::res::str::frame_shuffle())
+                .action(move || shuffle.shuffle(count, gravity, mass))
+                .id("physics-shuffle"),
             button(crate::res::str::frame_pause())
                 .action(move || {
                     let handle = pause.handle.borrow();
@@ -900,6 +1218,142 @@ mod tests {
         };
         let (moon, earth, jupiter) = (fall_steps(MOON), fall_steps(EARTH), fall_steps(JUPITER));
         assert!(moon > earth && earth > jupiter, "{moon} {earth} {jupiter}");
+    }
+
+    fn floating_pair(mass_mt: f64) -> Simulation {
+        let mut sim = Simulation::new(2);
+        sim.resize(Size::new(800.0, 600.0));
+        sim.set_gravity(0.0);
+        sim.set_mass(mass_mt);
+        sim.balls[0] = Ball {
+            x: 250.0,
+            y: 300.0,
+            vx: 0.0,
+            vy: 0.0,
+        };
+        sim.balls[1] = Ball {
+            x: 550.0,
+            y: 300.0,
+            vx: 0.0,
+            vy: 0.0,
+        };
+        sim
+    }
+
+    #[test]
+    fn massive_marbles_pull_each_other_together_and_massless_ones_do_not() {
+        let mut sim = floating_pair(300.0);
+        assert!(
+            sim.alive(),
+            "marbles with mass pull on each other from rest"
+        );
+        for _ in 0..120 {
+            sim.advance(STEP);
+        }
+        let gap = sim.balls[1].x - sim.balls[0].x;
+        assert!(gap < 300.0 - 10.0, "the pair closed in: {gap}");
+        // Symmetric: each moved the same distance toward the other.
+        assert!(((sim.balls[0].x - 250.0) - (550.0 - sim.balls[1].x)).abs() < 1e-6);
+        assert!((sim.balls[0].y - 300.0).abs() < 1e-6);
+
+        let mut still = floating_pair(0.0);
+        assert!(!still.alive());
+        still.advance(1.0);
+        assert_eq!((still.balls[0].x, still.balls[1].x), (250.0, 550.0));
+    }
+
+    /// Deposit and read-back share their weights and the pair term is antisymmetric, so a marble
+    /// does not pull on itself, and a crowd's pulls cancel overall (momentum is conserved).
+    #[test]
+    fn the_mesh_exerts_no_self_force_and_conserves_momentum() {
+        let mut mesh = Mesh::default();
+        let size = Size::new(900.0, 500.0);
+        let mut out = Vec::new();
+        let alone = [Ball {
+            x: 333.3,
+            y: 123.4,
+            vx: 0.0,
+            vy: 0.0,
+        }];
+        mesh.pull(&alone, size, 1e10, &mut out);
+        assert!(
+            out[0].0.abs() < 1e-9 && out[0].1.abs() < 1e-9,
+            "{:?}",
+            out[0]
+        );
+
+        let mut sim = Simulation::new(300);
+        sim.resize(size);
+        sim.kick();
+        for _ in 0..30 {
+            sim.advance(STEP);
+        }
+        mesh.pull(&sim.balls, size, 1e10, &mut out);
+        let (sx, sy) = out.iter().fold((0.0, 0.0), |(x, y), p| (x + p.0, y + p.1));
+        let typical = out.iter().map(|p| p.0.hypot(p.1)).sum::<f64>() / out.len() as f64;
+        assert!(typical > 0.0);
+        assert!(
+            sx.hypot(sy) < typical * 1e-6,
+            "net pull {sx}, {sy} vs {typical}"
+        );
+    }
+
+    #[test]
+    fn a_massive_crowd_settles_and_stays_settled() {
+        let mut sim = Simulation::new(60);
+        sim.resize(Size::new(800.0, 600.0));
+        sim.set_gravity(0.0);
+        sim.set_mass(MAX_MASS_MT);
+        sim.kick_toward(Point::new(400.0, 300.0));
+        let settled = (0..120 * 180).find(|_| {
+            sim.advance(STEP);
+            !sim.alive()
+        });
+        assert!(
+            settled.is_some(),
+            "settles within three minutes of simulated time"
+        );
+        let before = sim.balls.clone();
+        sim.advance(1.0);
+        assert_eq!(sim.balls, before, "a settled crowd stays put");
+        in_bounds(&sim);
+        // Anything that can set it moving again wakes it.
+        sim.set_mass(MAX_MASS_MT / 2.0);
+        assert!(sim.alive());
+    }
+
+    /// The heaviest setting on the largest crowd is violent but bounded: no marble outruns the
+    /// speed cap or leaves the box.
+    #[test]
+    fn the_heaviest_crowd_stays_in_bounds_and_under_the_speed_cap() {
+        let mut sim = Simulation::new(MAX_BALLS);
+        sim.resize(Size::new(800.0, 600.0));
+        sim.set_gravity(0.0);
+        sim.set_mass(MAX_MASS_MT);
+        sim.kick();
+        for _ in 0..240 {
+            sim.advance(STEP);
+            in_bounds(&sim);
+            assert!(
+                sim.balls
+                    .iter()
+                    .all(|b| b.vx.hypot(b.vy) <= MAX_SPEED + 1e-6)
+            );
+        }
+    }
+
+    #[test]
+    fn shuffle_picks_values_inside_every_slider() {
+        let mut sim = Simulation::new(1);
+        for _ in 0..500 {
+            let (count, gravity, mass) = sim.shuffled();
+            assert!((1.0..=MAX_BALLS as f64).contains(&count) && count.fract() == 0.0);
+            assert!((0.0..=JUPITER).contains(&gravity));
+            assert!((0.0..=MAX_MASS_MT).contains(&mass));
+            let p = sim.random_point();
+            assert!((0.0..=sim.size.width).contains(&p.x));
+            assert!((0.0..=sim.size.height).contains(&p.y));
+        }
     }
 
     #[test]

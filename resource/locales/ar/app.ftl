@@ -1135,6 +1135,7 @@ dnd_disallowed = إضافة مناطق محظورة
 # Native display frame demo
 frame_hint = المس أي مكان لقذف كل الكرات نحو تلك النقطة. زِد العدد لاختبار الأداء.
 frame_bounce = ارتداد
+frame_shuffle = خلط
 frame_pause = إيقاف / استئناف
 frame_waiting = بانتظار إطار
 frame_running = تتحرك
@@ -1143,17 +1144,19 @@ frame_resting = ساكنة
 frame_explanation = يعرض معدل الإطارات آخر ثانيتين من إشارات العرض، باستثناء التوقفات. يبدأ كل ارتداد قياسًا جديدًا.
 frame_native_title = حركات عناصر الواجهة الأصلية
 frame_balls_label = الكرات
-frame_balls = عدد الكرات: { $count }
 frame_fps = إطار/ث · الأدنى { $min } · الأقصى { $max } · المتوسط { $avg }
 
 commands_title = أوامر قابلة لإعادة الاستخدام
 commands_add = إضافة واحد
 commands_hint = تستخدم الأزرار وشريط الأدوات والقائمة السياقية الإجراءات نفسها. أضف حتى ثلاثة ثم أعد الضبط؛ تظل حالة الإتاحة متزامنة.
 
-# The Physics page (src/pages/physics.rs): the gravity slider and the bodies its readout names.
-physics_gravity_label = الجاذبية
-physics_gravity = الجاذبية: { $value } م/ث²
-physics_gravity_named = الجاذبية: { $value } م/ث² ({ $body })
+# The Physics page (src/pages/physics.rs): the ball mass and planetary gravity sliders, and the
+# bodies the gravity readout names.
+physics_gravity_label = الجاذبية الكوكبية
+physics_gravity = { $value } م/ث²
+physics_gravity_named = { $value } م/ث² ({ $body })
+physics_mass_label = كتلة الكرة
+physics_mass = { $value } ميغاطن
 physics_zero_g = انعدام الجاذبية
 physics_moon = القمر
 physics_mars = المريخ

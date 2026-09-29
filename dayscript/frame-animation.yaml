@@ -4,15 +4,15 @@ flow:
   - wait_for: { id: nav }
   - navigate: { route: physics }
   # The page opens at zero-G; the timed settling below needs a pull to bring the marbles down.
-  - assert_text: { id: physics-gravity-value, text: "Gravity: 0.00 m/s² (zero-G)" }
+  - assert_text: { id: physics-gravity-value, text: "0.00 m/s² (zero-G)" }
   - set_value: { id: physics-gravity-slider, value: 9.81 }
   - assert_visible: { id: frame-ball }
   - assert_missing: { id: frame-readout }
   - assert_text: { id: frame-status, text: Resting }
   - assert_text: { id: frame-fps, text: "FPS · min — · max — · avg —" }
-  - assert_text: { id: frame-ball-count, text: 'Balls: 1' }
+  - assert_text: { id: frame-ball-count, text: '1' }
   - set_value: { id: frame-ball-slider, value: 250 }
-  - assert_text: { id: frame-ball-count, text: 'Balls: 250' }
+  - assert_text: { id: frame-ball-count, text: '250' }
   - tap: { id: frame-bounce }
   - pause: { secs: 0.3 }
   # Running is set only by a delivered native frame, never by the button.
@@ -32,13 +32,29 @@ flow:
   - assert_text: { id: frame-status, text: Running }
   # Gravity runs from zero-G to Jupiter, and the readout names the body a value matches.
   - set_value: { id: physics-gravity-slider, value: 0 }
-  - assert_text: { id: physics-gravity-value, text: "Gravity: 0.00 m/s² (zero-G)" }
+  - assert_text: { id: physics-gravity-value, text: "0.00 m/s² (zero-G)" }
   - set_value: { id: physics-gravity-slider, value: 24.79 }
-  - assert_text: { id: physics-gravity-value, text: "Gravity: 24.79 m/s² (Jupiter)" }
+  - assert_text: { id: physics-gravity-value, text: "24.79 m/s² (Jupiter)" }
   - set_value: { id: physics-gravity-slider, value: 9.81 }
-  - assert_text: { id: physics-gravity-value, text: "Gravity: 9.81 m/s² (Earth)" }
+  - assert_text: { id: physics-gravity-value, text: "9.81 m/s² (Earth)" }
+  # Ball mass: massless to start, up to half a megatonne.
+  - assert_text: { id: physics-mass-value, text: "0.000 Mt" }
+  - set_value: { id: physics-mass-slider, value: 0.25 }
+  - assert_text: { id: physics-mass-value, text: "0.250 Mt" }
+  - set_value: { id: physics-mass-slider, value: 0 }
+  - assert_text: { id: physics-mass-value, text: "0.000 Mt" }
+  # Shuffle sets every slider at random and throws the marbles toward a random point.
+  - tap: { id: frame-reset }
+  - assert_text: { id: frame-status, text: Resting }
+  - tap: { id: physics-shuffle }
+  - pause: { secs: 0.3 }
+  - assert_text: { id: frame-status, text: Running }
+  - screenshot: marbles-shuffled
+  # Back to one slow, settling marble for what follows.
+  - set_value: { id: physics-mass-slider, value: 0 }
+  - set_value: { id: physics-gravity-slider, value: 9.81 }
   - set_value: { id: frame-ball-slider, value: 1 }
-  - assert_text: { id: frame-ball-count, text: 'Balls: 1' }
+  - assert_text: { id: frame-ball-count, text: '1' }
   - tap: { id: frame-reset }
   - assert_text: { id: frame-status, text: Resting }
   - tap: { id: frame-bounce }
@@ -50,7 +66,7 @@ flow:
   - assert_text: { id: frame-status, text: Running }
   - tap: { id: frame-pause }
   - set_value: { id: frame-ball-slider, value: 125 }
-  - assert_text: { id: frame-ball-count, text: 'Balls: 125' }
+  - assert_text: { id: frame-ball-count, text: '125' }
   - assert_text: { id: frame-fps, text: "FPS · min — · max — · avg —" }
   - assert_text: { id: frame-status, text: Paused }
   - tap: { id: frame-ball }
