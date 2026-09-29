@@ -139,7 +139,7 @@ pub(crate) fn window_items() -> impl Fn() -> Vec<ToolbarEntry> + 'static {
                     day::open_new_window();
                     note(s, crate::res::str::toolbar_last_new());
                 }),
-            toolbar_separator(),
+            toolbar_separator("tb-sep"),
             // ── Appearance: one segmented control over one setting (commands.rs) ─────────
             appearance_item(s.theme),
         ];

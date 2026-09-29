@@ -248,7 +248,7 @@ clipboard_empty = Clipboard is empty (or unreadable in the background)
 network_refresh = Read Network
 network_reading_online = Online · { $kind } · metered: { $expensive }
 network_reading_offline = Offline
-network_reading_none = No connectivity API on this platform
+network_reading_none = Connectivity unavailable (no platform API, or the reading failed)
 
 # Media playground (docs/media.md)
 media_play = Play

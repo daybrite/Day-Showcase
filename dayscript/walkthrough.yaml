@@ -74,8 +74,8 @@ flow:
   - assert_text: { id: stepper-value, text: "3" }
   - assert_text: { id: state-count, text: "3" }
   - assert_visible: { id: stepped-slider }
-  # No activity arm on web-dom or ArkUI: the placeholder leaf has no frame to be visible.
-  - assert_visible: { id: activity-spinner, skip_on: [web-dom, harmony-arkui] }
+  # No activity arm on web-dom: the placeholder leaf has no frame to be visible.
+  - assert_visible: { id: activity-spinner, skip_on: [web-dom] }
   - assert_visible: { id: ctl-spinner }
   # Text field → the State row.
   - input: { id: name-field, text: "Ada" }
@@ -548,15 +548,14 @@ flow:
   # page's live bindings rather than any on-page widget. `toolbar:` drives an item through the
   # same dispatch its native control fires; the screenshot is what shows the bar actually drew.
   # The page is hidden where Cap::Toolbar is unsupported (lib.rs `destinations`). HarmonyOS
-  # reports it Emulated (the bar is the navigation title's menus), but this section stays off
-  # there: the page is never opened on it, so every readout below is skipped on it too, the star
-  # toggles included, since a toggle with no page showing stars whatever page is. iOS and
+  # reports it Emulated (the bar is the navigation title's menus): the page opens there for the
+  # appearance steps, and the recorder and star steps below stay off it. iOS and
   # Android dock the bar under the navigation controller's pages (2026-09, docs/toolbars.md) and
   # web-dom draws an emulated strip; the finer per-step skips below say which items each of them
   # can drive; search rides the navigation list on a phone, so the `day.search` item never
   # reaches a phone's bar.
-  - navigate: { route: toolbars, skip_on: [harmony-arkui] }
-  - assert_route: { route: toolbars, skip_on: [harmony-arkui] }
+  - navigate: { route: toolbars }
+  - assert_route: { route: toolbars }
   # Appearance: One native segmented control over the persisted setting (src/commands.rs), which
   # the App menu's Appearance submenu also drives. Skipped on Qt, which reports `Cap::Appearance`
   # unsupported: the items lower disabled there, and the readout says so rather than the app
@@ -571,12 +570,12 @@ flow:
   # day-android does not yet survive a second nativeStart in one process (DayActivity.java): the
   # sidebar mounts twice and every navigation after it is ambiguous. The CI variants cover dark
   # mode on Android by launching with DAY_THEME set instead.
-  - toolbar: { item: tb-theme, index: 2, skip_on: [mdc, arkui, dom, qt] }
+  - toolbar: { item: tb-theme, index: 2, skip_on: [mdc, dom, qt] }
   - wait_idle:
-  - assert_text: { id: toolbar-appearance, key: cmd_appearance_dark, skip_on: [mdc, arkui, dom, qt] }
-  - toolbar: { item: tb-theme, index: 1, skip_on: [mdc, arkui, dom, qt] }
+  - assert_text: { id: toolbar-appearance, key: cmd_appearance_dark, skip_on: [mdc, dom, qt] }
+  - toolbar: { item: tb-theme, index: 1, skip_on: [mdc, dom, qt] }
   - wait_idle:
-  - assert_text: { id: toolbar-appearance, key: cmd_appearance_system, skip_on: [mdc, arkui, dom, qt] }
+  - assert_text: { id: toolbar-appearance, key: cmd_appearance_system, skip_on: [mdc, dom, qt] }
   # The recorder's transport (docs/agent.md), driven from the Script menu it lives in: it acts on
   # the app's recording rather than on any page, so it earns no room on a page's bar. Record two
   # taps that stay on this page (a replay that navigated away would take the readout with it),
@@ -1381,11 +1380,7 @@ flow:
   - assert_visible: { id: network-reading }
   # Resource (day::reactive, docs/async.md): the first fetch runs at page build. Let it settle
   # before the shot, so its readout is filled in when the page is captured.
-  # Skipped on HarmonyOS: day-part-http's ArkTS arm (the Network Kit over the bridge's stream
-  # tier) compiles and stages, but on the Oniro emulator every exchange answers "platform
-  # runtime unavailable" before a request goes out (CI, 2026-09-25), and the page shows that
-  # readout instead. The arm has never run on a device; the four HTTP assertions wait for it.
-  - assert_text: { id: http-res-status, text: "ok 1: 200 day-http-ok", skip_on: [arkui] }
+  - assert_text: { id: http-res-status, text: "ok 1: 200 day-http-ok" }
   - screenshot:
       name: network
       title: { en: "Network & HTTP", fr: "Réseau et HTTP", ar: "الشبكة وHTTP", zh-CN: "网络与 HTTP" }
@@ -1397,15 +1392,15 @@ flow:
   # assert_text's bounded retry (§14.3) covers the gap. The body is raw, so it is identical
   # across locales.
   - tap: { id: http-fetch }
-  - assert_text: { id: http-status, text: "200 day-http-ok", skip_on: [arkui] }
+  - assert_text: { id: http-status, text: "200 day-http-ok" }
   # PATCH, await-style (docs/async.md): the demo target echoes the method into the body,
   # proving the verb crossed the platform engine (the old Android HttpURLConnection gap).
   - tap: { id: http-patch }
-  - assert_text: { id: http-patch-status, text: "200 day-http-ok:PATCH", skip_on: [arkui] }
+  - assert_text: { id: http-patch-status, text: "200 day-http-ok:PATCH" }
   # Refetch re-runs the Resource fetch asserted before the screenshot above (the attempt
   # counter proves it: a fresh fetch, not a cached readout).
   - tap: { id: http-res-refetch }
-  - assert_text: { id: http-res-status, text: "ok 2: 200 day-http-ok", skip_on: [arkui] }
+  - assert_text: { id: http-res-status, text: "ok 2: 200 day-http-ok" }
   - assert_visible: { id: http-tier }
   # The URL checker (type any http(s) URL → response headers + body size) needs live network,
   # so the walkthrough only checks its presence.
@@ -1420,8 +1415,9 @@ flow:
   - navigate: { route: notify }
   - assert_route: { route: notify }
   - wait_for: { id: notify-supported }
-  # The permission block exists only where the OS prompts for notifications (Gate::Prompts).
-  - assert_visible: { id: notify-perm, only_on: [macos-appkit, ios-uikit, android-mdc] }
+  # The permission block exists only where the OS prompts for notifications (Gate::Prompts);
+  # HarmonyOS's is the per-app notification switch its system dialog sets.
+  - assert_visible: { id: notify-perm, only_on: [macos-appkit, ios-uikit, android-mdc, harmony-arkui] }
   - assert_visible: { id: notify-post }
   - assert_visible: { id: notify-status }
   - assert_visible: { id: badge-supported }

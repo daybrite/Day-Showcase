@@ -6,11 +6,11 @@ day::routes! {
     /// The Grid example's sub-pages, typed (docs/grid.md): tabs on desktop, push/pop pages on
     /// mobile; the same keys either way, so deep links and dayscript address both hosts alike.
     enum GridDemo {
-        Basics => "basics",
-        Sizing => "sizing",
-        Spanning => "spanning",
-        Composite => "composite",
-        Stress => "stress",
+        Basics => "basics" (crate::res::str::grid_tab_basics()),
+        Sizing => "sizing" (crate::res::str::grid_tab_sizing()),
+        Spanning => "spanning" (crate::res::str::grid_tab_spanning()),
+        Composite => "composite" (crate::res::str::grid_tab_composite()),
+        Stress => "stress" (crate::res::str::grid_tab_stress()),
     }
 }
 

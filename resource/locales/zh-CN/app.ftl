@@ -244,7 +244,7 @@ clipboard_empty = 剪贴板为空（或在后台不可读取）
 network_refresh = 读取网络
 network_reading_online = 在线 · { $kind } · 计费：{ $expensive }
 network_reading_offline = 离线
-network_reading_none = 此平台没有网络连接 API
+network_reading_none = 无法获取网络连接状态（平台无此 API，或读取失败）
 
 # Media playground (docs/media.md)
 media_play = 播放

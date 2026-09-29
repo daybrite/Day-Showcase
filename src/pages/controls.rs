@@ -397,17 +397,11 @@ fn text_section(st: Catalog) -> impl Piece {
                         .id("flavor-add"),
                 ))
                 .spacing(8.0),
-                // No combo-box arm on iOS, HarmonyOS or the web (docs/combobox.md): day renders
-                // its placeholder leaf in the row above, and this note sits right beside it.
+                // No combo-box arm on iOS or the web (docs/combobox.md): day renders its
+                // placeholder leaf in the row above, and this note sits right beside it.
                 // `when` rather than `#[cfg]` because an attribute cannot gate one tuple element.
                 when(
-                    || {
-                        cfg!(any(
-                            target_os = "ios",
-                            target_env = "ohos",
-                            target_arch = "wasm32"
-                        ))
-                    },
+                    || cfg!(any(target_os = "ios", target_arch = "wasm32")),
                     || label(crate::res::str::ctl_combo_note()).font(Font::Footnote),
                 ),
                 label(move || st.voice.get())

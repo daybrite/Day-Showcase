@@ -252,7 +252,7 @@ clipboard_empty = الحافظة فارغة (أو غير قابلة للقراء
 network_refresh = قراءة الشبكة
 network_reading_online = متصل · { $kind } · مقنَّن: { $expensive }
 network_reading_offline = غير متصل
-network_reading_none = لا توجد واجهة اتصال على هذه المنصة
+network_reading_none = حالة الاتصال غير متاحة (لا توجد واجهة على هذه المنصة، أو فشلت القراءة)
 
 # Media playground (docs/media.md)
 media_play = تشغيل

@@ -248,7 +248,7 @@ clipboard_empty = Presse-papiers vide (ou illisible en arrière-plan)
 network_refresh = Lire le réseau
 network_reading_online = En ligne · { $kind } · facturé : { $expensive }
 network_reading_offline = Hors ligne
-network_reading_none = Aucune API de connectivité sur cette plateforme
+network_reading_none = Connectivité indisponible (aucune API de plateforme, ou la lecture a échoué)
 
 # Aire de jeu Média (docs/media.md)
 media_play = Lecture

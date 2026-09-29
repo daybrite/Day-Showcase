@@ -966,7 +966,7 @@ fn notify_section() -> impl Piece {
                     let mut n = Notification::new(title.get())
                         .body(body.get())
                         .channel(chan)
-                        .route("services")
+                        .route("notify")
                         .trigger(trigger);
                     let count = badge.get() as u32;
                     if count > 0 {
