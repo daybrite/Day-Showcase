@@ -208,7 +208,15 @@ pub(crate) fn toolbars_page() -> AnyPiece {
     page(
         crate::res::str::nav_toolbars(),
         "toolbars-title",
-        form((readout_section(), controls_section(), vocabulary_section())).any(),
+        // These sections describe different things. A single shared label column lets the
+        // long control captions squeeze readouts and explanatory text on a phone.
+        column((
+            form((readout_section(),)),
+            form((controls_section(),)),
+            form((vocabulary_section(),)),
+        ))
+        .spacing(16.0)
+        .any(),
     )
     .any()
 }

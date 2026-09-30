@@ -549,7 +549,7 @@ flow:
   # same dispatch its native control fires; the screenshot is what shows the bar actually drew.
   # The page is hidden where Cap::Toolbar is unsupported (lib.rs `destinations`). HarmonyOS
   # reports it Emulated (the bar is the navigation title's menus): the page opens there for the
-  # appearance steps, and the recorder and star steps below stay off it. iOS and
+  # appearance and star steps; the recorder steps below stay off it. iOS and
   # Android dock the bar under the navigation controller's pages (2026-09, docs/toolbars.md) and
   # web-dom draws an emulated strip; the finer per-step skips below say which items each of them
   # can drive; search rides the navigation list on a phone, so the `day.search` item never
@@ -625,10 +625,10 @@ flow:
   - toolbar: { item: day.search, key: nav_toolbars, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   # The star is the shared Star command (src/commands.rs), not a demo toggle: it stars whichever
   # page is showing (here, Toolbars), and the page's readout mirrors its state.
-  - toolbar: { item: tb-star, on: true, skip_on: [harmony-arkui] }
+  - toolbar: { item: tb-star, on: true }
   - wait_idle:
   - assert_text: { id: toolbar-query, key: nav_toolbars, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
-  - assert_text: { id: toolbar-star-state, key: toolbar_on, skip_on: [harmony-arkui] }
+  - assert_text: { id: toolbar-star-state, key: toolbar_on }
   # One command, four surfaces (docs/menus.md, docs/toolbars.md): the App menu's item carries the
   # state in its title, so with this page starred it must now read "Unstar". Invoking it unstars,
   # and the toolbar's readout follows without the two knowing about each other. `key:` rather
@@ -685,7 +685,6 @@ flow:
   - wait_idle:
   - screenshot:
       name: toolbars
-      skip_on: [harmony-arkui]
       title: { en: "Toolbars", fr: "Barres d'outils", ar: "أشرطة الأدوات", zh-CN: "工具栏" }
       source: src/pages/toolbars.rs
   # A checked menu item, addressed by the app's id (docs/menus.md). Two things are being
@@ -717,9 +716,9 @@ flow:
   # src/pages/toolbars.rs), so it restores whether or not the page is currently starred, and it
   # completes the surface matrix: starred from the toolbar, unstarred and restarred from the menu,
   # unstarred from the toolbar.
-  - toolbar: { item: tb-star, on: false, skip_on: [harmony-arkui] }
+  - toolbar: { item: tb-star, on: false }
   - wait_idle:
-  - assert_text: { id: toolbar-star-state, key: toolbar_off, skip_on: [harmony-arkui] }
+  - assert_text: { id: toolbar-star-state, key: toolbar_off }
 
   # The Content List page (src/pages/content_list): the `day new` scaffold's list and
   # editor, as the host's content-list pane (docs/navigation.md), a third column on a desktop or
