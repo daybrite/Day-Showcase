@@ -1170,10 +1170,9 @@ flow:
   # the native view live.
   - navigate: { route: lottie, only_on: [ios-uikit, android-mdc] }
   - assert_route: { route: lottie, only_on: [ios-uikit, android-mdc] }
-  # The page is day-piece-lottie's gallery, which can open on one of its example pages (a run
-  # found it on the Pin jump page, with no animation picker): open its playground, the page that
-  # has one, on pin jump, so the steps below start from the same state every run.
-  - select: { id: lottie-gallery-picker, index: 0, only_on: [ios-uikit, android-mdc] }
+  # The page is day-piece-lottie's playground (its `gallery()` became the playground alone on
+  # 2026-09-28, dropping the picker between example pages), so the animation picker the steps
+  # below drive is on screen from the start.
   - wait_for: { id: lottie-view, only_on: [ios-uikit, android-mdc] }
   - select: { id: lottie-animation, index: 7, only_on: [ios-uikit, android-mdc] }
   - assert_visible: { id: lottie-view, only_on: [ios-uikit, android-mdc] }
