@@ -271,10 +271,7 @@ pub(crate) fn query_page() -> AnyPiece {
     #[cfg(not(target_arch = "wasm32"))]
     let store = q.store;
     #[cfg(not(target_arch = "wasm32"))]
-    let count = {
-        let q = q.clone();
-        move || q.count()
-    };
+    let count = move || q.count();
     #[cfg(target_arch = "wasm32")]
     let ids = move || {
         let t = term.get().to_lowercase();
@@ -374,7 +371,6 @@ pub(crate) fn query_page() -> AnyPiece {
         {
             #[cfg(not(target_arch = "wasm32"))]
             {
-                let q = q.clone();
                 label(move || {
                     let _ = q.count(); // re-render alongside the set
                     crate::res::str::query_resident(q.resident.get() as i64, TOTAL as i64).format()
