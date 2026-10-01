@@ -15,9 +15,7 @@
 //! to host the player, so the piece would realize Day's placeholder there.
 
 use day::prelude::*;
-use day_piece_lottie_gallery::{LottiePage, gallery};
-
-use crate::widgets::heading;
+use day_piece_lottie_gallery::LottiePage;
 
 thread_local! {
     /// The animation playing, kept for the life of the app, so leaving the section and coming
@@ -27,6 +25,12 @@ thread_local! {
 
 #[cfg(not(all(feature = "gtk", any(target_os = "macos", target_os = "windows"))))]
 pub(crate) fn lottie_page() -> AnyPiece {
+    // Imported here rather than at the top of the file: this function is the only user of
+    // either, and it is compiled out on the two gtk combos below, where a file-level `use`
+    // would be an unused import. Function-local keeps the cfg in one place.
+    use crate::widgets::heading;
+    use day_piece_lottie_gallery::gallery;
+
     let open = OPEN.with(|s| *s);
     // Not `widgets::page`: that scrolls, and an animation sizes itself by growing into the room
     // it is given, which a scroll view never offers.

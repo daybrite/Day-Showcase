@@ -142,3 +142,10 @@ day patch --local /path/to/day
 - `platform/` holds the thin native host projects the mobile targets build through.
 
 Day Showcase is open source under the Apache-2.0 license.
+
+
+The native Query page opens and seeds its database on `DatabaseWorker`, evaluates search,
+FTS and geographic filters on that queue, and publishes owned results to the UI. Star edits
+perform their read-modify-write on the same queue. `dayscript/query-worker.yaml` checks the
+asynchronous query lifecycle and selection; it waits for row identity when successive searches
+have the same result count. The web Query demo retains its in-memory model.

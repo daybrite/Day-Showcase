@@ -1,9 +1,6 @@
-//! Live queries (docs/persistence.md): ten thousand rows behind a typed query the engine
-//! answers: the query holds ids, and the list faults in only the rows it shows. The search
-//! term and the star filter drive `query_fn`; edits to rows flow through the change log, a
-//! change no predicate reads costs nothing, and the list receives row deltas it can animate
-//! instead of reloads. The residency readout shows the working set staying small under the
-//! ten-thousand-row table. The web build keeps the same page over an in-memory projection.
+//! Worker-backed queries: SQLite filtering, FTS, seeding and materialization run off the UI
+//! thread. The UI receives owned rows and preserves stable list identities. The full result
+//! remains scrollable; the web build uses the same page with an in-memory projection.
 
 use day::model::Op;
 use day::prelude::*;
@@ -75,79 +72,163 @@ fn seed() -> Keyed<Track> {
 // query. Web: the same store shape, filtered by a plain projection.
 #[cfg(not(target_arch = "wasm32"))]
 mod engine {
-    use super::{Track, seed};
+    use super::{Track, TrackFields, seed};
+    use day::persistence::{DatabaseWorker, DbError, Fetch};
     use day::prelude::*;
+    use std::{cell::RefCell, rc::Rc};
 
-    /// The demo's SQLite container, one per app (docs/state.md): a database handle, shared by
-    /// every window the way one file is.
     #[derive(Clone)]
-    struct Db(ModelContainer);
-
+    struct Db {
+        worker: Rc<RefCell<Option<DatabaseWorker>>>,
+        ready: Signal<bool>,
+    }
     impl Ambient for Db {
         fn create() -> Self {
-            Db({
-                let container = ModelContainer::open(Sqlite::memory(), schema![Track])
-                    .unwrap_or_else(|e| {
-                        // A memory database failing to open leaves nothing to demo; surface
-                        // the reason in the one place a demo can.
-                        panic!("query page container: {e}")
-                    });
-                container.cache::<Track>().update("seed", |k| *k = seed());
-                let _ = container.save();
-                // The page's point: the table stays in SQLite and memory holds a working
-                // set. Cap the cache well under the row count so faulting is visible.
-                container.set_cache_limit(2_048);
-                container
-            })
+            let db = Self {
+                worker: Rc::new(RefCell::new(None)),
+                ready: Signal::new(false),
+            };
+            let target = db.clone();
+            day::task(async move {
+                let result = DatabaseWorker::open(|| {
+                    let db = ModelContainer::open(Sqlite::memory(), schema![Track])?;
+                    db.cache::<Track>().update("seed", |rows| *rows = seed());
+                    db.save()?;
+                    db.set_cache_limit(2_048);
+                    Ok(db)
+                })
+                .await;
+                match result {
+                    Ok(worker) => {
+                        *target.worker.borrow_mut() = Some(worker);
+                        target.ready.set(true);
+                    }
+                    Err(error) => day::log::error!("query worker open: {error}"),
+                }
+            });
+            db
         }
     }
-
-    pub(super) fn container() -> ModelContainer {
-        Db::app().0
+    #[derive(Clone, Copy)]
+    pub(super) struct QueryView {
+        pub store: Store<Keyed<Track>>,
+        ids: Signal<Vec<u64>>,
+        count: Signal<usize>,
+        pub resident: Signal<usize>,
     }
-
-    pub(super) fn store() -> Store<Keyed<Track>> {
-        container().cache::<Track>()
+    impl QueryView {
+        pub fn count(self) -> usize {
+            self.count.get()
+        }
+        pub fn ids(self) -> Vec<u64> {
+            self.ids.get()
+        }
     }
-
     pub(super) fn query(
         term: Signal<String>,
         starred: Signal<bool>,
         fts: Signal<bool>,
         viewport: Signal<bool>,
         lat_min: Signal<f64>,
-    ) -> day::persistence::Query<Track> {
-        container().query_fn::<Track>(move || {
-            let mut f = day::persistence::Fetch::new().sort(Track::id().asc());
-            let t = term.get();
-            if !t.is_empty() {
-                // The same term through either engine: substring in memory, or FTS5 MATCH
-                // through the generated shadow index.
-                if fts.get() {
-                    f = f.filter(Track::fts().matches(t));
+    ) -> QueryView {
+        let db = Db::app();
+        let view = QueryView {
+            store: Store::new(Keyed::new(vec![])),
+            ids: Signal::new(vec![]),
+            count: Signal::new(0),
+            resident: Signal::new(0),
+        };
+        Effect::new(move || {
+            if !db.ready.get() {
+                return;
+            }
+            let Some(worker) = db.worker.borrow().clone() else {
+                return;
+            };
+            let mut fetch = Fetch::new().sort(Track::id().asc());
+            let text = term.get();
+            if !text.is_empty() {
+                fetch = fetch.filter(if fts.get() {
+                    Track::fts().matches(text)
                 } else {
-                    f = f.filter(Track::title().contains_ci(t));
-                }
+                    Track::title().contains_ci(text)
+                });
             }
             if starred.get() {
-                f = f.filter(Track::starred().eq(true));
+                fetch = fetch.filter(Track::starred().eq(true));
             }
             if viewport.get() {
-                let m = lat_min.get();
-                f = f.filter(Track::geo().within(day::persistence::GeoRect {
-                    min_lat: m,
-                    max_lat: m + 15.0,
+                let min = lat_min.get();
+                fetch = fetch.filter(Track::geo().within(day::persistence::GeoRect {
+                    min_lat: min,
+                    max_lat: min + 15.0,
                     min_lon: 0.0,
                     max_lon: 100.0,
                 }));
             }
-            f
-        })
+            let task = day::task(async move {
+                let result = worker
+                    .observe(move |db| {
+                        let count = db
+                            .query::<Track>()
+                            .filter(fetch.pred.clone())
+                            .live_count()
+                            .try_get()?;
+                        let rows = db
+                            .query::<Track>()
+                            .filter(fetch.pred.clone())
+                            .sort(Track::id().asc())
+                            .live()
+                            .try_collect()?;
+                        let resident = db.cache::<Track>().with_untracked(|rows| rows.len());
+                        Ok((rows, count, resident))
+                    })
+                    .await;
+                let mut sub = match result {
+                    Ok(sub) => sub,
+                    Err(e) => {
+                        report(e);
+                        return;
+                    }
+                };
+                while let Some(result) = sub.next().await {
+                    match result {
+                        Ok(result) => {
+                            let (rows, count, resident) = result.value;
+                            day::reactive::batch(|| {
+                                view.ids.set(rows.iter().map(|r| u64::from(r.id)).collect());
+                                view.store
+                                    .update("snapshot", |store| *store = Keyed::new(rows));
+                                view.count.set(count);
+                                view.resident.set(resident);
+                            });
+                        }
+                        Err(e) => report(e),
+                    }
+                }
+            });
+            day::reactive::on_run_retrack(move || task.abort());
+        });
+        view
     }
-
-    /// How many rows are resident right now: the working set behind the readout.
-    pub(super) fn resident() -> usize {
-        container().cache::<Track>().with_untracked(|k| k.len())
+    fn report(error: DbError) {
+        day::log::error!("query worker: {error}");
+    }
+    pub(super) fn toggle(id: u64) {
+        let Some(worker) = Db::app().worker.borrow().clone() else {
+            return;
+        };
+        let request = worker.write(move |db| {
+            if let Some(row) = db.try_get::<Track>(id as u32)? {
+                row.starred().write(!row.starred().peek());
+            }
+            Ok(())
+        });
+        day::task(async move {
+            if let Err(e) = request.await {
+                report(e);
+            }
+        });
     }
 }
 
@@ -182,10 +263,13 @@ pub(crate) fn query_page() -> AnyPiece {
     #[cfg(not(target_arch = "wasm32"))]
     let lat_min = Signal::new(20.0f64);
     let selected: Signal<Option<u64>> = Signal::new(None);
+    #[cfg(target_arch = "wasm32")]
     let store = engine::store();
 
     #[cfg(not(target_arch = "wasm32"))]
     let q = engine::query(term, starred, fts, viewport, lat_min);
+    #[cfg(not(target_arch = "wasm32"))]
+    let store = q.store;
     #[cfg(not(target_arch = "wasm32"))]
     let count = {
         let q = q.clone();
@@ -226,7 +310,7 @@ pub(crate) fn query_page() -> AnyPiece {
         .id_of(move || format!("query-row:{}", slot.item().key()))
     };
     #[cfg(not(target_arch = "wasm32"))]
-    let track_list = list(q.clone(), row_view)
+    let track_list = list(store.rows(move || q.ids()), row_view)
         .row_height(RowHeight::Uniform(32.0))
         .on_select(move |it: Elem<Track>| selected.set(Some(it.key())))
         .any();
@@ -293,8 +377,7 @@ pub(crate) fn query_page() -> AnyPiece {
                 let q = q.clone();
                 label(move || {
                     let _ = q.count(); // re-render alongside the set
-                    crate::res::str::query_resident(engine::resident() as i64, TOTAL as i64)
-                        .format()
+                    crate::res::str::query_resident(q.resident.get() as i64, TOTAL as i64).format()
                 })
                 .font(Font::Footnote)
                 .id("query-evals")
@@ -306,7 +389,7 @@ pub(crate) fn query_page() -> AnyPiece {
             }
         },
         label(move || match selected.get() {
-            Some(id) => engine::store()
+            Some(id) => store
                 .elem(id)
                 .title()
                 .with(|t| t.cloned())
@@ -321,8 +404,13 @@ pub(crate) fn query_page() -> AnyPiece {
             .bordered()
             .action(move || {
                 if let Some(id) = selected.get_untracked() {
-                    let s = store.elem(id).starred();
-                    s.write(!s.peek());
+                    #[cfg(not(target_arch = "wasm32"))]
+                    engine::toggle(id);
+                    #[cfg(target_arch = "wasm32")]
+                    {
+                        let s = store.elem(id).starred();
+                        s.write(!s.peek());
+                    }
                 }
             })
             .id("query-star"),
