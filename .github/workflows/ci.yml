@@ -31,6 +31,8 @@ jobs:
     secrets: inherit
     with:
       targets: windows-winui, windows-xaml, macos-appkit, linux-gtk, linux-qt, ios-uikit, android-mdc, harmony-arkui, web-dom
+      target-packages: |
+        windows-winui, windows-xaml: webview2-runtime
       scripts: dayscript/walkthrough.yaml dayscript/speech.yaml dayscript/tree.yaml
       # The gallery's variant ids: one run per theme × locale, the same matrix day's own CI drives.
       themes: light dark
