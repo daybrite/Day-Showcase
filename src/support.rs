@@ -63,7 +63,7 @@ pub(crate) fn battery() -> Support {
 /// Declared: the part streams readings and reports absence as an empty stream, which is also what
 /// a device with no gyroscope looks like.
 pub(crate) fn sensors() -> Support {
-    unsupported_on(&["XAML"])
+    unsupported_on(&["XAML", "WinUI"])
 }
 
 fn from_bool(supported: bool) -> Support {

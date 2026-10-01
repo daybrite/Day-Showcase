@@ -30,7 +30,7 @@ jobs:
       id-token: write # deploy-pages OIDC
     secrets: inherit
     with:
-      targets: windows-xaml, macos-appkit, linux-gtk, linux-qt, ios-uikit, android-mdc, harmony-arkui, web-dom
+      targets: windows-winui, windows-xaml, macos-appkit, linux-gtk, linux-qt, ios-uikit, android-mdc, harmony-arkui, web-dom
       scripts: dayscript/walkthrough.yaml dayscript/speech.yaml dayscript/tree.yaml
       # The gallery's variant ids: one run per theme × locale, the same matrix day's own CI drives.
       themes: light dark

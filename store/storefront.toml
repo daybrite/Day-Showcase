@@ -126,10 +126,10 @@ default = ["canvas", "layout", "text", "list", { name = "tree", theme = "dark" }
 [storefront.linux-qt.screenshots]
 default = ["canvas", "text", "grid", "resources", "tree", "dates"]
 
-[storefront.windows-xaml.screenshots]
+[storefront.windows-winui.screenshots]
 default = ["canvas", "controls", "text", "resources", "menus", "tree"]
 
-[storefront.windows-xaml.microsoft-store.screenshots]
+[storefront.windows-winui.microsoft-store.screenshots]
 default = ["canvas", "controls", "text", "layout", { name = "list", theme = "dark" }, "localization"]
 
 [storefront.web-dom.screenshots]

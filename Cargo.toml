@@ -23,6 +23,9 @@ qt = ["day/qt", "day-tweak-slider-tickmarks/qt"]
 uikit = ["day/uikit", "dep:day-uikit"]
 mdc = ["day/mdc", "day-tweak-tooltip/mdc", "day-tweak-slider-tickmarks/mdc"]
 xaml = ["day/xaml", "day-tweak-slider-tickmarks/xaml"]
+# WinUI 3 (windows-winui): the xaml backend built against the Windows App SDK. The tweak crates
+# with a WinUI half are enabled as on xaml.
+winui = ["day/winui", "day-tweak-slider-tickmarks/winui"]
 arkui = ["day/arkui", "day-tweak-slider-tickmarks/arkui"]
 # The web backend (day/DESIGN.md §9). No tweak crate has a dom renderer yet, so the line is bare.
 dom = ["day/dom"]

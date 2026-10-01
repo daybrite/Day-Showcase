@@ -230,6 +230,7 @@ flow:
   # document, so the caret survives, and the editor keeps its content.
   - select: { id: ed-document, index: 1 }
   - wait_idle:
+  - assert_value: { id: ed-document, value: 1 }
   - assert_visible: { id: styled-editor }
   - screenshot:
       name: textareas-code
@@ -1076,6 +1077,20 @@ flow:
       title: { en: "Physics", fr: "Physique", ar: "الفيزياء", zh-CN: "物理" }
       source: src/pages/physics.rs
 
+  # XAML Rendering may fire inside the screenshot's nested message pump. It must not
+  # reenter Day's borrowed tree or strand the next page's frame subscription.
+  - tap: { id: frame-bounce, only_on: [windows-xaml] }
+  - pause: { secs: 0.3, only_on: [windows-xaml] }
+  - assert_text: { id: frame-status, key: frame_running, only_on: [windows-xaml] }
+  - screenshot: { name: physics-running, only_on: [windows-xaml] }
+  - navigate: { route: about, only_on: [windows-xaml] }
+  - navigate: { route: physics, only_on: [windows-xaml] }
+  - tap: { id: frame-bounce, only_on: [windows-xaml] }
+  - pause: { secs: 0.3, only_on: [windows-xaml] }
+  - assert_text: { id: frame-status, key: frame_running, only_on: [windows-xaml] }
+  - tap: { id: frame-reset, only_on: [windows-xaml] }
+  - assert_text: { id: frame-status, key: frame_resting, only_on: [windows-xaml] }
+
   # Declarative animation (§8.4, docs/animation.md): queue deterministic targets (fixed values,
   # not Randomize!, since screenshots must reproduce), commit them inside one with_animation via
   # Animate!, and let the backend interpolation settle before capturing.
@@ -1232,24 +1247,24 @@ flow:
   # assertions are engine-independent: JSON.stringify's output and a TypeError's name/message are
   # spec-defined, so WebKit and V8 agree. A SyntaxError's text is not, so it is not asserted here.
   - input:
-      { id: webview-js, text: "1+1", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc] }
-  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc] }
-  - pause: { secs: 2, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc] }
+      { id: webview-js, text: "1+1", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc, windows-xaml] }
+  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc, windows-xaml] }
+  - pause: { secs: 2, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc, windows-xaml] }
   - assert_text:
-      { id: webview-js-result, text: "2", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc] }
+      { id: webview-js-result, text: "2", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc, windows-xaml] }
   - input:
       {
         id: webview-js,
         text: "throw new TypeError('boom')",
-        only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc],
+        only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc, windows-xaml],
       }
-  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc] }
-  - pause: { secs: 2, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc] }
+  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc, windows-xaml] }
+  - pause: { secs: 2, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc, windows-xaml] }
   - assert_text:
       {
         id: webview-js-result,
         text: "TypeError: boom",
-        only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc],
+        only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc, windows-xaml],
       }
   - screenshot:
       name: webview
@@ -1266,51 +1281,51 @@ flow:
   # of eight variants and no other. (`document.readyState` does not help either: it reads
   # "complete" for the page being replaced.) Stopping first makes the current document final, so
   # what this block measures is retention rather than the runner's luck with the network.
-  - tap: { id: webview-stop, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
-  - pause: { secs: 1, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - tap: { id: webview-stop, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
+  - pause: { secs: 1, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
   - input:
       {
         id: webview-js,
         text: "window.__dayMarker = 'survived'",
-        only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt],
+        only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml],
       }
-  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
-  - pause: { secs: 2, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
+  - pause: { secs: 2, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
   # Prove the marker took before leaving: if this fails the plant itself lost a race, which is a
   # different fault from the retention the steps below are about.
-  - input: { id: webview-js, text: "window.__dayMarker", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
-  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
-  - pause: { secs: 2, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
-  - assert_text: { id: webview-js-result, text: '"survived"', only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - input: { id: webview-js, text: "window.__dayMarker", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
+  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
+  - pause: { secs: 2, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
+  - assert_text: { id: webview-js-result, text: '"survived"', only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
   # Overwrite the readout before leaving. The result label is a global signal that outlives this
   # page, so leaving "survived" on screen would let the final assertion below pass on a stale
   # label without the marker having survived anything.
-  - input: { id: webview-js, text: "'left the page'", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
-  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
-  - pause: { secs: 2, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
-  - assert_text: { id: webview-js-result, text: '"left the page"', only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
-  - navigate: { route: controls, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
-  - pause: { secs: 2, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
-  - navigate: { route: webview, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
-  - pause: { secs: 3, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - input: { id: webview-js, text: "'left the page'", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
+  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
+  - pause: { secs: 2, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
+  - assert_text: { id: webview-js-result, text: '"left the page"', only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
+  - navigate: { route: controls, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
+  - pause: { secs: 2, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
+  - navigate: { route: webview, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
+  - pause: { secs: 3, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
   # The hoisted signals survived the rebuild: the editor still holds the last text typed into
   # it, which is the line that overwrote the readout before leaving.
   - assert_text:
       {
         id: webview-js,
         text: "'left the page'",
-        only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt],
+        only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml],
       }
   # …and so did the engine's own JS context: reading the marker back turns the stale readout
   # into "survived", which it cannot do unless the live context outlived the page.
-  - input: { id: webview-js, text: "window.__dayMarker", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
-  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
-  - pause: { secs: 2, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - input: { id: webview-js, text: "window.__dayMarker", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
+  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
+  - pause: { secs: 2, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
   - assert_text:
       {
         id: webview-js-result,
         text: '"survived"',
-        only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt],
+        only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml],
       }
   # The Embedded tab (docs/webview.md): a whole site bundled under resource/assets/web/minisite/,
   # served through web_view_inline on the backends with a local-content arm. The status line is a

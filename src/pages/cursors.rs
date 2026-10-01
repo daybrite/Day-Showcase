@@ -226,7 +226,7 @@ fn native_extras() -> Vec<(&'static str, Cursor)> {
         ("SPLIT_V", c::SPLIT_V),
     ]
 }
-#[cfg(feature = "xaml")]
+#[cfg(any(feature = "xaml", feature = "winui"))]
 fn native_extras() -> Vec<(&'static str, Cursor)> {
     use day::cursor::xaml as c;
     vec![
@@ -246,7 +246,13 @@ fn native_extras() -> Vec<(&'static str, Cursor)> {
         ("TOP_LEFT_DIAGONAL", c::TOP_LEFT_DIAGONAL),
     ]
 }
-#[cfg(not(any(feature = "appkit", feature = "qt", feature = "xaml", feature = "mdc")))]
+#[cfg(not(any(
+    feature = "appkit",
+    feature = "qt",
+    feature = "xaml",
+    feature = "winui",
+    feature = "mdc"
+)))]
 fn native_extras() -> Vec<(&'static str, Cursor)> {
     Vec::new()
 }
