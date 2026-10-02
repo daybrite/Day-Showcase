@@ -95,8 +95,12 @@ fn js_console(tab: Signal<usize>, js_remote: JsHandle, js_embedded: JsHandle) ->
                 } else {
                     js_remote
                 };
+                // A new evaluation invalidates the previous result immediately. In particular,
+                // repeated expressions must not satisfy a walkthrough assertion with stale text.
+                result.set(String::new());
+                let script = script.get_untracked();
                 day::task(async move {
-                    let text = match js.eval(script.get_untracked()).await {
+                    let text = match js.eval(script).await {
                         Ok(json) => json,
                         Err(e) => e.to_string(),
                     };

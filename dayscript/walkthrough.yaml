@@ -396,7 +396,7 @@ flow:
   - assert_route: { route: grid/spanning }
   - wait_for: { id: grid-spanning }
   # Let the mobile push transition settle so the capture has no mid-animation sliver.
-  - pause: { secs: 0.5 }
+  - pause: { secs: 0.5, animation: true }
   - screenshot:
       name: grid-spanning
       title: { en: "Grid · spanning", fr: "Grille · fusion de cellules", ar: "الشبكة · الامتداد", zh-CN: "网格 · 跨行列" }
@@ -481,7 +481,7 @@ flow:
   - assert_visible: { id: tab-one-content }
   - assert_value: { id: demo-tabs, value: 0 }
   # Let the mobile push transition settle so the capture has no mid-animation sliver.
-  - pause: { secs: 0.5 }
+  - pause: { secs: 0.5, animation: true }
   - screenshot:
       name: tabs-one
       title: { en: "Tabs", fr: "Onglets", ar: "علامات التبويب", zh-CN: "标签页" }
@@ -526,6 +526,7 @@ flow:
   - assert_presented: {}
   - respond: { button: 1 }
   - assert_text: { id: modal-result, text: "sheet-1" }
+  - assert_not_presented:
   # The `menu:` step drives an app-menu action by localized key, toolkit-uniform
   # (docs/menus.md), with no native menu automation involved.
   - menu: { key: menu_open }
@@ -791,7 +792,7 @@ flow:
   - assert_text: { id: list-selection, key: list_selection_none }
   - assert_text: { id: list-caption, key: list_caption, args: { count: 500 } }
   - toggle: { id: list-refresh, value: true }
-  - pause: 2
+  # Assert the asynchronous refresh result as soon as it arrives.
   - assert_text: { id: list-caption, key: list_caption, args: { count: 600 } }
   # Drag-to-reorder (docs/list.md): the `reorder` step drives the same guard → commit path a
   # native drag takes. The order readout shows the first five row numbers. Row 2 (index 1) drops
@@ -808,10 +809,10 @@ flow:
   # where the toolkit supports it), and Reset restores it, undoing the reorders above too.
   - tap: { id: list-scroll-bottom }
   - wait_idle:
-  - pause: { secs: 0.7 }
+  - pause: { secs: 0.7, animation: true }
   - tap: { id: list-scroll-item }
   - wait_idle:
-  - pause: { secs: 0.7 }
+  - pause: { secs: 0.7, animation: true }
   # The jump targets the row, not the position: it selects row 100, and the selection readout
   # names it whatever index the row currently sits at.
   - assert_text: { id: list-selection, key: list_selection, args: { count: 1, rows: "100" } }
@@ -820,12 +821,12 @@ flow:
   # Shuffle moves row 100 somewhere else, then jump again: the same assertion has to hold, which
   # it would not for a hardcoded index 99.
   - tap: { id: list-shuffle }
-  - pause: { secs: 0.7 }
+  - pause: { secs: 0.7, animation: true }
   - tap: { id: list-clear }
   - assert_text: { id: list-selection, key: list_selection_none }
   - tap: { id: list-scroll-item }
   - wait_idle:
-  - pause: { secs: 0.7 }
+  - pause: { secs: 0.7, animation: true }
   - assert_text: { id: list-selection, key: list_selection, args: { count: 1, rows: "100" } }
   - tap: { id: list-reset }
   - assert_text: { id: list-order, key: list_order, args: { rows: "1,2,3,4,5" } }
@@ -862,7 +863,7 @@ flow:
   - assert_text: { id: tree-last-move, key: tree_move, args: { index: 0, name: "Cargo.toml", parent: "src" } }
   - tap: { id: tree-expand-all }
   - wait_for: { id: tree-node-8 }
-  - pause: { secs: 0.7 }
+  - pause: { secs: 0.7, animation: true }
   - screenshot:
       name: tree
       title: { en: "Tree", fr: "Arborescence", ar: "شجرة", zh-CN: "树" }
@@ -1058,7 +1059,7 @@ flow:
   - select: { id: charts-gallery-picker, index: 10 }
   - wait_for: { id: scatter }
   - assert_text: { id: charts-example-title, key: day_piece_charts_gallery::ex_scatter }
-  - pause: { secs: 1.0 } # let the chart's entrance settle
+  - pause: { secs: 1.0, animation: true } # normal runs exercise the entrance
   - screenshot:
       name: charts
       title: { en: "Charts", fr: "Graphiques", ar: "المخططات", zh-CN: "图表" }
@@ -1102,7 +1103,7 @@ flow:
   - set_value: { id: anim-rotation, value: 30 }
   - set_value: { id: anim-hue, value: 200 }
   - tap: { id: anim-go }
-  - pause: { secs: 1.0 }
+  - pause: { secs: 1.0, animation: true }
   - screenshot:
       name: animation
       title: { en: "Animation", fr: "Animation", ar: "الرسوم المتحركة", zh-CN: "动画" }
@@ -1233,9 +1234,8 @@ flow:
   - assert_text: { id: map-coords, text: "42.3601, -71.0589", only_on: [macos-appkit, ios-uikit] }
 
   # Native web view (docs/webview.md): each toolkit's native browser. Load the project site,
-  # then `pause` (runner-side, since the engine must not block the UI thread) so the page finishes
-  # loading before the capture. Visited after the stack/tabs route assertions so a heavy
-  # embedded browser can't disturb them.
+  # allow the external page to load before capture. Visited after the stack/tabs route
+  # assertions so a heavy embedded browser can't disturb them.
   # Shared Harmony CI installs the x86_64 ArkWeb runtime before this walkthrough.
   - navigate: { route: webview }
   - assert_route: { route: webview }
@@ -1243,7 +1243,14 @@ flow:
   # web-dom embeds an <iframe>, so history is unreachable and the page says so (docs/webview.md).
   # Only that backend renders the footnote; everywhere else the piece reports Support::Native.
   - assert_visible: { id: webview-note, only_on: [web-dom] }
-  - pause: { secs: 5 }
+  # Observe the requested document itself; an initial about:blank is also "complete".
+  - web_eval:
+      id: webview
+      script: "location.hostname === 'daybrite.dev' && document.readyState === 'complete' && document.body.innerText.length > 100"
+      text: "true"
+      timeout_secs: 20
+      skip_on: [web-dom, windows-qt]
+  - pause: { secs: 5, only_on: [web-dom, windows-qt] }
   # JS evaluation (docs/webview-eval.md), on the combos whose arm is written and has an engine;
   # windows-qt ships no Qt6 WebEngine, and the other backends report Unsupported. These three
   # assertions are engine-independent: JSON.stringify's output and a TypeError's name/message are
@@ -1251,7 +1258,6 @@ flow:
   - input:
       { id: webview-js, text: "1+1", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc, windows-xaml] }
   - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc, windows-xaml] }
-  - pause: { secs: 2, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc, windows-xaml] }
   - assert_text:
       { id: webview-js-result, text: "2", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc, windows-xaml] }
   - input:
@@ -1261,7 +1267,6 @@ flow:
         only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc, windows-xaml],
       }
   - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc, windows-xaml] }
-  - pause: { secs: 2, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc, windows-xaml] }
   - assert_text:
       {
         id: webview-js-result,
@@ -1284,7 +1289,6 @@ flow:
   # "complete" for the page being replaced.) Stopping first makes the current document final, so
   # what this block measures is retention rather than the runner's luck with the network.
   - tap: { id: webview-stop, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
-  - pause: { secs: 1, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
   - input:
       {
         id: webview-js,
@@ -1292,24 +1296,20 @@ flow:
         only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml],
       }
   - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
-  - pause: { secs: 2, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
+  - assert_text: { id: webview-js-result, text: '"survived"', only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
   # Prove the marker took before leaving: if this fails the plant itself lost a race, which is a
   # different fault from the retention the steps below are about.
   - input: { id: webview-js, text: "window.__dayMarker", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
   - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
-  - pause: { secs: 2, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
   - assert_text: { id: webview-js-result, text: '"survived"', only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
   # Overwrite the readout before leaving. The result label is a global signal that outlives this
   # page, so leaving "survived" on screen would let the final assertion below pass on a stale
   # label without the marker having survived anything.
   - input: { id: webview-js, text: "'left the page'", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
   - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
-  - pause: { secs: 2, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
   - assert_text: { id: webview-js-result, text: '"left the page"', only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
   - navigate: { route: controls, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
-  - pause: { secs: 2, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
   - navigate: { route: webview, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
-  - pause: { secs: 3, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
   # The hoisted signals survived the rebuild: the editor still holds the last text typed into
   # it, which is the line that overwrote the readout before leaving.
   - assert_text:
@@ -1322,7 +1322,6 @@ flow:
   # into "survived", which it cannot do unless the live context outlived the page.
   - input: { id: webview-js, text: "window.__dayMarker", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
   - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
-  - pause: { secs: 2, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
   - assert_text:
       {
         id: webview-js-result,
@@ -1340,7 +1339,14 @@ flow:
         id: webview-embedded-status,
         key: webview_embedded_status_none,
       }
-  - pause: { secs: 2 }
+  # Verify HTML, stylesheet and image readiness rather than sleeping for a guessed duration.
+  - web_eval:
+      id: webview-embedded
+      script: "document.title === 'Day mini site' && document.readyState === 'complete' && !!document.querySelector('link[rel=stylesheet]').sheet && Array.from(document.images).every(i => i.complete && i.naturalWidth > 0)"
+      text: "true"
+      timeout_secs: 15
+      skip_on: [web-dom, windows-qt]
+  - pause: { secs: 2, only_on: [web-dom, windows-qt] }
   - screenshot:
       name: webview-embedded
       title: { en: "Web view · embedded site", fr: "Vue Web · site embarqué", ar: "عرض الويب · موقع مضمّن", zh-CN: "网页视图 · 内嵌站点" }
@@ -1509,6 +1515,7 @@ flow:
   - respond: { path: "day-walkthrough.txt", skip_on: [web-dom] }
   - assert_text: { id: files-status, text: "opened", skip_on: [web-dom] }
   - assert_text: { id: files-opened-name, key: files_opened, args: { name: "day-walkthrough.txt" }, skip_on: [web-dom] }
+  - assert_not_presented:
   # App-local file storage (docs/fs.md): day-part-fs through the async futures, the same
   # steps on every target, including web-dom (OPFS). Statuses are raw, identical per locale.
   - input: { id: fs-note, text: "day-fs-demo" }
