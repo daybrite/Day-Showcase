@@ -492,11 +492,23 @@ flow:
   # Data-driven tabs (docs/navigation.md), nested inside the Details tab, two tab views deep:
   # Add grows the inner native tab strip, Remove shrinks it.
   - assert_visible: { id: dyn-tabs-title }
+  - assert_visible: { id: dyn-tab-add }
+  - assert_visible: { id: dyn-tab-remove }
   - tap: { id: dyn-tab-add }
   - tap: { id: dyn-tab-remove }
+  - screenshot:
+      name: tabs-two
+      title: { en: "Dynamic tabs", fr: "Onglets dynamiques", ar: "علامات تبويب ديناميكية", zh-CN: "动态标签页" }
+      source: src/pages/tabs.rs
   - navigate: { route: three }
   - assert_route: { route: tabs/three }
   - assert_value: { id: demo-tabs, value: 2 }
+  # Returning to a resident page must retain usable native control measurements.
+  - navigate: { route: two }
+  - assert_route: { route: tabs/two }
+  - assert_value: { id: demo-tabs, value: 1 }
+  - tap: { id: dyn-tab-add }
+  - tap: { id: dyn-tab-remove }
 
   # Menus & dialogs (docs/menus.md, docs/dialogs.md): the transient native surfaces in one
   # page, namely the app-menu action readout, the context-menu target, and the imperative

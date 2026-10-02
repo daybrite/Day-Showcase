@@ -77,6 +77,8 @@ jobs:
       # `store: N`, taken from this run's own screenshot artifacts and checked against each
       # store's sizes first (daybrite/actions README, Store screenshots).
       store-screenshots: true
+      # One screenshots.frames.zst on the release in place of the screenshot zips.
+      screenshot-bundle: frames
 
   # The Content List page copies the `day new` scaffold's list, editor and model
   # (scripts/template-sync.sh). A template change that is not mirrored here fails the build.
