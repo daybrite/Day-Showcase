@@ -1,0 +1,29 @@
+name: showcase-chart-interactions
+description: Exercise the shared declarative chart gallery inside Day Showcase.
+flow:
+  - navigate: { route: charts }
+  - wait_for: { id: charts-gallery-picker }
+  - select: { id: charts-gallery-picker, index: 14 }
+  - wait_for: { id: linked-primary }
+  - tap: { id: linked-select-sample }
+  - assert_text: { id: linked-count, key: day_piece_charts_gallery::inter_count, args: { count: 1 } }
+  - screenshot: charts-linked
+  - select: { id: charts-gallery-picker, index: 15 }
+  - wait_for: { id: brush-source }
+  - drag: { id: brush-source, from: [80, 40], to: [250, 130] }
+  - pause: { secs: 1 }
+  - screenshot: charts-brush
+  - select: { id: charts-gallery-picker, index: 17 }
+  - wait_for: { id: legend-donut }
+  - tap: { id: 'interactive-legend-Group A' }
+  - screenshot: charts-legend
+  - select: { id: charts-gallery-picker, index: 21 }
+  - wait_for: { id: interactive-links }
+  - tap: { id: 'link-series-Group C' }
+  - assert_text: { id: link-target, key: day_piece_charts_gallery::inter_link_target, args: { target: 'sample:2' } }
+  - select: { id: charts-gallery-picker, index: 23 }
+  - wait_for: { id: inputs-picker }
+  - select: { id: inputs-picker, index: 2 }
+  - tap: { id: 'input-group-Group C' }
+  - assert_value: { id: inputs-picker, value: 3 }
+  - screenshot: charts-inputs

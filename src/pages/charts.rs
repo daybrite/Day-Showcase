@@ -1,7 +1,8 @@
 //! Charts (day-piece-charts): every example page of the charting piece, with a picker between
 //! them. The pages are day-piece-charts' own, from its `day-piece-charts-gallery` crate, the same
 //! code its Charts Demo app is a sidebar of, so what this page shows is exactly what the demo and
-//! the piece's README show, controls and animations included.
+//! the piece's README show, controls and animations included. Declarative point and interval selection pages add linked
+//! views, brush-driven summaries, overview/detail, shared legends, pan/zoom and registered links.
 //!
 //! Nothing here is chart code: the gallery brings the pages and their strings (a private catalog
 //! that follows this app's language), and this page gives them a heading and the room to grow.
