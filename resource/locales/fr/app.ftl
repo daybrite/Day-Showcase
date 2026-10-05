@@ -718,6 +718,30 @@ crash_send = Envoyer le rapport
 crash_clear = Effacer les rapports
 crash_empty = Aucun rapport pour l'instant. Déclenchez un plantage, puis relancez pour le voir ici.
 
+# Page Champs de texte (docs/textfield.md)
+nav_textfields = Champs de texte
+textfields_password_section = Mot de passe
+textfields_password = Mot de passe
+textfields_password_placeholder = Saisissez un mot de passe
+textfields_show_password = Afficher le mot de passe
+textfields_length = Longueur
+textfields_purpose_section = Clavier et remplissage automatique
+textfields_email = E-mail
+textfields_phone = Téléphone
+textfields_url = Site web
+textfields_number = Quantité
+textfields_decimal = Montant
+textfields_code = Code à usage unique
+textfields_pin_section = Code PIN
+textfields_pin = Code PIN
+textfields_attrs_section = Attributs
+textfields_reference = Référence
+textfields_read_only = Lecture seule
+textfields_limited = Jusqu’à 12 caractères
+textfields_message = Message
+textfields_message_placeholder = Saisissez puis appuyez sur Envoyer
+textfields_sent = Envoyés
+
 # Page Zones de texte
 nav_textareas = Édition de texte
 textareas_editor_section = Éditeur

@@ -711,6 +711,30 @@ crash_send = 发送报告
 crash_clear = 清除报告
 crash_empty = 暂无崩溃报告。触发一次崩溃，然后重新启动即可在此查看。
 
+# 文本框页面 (docs/textfield.md)
+nav_textfields = 文本框
+textfields_password_section = 密码
+textfields_password = 密码
+textfields_password_placeholder = 输入密码
+textfields_show_password = 显示密码
+textfields_length = 长度
+textfields_purpose_section = 键盘与自动填充
+textfields_email = 电子邮件
+textfields_phone = 电话
+textfields_url = 网站
+textfields_number = 数量
+textfields_decimal = 金额
+textfields_code = 一次性验证码
+textfields_pin_section = PIN 码
+textfields_pin = PIN 码
+textfields_attrs_section = 属性
+textfields_reference = 参考编号
+textfields_read_only = 只读
+textfields_limited = 最多 12 个字符
+textfields_message = 消息
+textfields_message_placeholder = 输入后按“发送”
+textfields_sent = 已发送
+
 # 文本区域页面
 nav_textareas = 文本编辑
 textareas_editor_section = 编辑器

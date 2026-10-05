@@ -720,6 +720,30 @@ crash_send = Send report
 crash_clear = Clear reports
 crash_empty = No crash report yet. Trigger a crash, then relaunch to see it here.
 
+# Text Fields page (docs/textfield.md)
+nav_textfields = Text fields
+textfields_password_section = Password
+textfields_password = Password
+textfields_password_placeholder = Enter a password
+textfields_show_password = Show Password
+textfields_length = Length
+textfields_purpose_section = Keyboard and autofill
+textfields_email = Email
+textfields_phone = Phone
+textfields_url = Website
+textfields_number = Quantity
+textfields_decimal = Amount
+textfields_code = One-time code
+textfields_pin_section = PIN
+textfields_pin = PIN
+textfields_attrs_section = Attributes
+textfields_reference = Reference
+textfields_read_only = Read-only
+textfields_limited = Up to 12 characters
+textfields_message = Message
+textfields_message_placeholder = Type and press Send
+textfields_sent = Sent
+
 # Text Areas page
 nav_textareas = Text editing
 textareas_editor_section = Editor

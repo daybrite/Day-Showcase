@@ -1,0 +1,47 @@
+name: textfields
+description: >
+  The Text fields page (day/docs/textfield.md): a password field with its Show Password switch,
+  a PIN held to four digits, a read-only field and a length limit. The switch flips `.secure(_)`
+  on a live field; AppKit and WinUI rebuild the widget as their other native class for it, so
+  the script types after every flip to show the field still reaches its signal.
+flow:
+  - wait_for: { id: nav }
+  - navigate: { route: textfields }
+  - assert_route: { route: textfields }
+  - assert_visible: { id: tf-password }
+  - input: { id: tf-password, text: "correct horse" }
+  - assert_text: { id: tf-password-length, text: "13" }
+  - input: { id: tf-pin, text: "123456" }
+  - assert_text: { id: tf-pin-count, text: "4 / 4" }
+  - assert_text: { id: tf-pin, text: "1234" }
+  - wait_idle:
+  - screenshot:
+      name: textfields
+      title: { en: "Text fields", fr: "Champs de texte", ar: "حقول النص", zh-CN: "文本框" }
+      source: src/pages/text_fields.rs
+  - toggle: { id: tf-show-password, value: true }
+  - wait_idle:
+  - assert_text: { id: tf-password, text: "correct horse" }
+  - input: { id: tf-password, text: "correct horse battery" }
+  - assert_text: { id: tf-password-length, text: "21" }
+  - screenshot:
+      name: textfields-shown
+      title: { en: "Password shown", fr: "Mot de passe affiché", ar: "كلمة المرور ظاهرة", zh-CN: "显示密码" }
+      source: src/pages/text_fields.rs
+  # Focus rides a flip: the field that held it still holds it as the other class.
+  - focus: { id: tf-password }
+  - assert_focused: { id: tf-password }
+  - toggle: { id: tf-show-password, value: false }
+  - wait_idle:
+  - assert_focused: { id: tf-password }
+  - input: { id: tf-password, text: "staple" }
+  - assert_text: { id: tf-password-length, text: "6" }
+  - input: { id: tf-limited, text: "abcdefghijklmnopqrstuvwxyz" }
+  - assert_text: { id: tf-limited-count, text: "12 / 12" }
+  - toggle: { id: tf-readonly-toggle, value: false }
+  - toggle: { id: tf-readonly-toggle, value: true }
+  - wait_idle:
+  - screenshot:
+      name: textfields-hidden-again
+      title: { en: "Password hidden again", fr: "Mot de passe masqué", ar: "كلمة المرور مخفية", zh-CN: "隐藏密码" }
+      source: src/pages/text_fields.rs

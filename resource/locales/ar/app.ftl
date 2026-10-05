@@ -728,6 +728,30 @@ crash_send = إرسال التقرير
 crash_clear = مسح التقارير
 crash_empty = لا يوجد تقرير عطل بعد. أحدِث عطلاً ثم أعِد التشغيل لرؤيته هنا.
 
+# صفحة حقول النص (docs/textfield.md)
+nav_textfields = حقول النص
+textfields_password_section = كلمة المرور
+textfields_password = كلمة المرور
+textfields_password_placeholder = أدخل كلمة مرور
+textfields_show_password = إظهار كلمة المرور
+textfields_length = الطول
+textfields_purpose_section = لوحة المفاتيح والتعبئة التلقائية
+textfields_email = البريد الإلكتروني
+textfields_phone = الهاتف
+textfields_url = الموقع الإلكتروني
+textfields_number = الكمية
+textfields_decimal = المبلغ
+textfields_code = رمز لمرة واحدة
+textfields_pin_section = الرمز السري
+textfields_pin = الرمز السري
+textfields_attrs_section = الخصائص
+textfields_reference = المرجع
+textfields_read_only = للقراءة فقط
+textfields_limited = حتى 12 حرفًا
+textfields_message = الرسالة
+textfields_message_placeholder = اكتب ثم اضغط إرسال
+textfields_sent = المُرسَلة
+
 # صفحة مناطق النص
 nav_textareas = تحرير النص
 textareas_editor_section = المحرّر

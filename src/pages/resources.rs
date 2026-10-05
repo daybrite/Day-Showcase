@@ -180,6 +180,7 @@ fn vectors_section() -> impl Piece {
                     gv::nav_tabs,
                     gv::nav_text,
                     gv::nav_textareas,
+                    gv::nav_textfields,
                     gv::nav_toolbars,
                     gv::nav_tweaks,
                     gv::nav_webview,

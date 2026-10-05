@@ -189,6 +189,38 @@ flow:
   - assert_visible: { id: text-selectable }
   - assert_visible: { id: text-runs }
 
+  # Text fields (docs/textfield.md): secure entry, a length limit, read-only. The Show Password
+  # switch flips `.secure(_)` on a live field. On AppKit and WinUI that rebuilds the widget as
+  # its other native class, so typing after each flip proves the node follows the replacement.
+  - navigate: { route: textfields }
+  - assert_route: { route: textfields }
+  - assert_visible: { id: tf-password }
+  - input: { id: tf-password, text: "correct horse" }
+  - assert_text: { id: tf-password-length, text: "13" }
+  # Six digits into a four-digit PIN: the bound value and the field both hold four.
+  - input: { id: tf-pin, text: "123456" }
+  - assert_text: { id: tf-pin-count, text: "4 / 4" }
+  - assert_text: { id: tf-pin, text: "1234" }
+  - screenshot:
+      name: textfields
+      title: { en: "Text fields", fr: "Champs de texte", ar: "حقول النص", zh-CN: "文本框" }
+      source: src/pages/text_fields.rs
+  - toggle: { id: tf-show-password, value: true }
+  - wait_idle:
+  - assert_text: { id: tf-password, text: "correct horse" }
+  - input: { id: tf-password, text: "correct horse battery" }
+  - assert_text: { id: tf-password-length, text: "21" }
+  - screenshot:
+      name: textfields-shown
+      title: { en: "Password shown", fr: "Mot de passe affiché", ar: "كلمة المرور ظاهرة", zh-CN: "显示密码" }
+      source: src/pages/text_fields.rs
+  - toggle: { id: tf-show-password, value: false }
+  - wait_idle:
+  - input: { id: tf-password, text: "staple" }
+  - assert_text: { id: tf-password-length, text: "6" }
+  - input: { id: tf-limited, text: "abcdefghijklmnopqrstuvwxyz" }
+  - assert_text: { id: tf-limited-count, text: "12 / 12" }
+
   # Text editing (docs/textarea.md): the native multi-line editor with editable/selectable/spell-check
   # attributes and per-toolkit capability-gated toggles. Seed the markdown sample for a stable shot.
   - navigate: { route: textareas }
