@@ -12,6 +12,8 @@ fn main() {
             min_size: Some(day::prelude::Size::new(640.0, 480.0)),
             // The App menu / About show "Showcase", not the toolkit-tagged window title.
             app_name: Some("Showcase".into()),
+            // Named in Day's exit line (docs/lifecycle.md).
+            version: Some(env!("CARGO_PKG_VERSION").into()),
             ..Default::default()
         },
         dayapp::root,
