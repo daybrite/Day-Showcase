@@ -1094,6 +1094,11 @@ flow:
   # (apple targets; gtk/qt report unsupported and skip). A full-tree audit follows.
   - assert_visible: { id: gauge }
   - a11y_audit: { id: gauge }
+  # The gauge's spoken value reads the slider's signal: after a move, the native tree must
+  # carry the new number, which only a second audit can show.
+  - set_value: { id: gauge-slider, value: 72 }
+  - wait_idle:
+  - a11y_audit: { id: gauge }
   - a11y_audit: {}
   - screenshot:
       name: canvas

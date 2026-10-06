@@ -1005,7 +1005,7 @@ fn led_meter(level: Signal<f64>) -> impl Piece {
     .a11y(move |a| {
         a.role(Role::Meter)
             .label(crate::res::str::gauge_value_label().format())
-            .value(format!("{:.0}", level.get_untracked()))
+            .value(move || format!("{:.0}", level.get()))
     })
     .id("gauge-led")
 }
@@ -1110,7 +1110,7 @@ fn sunrise_meter(level: Signal<f64>) -> impl Piece {
     .a11y(move |a| {
         a.role(Role::Meter)
             .label(crate::res::str::gauge_value_label().format())
-            .value(format!("{:.0}", level.get_untracked()))
+            .value(move || format!("{:.0}", level.get()))
     })
     .id("gauge-sunrise")
 }

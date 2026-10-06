@@ -75,12 +75,12 @@ pub(crate) fn gauge(value: Signal<f64>) -> impl Piece {
     })
     // Accessibility (§13): a canvas has no inherent role, so Day applies `Meter` + a spoken value
     // and label. `.id`/`.a11y` go on the canvas leaf (before any frame wrapper, a handle-less
-    // layout node), so they reach the native widget. Value is a build-time snapshot (reactive
-    // a11y is a follow-up).
+    // layout node), so they reach the native widget. The value reads the signal, so the
+    // screen reader follows the needle; the walkthrough audits it natively after a move.
     .a11y(move |a| {
         a.role(Role::Meter)
             .label(crate::res::str::gauge_value_label().format())
-            .value(format!("{:.0}", value.get_untracked()))
+            .value(move || format!("{:.0}", value.get()))
     })
     .id("gauge")
 }

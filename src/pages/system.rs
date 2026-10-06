@@ -564,12 +564,12 @@ fn battery_view(level: Signal<f64>, charging: Signal<bool>) -> impl Piece {
             },
         );
     })
-    // Accessibility (§13): like the gauge, the canvas gets an explicit Meter role + spoken
-    // label/value (value is a build-time snapshot; reactive a11y is a follow-up).
+    // Accessibility (§13): like the gauge, the canvas gets an explicit Meter role and a spoken
+    // label and value; the value reads the signal, so the screen reader follows the charge.
     .a11y(move |a| {
         a.role(Role::Meter)
             .label(crate::res::str::nav_battery().format())
-            .value(format!("{:.0}%", level.get_untracked()))
+            .value(move || format!("{:.0}%", level.get()))
     })
     .id("battery")
     .frame(260.0, 120.0)
