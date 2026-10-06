@@ -30,6 +30,7 @@ pub(crate) fn controls_page() -> AnyPiece {
             text_section(st),
             pickers_section(st),
             indicators_section(st),
+            accessibility_section(),
             state_section(st),
         ))
         .any(),
@@ -477,6 +478,49 @@ fn pickers_section(st: Catalog) -> impl Piece {
 
 /// Indicators and the composition tier: the star rating (canvas polygons), a badge overlay, the
 /// arc gauge over the shared level, and the divider.
+/// Accessibility (docs/accessibility.md): what a screen reader is told beyond what the native
+/// controls say on their own. A heading role on a label, a hint on a button, and an announcement
+/// that reaches the screen reader without moving its focus.
+fn accessibility_section() -> impl Piece {
+    let announced = Signal::new(0i64);
+    let support = match capability(Cap::Announce) {
+        Support::Native => crate::res::str::cursors_native(),
+        Support::Emulated => crate::res::str::ctl_announce_emulated(),
+        Support::Unsupported => crate::res::str::cursors_unsupported(),
+    };
+    section((
+        label(crate::res::str::ctl_a11y_heading())
+            .font(Font::Headline)
+            .a11y(|a| a.role(Role::Heading(2)))
+            .id("ctl-a11y-heading"),
+        labeled(
+            crate::res::str::ctl_announce(),
+            row((
+                button(crate::res::str::ctl_announce())
+                    .bordered()
+                    .a11y(|a| a.hint(crate::res::str::ctl_announce_hint().format()))
+                    .action(move || {
+                        announced.update(|n| *n += 1);
+                        announce(
+                            &crate::res::str::ctl_announced_times(announced.get_untracked())
+                                .format(),
+                        );
+                    })
+                    .id("ctl-announce"),
+                label(move || crate::res::str::ctl_announced_times(announced.get()).format())
+                    .id("ctl-announce-count"),
+            ))
+            .spacing(8.0)
+            .fit(RowFit::Wrap { run_spacing: 8.0 }),
+        ),
+        labeled(
+            crate::res::str::cursors_support_label(),
+            label(support).id("ctl-announce-support"),
+        ),
+    ))
+    .title(crate::res::str::ctl_accessibility())
+}
+
 fn indicators_section(st: Catalog) -> impl Piece {
     section((
         labeled(

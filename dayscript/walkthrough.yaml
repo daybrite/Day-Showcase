@@ -77,6 +77,13 @@ flow:
   # No activity arm on web-dom: the placeholder leaf has no frame to be visible.
   - assert_visible: { id: activity-spinner, skip_on: [web-dom] }
   - assert_visible: { id: ctl-spinner }
+  # Accessibility (docs/accessibility.md): the heading role and the hint are what a screen
+  # reader is told; the announcement reaches it without moving focus, so the count is the only
+  # thing a script can see of it.
+  - assert_visible: { id: ctl-a11y-heading }
+  - tap: { id: ctl-announce }
+  - assert_text: { id: ctl-announce-count, key: ctl_announced_times, args: { count: 1 } }
+  - assert_visible: { id: ctl-announce-support }
   # Text field → the State row.
   - input: { id: name-field, text: "Ada" }
   - assert_text: { id: state-name, text: "Ada" }
