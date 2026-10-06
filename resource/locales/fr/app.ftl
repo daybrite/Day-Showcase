@@ -645,6 +645,7 @@ anim_curve_ease_in_out = Progressif
 anim_curve_ease_out = Décéléré
 anim_curve_linear = Linéaire
 anim_duration_ms = { $ms } ms
+anim_reduced_motion = Mouvement réduit
 
 # --- Page Benchmark (le benchmark Grilles de Day-Bench ; sur les backends Apple natifs, un
 #     sélecteur segmenté héberge aussi sa réplique SwiftUI via day-piece-swiftui,

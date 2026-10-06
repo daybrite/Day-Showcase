@@ -1155,6 +1155,10 @@ flow:
   # Animate!, and let the backend interpolation settle before capturing.
   - navigate: { route: animation }
   - assert_route: { route: animation }
+  # The reduced-motion readout (docs/accessibility.md) reads the live gate: a `--fast` run
+  # says On, an ordinary run says whatever the system setting says, so only its presence is
+  # asserted here.
+  - assert_visible: { id: anim-reduced-motion }
   - set_value: { id: anim-scale, value: 1.25 }
   - set_value: { id: anim-rotation, value: 30 }
   - set_value: { id: anim-hue, value: 200 }

@@ -182,6 +182,21 @@ pub(crate) fn animation_page() -> AnyPiece {
                 .id("anim-curve"),
             ),
             labeled(crate::res::str::anim_duration(), duration_stepper(s.dur)),
+            // The user's reduce-motion setting (docs/accessibility.md), live: under it every
+            // transition on this page lands at once, and a scripted run's fast mode reads
+            // the same way, since fast mode is this setting forced on.
+            labeled(
+                crate::res::str::anim_reduced_motion(),
+                label(move || {
+                    if day::reduce_motion() {
+                        crate::res::str::ctl_on()
+                    } else {
+                        crate::res::str::ctl_off()
+                    }
+                    .format()
+                })
+                .id("anim-reduced-motion"),
+            ),
         )),)),
     ))
     .spacing(16.0);

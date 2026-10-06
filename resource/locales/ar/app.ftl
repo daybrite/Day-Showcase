@@ -652,6 +652,7 @@ anim_curve_ease_in_out = متدرّج
 anim_curve_ease_out = تباطؤ
 anim_curve_linear = خطّي
 anim_duration_ms = { $ms } مللي ثانية
+anim_reduced_motion = تقليل الحركة
 
 # --- صفحة قياس الأداء (اختبار الشبكات من Day-Bench؛ على منصات Apple الأصلية يستضيف منتقٍ مقسّم
 #     أيضًا نسخته التوأم المكتوبة بـ SwiftUI عبر day-piece-swiftui، docs/swiftui.md) ---

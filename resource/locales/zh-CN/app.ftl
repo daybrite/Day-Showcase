@@ -640,6 +640,7 @@ anim_curve_ease_in_out = 缓入缓出
 anim_curve_ease_out = 缓出
 anim_curve_linear = 线性
 anim_duration_ms = { $ms } 毫秒
+anim_reduced_motion = 减弱动态效果
 
 # --- 基准测试页（Day-Bench 的网格基准测试；在 Apple 原生后端上，分段选择器还通过
 #     day-piece-swiftui 承载其手写的 SwiftUI 孪生实现，docs/swiftui.md）---

@@ -646,6 +646,7 @@ anim_curve_ease_in_out = Ease-in-out
 anim_curve_ease_out = Ease-out
 anim_curve_linear = Linear
 anim_duration_ms = { $ms } ms
+anim_reduced_motion = Reduced motion
 
 # --- Benchmark page (the Day-Bench Grids benchmark; on the Apple-native backends a segmented
 #     picker also hosts its hand-written SwiftUI twin via day-piece-swiftui, docs/swiftui.md) ---
