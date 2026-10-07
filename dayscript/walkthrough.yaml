@@ -1293,24 +1293,33 @@ flow:
   - tap: { id: map-boston, only_on: [macos-appkit, ios-uikit] }
   - assert_text: { id: map-coords, text: "42.3601, -71.0589", only_on: [macos-appkit, ios-uikit] }
 
-  # Native web view (docs/webview.md): each toolkit's native browser. Load the project site,
-  # allow the external page to load before capture. Visited after the stack/tabs route
+  # Native web view (docs/webview.md): each toolkit's native browser, on the page's default
+  # Embedded tab: a whole site bundled under resource/assets/web/minisite/, served through
+  # web_view_inline on the backends with a local-content arm. The walkthrough never selects the
+  # Remote tab, so nothing here touches the network: a live site's load time, reachability and TLS
+  # chain are not this app's to assert (Android 7.0 does not even trust daybrite.dev's root, so
+  # the remote page never loads on the API 24 emulator). Visited after the stack/tabs route
   # assertions so a heavy embedded browser can't disturb them.
   # Shared Harmony CI installs the x86_64 ArkWeb runtime before this walkthrough.
   - navigate: { route: webview }
   - assert_route: { route: webview }
   - assert_visible: { id: webview-tab }
-  # web-dom embeds an <iframe>, so history is unreachable and the page says so (docs/webview.md).
-  # Only that backend renders the footnote; everywhere else the piece reports Support::Native.
-  - assert_visible: { id: webview-note, only_on: [web-dom] }
-  # Observe the requested document itself; an initial about:blank is also "complete".
+  # The status line is a day label (asserted everywhere the page shows); what renders inside the
+  # web view is native web content, reached through web_eval and the JS console below.
+  - assert_visible: { id: webview-embedded-status }
+  - assert_text:
+      {
+        id: webview-embedded-status,
+        key: webview_embedded_status_none,
+      }
+  # Verify HTML, stylesheet and image readiness rather than sleeping for a guessed duration.
   - web_eval:
-      id: webview
-      script: "location.hostname === 'daybrite.dev' && document.readyState === 'complete' && document.body.innerText.length > 100"
+      id: webview-embedded
+      script: "document.title === 'Day mini site' && document.readyState === 'complete' && !!document.querySelector('link[rel=stylesheet]').sheet && Array.from(document.images).every(i => i.complete && i.naturalWidth > 0)"
       text: "true"
-      timeout_secs: 20
+      timeout_secs: 15
       skip_on: [web-dom, windows-qt]
-  - pause: { secs: 5, only_on: [web-dom, windows-qt] }
+  - pause: { secs: 2, only_on: [web-dom, windows-qt] }
   # JS evaluation (docs/webview-eval.md), on the combos whose arm is written and has an engine;
   # windows-qt ships no Qt6 WebEngine, and the other backends report Unsupported. These three
   # assertions are engine-independent: JSON.stringify's output and a TypeError's name/message are
@@ -1320,6 +1329,16 @@ flow:
   - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc, windows-xaml] }
   - assert_text:
       { id: webview-js-result, text: "2", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc, windows-xaml] }
+  # Evaluated in the bundled site's own document, not a blank frame.
+  - input:
+      { id: webview-js, text: "document.title", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc, windows-xaml] }
+  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc, windows-xaml] }
+  - assert_text:
+      {
+        id: webview-js-result,
+        text: '"Day mini site"',
+        only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc, windows-xaml],
+      }
   - input:
       {
         id: webview-js,
@@ -1339,16 +1358,9 @@ flow:
       source: src/pages/webview.rs
   # Session retention (docs/webview.md): plant a marker in the live JS context, leave the page
   # entirely, come back, and read it. It only survives if the native engine was retained rather
-  # than rebuilt; a reloaded page would have a fresh, empty `window`.
-  #
-  # Runs after the gallery screenshot above, and opens by stopping the load, because the marker
-  # lives in a document the network can still replace. `pause` cannot close that window: a load
-  # commits when the origin answers, so on a cold CI runner the marker went into the outgoing
-  # document and the commit took it with it: `expected "survived", found "null"`, on the first
-  # of eight variants and no other. (`document.readyState` does not help either: it reads
-  # "complete" for the page being replaced.) Stopping first makes the current document final, so
-  # what this block measures is retention rather than the runner's luck with the network.
-  - tap: { id: webview-stop, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
+  # than rebuilt; a reloaded page would have a fresh, empty `window`. The bundled site finished
+  # loading before the web_eval above passed and nothing navigates it since, so the marker goes
+  # into the document that stays.
   - input:
       {
         id: webview-js,
@@ -1388,30 +1400,6 @@ flow:
         text: '"survived"',
         only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml],
       }
-  # The Embedded tab (docs/webview.md): a whole site bundled under resource/assets/web/minisite/,
-  # served through web_view_inline on the backends with a local-content arm. The status line is a
-  # day label (asserted everywhere the page shows); what renders inside the web view is native web
-  # content dayscript cannot reach, so the screenshot is the visual record.
-  - select: { id: webview-tab, index: 1 }
-  - assert_visible: { id: webview-embedded-status }
-  - assert_text:
-      {
-        id: webview-embedded-status,
-        key: webview_embedded_status_none,
-      }
-  # Verify HTML, stylesheet and image readiness rather than sleeping for a guessed duration.
-  - web_eval:
-      id: webview-embedded
-      script: "document.title === 'Day mini site' && document.readyState === 'complete' && !!document.querySelector('link[rel=stylesheet]').sheet && Array.from(document.images).every(i => i.complete && i.naturalWidth > 0)"
-      text: "true"
-      timeout_secs: 15
-      skip_on: [web-dom, windows-qt]
-  - pause: { secs: 2, only_on: [web-dom, windows-qt] }
-  - screenshot:
-      name: webview-embedded
-      title: { en: "Web view · embedded site", fr: "Vue Web · site embarqué", ar: "عرض الويب · موقع مضمّن", zh-CN: "网页视图 · 内嵌站点" }
-      source: src/pages/webview.rs
-  - select: { id: webview-tab, index: 0 }
 
   # ---------------------------------------------------------------------------------------------
   # Platform

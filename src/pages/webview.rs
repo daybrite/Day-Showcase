@@ -23,18 +23,25 @@ fn embed_status() -> Signal<(u8, String)> {
     crate::scene().web_embed_status
 }
 
+/// The tabs' picker indices. Embedded comes first, so it is what the page opens on.
+const EMBEDDED: usize = 0;
+const REMOTE: usize = 1;
+
 /// A native web view (day-piece-webview, an external standalone piece), in two tabs:
 ///
+/// - **Embedded** (the default): `web_view_inline`, a complete site (pages, css, js, images)
+///   bundled under `resource/assets/web/minisite/` and served from inside the app (§18.5,
+///   docs/webview.md). Relative links resolve within the site; external links open in the system
+///   browser by default; `day-showcase://` links are intercepted by `on_external_link` and
+///   navigate this app: the custom-policy hook, demonstrated end to end. It is the default so
+///   opening the page needs no network: the walkthrough exercises this tab only, and stays
+///   independent of the live site's reachability, load time and TLS chain (Android 7.0 does not
+///   trust daybrite.dev's root).
 /// - **Remote**: WKWebView / QWebEngineView / android.webkit.WebView browsing the live web. The
 ///   URL bar is bound two-way, Back/Forward/Stop/Reload drive history via `Trigger`s, and the JS
 ///   console round-trips `eval` where the engine allows it. web-dom is the exception: an
 ///   `<iframe>` under the same-origin policy; the piece reports `Support::Emulated`, the history
 ///   buttons are disabled, and a footnote says why (docs/webview.md).
-/// - **Embedded**: `web_view_inline`, a complete site (pages, css, js, images) bundled under
-///   `resource/assets/web/minisite/` and served from inside the app (§18.5, docs/webview.md).
-///   Relative links resolve within the site; external links open in the system browser by
-///   default; `day-showcase://` links are intercepted by `on_external_link` and navigate this
-///   app: the custom-policy hook, demonstrated end to end.
 ///
 /// Both tabs come back as they were left: the selection rides a hoisted signal, and each view
 /// rides its own retained `WebSession`, so the engines that retain (WebKit here, docs/webview.md)
@@ -50,8 +57,8 @@ pub(crate) fn webview_page() -> AnyPiece {
         heading(crate::res::str::nav_webview(), "webview-title"),
         column((picker(
             [
-                crate::res::str::webview_tab_remote().format(),
                 crate::res::str::webview_tab_embedded().format(),
+                crate::res::str::webview_tab_remote().format(),
             ],
             tab,
         )
@@ -59,8 +66,11 @@ pub(crate) fn webview_page() -> AnyPiece {
         .id("webview-tab"),))
         .align(HAlign::Center)
         .grow_w(),
-        when(move || tab.get() == 0, move || remote_pane(js_remote)),
-        when(move || tab.get() == 1, move || embedded_pane(js_embedded)),
+        when(
+            move || tab.get() == EMBEDDED,
+            move || embedded_pane(js_embedded),
+        ),
+        when(move || tab.get() == REMOTE, move || remote_pane(js_remote)),
         js_console(tab, js_remote, js_embedded),
     ))
     .spacing(10.0)
@@ -90,10 +100,10 @@ fn js_console(tab: Signal<usize>, js_remote: JsHandle, js_embedded: JsHandle) ->
             .prominent()
             .enabled(move || can_eval)
             .action(move || {
-                let js = if tab.get_untracked() == 1 {
-                    js_embedded
-                } else {
+                let js = if tab.get_untracked() == REMOTE {
                     js_remote
+                } else {
+                    js_embedded
                 };
                 // A new evaluation invalidates the previous result immediately. In particular,
                 // repeated expressions must not satisfy a walkthrough assertion with stale text.
