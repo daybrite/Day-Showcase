@@ -9,6 +9,7 @@ description: Navigate every destination, exercise every control, take localized 
   for a page's second surface; every other screenshot is an untitled visual record.
 flow:
   - wait_for: { id: nav }
+  - memory_usage: # Startup baseline.
   - screenshot:
       name: home
       title: { en: "Home", fr: "Accueil", ar: "الرئيسية", zh-CN: "主页" }
@@ -292,6 +293,7 @@ flow:
   # Every picker accepts a synthetic ISO `input:` on every backend, and the readouts are
   # locale-independent ISO from the bound signals, so the same steps assert the two-way binding
   # under NSDatePicker, UIDatePicker, Material dialogs, QDateEdit, and the composed GTK build.
+  - memory_usage: # Checkpoint after the preceding group of screens.
   - navigate: { route: dates }
   - assert_route: { route: dates }
   - input: { id: date-compact, text: "2026-11-05" }
@@ -428,12 +430,9 @@ flow:
   - assert_visible: { id: split-demo }
   - assert_text: { id: split-support, key: split_native, only_on: [appkit, gtk, qt] }
   - assert_text: { id: split-support, key: split_composed, only_on: [uikit, mdc, arkui, dom, xaml] }
-  # The stepper takes a scripted value on the desktops; on the phones `set_value` reaches
-  # the piece's field but not its signal, so the count stays at its seed there.
-  - set_value: { id: split-count, value: 7, only_on: [appkit, gtk, qt] }
+  - set_value: { id: split-count, value: 7 }
   - set_value: { id: split-radius, value: 36 }
-  - assert_text: { id: split-readout, key: split_readout, args: { count: 7, radius: 36 }, only_on: [appkit, gtk, qt] }
-  - assert_text: { id: split-readout, key: split_readout, args: { count: 5, radius: 36 }, skip_on: [appkit, gtk, qt] }
+  - assert_text: { id: split-readout, key: split_readout, args: { count: 7, radius: 36 } }
   - toggle: { id: split-filled, value: true }
   - select: { id: split-shape, index: 2 }
   - input: { id: split-caption, text: "Seven" }
@@ -464,6 +463,7 @@ flow:
   # Grid (docs/grid.md): columns sized by content, spans, and flexible cells. Desktop hosts the
   # sub-pages as tabs (basics preselected), mobile as a menu of pushed pages; grid behavior
   # itself is pinned by the day-pieces grid tests.
+  - memory_usage: # Checkpoint after the preceding group of screens.
   - navigate: { route: grid }
   - screenshot:
       name: grid
@@ -818,6 +818,7 @@ flow:
   # editor, as the host's content-list pane (docs/navigation.md), a third column on a desktop or
   # the pushed middle layer on a phone, shown on this page only, with the pane's Filter and Add
   # and the editor's Done riding it (docs/toolbars.md). The steps mirror Day-Rise's demo.
+  - memory_usage: # Checkpoint after the preceding group of screens.
   - navigate: { route: content-list }
   - assert_route: { route: content-list }
   - wait_for: { id: item-list }
@@ -1083,6 +1084,7 @@ flow:
   # gradient grid, and the slider-driven gauges. Drive the shared rotation so the screenshot
   # shows the grid mid-spin. (The composition-tier widgets left this page: the rating lives on
   # Controls now, the card and environment on Layout.)
+  - memory_usage: # Checkpoint after the preceding group of screens.
   - navigate: { route: canvas }
   - assert_route: { route: canvas }
   - set_value: { id: shapes-angle-slider, value: 45 }
@@ -1269,6 +1271,7 @@ flow:
   # (AVPlayerView / AVPlayerViewController / QMediaPlayer / VideoView / GtkVideo / <video>). The
   # pause lets first frames of the network sample arrive; then pause playback so the captured frame
   # is stable. The page is video only; the bundled Lottie animation has a page of its own below.
+  - memory_usage: # Checkpoint after the preceding group of screens.
   - navigate: { route: media }
   - assert_route: { route: media }
   - assert_visible: { id: media }
@@ -1450,6 +1453,7 @@ flow:
   # charging toggle drive a deterministic state (65% + bolt) for the screenshot, then a low
   # level checks the readout; sensors need a second poll after the first read arms the listener
   # (push-model platforms); device identity varies, so presence only.
+  - memory_usage: # Checkpoint after the preceding group of screens.
   - navigate: { route: system }
   - assert_route: { route: system }
   - assert_visible: { id: battery }
@@ -1568,6 +1572,7 @@ flow:
   # app-local file store, all in one form and one screenshot. The strict OS clipboard assertion
   # lives in dayscript/clipboard-roundtrip.yaml (macOS + Android only; headless Linux has no
   # system clipboard). The save/open pickers answer with a temp path (relative → app temp dir).
+  - memory_usage: # Checkpoint after the preceding group of screens.
   - navigate: { route: files }
   - assert_route: { route: files }
   - assert_visible: { id: clipboard-field }
@@ -1718,6 +1723,7 @@ flow:
   # draws the same picture on every target, so the shots are diffable. The readouts prove the
   # sliders reached the generator; the row counts are pinned by unit tests
   # (known_parameters_pack_to_known_row_counts), so a generator change fails in cargo test first.
+  - memory_usage: # Checkpoint after the preceding group of screens.
   - navigate: { route: benchmark }
   - assert_route: { route: benchmark }
   - wait_for: { id: bench-grid }
@@ -1829,3 +1835,7 @@ flow:
   - wait_for: { id: dnd-slot-0 }
   - assert_text: { id: dnd-value-0, text: image/png }
   - screenshot: drag-drop
+
+  # Final current-process budget; 1G is 1,000,000,000 bytes.
+  - wait_idle:
+  - memory_usage: { fail_if_above: 1G }

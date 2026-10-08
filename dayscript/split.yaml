@@ -10,10 +10,9 @@ flow:
   - assert_visible: { id: split-demo }
   - assert_text: { id: split-support, key: split_native, only_on: [appkit, gtk, qt] }
   - assert_text: { id: split-support, key: split_composed, only_on: [uikit, mdc, arkui, dom, xaml] }
-  - set_value: { id: split-count, value: 7, only_on: [appkit, gtk, qt] }
+  - set_value: { id: split-count, value: 7 }
   - set_value: { id: split-radius, value: 36 }
-  - assert_text: { id: split-readout, key: split_readout, args: { count: 7, radius: 36 }, only_on: [appkit, gtk, qt] }
-  - assert_text: { id: split-readout, key: split_readout, args: { count: 5, radius: 36 }, skip_on: [appkit, gtk, qt] }
+  - assert_text: { id: split-readout, key: split_readout, args: { count: 7, radius: 36 } }
   - toggle: { id: split-filled, value: true }
   - select: { id: split-shape, index: 2 }
   - input: { id: split-caption, text: "Seven" }
