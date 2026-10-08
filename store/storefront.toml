@@ -167,7 +167,7 @@ Day Showcase is the demo app for Day (daybrite.dev), a framework for creating mo
 Each screen in the app is a demonstration of one part of the framework:
 
 Controls: buttons, switches, sliders, steppers, pickers, text fields, a multi-line editor, date and time pickers, keyboard focus, and pointer cursors.
-Layout: rows, columns, and layers under each fit policy, and a grid with spanning cells.
+Layout: rows, columns, and layers under each fit policy, a split with a draggable divider, and a grid with spanning cells.
 Navigation & chrome: a push stack, tabs, menus and dialogs, the window toolbar, and a content list that opens each item in an editor.
 Data: a list and a tree over live models, and queries against a local store.
 Graphics & media: shapes, paths, gradients, and transforms on a canvas, animation, Lottie playback, bundled resources, media playback, a map, and a web view.

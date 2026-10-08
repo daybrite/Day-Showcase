@@ -1085,6 +1085,29 @@ field_rating = Note
 field_color = Couleur
 
 # La page Curseurs (day/docs/cursor.md) : le décorateur `.cursor()`, forme par forme.
+# La page Partage (day/docs/split.md) : deux volets, un séparateur, un même état lu des deux côtés.
+nav_split = Partage
+split_support_title = Sur cette boîte à outils
+split_support_label = Séparateur dessiné par
+split_native = Le séparateur natif de la boîte à outils
+split_composed = Day (cette boîte à outils n'a pas de séparateur)
+split_hint = Faites glisser le séparateur : le curseur de part le suit, et le curseur déplace le séparateur. Le formulaire d'un côté et le dessin de l'autre lisent le même état.
+split_arrangement_title = Disposition
+split_stacked = Empilés
+split_share = Part du formulaire
+split_form_title = Formes
+split_caption = Légende
+split_caption_placeholder = Dessinée par-dessus les formes
+split_count = Nombre
+split_radius = Rayon
+split_hue = Teinte
+split_filled = Pleines
+split_shape = Forme
+split_shape_circle = Cercle
+split_shape_square = Carré
+split_shape_diamond = Losange
+split_readout = { $count } formes de rayon { $radius }
+
 nav_cursors = Curseurs
 cursors_support_title = Sur cette boîte à outils
 cursors_support_label = Prise en charge ici

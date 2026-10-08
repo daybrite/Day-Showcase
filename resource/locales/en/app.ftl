@@ -1091,6 +1091,29 @@ field_done = Done
 field_rating = Rating
 field_color = Color
 
+# The Split page (day/docs/split.md): two panes, a divider, one state read from both sides.
+nav_split = Split
+split_support_title = On this toolkit
+split_support_label = Divider drawn by
+split_native = The toolkit's own splitter
+split_composed = Day (this toolkit has no splitter of its own)
+split_hint = Drag the divider: the share slider follows it, and the slider moves the divider. The form on one side and the drawing on the other read the same state.
+split_arrangement_title = Arrangement
+split_stacked = Stacked
+split_share = Form's share
+split_form_title = Shapes
+split_caption = Caption
+split_caption_placeholder = Drawn over the shapes
+split_count = Count
+split_radius = Radius
+split_hue = Hue
+split_filled = Filled
+split_shape = Shape
+split_shape_circle = Circle
+split_shape_square = Square
+split_shape_diamond = Diamond
+split_readout = { $count } shapes of radius { $radius }
+
 # The Cursors page (day/docs/cursor.md): the `.cursor()` decorator, shape by shape.
 nav_cursors = Cursors
 cursors_support_title = On this toolkit

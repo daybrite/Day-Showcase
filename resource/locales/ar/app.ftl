@@ -1102,6 +1102,29 @@ field_rating = التقييم
 field_color = اللون
 
 # صفحة المؤشّرات (day/docs/cursor.md): المزخرف `.cursor()`، شكلًا شكلًا.
+# صفحة التقسيم (day/docs/split.md): لوحان وفاصل وحالة واحدة تُقرأ من الجانبين.
+nav_split = التقسيم
+split_support_title = في هذه المجموعة
+split_support_label = يرسم الفاصل
+split_native = فاصل المجموعة نفسها
+split_composed = Day (لا فاصل لهذه المجموعة)
+split_hint = اسحب الفاصل: يتبعه منزلق الحصة، ويحرّك المنزلق الفاصل. النموذج في جهة والرسم في الأخرى يقرآن الحالة نفسها.
+split_arrangement_title = الترتيب
+split_stacked = متراكبان
+split_share = حصة النموذج
+split_form_title = الأشكال
+split_caption = تعليق
+split_caption_placeholder = يُرسم فوق الأشكال
+split_count = العدد
+split_radius = نصف القطر
+split_hue = الصبغة
+split_filled = مملوءة
+split_shape = الشكل
+split_shape_circle = دائرة
+split_shape_square = مربع
+split_shape_diamond = معيّن
+split_readout = { $count } أشكال بنصف قطر { $radius }
+
 nav_cursors = المؤشّرات
 cursors_support_title = في مجموعة الأدوات هذه
 cursors_support_label = الدعم هنا

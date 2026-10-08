@@ -1075,6 +1075,29 @@ field_rating = 评分
 field_color = 颜色
 
 # 光标页（day/docs/cursor.md）：`.cursor()` 装饰器，逐个形状。
+# 分割页（day/docs/split.md）：两个窗格、一条分隔线、两侧读取同一状态。
+nav_split = 分割
+split_support_title = 在此工具包上
+split_support_label = 分隔线由谁绘制
+split_native = 工具包自带的分割器
+split_composed = Day（此工具包没有自带分割器）
+split_hint = 拖动分隔线：占比滑块随之变化，滑块也能移动分隔线。一侧的表单与另一侧的绘图读取同一状态。
+split_arrangement_title = 排列
+split_stacked = 上下堆叠
+split_share = 表单占比
+split_form_title = 图形
+split_caption = 标题
+split_caption_placeholder = 绘制在图形之上
+split_count = 数量
+split_radius = 半径
+split_hue = 色相
+split_filled = 填充
+split_shape = 形状
+split_shape_circle = 圆形
+split_shape_square = 方形
+split_shape_diamond = 菱形
+split_readout = { $count } 个半径为 { $radius } 的图形
+
 nav_cursors = 光标
 cursors_support_title = 在此工具包上
 cursors_support_label = 此处支持
