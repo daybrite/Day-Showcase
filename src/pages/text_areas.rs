@@ -1,5 +1,6 @@
 use day::prelude::*;
 use day_piece_colorpicker::color_picker;
+use day_piece_texteditor::highlight::{Language, Palette, highlight};
 use day_piece_texteditor::text_editor;
 
 use crate::widgets::page;
@@ -469,93 +470,14 @@ fn style_button(
 // A toy Rust highlighter: enough to show live re-styling, not a parser.
 // ---------------------------------------------------------------------------
 
-const KEYWORDS: &[&str] = &[
-    "fn", "let", "move", "mut", "pub", "struct", "enum", "impl", "match", "if", "else", "for",
-    "while", "loop", "return", "use", "crate", "self", "true", "false",
-];
-
-/// Tokenize `src` into runs. Byte offsets throughout, which is what the document indexes by, and
-/// why a multi-byte character in a comment cannot shift the styling of the code after it.
+/// Tokenize `src` into runs: the piece's own Rust tokenizer, in this page's palette. Byte
+/// offsets throughout, which is what the document indexes by, and why a multi-byte character in
+/// a comment cannot shift the styling of the code after it.
 fn highlight_rust(src: &str) -> Vec<TextRun> {
-    let mut runs: Vec<TextRun> = Vec::new();
-    let bytes = src.as_bytes();
-    let mut i = 0usize;
-    // Everything the tokenizer does not claim still has to be a run, because a code sample is
-    // monospaced end to end; the gaps between tokens are the punctuation and the identifiers.
-    let mut plain_from = 0usize;
-    let close_gap = |runs: &mut Vec<TextRun>, upto: usize, from: &mut usize| {
-        if *from < upto {
-            let mut run = colored(*from..upto, crate::palette::INK, false);
-            run.color = None; // the platform's own label color, whatever the appearance is
-            runs.push(run);
-        }
-        *from = upto;
-    };
-    while i < bytes.len() {
-        let rest = &src[i..];
-        // A line comment runs to the newline.
-        if rest.starts_with("//") {
-            let end = rest.find('\n').map(|n| i + n).unwrap_or(src.len());
-            close_gap(&mut runs, i, &mut plain_from);
-            runs.push(colored(i..end, crate::palette::SLATE, true));
-            plain_from = end;
-            i = end;
-            continue;
-        }
-        // A string literal, with escapes.
-        if bytes[i] == b'"' {
-            let mut j = i + 1;
-            while j < bytes.len() {
-                if bytes[j] == b'\\' {
-                    j += 2;
-                    continue;
-                }
-                if bytes[j] == b'"' {
-                    j += 1;
-                    break;
-                }
-                j += 1;
-            }
-            let end = j.min(src.len());
-            close_gap(&mut runs, i, &mut plain_from);
-            runs.push(colored(i..end, crate::palette::TEAL, false));
-            plain_from = end;
-            i = end;
-            continue;
-        }
-        // A word: a keyword, a number, or neither.
-        let ch = src[i..].chars().next().unwrap_or(' ');
-        if ch.is_alphanumeric() || ch == '_' {
-            let end = i + src[i..]
-                .find(|c: char| !(c.is_alphanumeric() || c == '_'))
-                .unwrap_or(src.len() - i);
-            let word = &src[i..end];
-            if KEYWORDS.contains(&word) {
-                close_gap(&mut runs, i, &mut plain_from);
-                let mut run = colored(i..end, crate::palette::VIOLET, false);
-                run.font.weight = Some(FontWeight::Bold);
-                runs.push(run);
-                plain_from = end;
-            } else if word.chars().all(|c| c.is_ascii_digit()) {
-                close_gap(&mut runs, i, &mut plain_from);
-                runs.push(colored(i..end, crate::palette::CORAL, false));
-                plain_from = end;
-            }
-            i = end;
-            continue;
-        }
-        i += ch.len_utf8();
-    }
-    close_gap(&mut runs, src.len(), &mut plain_from);
-    runs
-}
-
-/// A monospaced run in one color: every token this highlighter emits, since a code sample is
-/// monospaced from end to end.
-fn colored(range: std::ops::Range<usize>, color: Color, italic: bool) -> TextRun {
-    let mut style = RunStyle::plain(Font::Body);
-    style.font.monospace = true;
-    style.font.italic = italic;
-    style.color = Some(color);
-    TextRun::styled(range, style)
+    let mut palette = Palette::default();
+    palette.keyword = crate::palette::VIOLET;
+    palette.string = crate::palette::TEAL;
+    palette.number = crate::palette::CORAL;
+    palette.comment = crate::palette::SLATE;
+    highlight(Language::Rust, src, &palette)
 }
