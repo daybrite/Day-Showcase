@@ -369,6 +369,19 @@ enum Group {
 }
 
 impl Group {
+    fn id(self) -> &'static str {
+        match self {
+            Self::Overview => "overview",
+            Self::Controls => "controls",
+            Self::Layout => "layout",
+            Self::Navigation => "navigation",
+            Self::Data => "data",
+            Self::Graphics => "graphics",
+            Self::Platform => "platform",
+            Self::App => "app",
+        }
+    }
+
     /// The header the sidebar shows over the group's first row: a `res::str` accessor, not a
     /// resolved `String`, so it re-resolves on every derive and follows a locale switch.
     fn title(self) -> fn() -> day::LocalizedText {
@@ -804,7 +817,18 @@ fn window_body(primary: bool) -> impl Piece {
     // a third column on a desktop, the pushed middle layer on a phone, collapsed on every other
     // page. Its commands ride the pane, so they come and go with it (docs/toolbars.md).
     let items = pages::content_list::Scene::ambient();
+    let collapsed = Signal::new(
+        day::prefs::get("nav.collapsedSections")
+            .and_then(|s| serde_json::from_str::<std::collections::HashSet<String>>(&s).ok())
+            .unwrap_or_default(),
+    );
     let nav = nav(section)
+        .collapsed_sections(collapsed)
+        .on_section_expansion(move |_, _| {
+            if let Ok(value) = serde_json::to_string(&collapsed.get()) {
+                day::prefs::set("nav.collapsedSections", &value);
+            }
+        })
         .style(NavStyle::Sidebar)
         .title(crate::res::str::app_title())
         .content_list(pages::content_list::item_list_pane)
@@ -909,7 +933,7 @@ fn window_body(primary: bool) -> impl Piece {
                 // The group header rides the group's first row (docs/navigation.md): the
                 // nav opens a section there, and the flat-list toolkits ignore it.
                 let row = match r.header {
-                    Some(h) => row.section(h()),
+                    Some(h) => row.section_id(if starred { "starred" } else { d.group.id() }, h()),
                     None => row,
                 };
                 // The marker itself: the app's star, tinted the color a star is rather

@@ -1,7 +1,7 @@
 name: showcase-tree
 description: >-
-  The Tree page (docs/tree.md) end to end, wherever the piece exists — native (macOS, GTK,
-  iOS) or composed (web, qt, android, arkui, xaml). Disclosure, structure moves, reveal, the
+  The Tree page (docs/tree.md) end to end, wherever the piece exists — native (AppKit, GTK,
+  UIKit, Qt, XAML) or composed (web, android, arkui). Disclosure, structure moves, reveal, the
   move guard's Allow path and the multi-select rebuild all run through the portable
   guard → commit rails, so this script is identical on every target. What it deliberately
   does NOT cover: a real pointer drag, the per-row context menus (native gestures, checked

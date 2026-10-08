@@ -1,0 +1,10 @@
+# Stable group IDs and selected destinations are independent of disclosure.
+flow:
+  - navigate: { route: controls, only_on: [appkit, gtk, qt, xaml, dom] }
+  - expand: { id: nav-sections, row: "sidebar:header:controls", expanded: true, only_on: [appkit, gtk, qt, xaml, dom] }
+  - wait_for: { id: "sidebar:item:controls", only_on: [appkit, gtk, qt, xaml, dom] }
+  - expand: { id: nav-sections, row: "sidebar:header:controls", expanded: false, only_on: [appkit, gtk, qt, xaml, dom] }
+  - assert_missing: { id: "sidebar:item:controls", only_on: [appkit, gtk, qt, xaml, dom] }
+  - assert_route: { route: controls, only_on: [appkit, gtk, qt, xaml, dom] }
+  - expand: { id: nav-sections, row: "sidebar:header:controls", expanded: true, only_on: [appkit, gtk, qt, xaml, dom] }
+  - wait_for: { id: "sidebar:item:controls", only_on: [appkit, gtk, qt, xaml, dom] }
