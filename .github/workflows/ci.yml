@@ -36,6 +36,8 @@ jobs:
       # lock left at an older revision would silently stop testing day at all. The revision is
       # resolved once per run, so every leg compiles the same one. Refresh the lock locally
       # (`cargo update -p day`) when a new framework API lands, so a local build matches.
+      # Publish framework fixes before starting this workflow. To pick up a newer Day revision
+      # afterward, start a fresh run or re-run ALL jobs; failed-jobs-only reuses preflight's SHA.
       update-day-deps: true
       target-packages: |
         windows-winui, windows-xaml: webview2-runtime

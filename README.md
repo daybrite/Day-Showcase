@@ -129,6 +129,19 @@ covers the workflow of changing a `day` crate and its showcase demonstration in 
 day patch --local /path/to/day
 ```
 
+### CI and framework updates
+
+This app's CI uses `update-day-deps: true` in `daybrite/actions`. Preflight resolves the latest
+commit on the Day branch the app tracks, then pins every build in that run to that same commit.
+Local `day patch` overrides are gitignored and do not affect CI.
+
+When changing the framework and Showcase together, publish the framework fix before starting
+Showcase CI. A run already in progress keeps its original Day revision, even if the framework
+branch advances while its builds are running. Check preflight's summary for the chosen revision
+and each build's **Track the day revision preflight resolved** step to confirm what was tested.
+To pick up a newer revision, start a new **ci** run from GitHub Actions, or choose **Re-run all
+jobs** on a completed run. **Re-run failed jobs** reuses the successful preflight's old revision.
+
 ## Inside the code
 
 - `src/lib.rs` is `root()`: the typed-route navigation host and the `Section` list every screen

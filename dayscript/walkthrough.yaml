@@ -687,6 +687,11 @@ flow:
   # leaving the user wherever they happened to be reads as the recording having gone nowhere. The
   # jump is not itself recorded; `record::stop()` unhooks the nav observer before it runs.
   - assert_route: { route: scripting, skip_on: [harmony-arkui, web-dom] }
+  # Two taps have only ONE inter-step delay. At the default 0.25 s, playback can finish
+  # between the Playing assertion and Pause on a loaded runner (android-mdc, light-en).
+  # Give the transport commands headroom through the real setting, then restore it below.
+  - input: { id: scripting-delay, text: "5", skip_on: [harmony-arkui, web-dom] }
+  - wait_idle:
   # Back to the bar for the rest of this section. The transport readout and the two taps the
   # replay below re-dispatches all live on the Toolbars page, so the playback has to run there.
   - navigate: { route: toolbars, skip_on: [harmony-arkui, web-dom] }
@@ -699,11 +704,8 @@ flow:
   - menu: { key: cmd_pause, path: [menu_script], skip_on: [harmony-arkui, web-dom] }
   - wait_idle:
   - assert_text: { id: toolbar-transport, key: toolbar_transport_paused, skip_on: [harmony-arkui, web-dom] }
-  # Resume is not followed by a "Playing" assertion. The replay runs a quarter second per step
-  # (the Scripting page's default delay), one step is left after the pause, and on a loaded CI
-  # simulator (ios-uikit iPad, light-ar) the readout was already back to Idle by the time the
-  # assertion read it. The first Playing assertion above has two steps of headroom; this one had
-  # none. Reaching Idle from Paused below is the proof that the resume ran.
+  # Resume can dispatch the final tap immediately if the inter-step delay elapsed while paused.
+  # Reaching Idle from Paused proves resume ran without racing a transient Playing readout.
   - menu: { key: cmd_resume, path: [menu_script], skip_on: [harmony-arkui, web-dom] }
   - wait_idle:
   # Wait for the replay to end before anything below runs. It re-dispatches the two recorded taps
@@ -712,7 +714,12 @@ flow:
   # `toolbar-query` on macos-appkit and stomped `toolbar-last` on gtk/qt in CI. `wait_idle` cannot
   # cover it: that flushes the reactive drain, while the replay is a timed sequence still to come.
   # This assert is retryable, so it polls until `playing_signal` clears and costs nothing after.
-  - assert_text: { id: toolbar-transport, key: toolbar_transport_idle, skip_on: [harmony-arkui, web-dom] }
+  - assert_text: { id: toolbar-transport, key: toolbar_transport_idle, timeout_secs: 15, skip_on: [harmony-arkui, web-dom] }
+  - navigate: { route: scripting, skip_on: [harmony-arkui, web-dom] }
+  - input: { id: scripting-delay, text: "0.25", skip_on: [harmony-arkui, web-dom] }
+  - wait_idle:
+  - navigate: { route: toolbars, skip_on: [harmony-arkui, web-dom] }
+  - wait_idle:
   # `key:`, not a literal: the search field filters the sidebar on localized titles, so an English
   # query drops every row under `--locale fr` (and with them this very page). Typing a title matches
   # itself: a query is compared against each word start, and the start at 0 is the whole title.
