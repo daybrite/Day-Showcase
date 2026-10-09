@@ -22,6 +22,7 @@ pub(crate) mod map;
 pub(crate) mod media;
 pub(crate) mod menus;
 pub(crate) mod model;
+pub(crate) mod network;
 pub(crate) mod physics;
 pub(crate) mod preferences;
 pub(crate) mod query;
@@ -68,7 +69,7 @@ pub(crate) use preferences::preferences_window;
 pub(crate) use query::query_page;
 pub(crate) use resources::resources_page;
 pub(crate) use scripting::scripting_page;
-pub(crate) use services::{files_page, network_page, notify_page, speech_page};
+pub(crate) use services::{files_page, notify_page, speech_page};
 pub(crate) use split::split_page;
 pub(crate) use stack::stack_page;
 pub(crate) use system::system_page;
@@ -83,3 +84,5 @@ pub(crate) use webview::webview_page;
 
 pub(crate) mod drag_drop;
 pub(crate) use drag_drop::drag_drop_page;
+
+pub(crate) use network::network_page;

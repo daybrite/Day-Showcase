@@ -149,3 +149,20 @@ FTS and geographic filters on that queue, and publishes owned results to the UI.
 perform their read-modify-write on the same queue. `dayscript/query-worker.yaml` checks the
 asynchronous query lifecycle and selection; it waits for row identity when successive searches
 have the same result count. The web Query demo retains its in-memory model.
+
+### Network lab
+
+The Network page has one isolated `day-part-http::Session`. Select Native or the optional
+reqwest provider (enabled in this app on supported native targets), then use the same HTTP or
+WebSocket controls with interception on or off. HTTP supports editable methods, URLs, bodies,
+JSON request headers, idle timeouts, streaming download/upload presets and cancellation.
+The simulation section controls per-transfer speed, seeded failure rate, pause and offline state.
+Desktop uses two columns; narrower windows stack the same controls. An animated chart shows
+real/simulated upload/download payload rates over the last 30 seconds.
+
+Native defaults talk to the in-app loopback server; web HTTP uses the dev server's same-origin
+endpoint. Browser WebSockets require a user-supplied reachable server or the simulated echo.
+The reqwest selector is omitted on browser and HarmonyOS builds. These counters cover only
+this page's HTTP session, not other frameworks or all device traffic. `dayscript/network.yaml`
+exercises native/reqwest HTTP, real and simulated WebSockets, failures and paused cancellation;
+the app CI selects it explicitly.

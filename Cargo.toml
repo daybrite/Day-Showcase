@@ -105,7 +105,7 @@ day-part-local-notify = { git = "https://github.com/daybrite/day.git" }
 # `day::prefs` (docs/prefs.md).
 day-piece-settings = { git = "https://github.com/daybrite/day.git" }
 day-part-deviceinfo = { git = "https://github.com/daybrite/day.git" }
-day-part-http = { git = "https://github.com/daybrite/day.git" }
+day-part-http = { git = "https://github.com/daybrite/day.git", features = ["reqwest"] }
 # The download manager (docs/downloads.md): the Networking page's pausable, resumable download.
 day-part-downloads = { git = "https://github.com/daybrite/day.git" }
 day-part-fs = { git = "https://github.com/daybrite/day.git" }
@@ -127,6 +127,7 @@ day-piece-lottie-gallery = { git = "https://github.com/daybrite/day-piece-lottie
 # string catalog: nothing to wire per backend, and its strings resolve here without being
 # installed. A bare git line, like lottie's; `day patch --local ../day-piece-charts` builds
 # against a checkout.
+day-piece-charts = { git = "https://github.com/daybrite/day-piece-charts.git" }
 day-piece-charts-gallery = { git = "https://github.com/daybrite/day-piece-charts.git" }
 # day-piece-camera renders on iOS, Android and HarmonyOS; the front-end compiles everywhere and
 # `day_piece_camera::support()` decides at run time whether the Camera page is listed. Its own
