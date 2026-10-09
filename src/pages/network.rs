@@ -8,6 +8,46 @@ use day_part_http::{
 use day_piece_charts::{LegendPosition, chart, line, value};
 use std::{cell::RefCell, rc::Rc, time::Duration};
 
+/// Network-page work must stop with its owning scope, so no later poll reads disposed signals.
+fn page_task(future: impl std::future::Future<Output = ()> + 'static) -> day::TaskHandle {
+    let handle = day::task(future);
+    Scope::current().on_cleanup(move || handle.abort());
+    handle
+}
+
+#[cfg(test)]
+mod task_tests {
+    use super::*;
+    use std::cell::Cell;
+
+    #[test]
+    fn leaving_the_scope_cancels_pending_work() {
+        struct PendingWork(Rc<Cell<bool>>);
+        impl Drop for PendingWork {
+            fn drop(&mut self) {
+                self.0.set(true);
+            }
+        }
+        let dropped = Rc::new(Cell::new(false));
+        let scope = Scope::child();
+        let handle = scope.enter(|| {
+            let work = PendingWork(dropped.clone());
+            let signal = Signal::new(true);
+            page_task(async move {
+                let _work = work;
+                assert!(signal.get_untracked());
+                std::future::pending::<()>().await;
+                // This would panic after navigation if the task could resume.
+                assert!(signal.get_untracked());
+            })
+        });
+        assert!(!handle.is_finished());
+        scope.dispose();
+        assert!(handle.is_finished());
+        assert!(dropped.get());
+    }
+}
+
 fn base_url() -> String {
     #[cfg(not(target_arch = "wasm32"))]
     {
@@ -155,7 +195,7 @@ pub(crate) fn network_page() -> AnyPiece {
             st.session.get().set_provider(Provider::Native);
         }
     });
-    day::task(async move {
+    page_task(async move {
         let mut previous = st.session.get_untracked().statistics();
         let mut time = 0.0;
         loop {
@@ -310,7 +350,7 @@ fn request_section(st: Model, base: String) -> impl Piece {
             }
             st.status.set(tr::http_checking().format());
             st.received.set(0);
-            let handle = day::task(async move {
+            let handle = page_task(async move {
                 let method = [
                     Method::Get,
                     Method::Post,
@@ -474,7 +514,7 @@ fn websocket_section(st: Model, base: String) -> impl Piece {
             sender.borrow_mut().take();
             state.set(tr::http_checking().format());
             let slot = sender.clone();
-            let t = day::task(async move {
+            let t = page_task(async move {
                 match st
                     .client
                     .get_untracked()
@@ -509,7 +549,7 @@ fn websocket_section(st: Model, base: String) -> impl Piece {
         move || {
             if let Some(s) = sender.borrow().as_ref() {
                 let socket = s.clone();
-                day::task(async move {
+                page_task(async move {
                     match socket
                         .send_future(day_part_http::Message::Text(text.get_untracked()))
                         .await
