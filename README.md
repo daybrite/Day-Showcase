@@ -104,17 +104,17 @@ target the app ships is listed in `Day.toml`.
 
 ```sh
 day doctor                       # toolchains present and missing, with fixes
-day launch -p macos-appkit       # build + run
-day launch -p ios-uikit          # needs a booted Simulator
-day launch -p android-mdc        # needs a JDK and a running emulator or device
-day launch -p web-dom            # serves the WebAssembly build locally
+day launch -t macos-appkit       # build + run
+day launch -t ios-uikit          # needs a booted Simulator
+day launch -t android-mdc        # needs a JDK and a running emulator or device
+day launch -t web-dom            # serves the WebAssembly build locally
 ```
 
 Run the walkthrough on one target, or the full capture matrix:
 
 ```sh
-day launch -p macos-appkit --script dayscript/walkthrough.yaml
-day launch -p macos-appkit --script dayscript/walkthrough.yaml \
+day launch -t macos-appkit --script dayscript/walkthrough.yaml
+day launch -t macos-appkit --script dayscript/walkthrough.yaml \
   --themes "light dark" --locales "en fr ar zh-CN"
 ```
 
