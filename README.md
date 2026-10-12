@@ -152,7 +152,7 @@ jobs** on a completed run. **Re-run failed jobs** reuses the successful prefligh
 - `resource/locales/` carries the Fluent strings for `en`, `fr`, `ar`, and `zh-CN`.
 - `store/<locale>/` holds the App Store and Google Play copy; `day store stage` generates the
   fastlane trees a release uploads, and `day lint` holds the text to each store's limits.
-- `platform/` holds the thin native host projects the mobile targets build through.
+- `platform/` holds app-owned Apple host sources and any native resource customizations. Day generates the build projects under `build/`.
 
 Day Showcase is open source under the Apache-2.0 license.
 
@@ -179,3 +179,14 @@ The reqwest selector is omitted on browser and HarmonyOS builds. These counters 
 this page's HTTP session, not other frameworks or all device traffic. `dayscript/network.yaml`
 exercises native/reqwest HTTP, real and simulated WebSockets, failures and paused cancellation;
 the app CI selects it explicitly.
+
+
+## Generated native projects
+
+Use a Day CLI with automatic native project generation; Apple builds require **Xcode 27
+or newer**. Xcode project documents, Android Gradle files, and HarmonyOS hvigor files are
+created under `build/` by `day prepare`, `day build`, and `day launch`. Open the selected
+project with `day open -t <target>`; edits to generated files are disposable. Apple Swift
+sources, plists and `.xcconfig` files, and any Android resource overlays, remain app-owned
+under `platform/`. For additional native configuration, use
+`day project add-target <target> --persist-native-project` to create a persistent override.
