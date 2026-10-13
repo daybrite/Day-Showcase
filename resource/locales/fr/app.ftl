@@ -338,6 +338,12 @@ sound_volume = Volume
 sound_last = Dernier joué
 sound_none = Rien joué pour l'instant
 sound_last_played = Joué : { $clip }
+sound_loop_caption = Un son qui se répète jusqu'à ce qu'on l'arrête.
+sound_loop = Bourdonnement en boucle
+sound_loop_volume = Volume de la boucle
+sound_looping = En boucle
+sound_looping_none = Rien en boucle
+sound_looping_clip = En boucle : { $clip }
 
 # --- day-part-prefs ---
 nav_prefs = Préférences

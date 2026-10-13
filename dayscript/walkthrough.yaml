@@ -1550,6 +1550,16 @@ flow:
   - assert_text: { id: sound-last-played, key: sound_last_played, args: { clip: "sounds/click.wav" } }
   - tap: { id: sound-right }
   - assert_text: { id: sound-last-played, key: sound_last_played, args: { clip: "sounds/glass.wav" } }
+  # A loop sounds until its switch goes off. `#sound-looping` shows the part's own list of what
+  # is looping, which it keeps, like the record of plays, with or without speakers.
+  - scroll_to: { id: sound-looping }
+  - assert_text: { id: sound-looping, key: sound_looping_none }
+  - toggle: { id: sound-loop, value: true }
+  - assert_text: { id: sound-looping, key: sound_looping_clip, args: { clip: "sounds/hum.wav" } }
+  - set_value: { id: sound-loop-volume, value: 0.25 }
+  - assert_text: { id: sound-looping, key: sound_looping_clip, args: { clip: "sounds/hum.wav" } }
+  - toggle: { id: sound-loop, value: false }
+  - assert_text: { id: sound-looping, key: sound_looping_none }
   - scroll_to: { id: haptics-medium }
   - tap: { id: haptics-medium }
   # `#haptics-last-played` is `tr("haptics-last-played")`, a localized string, so assert by

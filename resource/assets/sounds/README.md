@@ -18,3 +18,8 @@ leading and trailing silence trimmed.
 | glass | [Impact Sounds](https://kenney.nl/assets/impact-sounds) 1.0 | impactGlass_medium_000 |
 | card | [Casino Audio](https://kenney.nl/assets/casino-audio) 1.1 | card-place-4 |
 | jingle | [Music Jingles](https://kenney.nl/assets/music-jingles) | Steel jingles/jingles_STEEL02 |
+
+`hum.wav` is the clip the page loops, and it is ours: `scripts/sound-hum.py` synthesizes it (an A
+major chord with a slow tremolo). A loop repeats from its last sample straight to its first, so
+the clip is one second of whole cycles with no fade at either end. Rebuild it with
+`python3 scripts/sound-hum.py`.

@@ -339,6 +339,12 @@ sound_volume = Volume
 sound_last = Last played
 sound_none = Nothing played yet
 sound_last_played = Played: { $clip }
+sound_loop_caption = A clip that repeats until it is stopped.
+sound_loop = Loop a hum
+sound_loop_volume = Loop volume
+sound_looping = Looping
+sound_looping_none = Nothing looping
+sound_looping_clip = Looping: { $clip }
 
 # --- day-part-prefs ---
 nav_prefs = Preferences

@@ -333,6 +333,12 @@ sound_volume = 音量
 sound_last = 最近播放
 sound_none = 尚未播放
 sound_last_played = 已播放：{ $clip }
+sound_loop_caption = 一段不断重复直到被停止的声音。
+sound_loop = 循环播放嗡鸣
+sound_loop_volume = 循环音量
+sound_looping = 正在循环
+sound_looping_none = 没有循环
+sound_looping_clip = 正在循环：{ $clip }
 
 # --- day-part-prefs ---
 nav_prefs = 偏好设置

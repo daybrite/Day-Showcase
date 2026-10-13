@@ -1,3 +1,6 @@
+use std::cell::RefCell;
+use std::rc::Rc;
+
 use day::prelude::*;
 use day_part_haptics::Haptic;
 use day_part_local_notify::{Channel, Importance, Notification, Trigger};
@@ -250,8 +253,8 @@ fn sound_button(
         .grow_w()
 }
 
-/// Sound effects: six bundled clips, one clip panned across the stereo field, and the master
-/// volume every play is scaled by.
+/// Sound effects: six bundled clips, one clip panned across the stereo field, the master volume
+/// every play is scaled by, and a clip that loops until its switch goes off.
 fn sound_section() -> impl Piece {
     use crate::res::assets::sounds;
     let last = Signal::new(crate::res::str::sound_none().format());
@@ -265,7 +268,43 @@ fn sound_section() -> impl Piece {
         sounds::glass_wav,
         sounds::card_wav,
         sounds::jingle_wav,
+        sounds::hum_wav,
     ]);
+
+    // A loop sounds for as long as its `Loop` handle lives (docs/sound.md "Loops"): the switch
+    // makes the handle and drops it, the slider retunes it, and leaving the page drops it too.
+    let looping = Signal::new(false);
+    let loop_volume = Signal::new(0.5);
+    let looping_now = Signal::new(crate::res::str::sound_looping_none().format());
+    let hum: Rc<RefCell<Option<day_part_sound::Loop>>> = Rc::new(RefCell::new(None));
+    Effect::new({
+        let hum = hum.clone();
+        move || {
+            if !looping.get() {
+                hum.borrow_mut().take();
+            } else if hum.borrow().is_none() {
+                let level = loop_volume.get_untracked() as f32;
+                *hum.borrow_mut() =
+                    Some(day_part_sound::play_loop(&sounds::hum_wav, Play::at(level)));
+            }
+            // What the part says is looping rather than what the switch asked for, so the
+            // readout proves the call arrived.
+            looping_now.set(match day_part_sound::loops().pop() {
+                Some(clip) => crate::res::str::sound_looping_clip(clip).format(),
+                None => crate::res::str::sound_looping_none().format(),
+            });
+        }
+    });
+    Effect::new({
+        let hum = hum.clone();
+        move || {
+            let level = loop_volume.get() as f32;
+            if let Some(hum) = hum.borrow().as_ref() {
+                hum.set_volume(level);
+            }
+        }
+    });
+    Scope::current().on_cleanup(move || drop(hum.borrow_mut().take()));
     let clip = |id, title, clip| sound_button(id, title, clip, 0.0, last);
     let panned = |id, title, pan| sound_button(id, title, sounds::glass_wav, pan, last);
     section((
@@ -322,6 +361,19 @@ fn sound_section() -> impl Piece {
         labeled(
             crate::res::str::sound_last(),
             label(move || last.get()).id("sound-last-played"),
+        ),
+        label(crate::res::str::sound_loop_caption()).font(Font::Footnote),
+        labeled(
+            crate::res::str::sound_loop(),
+            toggle(looping).id("sound-loop"),
+        ),
+        labeled(
+            crate::res::str::sound_loop_volume(),
+            slider(loop_volume).range(0.0..=1.0).id("sound-loop-volume"),
+        ),
+        labeled(
+            crate::res::str::sound_looping(),
+            label(move || looping_now.get()).id("sound-looping"),
         ),
     ))
     .title(crate::res::str::nav_sound())

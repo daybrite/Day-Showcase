@@ -345,6 +345,12 @@ sound_volume = مستوى الصوت
 sound_last = آخر تشغيل
 sound_none = لم يُشغَّل شيء بعد
 sound_last_played = شُغِّل: { $clip }
+sound_loop_caption = مقطع يتكرر إلى أن يُوقَف.
+sound_loop = تكرار طنين
+sound_loop_volume = مستوى صوت التكرار
+sound_looping = قيد التكرار
+sound_looping_none = لا شيء يتكرر
+sound_looping_clip = يتكرر: { $clip }
 
 # --- day-part-prefs ---
 nav_prefs = التفضيلات
