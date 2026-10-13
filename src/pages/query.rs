@@ -4,6 +4,8 @@
 
 use day::model::Op;
 use day::prelude::*;
+#[cfg(not(target_arch = "wasm32"))]
+use day_persistence::prelude::*;
 use day_piece_searchfield::search_field;
 
 use crate::widgets::heading;
@@ -73,8 +75,9 @@ fn seed() -> Keyed<Track> {
 #[cfg(not(target_arch = "wasm32"))]
 mod engine {
     use super::{Track, TrackFields, seed};
-    use day::persistence::{DatabaseWorker, DbError, Fetch};
     use day::prelude::*;
+    use day_persistence::prelude::*;
+    use day_persistence::{DatabaseWorker, DbError, Fetch};
     use std::{cell::RefCell, rc::Rc};
 
     #[derive(Clone)]
@@ -159,7 +162,7 @@ mod engine {
             }
             if viewport.get() {
                 let min = lat_min.get();
-                fetch = fetch.filter(Track::geo().within(day::persistence::GeoRect {
+                fetch = fetch.filter(Track::geo().within(day_persistence::GeoRect {
                     min_lat: min,
                     max_lat: min + 15.0,
                     min_lon: 0.0,
