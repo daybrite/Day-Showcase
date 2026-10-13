@@ -6,26 +6,24 @@
 Cargo.lock
 
 # day build outputs: per-target cargo dirs, staged assets, jniLibs, screenshots, dist artifacts,
-# and the gradle/xcodebuild/hvigor outputs under the platform scaffolds
+# and the Xcode, Gradle and hvigor host projects Day generates (with what their tools write
+# inside them). platform/ holds only app-owned sources and overlays.
 build/
 
 # Machine-local: `day patch --local <day-checkout>` writes this to build against a checkout
 # instead of the git dependency. CI has no such file and resolves git.
 /.cargo/config.toml
 
-# Gradle local state (the android scaffold is source; its caches are not)
-.gradle/
-local.properties
-
 # SwiftPM build products of the app's own Swift package (docs/swiftui.md); `day build` compiles
 # it via the generated DayPieces package, `swift test` uses this local scratch.
 swiftui/.build/
 
-# Xcode local state (DayApp.xcodeproj itself is hand-written source; do not ignore it)
+# Xcode local state. A persistent override project under platform/ (`day project add-target
+# --persist-native-project`) is source; what Xcode writes inside it is not: project.xcworkspace
+# holds the SwiftPM resolution for the pieces package day generates under build/, and cannot be
+# relocated out of the project.
 xcuserdata/
 DerivedData/
-# Xcode writes SwiftPM bookkeeping inside the .xcodeproj the first time it resolves packages.
-# It is regenerated state, and project.xcworkspace cannot be relocated out of the project.
 **/*.xcodeproj/project.xcworkspace/
 
 # Per-checkout Xcode settings: each platform/<p>/DayApp.xcconfig ends with an optional
@@ -47,8 +45,3 @@ website/gallery-manifest.json
 # The same pair again under each extra build channel's own directory (website/main/).
 website/*/appindex.json
 website/*/gallery-manifest.json
-
-# HarmonyOS reads its icon media from a fixed place under each module, so `day prepare`
-# links these two directories to the generated set under build/day/host/harmony/media.
-/platform/harmony/entry/src/main/resources/base/media
-/platform/harmony/AppScope/resources/base/media

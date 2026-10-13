@@ -25,7 +25,7 @@
 			<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>dayshowcase</string>
+				<string>$(DAY_URL_SCHEME)</string>
 			</array>
 		</dict>
 	</array>
@@ -58,13 +58,13 @@
 	<array>
 		<dict>
 			<key>UIApplicationShortcutItemType</key>
-			<string>dayshowcase://menus</string>
+			<string>$(DAY_URL_SCHEME)://menus</string>
 			<key>UIApplicationShortcutItemTitle</key>
 			<string>Menus &amp; dialogs</string>
 		</dict>
 		<dict>
 			<key>UIApplicationShortcutItemType</key>
-			<string>dayshowcase://localization</string>
+			<string>$(DAY_URL_SCHEME)://localization</string>
 			<key>UIApplicationShortcutItemTitle</key>
 			<string>Localization</string>
 		</dict>
