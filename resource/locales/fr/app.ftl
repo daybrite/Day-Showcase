@@ -1069,26 +1069,15 @@ vectors_tint_idioms = Deux sélecteurs de couleur, une seule couleur liée : le 
 # La page Liste de contenu (src/pages/content_list) : la liste et l'éditeur du modèle `day new`,
 # donc les clés ci-dessous sont celles du modèle, telles quelles ; le code copié les lit par nom.
 nav_content_list = Liste de contenu
-nav_navigate = Naviguer
+nav_items = Éléments
 cmd_add = Nouvel élément
 cmd_delete = Supprimer
-cmd_done = Terminé
-cmd_show_done = Afficher les terminés
-item_none = Sélectionnez un élément
-item_kind_note = Note
-item_kind_task = Tâche
-item_kind_idea = Idée
-section_basics = Général
-section_details = Détails
-section_notes = Notes
+items_empty = Aucun élément pour le moment. Ajoutez votre premier élément.
+item_none = Sélectionnez un élément à modifier.
+item_untitled = Sans titre
 field_name = Nom
 field_name_hint = Nommez cet élément…
-field_count = Quantité
-field_date = Date
-field_kind = Type
 field_done = Terminé
-field_rating = Note
-field_color = Couleur
 
 # La page Curseurs (day/docs/cursor.md) : le décorateur `.cursor()`, forme par forme.
 # La page Partage (day/docs/split.md) : deux volets, un séparateur, un même état lu des deux côtés.

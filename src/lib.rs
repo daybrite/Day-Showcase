@@ -776,7 +776,7 @@ fn window_root(primary: bool) -> impl Piece {
     // this window. What one process has one of (the logs, the SQLite container, the model
     // store, the persisted preferences) stays app-wide behind `Ambient::app`.
     Scene::scoped(move |_scene| {
-        // The Content List page's document, filter and selection: the scaffold's own `Scene`,
+        // The Content List page's document and selection: the scaffold's own `Scene`,
         // one per window like the showcase's, saved by the primary window only
         // (src/pages/content_list/model.rs).
         pages::content_list::Scene::scoped(move |items| {
@@ -838,14 +838,7 @@ fn window_body(primary: bool) -> impl Piece {
         // The pushed detail's bar title on a phone: the open item's name on the Content List
         // page (live, as the scaffold titles its editor), the section's own title elsewhere.
         .detail_title(move || match section.get() {
-            // The open item's name, live; the section's own title while nothing is open (the
-            // scaffold's fallback names its section, which is not this app's).
-            Some(Section::ContentList) => {
-                match items.selected.get().and_then(|id| items.find(id)) {
-                    Some(item) if !item.name.is_empty() => item.name,
-                    _ => crate::res::str::nav_content_list().format(),
-                }
-            }
+            Some(Section::ContentList) => pages::content_list::detail_title(items),
             Some(sec) => destinations()
                 .into_iter()
                 .find(|d| d.section == sec)

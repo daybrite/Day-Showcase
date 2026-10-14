@@ -101,17 +101,12 @@ fn build_app_menu() -> Vec<MenuEntry> {
                 menu_role(MenuRole::Paste),
                 menu_role(MenuRole::SelectAll),
                 menu_separator(),
-                // The Content List page's row commands, as the scaffold's Edit menu carries
-                // them (src/pages/content_list): they act on the front window's open item, and
-                // do nothing when that window has none open.
+                // The Content List page's row command, as the scaffold's Edit menu carries it
+                // (src/pages/content_list): it acts on the front window's open item, and does
+                // nothing when that window has none open.
                 menu_item(crate::res::str::cmd_delete().format()).action(|| {
                     if let Some(items) = crate::pages::content_list::Scene::focused() {
                         items.delete_selected();
-                    }
-                }),
-                menu_item(crate::res::str::cmd_done().format()).action(|| {
-                    if let Some(items) = crate::pages::content_list::Scene::focused() {
-                        items.done_selected();
                     }
                 }),
             ],

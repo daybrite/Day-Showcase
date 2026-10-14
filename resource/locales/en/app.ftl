@@ -1076,26 +1076,15 @@ vectors_tint_idioms = Two color wells, one bound color: the first opens the plat
 # The Content List page (src/pages/content_list): the `day new` scaffold's own item list and
 # editor, so the keys below are the scaffold's, verbatim; the copied code reads them by name.
 nav_content_list = Content list
-nav_navigate = Navigate
+nav_items = Items
 cmd_add = New Item
 cmd_delete = Delete
-cmd_done = Done
-cmd_show_done = Show Finished
-item_none = Select an item
-item_kind_note = Note
-item_kind_task = Task
-item_kind_idea = Idea
-section_basics = Basics
-section_details = Details
-section_notes = Notes
+items_empty = No items yet. Add your first item.
+item_none = Select an item to edit.
+item_untitled = Untitled
 field_name = Name
 field_name_hint = Name this item…
-field_count = Count
-field_date = Date
-field_kind = Kind
 field_done = Done
-field_rating = Rating
-field_color = Color
 
 # The Split page (day/docs/split.md): two panes, a divider, one state read from both sides.
 nav_split = Split
