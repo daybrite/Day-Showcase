@@ -367,11 +367,17 @@ fn install_settings() -> day_piece_settings::Prefs {
     use day_piece_settings::{About, Group, Preferences, general_group, rows};
     // The platform identity, read once (day-part-deviceinfo; values vary per host).
     let d = day_part_deviceinfo::get();
+    // XAML's 240-point navigation pane needs room beside the settings cards.
+    let window_width = if cfg!(any(feature = "xaml", feature = "winui")) {
+        760.0
+    } else {
+        520.0
+    };
     let prefs = Preferences::new()
         // The window title the showcase has always used for this surface, and its size: the
         // height is a ceiling, the panel fits each page.
         .title(res::str::prefs_window_title())
-        .window_size(520.0, 420.0)
+        .window_size(window_width, 420.0)
         .about(
             // Name, version and build from Day.toml via `day build`; the identity hero the About
             // page showed (the vector mark, the blurb, the site) is the About's own content now,
@@ -383,7 +389,7 @@ fn install_settings() -> day_piece_settings::Prefs {
         )
         // Appearance (`theme-picker`, where the toolkit honors an override) and Language
         // (`language-picker`), from Day's catalog.
-        .group(general_group(res::locales::ALL))
+        .group(general_group(res::locales::ALL).icon(res::vectors::nav_settings))
         .group(
             Group::new("catalog", res::str::settings_catalog())
                 .icon(res::vectors::star)
@@ -410,7 +416,7 @@ fn install_settings() -> day_piece_settings::Prefs {
             // on: the native toolkit compiled into the binary, the OS and device, the bundle id,
             // the active locale and the most recent app-lifecycle phase (docs/lifecycle.md).
             Group::new("diagnostics", res::str::settings_diagnostics())
-                .icon(Symbol::Info)
+                .icon(res::vectors::nav_about)
                 .subtitle(res::str::settings_diagnostics_subtitle())
                 .row(
                     rows::info(res::str::about_toolkit(), day::toolkit_name().to_string())
