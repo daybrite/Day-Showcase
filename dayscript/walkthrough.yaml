@@ -1797,7 +1797,7 @@ flow:
   # are read from the piece crates' backend arms and will be corrected by the first CI run that
   # disagrees; the failure names the kind.
   - assert_no_placeholders:
-      only_on: [macos-appkit, linux-gtk, linux-qt, macos-qt, windows-xaml]
+      only_on: [macos-appkit, linux-gtk, linux-qt, macos-qt, windows-xaml, windows-winui]
       allow: []
   # Android ships no color chooser in the framework, in Material, or in AndroidX, so the Resources
   # page's `.native()` well has nothing to realize and draws the placeholder, with a banner beside

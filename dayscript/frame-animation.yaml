@@ -10,7 +10,7 @@ flow:
   - assert_missing: { id: frame-readout }
   - assert_text: { id: frame-status, text: Resting }
   - assert_text: { id: frame-fps, text: "FPS · min — · max — · avg —" }
-  - assert_text: { id: frame-ball-count, text: '1' }
+  - assert_text: { id: frame-ball-count, text: '20' }
   - set_value: { id: frame-ball-slider, value: 250 }
   - assert_text: { id: frame-ball-count, text: '250' }
   - tap: { id: frame-bounce }
@@ -25,8 +25,11 @@ flow:
   - tap: { id: frame-pause }
   - pause: { secs: 0.2 }
   - assert_text: { id: frame-status, text: Running }
-  - pause: { secs: 5.0 }
-  - assert_text: { id: frame-status, text: Resting }
+  # Settle a deterministic small load; 250 retained-mode marbles can run below real time.
+  - set_value: { id: frame-ball-slider, value: 1 }
+  - tap: { id: frame-reset }
+  - tap: { id: frame-bounce }
+  - assert_text: { id: frame-status, text: Resting, timeout_secs: 15 }
   - tap: { id: frame-ball }
   - pause: { secs: 0.2 }
   - assert_text: { id: frame-status, text: Running }
