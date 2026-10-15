@@ -21,12 +21,15 @@ flow:
   # ---------------------------------------------------------------------------------------------
 
   # Leaving via a route the stack doesn't own falls through to the enclosing nav host.
+  # The page is the app's About as day-piece-settings composes it (docs/settings.md): the name
+  # and version come from Day.toml through `day build`, so a bare cargo build has no
+  # `about-version` to find. The build and platform facts the page used to list are the
+  # Settings window's Diagnostics group now (asserted with the settings steps below).
   - navigate: { route: about }
   - assert_route: { route: about }
-  - assert_visible: { id: about-text }
+  - assert_visible: { id: about-page }
+  - assert_visible: { id: about-name }
   - assert_visible: { id: about-version }
-  - assert_visible: { id: about-toolkit }
-  - assert_visible: { id: about-lifecycle }
   - screenshot:
       name: about
       title: { en: "About", fr: "À propos", ar: "حول", zh-CN: "关于" }
@@ -623,20 +626,42 @@ flow:
   # (docs/menus.md), with no native menu automation involved.
   - menu: { key: menu_open }
 
-  # Preferences (docs/windows.md): the registered Settings…/⌘, action opens the singleton
-  # preferences window: a real OS window on desktop, a fullscreen cover where the backend
-  # has no secondary windows; the same ids resolve either way. The language picker is
-  # universal; the theme picker is Cap::Appearance-gated and asserted in the desktop
-  # windows script instead. Close runs the async confirm → teardown path.
-  - menu: { key: day-preferences }
-  - wait_for: { id: prefs-title }
-  - assert_visible: { id: language-picker }
+  # Settings (docs/settings.md): the shared surface, a window the App menu's Settings…/⌘,
+  # opens on a desktop and a section of the sidebar on the phones, HarmonyOS and the web.
+  # `settings` reaches the General page on a desktop and the root list on a phone, where
+  # `settings/general` pushes the page; the language picker is universal, the theme picker is
+  # Cap::Appearance-gated and asserted in the desktop windows script instead.
+  - navigate: { route: settings }
+  - navigate: { route: settings/general, only_on: [uikit, mdc, arkui, dom] }
+  - wait_for: { id: language-picker }
   - screenshot:
       name: preferences
       window: day.preferences
-      title: { en: "Menus & dialogs · preferences window", fr: "Menus et dialogues · fenêtre des préférences", ar: "القوائم والحوارات · نافذة التفضيلات", zh-CN: "菜单与对话框 · 偏好设置窗口" }
-      source: src/pages/preferences.rs
-  - close_window: { window: day.preferences }
+      skip_on: [uikit, mdc, arkui, dom]
+      title: { en: "Menus & dialogs · settings window", fr: "Menus et dialogues · fenêtre des réglages", ar: "القوائم والحوارات · نافذة الإعدادات", zh-CN: "菜单与对话框 · 设置窗口" }
+      source: src/lib.rs
+  - screenshot:
+      name: preferences
+      only_on: [uikit, mdc, arkui, dom]
+      title: { en: "Menus & dialogs · settings", fr: "Menus et dialogues · réglages", ar: "القوائم والحوارات · الإعدادات", zh-CN: "菜单与对话框 · 设置" }
+      source: src/lib.rs
+  # Diagnostics: the toolkit compiled into the binary, the OS and device, the app id, the live
+  # locale and the latest lifecycle phase (docs/lifecycle.md), on their own group page. The
+  # route selects the window's tab on a desktop and pushes the page on a phone. Close runs the
+  # async confirm → teardown path where the surface is a window.
+  - navigate: { route: settings/diagnostics }
+  - wait_for: { id: about-toolkit }
+  - assert_visible: { id: about-lifecycle }
+  - screenshot: { name: diagnostics, window: day.preferences, skip_on: [uikit, mdc, arkui, dom] }
+  - screenshot: { name: diagnostics, only_on: [uikit, mdc, arkui, dom] }
+  # web-dom presents the settings surface as a cover window (docs/settings.md, the emulated
+  # app menu reaches it), so it closes like the desktop window: a cover left up would keep
+  # the focus, and the toolbar commands below would resolve their per-window state in it.
+  - close_window: { window: day.preferences, skip_on: [uikit, mdc, arkui] }
+  # Pop the group page where it was pushed, so the settings stack sits at its root and the
+  # next section's route reads clean.
+  - nav_back: { only_on: [uikit, mdc, arkui] }
+  - wait_idle: { only_on: [uikit, mdc, arkui] }
 
   # Toolbars (docs/toolbars.md): the main window's toolbar, so the assertions read the
   # page's live bindings rather than any on-page widget. `toolbar:` drives an item through the

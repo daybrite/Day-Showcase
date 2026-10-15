@@ -505,9 +505,15 @@ image_mode_fill = Remplir
 image_mode_stretch = Étirer
 resources_data_section = Données embarquées
 
-# Page À propos
-about_app_section = Cette app
-about_version = Version
+# Réglages (docs/settings.md) : les groupes Catalogue et Diagnostic à côté du groupe Général de Day.
+# Les libellés de la fenêtre À propos (Version, Site web) et du groupe Général viennent du catalogue de Day.
+settings_catalog = Catalogue
+settings_catalog_subtitle = Pages favorites
+settings_starred_count = Pages favorites
+settings_clear_starred = Effacer les favoris
+settings_clear_starred_confirm = Retirer l’étoile de toutes les pages ?
+settings_diagnostics = Diagnostic
+settings_diagnostics_subtitle = Boîte à outils, système, langue
 about_toolkit = Boîte à outils
 about_id = Identifiant
 about_os = Système

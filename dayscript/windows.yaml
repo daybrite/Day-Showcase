@@ -13,9 +13,9 @@ flow:
   - pause: 0.5
   - screenshot: two-windows
 
-  # The preferences singleton: reopening focuses instead of duplicating.
+  # The settings singleton (docs/settings.md): reopening focuses instead of duplicating.
   - menu: { key: day-preferences }
-  - wait_for: { id: prefs-title }
+  - wait_for: { id: language-picker }
   - menu: { key: day-preferences }
   - assert_visible: { id: language-picker }
   - screenshot: { name: prefs-window, window: day.preferences }

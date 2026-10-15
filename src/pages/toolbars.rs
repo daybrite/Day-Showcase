@@ -50,7 +50,7 @@ fn appearance_item(mode: Signal<usize>) -> ToolbarEntry {
         // The control has already written the chosen index into `mode`; turn it into the app's
         // setting. The mirroring effect in `install` writes the index back, which is a no-op when
         // it agrees, and the backends suppress their own programmatic echo, so it stays one hop.
-        crate::commands::set_appearance(crate::commands::Appearance::from_index(
+        crate::commands::set_appearance(crate::commands::appearance_from_index(
             mode.get_untracked(),
         ));
     })
@@ -71,7 +71,9 @@ impl Ambient for ToolbarDemo {
             extra: Signal::new(false),
             source_enabled: Signal::new(true),
             last: Signal::new(String::new()),
-            theme: Signal::new(crate::commands::Appearance::System.index()),
+            theme: Signal::new(crate::commands::appearance_index(
+                crate::commands::Appearance::System,
+            )),
         }
     }
 }
@@ -115,7 +117,11 @@ pub(crate) fn window_items() -> impl Fn() -> Vec<ToolbarEntry> + 'static {
     // The appearance group: the control follows the setting (commands.rs).
     // So a mode chosen from the App menu presses the right button here, and pressing the mode
     // already on writes the same value back rather than turning the group off.
-    Effect::new(move || s.theme.set(crate::commands::appearance().index()));
+    Effect::new(move || {
+        s.theme.set(crate::commands::appearance_index(
+            crate::commands::appearance(),
+        ))
+    });
 
     // The window's own commands: New Window, and the appearance picker. Both act on the app
     // rather than on any one page, so they are declared where the window is

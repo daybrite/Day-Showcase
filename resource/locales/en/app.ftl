@@ -506,9 +506,15 @@ image_mode_fill = Fill
 image_mode_stretch = Stretch
 resources_data_section = Data assets
 
-# About page
-about_app_section = This app
-about_version = Version
+# Settings (docs/settings.md): the Catalog and Diagnostics groups beside Day's General group.
+# The About's labels (Version, Website) and the General group's come from Day's own catalog.
+settings_catalog = Catalog
+settings_catalog_subtitle = Starred pages
+settings_starred_count = Starred pages
+settings_clear_starred = Clear Starred
+settings_clear_starred_confirm = Remove the star from every page?
+settings_diagnostics = Diagnostics
+settings_diagnostics_subtitle = Toolkit, OS, locale
 about_toolkit = Toolkit
 about_id = App ID
 about_os = OS
@@ -835,7 +841,7 @@ storage_delete = Delete
 storage_files_label = Stored files
 storage_idle = Nothing stored yet
 
-# --- Preferences window (docs/windows.md) ---
+# --- The Settings surface's title (docs/settings.md): the window on a desktop, the section on a phone ---
 prefs_window_title = Preferences
 
 # --- Tree page (docs/tree.md) ---

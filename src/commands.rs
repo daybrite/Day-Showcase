@@ -73,6 +73,16 @@ pub(crate) fn toggle_star(section: Section) {
     });
 }
 
+/// How many pages are starred. A tracked read, for the Settings window's Catalog group.
+pub(crate) fn starred_count() -> usize {
+    starred().with(|s| s.split(',').filter(|k| !k.is_empty()).count())
+}
+
+/// Unstar every page: the Catalog group's one destructive command, confirmed first there.
+pub(crate) fn clear_starred() {
+    starred().set(String::new());
+}
+
 /// The route the star commands act on: whichever page is showing.
 ///
 /// Falls back to About when the route is empty, exactly as `show_source` does: the desktop
@@ -188,123 +198,57 @@ pub(crate) fn screenshot() -> CommandHandle {
 
 // ── Appearance ──────────────────────────────────────────────────────────────────────────────
 //
-// Three commands over one persisted setting, so the toolbar's button group, the View ▸ Appearance
-// menu and the Preferences window can never disagree about which mode is on.
+// Three commands over one persisted setting, Day's own `APPEARANCE` pref (docs/settings.md), so
+// the toolbar's button group, the View ▸ Appearance menu and the Settings window's Appearance
+// row can never disagree about which mode is on: every surface reads and writes the one key,
+// and day-piece-settings applies each change to the running app (`wire_general`), honoring the
+// launch env (`DAY_THEME`) at boot.
 
 /// Which appearance the app is asking for. `System` is the absence of an override.
-#[derive(Clone, Copy, PartialEq, Eq)]
-pub(crate) enum Appearance {
-    Light,
-    System,
-    Dark,
-}
+pub(crate) use day_piece_settings::Appearance;
 
-impl Appearance {
-    /// The persisted form. A stable key, not a display string, so it outlives translations.
-    fn key(self) -> &'static str {
-        match self {
-            Appearance::Light => "light",
-            Appearance::System => "system",
-            Appearance::Dark => "dark",
-        }
-    }
-    /// Its position in the toolbar's segmented control: light, system, dark, left to right.
-    pub(crate) fn index(self) -> usize {
-        match self {
-            Appearance::Light => 0,
-            Appearance::System => 1,
-            Appearance::Dark => 2,
-        }
-    }
-    /// The mode a segment index chose. Out of range is `System`, the neutral one.
-    pub(crate) fn from_index(i: usize) -> Appearance {
-        match i {
-            0 => Appearance::Light,
-            2 => Appearance::Dark,
-            _ => Appearance::System,
-        }
-    }
-    fn from_key(s: &str) -> Appearance {
-        match s {
-            "light" => Appearance::Light,
-            "dark" => Appearance::Dark,
-            _ => Appearance::System,
-        }
-    }
-    /// What `day::set_appearance` takes: an override, or `None` to follow the system.
-    fn override_dark(self) -> Option<bool> {
-        match self {
-            Appearance::Light => Some(false),
-            Appearance::Dark => Some(true),
-            Appearance::System => None,
-        }
-    }
-    fn title(self) -> day::LocalizedText {
-        match self {
-            Appearance::Light => crate::res::str::cmd_appearance_light(),
-            Appearance::System => crate::res::str::cmd_appearance_system(),
-            Appearance::Dark => crate::res::str::cmd_appearance_dark(),
-        }
-    }
-    fn id(self) -> &'static str {
-        match self {
-            Appearance::Light => "cmd-appearance-light",
-            Appearance::System => "cmd-appearance-system",
-            Appearance::Dark => "cmd-appearance-dark",
-        }
+/// A mode's position in the toolbar's segmented control: light, system, dark, left to right.
+pub(crate) fn appearance_index(mode: Appearance) -> usize {
+    match mode {
+        Appearance::Light => 0,
+        Appearance::System => 1,
+        Appearance::Dark => 2,
     }
 }
 
-/// The persisted appearance setting, app-wide (docs/state.md): it drives
-/// `day::set_appearance`, a process-level override, so it is the app's choice not a window's.
-#[derive(Clone, Copy)]
-struct AppearanceSetting(Signal<String>);
-
-impl Ambient for AppearanceSetting {
-    fn create() -> Self {
-        let s = Signal::new(Appearance::System.key().to_string());
-        day::prefs::bind("showcase.appearance", s);
-        // The boot run (the Effect fires once at creation) applies only a restored
-        // user choice. With no stored pref there is nothing to apply: the default is
-        // System, and applying `None` anyway would clear whatever the launch already
-        // established: a forced `DAY_THEME` (day-appkit applies it as the NSApp
-        // override at startup; the env wins over persistence, day-piece-settings'
-        // `apply_startup` rule) or the Preferences window's own `showcase.theme`
-        // setting, which `apply_startup` applied just before this menu builds.
-        // `prefs::bind` restores synchronously above, so the first run is the only
-        // non-user one; a pick after boot always applies, because user intent beats the
-        // environment once the app runs.
-        let forced = std::env::var("DAY_THEME").is_ok();
-        let stored = day::prefs::get("showcase.appearance").is_some();
-        let booted = std::cell::Cell::new(false);
-        Effect::new(move || {
-            let dark = Appearance::from_key(&s.get()).override_dark();
-            if !booted.replace(true) && (forced || !stored) {
-                return;
-            }
-            day::set_appearance(dark);
-        });
-        AppearanceSetting(s)
+/// The mode a segment index chose. Out of range is `System`, the neutral one.
+pub(crate) fn appearance_from_index(i: usize) -> Appearance {
+    match i {
+        0 => Appearance::Light,
+        2 => Appearance::Dark,
+        _ => Appearance::System,
     }
 }
 
-/// The persisted appearance setting, applied to the running app whenever it changes.
-///
-/// The `Effect` is what makes this one setting rather than three buttons that each call
-/// `set_appearance`: whoever writes the signal (a toolbar toggle, a menu item, a restored
-/// preference), the override lands the same way.
-fn appearance_signal() -> Signal<String> {
-    AppearanceSetting::app().0
+fn appearance_title(mode: Appearance) -> day::LocalizedText {
+    match mode {
+        Appearance::Light => crate::res::str::cmd_appearance_light(),
+        Appearance::System => crate::res::str::cmd_appearance_system(),
+        Appearance::Dark => crate::res::str::cmd_appearance_dark(),
+    }
+}
+
+fn appearance_id(mode: Appearance) -> &'static str {
+    match mode {
+        Appearance::Light => "cmd-appearance-light",
+        Appearance::System => "cmd-appearance-system",
+        Appearance::Dark => "cmd-appearance-dark",
+    }
 }
 
 /// The mode in force. A tracked read, so a surface rendering the group re-lowers when it changes.
 pub(crate) fn appearance() -> Appearance {
-    appearance_signal().with(|s| Appearance::from_key(s))
+    day_piece_settings::APPEARANCE.get()
 }
 
 /// Ask for `mode`. Idempotent: choosing the mode already in force changes nothing.
 pub(crate) fn set_appearance(mode: Appearance) {
-    appearance_signal().set(mode.key().to_string());
+    day_piece_settings::APPEARANCE.set(mode);
 }
 
 /// One appearance mode as a command; `checked` is "this is the mode in force", which is what
@@ -316,14 +260,14 @@ pub(crate) fn set_appearance(mode: Appearance) {
 /// asks rather than testing the target.
 pub(crate) fn appearance_command(mode: Appearance) -> CommandHandle {
     Command {
-        id: mode.id(),
-        label: move || mode.title().format(),
+        id: appearance_id(mode),
+        label: move || appearance_title(mode).format(),
         action: move || set_appearance(mode),
     }
     .build()
     .enabled(appearance_supported)
     .checked(move || appearance() == mode)
-    .shortcut(Shortcut::new((mode.index() + 1).to_string()).alt())
+    .shortcut(Shortcut::new((appearance_index(mode) + 1).to_string()).alt())
 }
 
 /// Whether this backend honours an appearance override at all.

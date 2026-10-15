@@ -45,7 +45,7 @@ pub(crate) fn lifecycle_log() -> Signal<String> {
 ///
 /// The showcase keeps two tiers. App-wide (`Ambient::app`) are the things one process has one
 /// of: the lifecycle and menu logs, the SQLite container behind the Query page, the model
-/// store, and the persisted preferences (starred pages, appearance). Per-window are
+/// store, and the persisted preferences (starred pages, Day's appearance). Per-window are
 /// the ones a second window should get its own of: the sidebar selection, the scripting buffer,
 /// the toolbar demo's controls, the benchmark's parameters and the webview's fields.
 #[derive(Clone, Copy)]
@@ -217,6 +217,7 @@ day::routes! {
         CrashReporting => "crash",
         Map => "map",
         About => "about",
+        Settings => "settings",
     }
 }
 
@@ -232,6 +233,8 @@ impl Section {
     fn source_file(self) -> &'static str {
         match self {
             Section::About => "src/pages/about.rs",
+            // The settings declaration lives beside `root`, not on a page of its own.
+            Section::Settings => "src/lib.rs",
             Section::Animation => "src/pages/animation.rs",
             Section::Physics => "src/pages/physics.rs",
             Section::Benchmark => "src/pages/benchmark.rs",
@@ -322,31 +325,133 @@ pub fn root() -> impl Piece {
     // Every locale under `resource/locales/` (en, fr, ar, zh-CN), embedded and registered by the
     // generated catalog (§18.5), so adding a language is a new directory, nothing to edit here.
     res::locales::install();
-    // Persisted theme/language overrides (docs/windows.md; the launch env wins, so CI variant
-    // loops with DAY_THEME/--locale stay deterministic).
-    day_piece_settings::apply_startup("showcase.theme", "showcase.locale");
+    // Settings and About (docs/settings.md): the shared surface, declared once. Appearance and
+    // language are Day's own prefs (the View ▸ Appearance menu and the toolbar's segmented
+    // control write the same `APPEARANCE`, commands.rs), and the launch env wins at boot, so CI
+    // variant loops with DAY_THEME/--locale stay deterministic. On a desktop this registers the
+    // App menu's Settings…/⌘, and About items and their windows, before the menu installs so
+    // its items lower live; on a phone it is the Settings section `destinations` lists.
+    install_settings();
     // Write the bundled sample dayscripts into the app container on launch (absent-only), so the
     // Scripting page's dropdown demonstrates record/playback out of the box (pages/scripting.rs).
     crate::pages::scripting::seed_sample_scripts();
-    // The Preferences window (Settings…/⌘, on macOS; primary+`,` elsewhere; a fullscreen
-    // cover on backends without windows) and File ▸ New Window / the macOS tab-bar "+"
-    // (docs/windows.md). Registered before the menu so its items lower live.
-    day::register_preferences_with(
-        day::WindowOptions {
-            title: crate::res::str::prefs_window_title().format(),
-            size: Size::new(520.0, 420.0),
-            min_size: None,
-            app_name: None,
-            ..Default::default()
-        },
-        pages::preferences_window,
-    );
+    // File ▸ New Window / the macOS tab-bar "+" (docs/windows.md).
     day::register_new_window(|| window_root(false));
     // Lifecycle handlers (docs/lifecycle.md). On mobile this is the registration point; on desktop
     // `main` already registered them before launch (to also catch WillLaunch); the call is
     // idempotent.
     install_lifecycle_handlers();
     window_root(true)
+}
+
+thread_local! {
+    /// The installed settings surface (docs/settings.md), for the pages that embed it: the
+    /// About page renders its About, the sidebar its navigation presentation on a phone.
+    static PREFS: std::cell::RefCell<Option<day_piece_settings::Prefs>> =
+        const { std::cell::RefCell::new(None) };
+}
+
+/// The installed settings handle. `root` installs it before any window builds, so a page
+/// asking for it finds one; a caller that somehow runs first installs it on the spot rather
+/// than panicking in a build path.
+pub(crate) fn prefs() -> day_piece_settings::Prefs {
+    PREFS
+        .with(|p| p.borrow().clone())
+        .unwrap_or_else(install_settings)
+}
+
+/// Declare and install the settings surface: About, General, Catalog and Diagnostics
+/// (docs/settings.md). The groups are the route segments `settings/<id>`, the element ids
+/// `prefs-group-<id>`.
+fn install_settings() -> day_piece_settings::Prefs {
+    use day_piece_settings::{About, Group, Preferences, general_group, rows};
+    // The platform identity, read once (day-part-deviceinfo; values vary per host).
+    let d = day_part_deviceinfo::get();
+    let prefs = Preferences::new()
+        // The window title the showcase has always used for this surface, and its size: the
+        // height is a ceiling, the panel fits each page.
+        .title(res::str::prefs_window_title())
+        .window_size(520.0, 420.0)
+        .about(
+            // Name, version and build from Day.toml via `day build`; the identity hero the About
+            // page showed (the vector mark, the blurb, the site) is the About's own content now,
+            // so the App menu's About and the catalog's front page show one thing.
+            About::from_manifest()
+                .icon(res::vectors::day_mark)
+                .tagline(res::str::about_text())
+                .link(day::tr("day-about-website"), "https://daybrite.dev"),
+        )
+        // Appearance (`theme-picker`, where the toolkit honors an override) and Language
+        // (`language-picker`), from Day's catalog.
+        .group(general_group(res::locales::ALL))
+        .group(
+            Group::new("catalog", res::str::settings_catalog())
+                .icon(res::vectors::star)
+                .subtitle(res::str::settings_catalog_subtitle())
+                // Live: starring a page from the sidebar, the toolbar or the menu moves it.
+                .row(
+                    rows::info(res::str::settings_starred_count(), || {
+                        crate::commands::starred_count().to_string()
+                    })
+                    .id("settings-starred-count"),
+                )
+                .row(
+                    rows::action(
+                        res::str::settings_clear_starred(),
+                        crate::commands::clear_starred,
+                    )
+                    .destructive()
+                    .confirm(res::str::settings_clear_starred_confirm())
+                    .id("settings-clear-starred"),
+                ),
+        )
+        .group(
+            // The facts the About page used to list about this build and the platform it landed
+            // on: the native toolkit compiled into the binary, the OS and device, the bundle id,
+            // the active locale and the most recent app-lifecycle phase (docs/lifecycle.md).
+            Group::new("diagnostics", res::str::settings_diagnostics())
+                .icon(Symbol::Info)
+                .subtitle(res::str::settings_diagnostics_subtitle())
+                .row(
+                    rows::info(res::str::about_toolkit(), day::toolkit_name().to_string())
+                        .id("about-toolkit"),
+                )
+                .row(
+                    rows::info(
+                        res::str::about_os(),
+                        format!("{} {}", d.system_name, d.system_version),
+                    )
+                    .id("about-os"),
+                )
+                .row(rows::info(res::str::about_model(), d.model).id("about-model"))
+                .row(
+                    // Baked from Day.toml's [app].id by build.rs (DAY_APP_ID, set by `day
+                    // build`); a bare `cargo` build has no identity to show.
+                    rows::info(
+                        res::str::about_id(),
+                        option_env!("DAY_SHOWCASE_APP_ID").unwrap_or("\u{2014}"),
+                    )
+                    .copyable()
+                    .id("about-id"),
+                )
+                .row(
+                    // Live: switching on the Localization page re-renders this tag on the spot.
+                    rows::info(res::str::about_locale(), || day::locale().get()).id("about-locale"),
+                )
+                .row(
+                    rows::info(res::str::menus_lifecycle(), || lifecycle_log().get())
+                        .id("about-lifecycle"),
+                ),
+        )
+        .install();
+    PREFS.with(|p| *p.borrow_mut() = Some(prefs.clone()));
+    prefs
+}
+
+/// The Settings section's page on a phone: the navigation presentation (the About header,
+/// then the groups), `prefs.page()` behind a `fn` pointer the destination table can hold.
+fn settings_page() -> AnyPiece {
+    prefs().page()
 }
 
 /// One sidebar destination: the row's title and icon, and the page it opens.
@@ -753,6 +858,19 @@ fn destinations() -> Vec<Dest> {
             crash_page,
         ),
     ];
+    // Settings joins the list where the platform gives no menu bar to open the window from
+    // (the phones, HarmonyOS, the web; docs/settings.md): the same source compiles everywhere
+    // and the row appears only where it should. Last, so it closes the App group the way the
+    // platforms' own settings sit at the end of a list.
+    if prefs().in_nav() {
+        all.push(d(
+            App,
+            Section::Settings,
+            crate::res::str::prefs_window_title,
+            vectors::nav_settings,
+            settings_page,
+        ));
+    }
     // The runtime-decided omissions. Each answer is constant for a binary, so the tracked
     // derive that calls this pays nothing for asking every time.
     all.retain(|d| match d.section {

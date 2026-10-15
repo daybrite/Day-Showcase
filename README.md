@@ -67,8 +67,10 @@ platform cannot run stays, with a note.
   independently (no inter-ball collisions), and frame requests stop when they settle.
 - **List, Tree, Tabs, Stack, Refresh.** The native recycling list and outline, tab and stack
   navigation, a fullscreen cover, and pull to refresh.
-- **Menus & dialogs, Toolbars, Preferences.** The platform's own chrome, including a preferences
-  window on the desktop.
+- **Menus & dialogs, Toolbars, Settings.** The platform's own chrome, including the shared
+  Settings and About surface: a Settings window and an About window on the desktop, a Settings
+  section on a phone, with Day's appearance and language rows, the starred pages, and a
+  Diagnostics group that names the toolkit, OS, device, app id, locale and lifecycle phase.
 - **Model, Query, Localization, Resources, Date & time.** Observable models over SQLite, live
   queries, four languages switched at runtime, typed resources, and native date pickers.
 - **Device & sensors, Platform services, Media, Web view, Tweaks, Crash reporting.** Battery,

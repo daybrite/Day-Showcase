@@ -610,6 +610,11 @@ fn mass_text(megatonnes: f64) -> String {
 /// One row of the controls form: its title in a column as wide as the widest title, the slider,
 /// and its value read out at the trailing end in a box as wide as `widest`. Both reservations
 /// keep the three sliders aligned, and keep each one still as its digits change.
+///
+/// At Compact width (a phone) the title and the widest readout together leave a slider no room
+/// to move in, so the control stacks: the title with its readout at the trailing edge, and the
+/// slider under them with the whole row to itself. `size_class()` is a tracked read
+/// (docs/size-classes.md), so a rotation or a window dragged narrow re-lays the form.
 fn control(
     title: day::LocalizedText,
     widest_title: String,
@@ -617,23 +622,43 @@ fn control(
     readout: impl Fn() -> String + 'static,
     widest: String,
     readout_id: &'static str,
-) -> impl Piece {
-    row((
-        label(title).reserving(widest_title),
-        column((slider,)).grow_w(),
-        // `widgets::numeric_readout`, trailing-aligned inside its reserved box.
-        label(readout)
-            .tabular()
-            .align(TextAlign::Trailing)
-            .id(readout_id)
-            .reserving(widest),
-    ))
-    .spacing(12.0)
-    .align(VAlign::Center)
+) -> AnyPiece {
+    let compact = day::size_class()
+        .map(|c| c.width == WidthClass::Compact)
+        .unwrap_or(false);
+    // `widgets::numeric_readout`, trailing-aligned inside its reserved box.
+    let readout = label(readout)
+        .tabular()
+        .align(TextAlign::Trailing)
+        .id(readout_id)
+        .reserving(widest);
+    if compact {
+        column((
+            row((label(title).grow_w(), readout))
+                .spacing(12.0)
+                .align(VAlign::Center)
+                .grow_w(),
+            column((slider,)).grow_w(),
+        ))
+        .spacing(4.0)
+        .grow_w()
+        .any()
+    } else {
+        row((
+            label(title).reserving(widest_title),
+            column((slider,)).grow_w(),
+            readout,
+        ))
+        .spacing(12.0)
+        .align(VAlign::Center)
+        .any()
+    }
 }
 
 pub(crate) fn physics_page() -> AnyPiece {
-    let count = Signal::new(1.0_f64);
+    // Twenty marbles to start: enough to see them scatter and pull on each other, light enough
+    // for any device; the slider runs the count up to `MAX_BALLS` for a load test.
+    let count = Signal::new(20.0_f64);
     // Each marble's mass in megatonnes. Massless to start: the marbles ignore each other until
     // the slider gives them weight.
     let mass = Signal::new(0.0_f64);
@@ -641,7 +666,7 @@ pub(crate) fn physics_page() -> AnyPiece {
     // whatever pull the reader wants.
     let gravity = Signal::new(0.0);
     let ui = Rc::new(Demo {
-        simulation: RefCell::new(Simulation::new(1)),
+        simulation: RefCell::new(Simulation::new(20)),
         repaint: Trigger::new(),
         status: Signal::new(crate::res::str::frame_resting().format()),
         stats: RefCell::new(FrameStats::default()),

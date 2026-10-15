@@ -512,9 +512,15 @@ image_mode_fill = ملء
 image_mode_stretch = تمديد
 resources_data_section = بيانات مضمّنة
 
-# صفحة حول
-about_app_section = هذا التطبيق
-about_version = الإصدار
+# الإعدادات (docs/settings.md): مجموعتا الفهرس والتشخيص بجانب مجموعة «عام» من Day.
+# تسميات نافذة «حول» (الإصدار، الموقع) ومجموعة «عام» تأتي من فهرس Day نفسه.
+settings_catalog = الفهرس
+settings_catalog_subtitle = الصفحات المفضّلة
+settings_starred_count = الصفحات المفضّلة
+settings_clear_starred = مسح المفضّلة
+settings_clear_starred_confirm = هل تريد إزالة النجمة من كل الصفحات؟
+settings_diagnostics = التشخيص
+settings_diagnostics_subtitle = عدة الأدوات، النظام، اللغة
 about_toolkit = عدة الأدوات
 about_id = معرّف التطبيق
 about_os = النظام

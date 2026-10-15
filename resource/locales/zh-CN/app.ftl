@@ -500,9 +500,15 @@ image_mode_fill = 填充
 image_mode_stretch = 拉伸
 resources_data_section = 内置数据
 
-# 关于页面
-about_app_section = 本应用
-about_version = 版本
+# 设置（docs/settings.md）：目录与诊断两个分组，与 Day 的“通用”分组并列。
+# “关于”窗口的标签（版本、网站）和“通用”分组的标签来自 Day 自己的目录。
+settings_catalog = 目录
+settings_catalog_subtitle = 已加星标的页面
+settings_starred_count = 已加星标的页面
+settings_clear_starred = 清除星标
+settings_clear_starred_confirm = 要移除所有页面的星标吗？
+settings_diagnostics = 诊断
+settings_diagnostics_subtitle = 工具包、系统、语言
 about_toolkit = 工具包
 about_id = 应用 ID
 about_os = 系统
