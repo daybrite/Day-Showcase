@@ -813,6 +813,13 @@ cover_title = 全屏覆盖层
 cover_body = 由 cover(signal) 呈现在整个窗口之上。iOS 和 Android 上为原生实现，其他平台为置顶子视图。
 cover_dismiss = 关闭
 
+# 半高面板（docs/cover.md）：窗口下半部分，页面仍在其下可见。
+stack_half_button = 呈现半高面板
+half_title = 半高面板
+half_body = 由 cover(signal).half_sheet() 呈现在窗口下半部分，页面仍然可见。iOS 上为中等高度面板，Android 上为底部面板。
+half_level = 级别
+half_readout = 面板级别：{ $level }
+
 stack_unsaved = 未保存的更改
 stack_discard_title = 放弃更改？
 stack_discard_body = 此页面有未保存的更改。

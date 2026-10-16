@@ -822,6 +822,13 @@ cover_title = Fullscreen cover
 cover_body = Presented over the whole window by cover(signal). Native on iOS and Android, a topmost child elsewhere.
 cover_dismiss = Dismiss
 
+# Half sheet (docs/cover.md): the bottom half of the window, the page on show beneath it.
+stack_half_button = Present a half sheet
+half_title = Half sheet
+half_body = Presented over the bottom half by cover(signal).half_sheet(), with the page still on show. A medium-detent sheet on iOS, a bottom sheet on Android.
+half_level = Level
+half_readout = Sheet level: { $level }
+
 stack_unsaved = Unsaved changes
 stack_discard_title = Discard changes?
 stack_discard_body = You have unsaved changes on this page.

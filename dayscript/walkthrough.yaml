@@ -555,6 +555,18 @@ flow:
       source: src/pages/stack.rs
   - tap: { id: cover-dismiss }
   - assert_visible: { id: stack-root }
+  # Half sheet (docs/cover.md "Half sheet"): the bottom half, the page on show beneath. The
+  # slider in the sheet drives the readout on the page.
+  - tap: { id: half-present }
+  - assert_visible: { id: half-title }
+  - set_value: { id: half-level, value: 75 }
+  - assert_text: { id: half-readout, key: half_readout, args: { level: 75 } }
+  - screenshot:
+      name: half-sheet
+      title: { en: "Stack · half sheet", fr: "Pile · demi-feuille", ar: "المكدّس · نصف ورقة", zh-CN: "堆栈 · 半高面板" }
+      source: src/pages/stack.rs
+  - tap: { id: half-dismiss }
+  - assert_visible: { id: stack-root }
 
   # Native tabs (docs/tabs.md): a nav(Tabs) bound to a signal. Tab keys are routes, so
   # navigate/assert_route select the active tab; the inner nav host reports the innermost route.

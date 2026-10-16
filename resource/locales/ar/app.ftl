@@ -830,6 +830,13 @@ cover_title = غطاء بملء الشاشة
 cover_body = يُعرض فوق النافذة كاملة عبر cover(signal). أصلي على iOS وأندرويد، وعنصر علوي في الأنظمة الأخرى.
 cover_dismiss = إغلاق
 
+# نصف ورقة (docs/cover.md): النصف السفلي من النافذة مع بقاء الصفحة ظاهرة تحتها.
+stack_half_button = عرض نصف ورقة
+half_title = نصف ورقة
+half_body = تُعرض فوق النصف السفلي عبر cover(signal).half_sheet() مع بقاء الصفحة ظاهرة. ورقة بارتفاع متوسط على iOS، وورقة سفلية على أندرويد.
+half_level = المستوى
+half_readout = مستوى الورقة: { $level }
+
 stack_unsaved = تغييرات غير محفوظة
 stack_discard_title = تجاهل التغييرات؟
 stack_discard_body = لديك تغييرات غير محفوظة في هذه الصفحة.

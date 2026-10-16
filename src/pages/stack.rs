@@ -58,6 +58,22 @@ pub(crate) fn stack_page() -> AnyPiece {
         }
     }
     let cover_open = Signal::new(Option::<CoverKey>::None);
+    // Half sheet (docs/cover.md "Half sheet"): the same projection presented over the bottom
+    // half of the window, the page staying on show. A medium-detent sheet on iOS, a Material
+    // bottom sheet on Android, a bottom-anchored panel on the web. The slider in the sheet and
+    // the readout on the page share one signal, so the page can be seen following the sheet.
+    #[derive(Clone, Copy, PartialEq, Eq, Debug)]
+    struct HalfKey;
+    impl Route for HalfKey {
+        fn key(&self) -> String {
+            "half".into()
+        }
+        fn from_key(key: &str) -> Option<Self> {
+            (key == "half").then_some(HalfKey)
+        }
+    }
+    let half_open = Signal::new(Option::<HalfKey>::None);
+    let level = Signal::new(50.0_f64);
     let root = scroll(
         column((
             stack_glyph(),
@@ -96,6 +112,34 @@ pub(crate) fn stack_page() -> AnyPiece {
                 .padding(24.0)
                 .any()
             }),
+            button(crate::res::str::stack_half_button())
+                .action(move || half_open.set(Some(HalfKey)))
+                .tint(crate::widgets::secondary())
+                .id("half-present"),
+            label(move || {
+                crate::res::str::half_readout((level.get().round() as i64).to_string()).format()
+            })
+            .id("half-readout"),
+            cover(half_open, move |_| {
+                column((
+                    label(crate::res::str::half_title())
+                        .font(Font::Title)
+                        .id("half-title"),
+                    label(crate::res::str::half_body()),
+                    labeled(
+                        crate::res::str::half_level(),
+                        slider(level).range(0.0..=100.0).id("half-level"),
+                    ),
+                    button(crate::res::str::cover_dismiss())
+                        .prominent()
+                        .action(move || half_open.set(None))
+                        .id("half-dismiss"),
+                ))
+                .spacing(12.0)
+                .padding(24.0)
+                .any()
+            })
+            .half_sheet(),
         ))
         .spacing(12.0)
         .align(HAlign::Leading)

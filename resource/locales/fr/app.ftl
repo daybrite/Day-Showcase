@@ -820,6 +820,13 @@ cover_title = Écran couvrant
 cover_body = Présenté au-dessus de toute la fenêtre par cover(signal). Natif sur iOS et Android, enfant au premier plan ailleurs.
 cover_dismiss = Fermer
 
+# Demi-feuille (docs/cover.md) : la moitié basse de la fenêtre, la page restant visible dessous.
+stack_half_button = Présenter une demi-feuille
+half_title = Demi-feuille
+half_body = Présentée sur la moitié basse par cover(signal).half_sheet(), la page restant visible. Une feuille à cran moyen sur iOS, une feuille du bas sur Android.
+half_level = Niveau
+half_readout = Niveau de la feuille : { $level }
+
 stack_unsaved = Modifications non enregistrées
 stack_discard_title = Abandonner les modifications ?
 stack_discard_body = Cette page a des modifications non enregistrées.

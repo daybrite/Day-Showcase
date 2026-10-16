@@ -66,7 +66,7 @@ platform cannot run stays, with a note.
   excludes paused intervals, and starts fresh on each bounce, count change, or Reset. Marbles move
   independently (no inter-ball collisions), and frame requests stop when they settle.
 - **List, Tree, Tabs, Stack, Refresh.** The native recycling list and outline, tab and stack
-  navigation, a fullscreen cover, and pull to refresh.
+  navigation, a fullscreen cover and a half sheet, and pull to refresh.
 - **Menus & dialogs, Toolbars, Settings.** The platform's own chrome, including the shared
   Settings and About surface: a Settings window and an About window on the desktop, a Settings
   section on a phone, with Day's appearance and language rows, the starred pages, and a
