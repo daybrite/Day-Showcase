@@ -100,6 +100,15 @@ key-id = "${DAY_NOTARY_KEY_ID}"
 issuer = "${DAY_NOTARY_ISSUER}"
 key-path = "${DAY_NOTARY_KEY}" # AuthKey_<id>.p8
 
+# The Mac App Store (docs/packaging.md "The Mac App Store"): `day pack -t macos-appkit --formats
+# pkg` signs the bundle with the distribution identity over the Mac App Store profile, and the
+# installer package with the installer identity. Unset, the .pkg is packed unsigned; CI signs the
+# built bundle after the build instead (`day sign apply`), from its own secrets.
+[signing.macos.app-store]
+identity = "${DAY_MAS_IDENTITY}" # "Apple Distribution: …"
+installer-identity = "${DAY_MAS_INSTALLER_IDENTITY}" # "3rd Party Mac Developer Installer: …"
+profile = "${DAY_MAS_PROFILE}" # the Mac App Store Connect .provisionprofile
+
 [signing.ios]
 team = "${DAY_APPLE_TEAM}"
 key-id = "${DAY_ASC_KEY_ID}"

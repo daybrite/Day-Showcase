@@ -33,9 +33,19 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.developer-tools</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
 	<key>NSHighResolutionCapable</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Preview and take a photo on the Camera page.</string>
+	<key>NSLocationUsageDescription</key>
+	<string>Show your coordinates live on the Device &amp; sensors page.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Show your coordinates live on the Device &amp; sensors page.</string>
 </dict>
 </plist>

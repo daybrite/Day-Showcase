@@ -81,9 +81,17 @@ jobs:
       # and the keystore must be the upload key Play App Signing was enrolled with.
       upload-play: "true"
       play-upload-lane: android release
-      # Both uploads replace the stores' screenshots with the eight the walkthrough marks
-      # `store: N`, taken from this run's own screenshot artifacts and checked against each
-      # store's sizes first (daybrite/actions README, Store screenshots).
+      # The same for the Mac App Store: the build's unsigned .app is signed into a .pkg with
+      # DAY_MAS_CERT_P12 (the Apple Distribution and Mac Installer Distribution identities in one
+      # .p12), DAY_MAS_CERT_PASSWORD and DAY_MAS_PROFILE_B64, then uploaded with the listing and
+      # submitted for review, as the iOS lane does. The DAY_ASC_* key and DAY_APPLE_TEAM are the
+      # iOS upload's. The appfair keys directory's set-day-showcase-mac-app-store-secrets.sh sets
+      # the three DAY_MAS_* secrets.
+      upload-macos: "true"
+      macos-upload-lane: mac release
+      # Every upload replaces its store's screenshots with the ones store/storefront.toml lists
+      # for it, taken from this run's own screenshot artifacts and checked against each store's
+      # sizes first (daybrite/actions README, Store screenshots).
       store-screenshots: true
 
   # The Content List page copies the `day new` scaffold's list, editor and model
