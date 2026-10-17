@@ -253,7 +253,7 @@ pub(crate) fn model_page() -> AnyPiece {
                     || label("✓").padding(Insets::symmetric(12.0, 8.0)),
                 ),
             ))
-            .id_keyed("model-row", slot.item().key())
+            .id_of(move || format!("model-row:{}", slot.item().key()))
         })
         .row_height(RowHeight::Uniform(36.0))
         .on_select(move |it: Elem<Task>| selected.set(Some(it.key())))

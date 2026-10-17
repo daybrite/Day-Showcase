@@ -6,7 +6,7 @@ use day_piece_pullrefresh::pull_to_refresh;
 use crate::widgets::heading;
 
 /// A native recycling list (docs/list.md): 500 rows, but only the visible cells are ever built;
-/// the platform's NSTableView / RecyclerView / GtkListView / QListView owns scrolling + reuse.
+/// the platform's NSTableView / RecyclerView / GtkListView / QListView / ItemsRepeater owns reuse.
 /// The list is wrapped in `pull_to_refresh` (day-piece-pullrefresh), the recycling-list example:
 /// a pull (or dayscript `toggle: {id: list-refresh}`) adds 100 rows, same as the button.
 ///
@@ -172,8 +172,10 @@ pub(crate) fn list_page() -> AnyPiece {
                                 crate::palette::SLATE
                             }
                         })
+                        // A physical row keeps its subtree across recycling; its test/a11y
+                        // identity must follow the slot just as its text and color do.
+                        .id_of(move || format!("list-row:{}", row.key()))
                         .padding(Insets::symmetric(12.0, 8.0))
-                        .id_keyed("list-row", row.key())
                 },
             )
             .row_height(RowHeight::Uniform(36.0))
@@ -211,8 +213,17 @@ pub(crate) fn list_page() -> AnyPiece {
                     v.insert(to, it);
                 });
             })
-            // Native swipe-to-delete where the toolkit has the gesture (probe `Cap::ListDelete`;
-            // the desktops answer Unsupported and show no swipe). The same first row is
+            // Leading swipe opens the same row as activation. WinUI also offers these actions
+            // in a native context menu for mouse and keyboard users.
+            .swipe_leading(move |index| {
+                let key = rows.get_untracked()[index];
+                vec![
+                    swipe_action(crate::res::str::menu_open().format())
+                        .symbol(Symbol::Open)
+                        .action(move || activated.set(key)),
+                ]
+            })
+            // Native swipe-to-delete where supported (including WinUI). The same first row is
             // pinned as for reorder, so one demo shows both guards agreeing about it.
             .deletable(true)
             .delete_label(crate::res::str::list_delete().format())
