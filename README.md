@@ -93,7 +93,7 @@ every target, in both themes and all four locales, and the captures it takes are
 
 | Windows · XAML | Linux · GTK | Linux · Qt |
 |:---:|:---:|:---:|
-| <kbd><img src="https://showcase.daybrite.dev/gallery/windows-xaml/light/list.png" width="300" alt="List on Windows"></kbd> | <kbd><img src="https://showcase.daybrite.dev/gallery/linux-gtk/light/list.png" width="300" alt="List on GTK"></kbd> | <kbd><img src="https://showcase.daybrite.dev/gallery/linux-qt/light/list.png" width="300" alt="List on Qt"></kbd> |
+| <kbd><img src="https://showcase.daybrite.dev/gallery/windows-winui/light/list.png" width="300" alt="List on Windows"></kbd> | <kbd><img src="https://showcase.daybrite.dev/gallery/linux-gtk/light/list.png" width="300" alt="List on GTK"></kbd> | <kbd><img src="https://showcase.daybrite.dev/gallery/linux-qt/light/list.png" width="300" alt="List on Qt"></kbd> |
 
 | Web · DOM | Android · Material | HarmonyOS · ArkUI |
 |:---:|:---:|:---:|

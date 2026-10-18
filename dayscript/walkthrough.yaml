@@ -148,8 +148,8 @@ flow:
   - assert_visible: { id: ctl-divider }
   # Two shots: the top of the page, then the pickers scrolled into view. Where the nav chrome
   # names the page there is no in-content title to scroll to, so the first button stands in.
-  - scroll_to: { id: controls-title, skip_on: [ios-uikit, android-mdc, harmony-arkui, windows-xaml] }
-  - scroll_to: { id: btn-plain, only_on: [ios-uikit, android-mdc, harmony-arkui, windows-xaml] }
+  - scroll_to: { id: controls-title, skip_on: [ios-uikit, android-mdc, harmony-arkui] }
+  - scroll_to: { id: btn-plain, only_on: [ios-uikit, android-mdc, harmony-arkui] }
   - screenshot:
       name: controls
       title: { en: "Controls", fr: "Contrôles", ar: "عناصر التحكّم", zh-CN: "控件" }
@@ -1215,17 +1215,17 @@ flow:
 
   # XAML Rendering may fire inside the screenshot's nested message pump. It must not
   # reenter Day's borrowed tree or strand the next page's frame subscription.
-  - tap: { id: frame-bounce, only_on: [windows-xaml] }
-  - pause: { secs: 0.3, only_on: [windows-xaml] }
-  - assert_text: { id: frame-status, key: frame_running, only_on: [windows-xaml] }
-  - screenshot: { name: physics-running, only_on: [windows-xaml] }
-  - navigate: { route: about, only_on: [windows-xaml] }
-  - navigate: { route: physics, only_on: [windows-xaml] }
-  - tap: { id: frame-bounce, only_on: [windows-xaml] }
-  - pause: { secs: 0.3, only_on: [windows-xaml] }
-  - assert_text: { id: frame-status, key: frame_running, only_on: [windows-xaml] }
-  - tap: { id: frame-reset, only_on: [windows-xaml] }
-  - assert_text: { id: frame-status, key: frame_resting, only_on: [windows-xaml] }
+  - tap: { id: frame-bounce, only_on: [windows-winui] }
+  - pause: { secs: 0.3, only_on: [windows-winui] }
+  - assert_text: { id: frame-status, key: frame_running, only_on: [windows-winui] }
+  - screenshot: { name: physics-running, only_on: [windows-winui] }
+  - navigate: { route: about, only_on: [windows-winui] }
+  - navigate: { route: physics, only_on: [windows-winui] }
+  - tap: { id: frame-bounce, only_on: [windows-winui] }
+  - pause: { secs: 0.3, only_on: [windows-winui] }
+  - assert_text: { id: frame-status, key: frame_running, only_on: [windows-winui] }
+  - tap: { id: frame-reset, only_on: [windows-winui] }
+  - assert_text: { id: frame-status, key: frame_resting, only_on: [windows-winui] }
 
   # Declarative animation (§8.4, docs/animation.md): queue deterministic targets (fixed values,
   # not Randomize!, since screenshots must reproduce), commit them inside one with_animation via
@@ -1403,32 +1403,32 @@ flow:
   # assertions are engine-independent: JSON.stringify's output and a TypeError's name/message are
   # spec-defined, so WebKit and V8 agree. A SyntaxError's text is not, so it is not asserted here.
   - input:
-      { id: webview-js, text: "1+1", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc, windows-xaml] }
-  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc, windows-xaml] }
+      { id: webview-js, text: "1+1", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc] }
+  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc] }
   - assert_text:
-      { id: webview-js-result, text: "2", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc, windows-xaml] }
+      { id: webview-js-result, text: "2", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc] }
   # Evaluated in the bundled site's own document, not a blank frame.
   - input:
-      { id: webview-js, text: "document.title", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc, windows-xaml] }
-  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc, windows-xaml] }
+      { id: webview-js, text: "document.title", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc] }
+  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc] }
   - assert_text:
       {
         id: webview-js-result,
         text: '"Day mini site"',
-        only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc, windows-xaml],
+        only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc],
       }
   - input:
       {
         id: webview-js,
         text: "throw new TypeError('boom')",
-        only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc, windows-xaml],
+        only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc],
       }
-  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc, windows-xaml] }
+  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc] }
   - assert_text:
       {
         id: webview-js-result,
         text: "TypeError: boom",
-        only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc, windows-xaml],
+        only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc],
       }
   - screenshot:
       name: webview
@@ -1443,40 +1443,40 @@ flow:
       {
         id: webview-js,
         text: "window.__dayMarker = 'survived'",
-        only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml],
+        only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt],
       }
-  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
-  - assert_text: { id: webview-js-result, text: '"survived"', only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
+  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - assert_text: { id: webview-js-result, text: '"survived"', only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
   # Prove the marker took before leaving: if this fails the plant itself lost a race, which is a
   # different fault from the retention the steps below are about.
-  - input: { id: webview-js, text: "window.__dayMarker", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
-  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
-  - assert_text: { id: webview-js-result, text: '"survived"', only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
+  - input: { id: webview-js, text: "window.__dayMarker", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - assert_text: { id: webview-js-result, text: '"survived"', only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
   # Overwrite the readout before leaving. The result label is a global signal that outlives this
   # page, so leaving "survived" on screen would let the final assertion below pass on a stale
   # label without the marker having survived anything.
-  - input: { id: webview-js, text: "'left the page'", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
-  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
-  - assert_text: { id: webview-js-result, text: '"left the page"', only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
-  - navigate: { route: controls, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
-  - navigate: { route: webview, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
+  - input: { id: webview-js, text: "'left the page'", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - assert_text: { id: webview-js-result, text: '"left the page"', only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - navigate: { route: controls, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - navigate: { route: webview, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
   # The hoisted signals survived the rebuild: the editor still holds the last text typed into
   # it, which is the line that overwrote the readout before leaving.
   - assert_text:
       {
         id: webview-js,
         text: "'left the page'",
-        only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml],
+        only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt],
       }
   # …and so did the engine's own JS context: reading the marker back turns the stale readout
   # into "survived", which it cannot do unless the live context outlived the page.
-  - input: { id: webview-js, text: "window.__dayMarker", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
-  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml] }
+  - input: { id: webview-js, text: "window.__dayMarker", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
   - assert_text:
       {
         id: webview-js-result,
         text: '"survived"',
-        only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, windows-xaml],
+        only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt],
       }
 
   # ---------------------------------------------------------------------------------------------
@@ -1809,7 +1809,7 @@ flow:
   # are read from the piece crates' backend arms and will be corrected by the first CI run that
   # disagrees; the failure names the kind.
   - assert_no_placeholders:
-      only_on: [macos-appkit, linux-gtk, linux-qt, macos-qt, windows-xaml, windows-winui]
+      only_on: [macos-appkit, linux-gtk, linux-qt, macos-qt, windows-winui]
       allow: []
   # Android ships no color chooser in the framework, in Material, or in AndroidX, so the Resources
   # page's `.native()` well has nothing to realize and draws the placeholder, with a banner beside
@@ -1835,7 +1835,7 @@ flow:
   # 2026-09). Since 2026-09 `day build` links the two MinGW targets with `--no-gc-sections`
   # (day-cli/src/ops.rs): COFF has no retain flag for a `#[used]` static, so the collector was
   # dropping the registration sections. These sets are the ones measured before that, kept
-  # until a green CI run shows which entries can go. windows-xaml
+  # until a green CI run shows which entries can go. windows-winui
   # links with MSVC, which keeps `#[used]` statics, and stays in the zero-placeholder group
   # above. webview is additionally absent on windows-gtk (no WebKitGTK 6 for MinGW).
   - assert_no_placeholders:

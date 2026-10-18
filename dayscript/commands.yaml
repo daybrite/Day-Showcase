@@ -26,7 +26,7 @@ flow:
   - assert_text: { id: commands-count, text: '3', skip_on: [harmony-arkui] }
   - screenshot: reusable-commands
   - toolbar: { item: command-reset-toolbar, skip_on: [harmony-arkui] }
-  - tap: { id: command-reset, skip_on: [macos-appkit, macos-gtk, macos-qt, ios-uikit, android-mdc, web-dom, windows-xaml] }
+  - tap: { id: command-reset, skip_on: [macos-appkit, macos-gtk, macos-qt, ios-uikit, android-mdc, web-dom] }
   - assert_text: { id: commands-count, text: '0' }
   - tap: { id: command-add }
   - tap: { id: command-reset }

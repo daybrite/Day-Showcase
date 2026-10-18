@@ -170,4 +170,4 @@ platform = "13.0"
 day-persistence = { git = "https://github.com/daybrite/day-persistence.git", version = "0.1" }
 
 [workspace.package]
-version = "0.4.33"
+version = "0.4.34"
