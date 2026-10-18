@@ -313,7 +313,8 @@ pub(crate) fn model_page() -> AnyPiece {
                 .enabled(move || history().can_redo().get())
                 .id("model-redo"),
         ))
-        .spacing(8.0),
+        .spacing(8.0)
+        .fit(RowFit::Wrap { run_spacing: 8.0 }),
         // What one ⌘Z would take back, in the same words the native Edit menu interpolates into
         // its item; both read this signal, so they can never disagree.
         label(move || history().undo_label().get())

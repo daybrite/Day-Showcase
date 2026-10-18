@@ -331,7 +331,8 @@ fn simulation_section(st: Model) -> impl Piece {
                         labeled(tr::net_pause(), toggle(st.paused).id("network-pause")),
                         labeled(tr::net_offline(), toggle(st.offline).id("network-offline")),
                     ))
-                    .spacing(16.0),
+                    .spacing(16.0)
+                    .fit(RowFit::Wrap { run_spacing: 8.0 }),
                 ))
                 .spacing(6.0)
             },
