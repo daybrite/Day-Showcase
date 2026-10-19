@@ -941,18 +941,9 @@ fn window_body(primary: bool) -> impl Piece {
     // a third column on a desktop, the pushed middle layer on a phone, collapsed on every other
     // page. Its commands ride the pane, so they come and go with it (docs/toolbars.md).
     let items = pages::content_list::Scene::ambient();
-    let collapsed = Signal::new(
-        day::prefs::get("nav.collapsedSections")
-            .and_then(|s| serde_json::from_str::<std::collections::HashSet<String>>(&s).ok())
-            .unwrap_or_default(),
-    );
+    // Native grouped navigation keeps every group open, with floating section headers.
+    // Do not opt into collapsed_sections: that replaces the table with a disclosure tree.
     let nav = nav(section)
-        .collapsed_sections(collapsed)
-        .on_section_expansion(move |_, _| {
-            if let Ok(value) = serde_json::to_string(&collapsed.get()) {
-                day::prefs::set("nav.collapsedSections", &value);
-            }
-        })
         .style(NavStyle::Sidebar)
         .title(crate::res::str::app_title())
         .content_list(pages::content_list::item_list_pane)
@@ -970,11 +961,12 @@ fn window_body(primary: bool) -> impl Piece {
                 .unwrap_or_default(),
             None => crate::res::str::app_title().format(),
         })
-        // Search belongs to the surface it filters, not to the toolbar (docs/search.md). Day
-        // resolves where to draw it: today the window's toolbar on every desktop, and, once the
-        // size-class work lands, the navigation list itself on a window too narrow for a
-        // sidebar, with nothing here changing.
+        // Search belongs to the surface it filters (docs/search.md). Mobile lists hide
+        // the search field while scrolling; Android keeps navigation actions available.
+        // Desktop placement stays in the window toolbar.
         .searchable(query)
+        .search_hides_on_scroll(true)
+        .search_initially_hidden(true)
         .search_prompt(crate::res::str::toolbar_search_placeholder())
         // Completions, drawn by whatever the platform's search field already has for them (a
         // QCompleter popup, a <datalist>, an AutoSuggestBox; docs/search.md). Every section
