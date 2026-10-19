@@ -21,11 +21,13 @@ flow:
   # Empty means "speak the localized sample the placeholder shows"; typing overrides it.
   - input: { id: speech-text, text: "Day speaks through the bridge." }
   - tap: { id: speech-speak }
-  # web-dom skips both state lines: CI's headless Chromium fails every utterance with the browser's
-  # own `synthesis-failed`, so the line never reads "Speaking…" or "Stopped" there.
-  - assert_text: { id: speech-state, key: speech_state_speaking, skip_on: [linux-gtk, linux-qt, macos-gtk, macos-qt, windows-gtk, windows-qt, harmony-arkui, web-dom] }
+  # Playback needs an audio output. Hosted Windows runners have no audio endpoint (the shared
+  # dayapp workflow documents the same limitation for media); SAPI can create a voice there,
+  # but Speak fails. Headless Chromium likewise reports `synthesis-failed`. Keep exercising
+  # Speak/Stop and the editor on both targets, without requiring successful playback states.
+  - assert_text: { id: speech-state, key: speech_state_speaking, skip_on: [linux-gtk, linux-qt, macos-gtk, macos-qt, windows-gtk, windows-qt, windows-winui, harmony-arkui, web-dom] }
   - tap: { id: speech-stop }
   # The engine's cancellation arrives through the completion and lands as "Stopped". Targets whose
   # arm reports no end (speech-dispatcher), or that have no arm, settle on their own answer.
-  - assert_text: { id: speech-state, key: speech_state_stopped, skip_on: [linux-gtk, linux-qt, macos-gtk, macos-qt, windows-gtk, windows-qt, harmony-arkui, web-dom] }
+  - assert_text: { id: speech-state, key: speech_state_stopped, skip_on: [linux-gtk, linux-qt, macos-gtk, macos-qt, windows-gtk, windows-qt, windows-winui, harmony-arkui, web-dom] }
   - assert_text: { id: speech-text, text: "Day speaks through the bridge." }

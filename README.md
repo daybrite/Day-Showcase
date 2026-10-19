@@ -144,6 +144,14 @@ and each build's **Track the day revision preflight resolved** step to confirm w
 To pick up a newer revision, start a new **ci** run from GitHub Actions, or choose **Re-run all
 jobs** on a completed run. **Re-run failed jobs** reuses the successful preflight's old revision.
 
+Hosted Windows runners have no audio output, so `dayscript/speech.yaml` exercises Speak/Stop
+without asserting successful playback on WinUI. On a Windows desktop with an installed voice
+and working audio output, check native playback and the cancellation callback explicitly:
+
+```sh
+day launch -t windows-winui --script dayscript/speech-playback.yaml
+```
+
 ## Inside the code
 
 - `src/lib.rs` is `root()`: the typed-route navigation host and the `Section` list every screen
