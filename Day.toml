@@ -135,6 +135,9 @@ profile = "${DAY_OHOS_PROFILE}" # .p7b
 [android]
 cleartext-domains = ["127.0.0.1"]
 resource-overlays = ["platform/android/res"]
+# R8 optimizes the release build too (inlining, class merging), not only shrinking it; the
+# walkthrough runs against the result on the release legs.
+optimize = true
 
 [harmony]
 vendor = "daybrite"
