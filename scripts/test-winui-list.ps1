@@ -11,6 +11,13 @@ public static class ShowcaseListInput {
     [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr hwnd);
     [DllImport("user32.dll")] public static extern bool SetCursorPos(int x, int y);
     [DllImport("user32.dll")] public static extern void mouse_event(uint flags, uint x, uint y, uint data, UIntPtr extra);
+    [DllImport("user32.dll")] private static extern int GetSystemMetrics(int index);
+    public static void Move(int x, int y) {
+        // Inject MOVE | ABSOLUTE | VIRTUALDESK. SetCursorPos moves the cursor but
+        // does not feed WinUI's drag recognizer with the required input packets.
+        mouse_event(0xC001, (uint)((x - GetSystemMetrics(76)) * 65535L / (GetSystemMetrics(78) - 1)),
+            (uint)((y - GetSystemMetrics(77)) * 65535L / (GetSystemMetrics(79) - 1)), 0, UIntPtr.Zero);
+    }
 }
 '@
 function Drive($Steps) {
@@ -50,7 +57,7 @@ function Drag-Row($From, $To) {
     [ShowcaseListInput]::mouse_event(2, 0, 0, 0, [UIntPtr]::Zero)
     Start-Sleep -Milliseconds 200
     for ($step = 1; $step -le 20; $step++) {
-        [ShowcaseListInput]::SetCursorPos($x, [int]($startY + ($endY - $startY) * $step / 20)) | Out-Null
+        [ShowcaseListInput]::Move($x, [int]($startY + ($endY - $startY) * $step / 20))
         Start-Sleep -Milliseconds 40
     }
     [ShowcaseListInput]::mouse_event(4, 0, 0, 0, [UIntPtr]::Zero)
@@ -97,4 +104,6 @@ Drag-Row 2 5
 Drive @(@{op='assert_text';id='list-order';key='list_order';args=@{rows='1,3,4,5,2'}}, @{op='tap';id='list-reset'})
 Drag-Row 1 5
 Drive @(@{op='assert_text';id='list-order';key='list_order';args=@{rows='1,2,3,4,5'}})
+Drag-Row 4 1
+Drive @(@{op='assert_text';id='list-order';key='list_order';args=@{rows='1,4,2,3,5'}}, @{op='tap';id='list-reset'})
 Write-Output 'PASS: native rows/recycling, mouse and accessibility selection, keyboard navigation/activation, context-menu deletion, and guarded drag-to-reorder.'

@@ -148,8 +148,8 @@ flow:
   - assert_visible: { id: ctl-divider }
   # Two shots: the top of the page, then the pickers scrolled into view. Where the nav chrome
   # names the page there is no in-content title to scroll to, so the first button stands in.
-  - scroll_to: { id: controls-title, skip_on: [ios-uikit, android-mdc, harmony-arkui] }
-  - scroll_to: { id: btn-plain, only_on: [ios-uikit, android-mdc, harmony-arkui] }
+  - scroll_to: { id: controls-title, skip_on: [ios-uikit, android-mdc, harmony-arkui, windows-winui] }
+  - scroll_to: { id: btn-plain, only_on: [ios-uikit, android-mdc, harmony-arkui, windows-winui] }
   - screenshot:
       name: controls
       title: { en: "Controls", fr: "Contrôles", ar: "عناصر التحكّم", zh-CN: "控件" }
