@@ -170,13 +170,13 @@ pub(crate) fn animation_page() -> AnyPiece {
             labeled(
                 crate::res::str::anim_curve(),
                 picker(
-                    [
-                        crate::res::str::anim_curve_spring().format(),
-                        crate::res::str::anim_curve_ease_in_out().format(),
-                        crate::res::str::anim_curve_ease_out().format(),
-                        crate::res::str::anim_curve_linear().format(),
-                    ],
                     s.curve,
+                    [
+                        (0, crate::res::str::anim_curve_spring()),
+                        (1, crate::res::str::anim_curve_ease_in_out()),
+                        (2, crate::res::str::anim_curve_ease_out()),
+                        (3, crate::res::str::anim_curve_linear()),
+                    ],
                 )
                 .segmented()
                 .id("anim-curve"),
@@ -199,7 +199,7 @@ pub(crate) fn animation_page() -> AnyPiece {
             ),
         )),)),
     ))
-    .spacing(16.0);
+    .spacing(Space::L);
 
     page(
         crate::res::str::nav_animation(),
@@ -293,7 +293,7 @@ fn duration_stepper(dur: Signal<i64>) -> impl Piece {
             .action(move || dur.update(|d| *d = (*d + 100).min(3000)))
             .id("anim-dur-inc"),
     ))
-    .spacing(12.0)
+    .spacing(Space::M)
 }
 
 /// A uniform random `f64` in `lo..=hi`: a tiny xorshift seeded once from the clock (no rand dep).

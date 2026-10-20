@@ -110,6 +110,16 @@ impl Catalog {
         st
     }
 
+    /// The presets as the three picker stylings list them (docs/picker.md): the index into
+    /// `PRESET_LEVELS` and its localized name, live, so the titles follow a language switch.
+    fn preset_options() -> [(usize, LocalizedText); 3] {
+        [
+            (0, crate::res::str::size_small()),
+            (1, crate::res::str::size_medium()),
+            (2, crate::res::str::size_large()),
+        ]
+    }
+
     /// The localized preset names, resolved once (the locale is fixed for a run).
     fn preset_names() -> std::rc::Rc<Vec<String>> {
         std::rc::Rc::new(vec![
@@ -266,7 +276,7 @@ fn switches_section(st: Catalog) -> impl Piece {
                         "volume-value",
                     ),
                 ))
-                .spacing(8.0),
+                .spacing(Space::S),
             ),
             labeled(
                 crate::res::str::ctl_stepped(),
@@ -281,7 +291,7 @@ fn switches_section(st: Catalog) -> impl Piece {
                         "stepped-value",
                     ),
                 ))
-                .spacing(8.0),
+                .spacing(Space::S),
             ),
             labeled(
                 crate::res::str::ctl_stepper(),
@@ -297,7 +307,7 @@ fn switches_section(st: Catalog) -> impl Piece {
                         "stepper-value",
                     ),
                 ))
-                .spacing(8.0),
+                .spacing(Space::S),
             ),
             labeled(
                 crate::res::str::ctl_composed_stepper(),
@@ -306,7 +316,7 @@ fn switches_section(st: Catalog) -> impl Piece {
                     .step(1.0)
                     .decimals(0)
                     .composed()
-                    .key("stepper-composed"),
+                    .id("stepper-composed"),
             ),
             labeled(
                 crate::res::str::ctl_progress(),
@@ -330,12 +340,12 @@ fn switches_section(st: Catalog) -> impl Piece {
                     })
                     .id("activity-status"),
                 ))
-                .spacing(8.0)
+                .spacing(Space::S)
                 .fit(RowFit::Wrap { run_spacing: 8.0 }),
             ),
             labeled(crate::res::str::ctl_spinner(), spinner().id("ctl-spinner")),
         ))
-        .spacing(8.0)
+        .spacing(Space::S)
         .opacity(dim),
     ))
     .title(crate::res::str::ctl_switches())
@@ -369,13 +379,13 @@ fn text_section(st: Catalog) -> impl Piece {
                         .action(move || st.query.set(String::new()))
                         .id("search-clear"),
                 ))
-                .spacing(8.0),
+                .spacing(Space::S),
                 // The first match in the same list the combo offers: a value, or an em-dash.
                 label(move || first_match(&st.query.get(), &voices.get()))
                     .font(Font::Footnote)
                     .id("search-result"),
             ))
-            .spacing(4.0)
+            .spacing(Space::XS)
             .align(HAlign::Leading),
         ),
         labeled(
@@ -397,19 +407,16 @@ fn text_section(st: Catalog) -> impl Piece {
                         .tint(crate::widgets::primary())
                         .id("flavor-add"),
                 ))
-                .spacing(8.0),
+                .spacing(Space::S),
                 // No combo-box arm on iOS or the web (docs/combobox.md): day renders its
                 // placeholder leaf in the row above, and this note sits right beside it.
-                // `when` rather than `#[cfg]` because an attribute cannot gate one tuple element.
-                when(
-                    || cfg!(any(target_os = "ios", target_arch = "wasm32")),
-                    || label(crate::res::str::ctl_combo_note()).font(Font::Footnote),
-                ),
+                cfg!(any(target_os = "ios", target_arch = "wasm32"))
+                    .then(|| label(crate::res::str::ctl_combo_note()).font(Font::Footnote)),
                 label(move || st.voice.get())
                     .font(Font::Footnote)
                     .id("flavor-value"),
             ))
-            .spacing(4.0)
+            .spacing(Space::XS)
             .align(HAlign::Leading),
         ),
         labeled(
@@ -428,26 +435,25 @@ fn text_section(st: Catalog) -> impl Piece {
 /// then the date, time and color pickers from their crates. The date and time pickers appear
 /// here compact; the inline calendar has the Date & time page to itself.
 fn pickers_section(st: Catalog) -> impl Piece {
-    let names = Catalog::preset_names();
     let preset_label = st.preset_label();
     let dim = st.dim();
     section((
         column((
             labeled(
                 crate::res::str::picker_segmented(),
-                picker(names.iter().cloned(), st.preset)
+                picker(st.preset, Catalog::preset_options())
                     .segmented()
                     .id("picker-segmented"),
             ),
             labeled(
                 crate::res::str::picker_menu(),
-                picker(names.iter().cloned(), st.preset)
+                picker(st.preset, Catalog::preset_options())
                     .menu()
                     .id("picker-menu"),
             ),
             labeled(
                 crate::res::str::picker_inline(),
-                picker(names.iter().cloned(), st.preset)
+                picker(st.preset, Catalog::preset_options())
                     .inline()
                     .id("picker-inline"),
             ),
@@ -456,7 +462,7 @@ fn pickers_section(st: Catalog) -> impl Piece {
                 label(preset_label).id("picker-value"),
             ),
         ))
-        .spacing(8.0)
+        .spacing(Space::S)
         .opacity(dim),
         labeled(
             crate::res::str::ctl_date(),
@@ -510,7 +516,7 @@ fn accessibility_section() -> impl Piece {
                 label(move || crate::res::str::ctl_announced_times(announced.get()).format())
                     .id("ctl-announce-count"),
             ))
-            .spacing(8.0)
+            .spacing(Space::S)
             .fit(RowFit::Wrap { run_spacing: 8.0 }),
         ),
         labeled(
@@ -533,7 +539,7 @@ fn indicators_section(st: Catalog) -> impl Piece {
                     "rating-value",
                 ),
             ))
-            .spacing(8.0),
+            .spacing(Space::S),
         ),
         labeled(
             crate::res::str::ctl_badge(),

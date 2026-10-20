@@ -23,7 +23,7 @@ pub(crate) fn text_page() -> AnyPiece {
             label(crate::res::str::text_selectable_toggle()).font(Font::Subheadline),
             toggle(sel_on).id("text-selectable-toggle"),
         ))
-        .spacing(8.0)
+        .spacing(Space::S)
         .any(),
         column((
             when(move || sel_on.get(), move || sections(true, md)),
@@ -38,7 +38,7 @@ pub(crate) fn text_page() -> AnyPiece {
 /// section: `.selectable()` on a container only reaches the text within on backends whose
 /// selection affordance cascades (docs/text.md); per-label is what works everywhere.
 fn sel(on: bool, p: impl Piece) -> impl Piece {
-    if on { p.selectable().any() } else { p.any() }
+    p.apply_if(on, |p| p.selectable())
 }
 
 /// The page body, built for one Selectable state (the `when` arms above rebuild it on flip).
@@ -202,7 +202,7 @@ fn sections(on: bool, md: Signal<String>) -> impl Piece {
             label(crate::res::str::color_orange()).color(Color::hex(0xE67E22)),
         ),
     ))
-    .spacing(12.0),))
+    .spacing(Space::M),))
     .title(crate::res::str::text_colors_header());
     // Custom sizes: Font::System(pt), still scaled by the platform accessibility text size.
     let custom = section((
@@ -441,7 +441,7 @@ fn baseline() -> impl Piece {
             label(crate::res::str::text_baseline_toggle()).font(Font::Subheadline),
             toggle(aligned).id("text-baseline-toggle"),
         ))
-        .spacing(8.0),
+        .spacing(Space::S),
         when(
             move || aligned.get(),
             move || baseline_rows(VAlign::FirstBaseline, qty, due),
@@ -471,7 +471,7 @@ fn baseline_rows(align: VAlign, qty: Signal<String>, due: Signal<DayDate>) -> im
                 .id_keyed("text-baseline-qty", tag),
             label(crate::res::str::text_baseline_unit()).font(Font::Caption),
         ))
-        .spacing(8.0)
+        .spacing(Space::S)
         .align(align),
         // Type sizes alone, no control: a Title-size number beside Body and Caption text.
         row((
@@ -481,7 +481,7 @@ fn baseline_rows(align: VAlign, qty: Signal<String>, due: Signal<DayDate>) -> im
                 .id_keyed("text-baseline-total", tag),
             label(crate::res::str::text_baseline_currency()).font(Font::Caption),
         ))
-        .spacing(8.0)
+        .spacing(Space::S)
         .align(align),
         // The tallest control on the page: a date picker's stepper makes its box far taller than
         // its text, which is where centering goes most obviously wrong.
@@ -489,7 +489,7 @@ fn baseline_rows(align: VAlign, qty: Signal<String>, due: Signal<DayDate>) -> im
             lead(crate::res::str::text_baseline_due()),
             date_picker(due).id_keyed("text-baseline-due", tag),
         ))
-        .spacing(8.0)
+        .spacing(Space::S)
         .align(align),
     ))
     .spacing(10.0)

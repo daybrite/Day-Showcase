@@ -69,7 +69,7 @@ fn battery_section() -> impl Piece {
                     .tabular()
                     .id("battery-level-value"),
             ))
-            .spacing(8.0),
+            .spacing(Space::S),
         ),
         labeled(
             crate::res::str::battery_charging(),
@@ -90,7 +90,7 @@ fn battery_section() -> impl Piece {
                 .id("battery-refresh"),
             label(move || reading.get()).id("battery-reading"),
         ))
-        .spacing(8.0),
+        .spacing(Space::S),
     ))
     .title(crate::res::str::nav_battery())
 }
@@ -137,12 +137,12 @@ fn sensor_section(
         unit: &str,
     ) -> String {
         match reading {
-            Some(r) => crate::res::str::sensor_reading(
+            Some(r) => crate::res::str::sensor_reading(crate::res::str::SensorReading {
+                x: format!("{:+.2}", r.x),
+                y: format!("{:+.2}", r.y),
+                z: format!("{:+.2}", r.z),
                 unit,
-                format!("{:+.2}", r.x),
-                format!("{:+.2}", r.y),
-                format!("{:+.2}", r.z),
-            )
+            })
             .format(),
             None if day_part_sensors::is_available(kind) => {
                 crate::res::str::sensor_waiting().format()
@@ -183,7 +183,13 @@ fn sensor_section(
 
     // The widest reading this line can show, in the run's locale: three signed values of up to
     // three integer digits (a magnetometer reads past ±100 µT), so the box is sized once.
-    let widest = crate::res::str::sensor_reading(unit, "-000.00", "-000.00", "-000.00").format();
+    let widest = crate::res::str::sensor_reading(crate::res::str::SensorReading {
+        x: "-000.00",
+        y: "-000.00",
+        z: "-000.00",
+        unit,
+    })
+    .format();
     // Through the shared helper, which puts the id on the LABEL: `reserving` returns a wrapper
     // with no native handle, and an id on that wrapper reaches no element on web-dom.
     section((
@@ -303,8 +309,9 @@ fn permission_row(
     labeled(
         title,
         // Status text plus a Request/Settings button outgrew a phone-portrait row; the
-        // button clipped at the panel's edge (docs/size-classes.md "Row fit policies").
-        row((
+        // button clipped at the panel's edge, so the pair stacks on a Compact window
+        // (docs/size-classes.md).
+        adaptive((
             label(move || status.get()).id(id),
             when(
                 move || gated,
@@ -332,8 +339,7 @@ fn permission_row(
                 },
             ),
         ))
-        .spacing(8.0)
-        .fit(RowFit::ColumnAt(WidthClass::Compact)),
+        .spacing(Space::S),
     )
 }
 
@@ -404,10 +410,10 @@ fn location_section() -> impl Piece {
             let handle = day_part_location::watch(Accuracy::Balanced, move |fix| match fix {
                 Ok(f) => {
                     set_coords.set(
-                        crate::res::str::location_coords(
-                            format!("{:.5}", f.latitude),
-                            format!("{:.5}", f.longitude),
-                        )
+                        crate::res::str::location_coords(crate::res::str::LocationCoords {
+                            lat: format!("{:.5}", f.latitude),
+                            lon: format!("{:.5}", f.longitude),
+                        })
                         .format(),
                     );
                     set_alt.set(f.altitude.map_or_else(
@@ -568,7 +574,7 @@ fn battery_view(level: Signal<f64>, charging: Signal<bool>) -> impl Piece {
     // label and value; the value reads the signal, so the screen reader follows the charge.
     .a11y(move |a| {
         a.role(Role::Meter)
-            .label(crate::res::str::nav_battery().format())
+            .label(crate::res::str::nav_battery())
             .value(move || format!("{:.0}%", level.get()))
     })
     .id("battery")
@@ -580,7 +586,11 @@ fn battery_view(level: Signal<f64>, charging: Signal<bool>) -> impl Piece {
 fn deviceinfo_lines() -> (String, String, String) {
     let d = day_part_deviceinfo::get();
     let model = crate::res::str::deviceinfo_model(d.model).format();
-    let system = crate::res::str::deviceinfo_system(d.system_name, d.system_version).format();
+    let system = crate::res::str::deviceinfo_system(crate::res::str::DeviceinfoSystem {
+        name: d.system_name,
+        version: d.system_version,
+    })
+    .format();
     // Each branch is a full literal tr(...) call so `day lint` sees both keys (never tr(if ...)).
     let sim_value = if d.is_simulator {
         crate::res::str::deviceinfo_yes().format()

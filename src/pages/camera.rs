@@ -62,7 +62,7 @@ pub(crate) fn camera_page() -> AnyPiece {
                         .action(move || facing.update(|f| *f = f.flipped()))
                         .id("camera-flip"),
                 ))
-                .spacing(8.0),
+                .spacing(Space::S),
                 labeled(
                     crate::res::str::camera_state_label(),
                     // The locale-independent label, so a script can assert it.
@@ -82,14 +82,14 @@ pub(crate) fn camera_page() -> AnyPiece {
                 labeled(
                     crate::res::str::camera_photo_label(),
                     label(move || match photo.get() {
-                        // The generated accessor takes the message's variables in sorted
-                        // order: height, name, width.
-                        Some(p) => crate::res::str::camera_photo_size(
-                            p.height as i64,
-                            p.file_name(),
-                            p.width as i64,
-                        )
-                        .format(),
+                        Some(p) => {
+                            crate::res::str::camera_photo_size(crate::res::str::CameraPhotoSize {
+                                width: p.width as i64,
+                                height: p.height as i64,
+                                name: p.file_name(),
+                            })
+                            .format()
+                        }
                         None => crate::res::str::camera_no_photo().format(),
                     })
                     .id("camera-photo-size"),
@@ -119,7 +119,7 @@ fn permission_section(active: Signal<bool>) -> impl Piece {
     };
     section((labeled(
         crate::res::str::camera_permission_label(),
-        row((
+        adaptive((
             label(move || status.get()).id("camera-perm"),
             when(
                 move || gated && !active.get(),
@@ -155,8 +155,7 @@ fn permission_section(active: Signal<bool>) -> impl Piece {
                 },
             ),
         ))
-        .spacing(8.0)
-        .fit(RowFit::ColumnAt(WidthClass::Compact)),
+        .spacing(Space::S),
     ),))
     .title(crate::res::str::camera_permission_section())
 }

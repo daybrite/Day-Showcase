@@ -121,7 +121,7 @@ fn speech_section() -> impl Piece {
                 .action(day_part_speech::stop)
                 .id("speech-stop"),
         ))
-        .spacing(8.0),
+        .spacing(Space::S),
         label(move || state.get())
             .font(Font::Footnote)
             .id("speech-state"),
@@ -163,7 +163,7 @@ fn clipboard_section() -> impl Piece {
                 .id("clipboard-paste"),
             label(move || status.get()).id("clipboard-status"),
         ))
-        .spacing(8.0),
+        .spacing(Space::S),
         label(move || pasted.get()).id("clipboard-pasted"),
     ))
     .title(crate::res::str::nav_clipboard())
@@ -215,7 +215,7 @@ fn prefs_section() -> impl Piece {
                 .id("prefs-clear"),
             label(move || status.get()).id("prefs-status"),
         ))
-        .spacing(8.0),
+        .spacing(Space::S),
         labeled(
             crate::res::str::prefs_value_label(),
             label(move || value.get()).id("prefs-value"),
@@ -346,14 +346,14 @@ fn sound_section() -> impl Piece {
                 ),
             )),
         ))
-        .spacing(8.0),
+        .spacing(Space::S),
         label(crate::res::str::sound_pan_caption()).font(Font::Footnote),
         grid((grid_row((
             panned("sound-left", crate::res::str::sound_left(), -1.0),
             panned("sound-center", crate::res::str::sound_center(), 0.0),
             panned("sound-right", crate::res::str::sound_right(), 1.0),
         )),))
-        .spacing(8.0),
+        .spacing(Space::S),
         labeled(
             crate::res::str::sound_volume(),
             slider(volume).range(0.0..=1.0).id("sound-volume"),
@@ -704,7 +704,7 @@ fn haptics_section() -> impl Piece {
                 spacer(),
             )),
         ))
-        .spacing(8.0),
+        .spacing(Space::S),
         label(crate::res::str::haptics_songs_caption()).font(Font::Footnote),
         // The songs get filled colors so they read as a different kind of control from the single
         // taps above. Each fill picks its own label color: the three saturated ones take white,
@@ -752,7 +752,7 @@ fn haptics_section() -> impl Piece {
                 ),
             )),
         ))
-        .spacing(8.0),
+        .spacing(Space::S),
         labeled(
             crate::res::str::haptics_last(),
             label(move || last.get()).id("haptics-last-played"),
@@ -793,7 +793,8 @@ fn notify_section() -> impl Piece {
 
     let title = Signal::new(crate::res::str::notify_title_default().format());
     let body = Signal::new(crate::res::str::notify_body_default().format());
-    let delay_idx = Signal::new(0usize);
+    // The delay before the notification fires, in seconds.
+    let delay = Signal::new(0u64);
     // High, not Default: Android only shows a heads-up banner from IMPORTANCE_HIGH up, and a
     // notification that lands silently in the shade reads as "the button did nothing".
     let level_idx = Signal::new(2usize);
@@ -865,26 +866,26 @@ fn notify_section() -> impl Piece {
         labeled(
             crate::res::str::notify_delay(),
             picker(
-                vec![
-                    crate::res::str::notify_delay_now().format(),
-                    crate::res::str::notify_delay_5s().format(),
-                    crate::res::str::notify_delay_15s().format(),
-                    crate::res::str::notify_delay_60s().format(),
+                delay,
+                [
+                    (0, crate::res::str::notify_delay_now()),
+                    (5, crate::res::str::notify_delay_5s()),
+                    (15, crate::res::str::notify_delay_15s()),
+                    (60, crate::res::str::notify_delay_60s()),
                 ],
-                delay_idx,
             )
             .id("notify-delay"),
         ),
         labeled(
             crate::res::str::notify_importance(),
             picker(
-                vec![
-                    crate::res::str::notify_importance_low().format(),
-                    crate::res::str::notify_importance_default().format(),
-                    crate::res::str::notify_importance_high().format(),
-                    crate::res::str::notify_importance_urgent().format(),
-                ],
                 level_idx,
+                [
+                    (0, crate::res::str::notify_importance_low()),
+                    (1, crate::res::str::notify_importance_default()),
+                    (2, crate::res::str::notify_importance_high()),
+                    (3, crate::res::str::notify_importance_urgent()),
+                ],
             )
             .id("notify-importance"),
         ),
@@ -982,7 +983,7 @@ fn notify_section() -> impl Piece {
                     Channel::new(chan.clone(), level)
                         .sound(sound.get())
                         .register();
-                    let secs = [0u64, 5, 15, 60][delay_idx.get().min(3)];
+                    let secs = delay.get();
                     let trigger = if secs == 0 {
                         Trigger::Now
                     } else {
@@ -1022,7 +1023,7 @@ fn notify_section() -> impl Piece {
                 })
                 .id("notify-cancel"),
         ))
-        .spacing(8.0),
+        .spacing(Space::S),
         labeled(
             crate::res::str::notify_last(),
             label(move || status.get()).id("notify-status"),
@@ -1079,7 +1080,7 @@ fn badge_section() -> impl Piece {
                     .action(move || count.set((count.get() + 1.0).min(99.0)))
                     .id("badge-plus"),
             ))
-            .spacing(8.0),
+            .spacing(Space::S),
         ),
         row((
             button(crate::res::str::badge_set())
@@ -1114,7 +1115,7 @@ fn badge_section() -> impl Piece {
                 },
             ),
         ))
-        .spacing(8.0),
+        .spacing(Space::S),
         labeled(
             crate::res::str::badge_last(),
             label(move || status.get()).id("badge-status"),
@@ -1216,7 +1217,7 @@ fn files_section() -> impl Piece {
             ),
             label(move || status.get()).id("files-status"),
         ))
-        .spacing(8.0),
+        .spacing(Space::S),
         when(
             move || !opened.with(|s| s.is_empty()),
             move || label(crate::res::str::files_opened(opened)).id("files-opened-name"),
@@ -1292,7 +1293,7 @@ fn storage_section() -> impl Piece {
                 .id("fs-delete"),
             label(move || status.get()).id("fs-status"),
         ))
-        .spacing(8.0),
+        .spacing(Space::S),
         labeled(
             crate::res::str::storage_files_label(),
             label(move || files.get())
@@ -1313,7 +1314,7 @@ pub(super) fn network_section() -> impl Piece {
             .id("network-refresh"),
         label(move || reading.get()).id("network-reading"),
     ))
-    .spacing(8.0),))
+    .spacing(Space::S),))
     .title(crate::res::str::network_status_section())
 }
 
@@ -1323,14 +1324,14 @@ fn network_line() -> LocalizedText {
     match day_part_network::status() {
         Some(n) => {
             if n.online {
-                crate::res::str::network_reading_online(
-                    match n.expensive {
+                crate::res::str::network_reading_online(crate::res::str::NetworkReadingOnline {
+                    kind: format!("{:?}", n.kind),
+                    expensive: match n.expensive {
                         Some(true) => "yes",
                         Some(false) => "no",
                         None => "?",
                     },
-                    format!("{:?}", n.kind),
-                )
+                })
             } else {
                 crate::res::str::network_reading_offline()
             }

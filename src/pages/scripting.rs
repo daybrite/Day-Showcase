@@ -5,8 +5,8 @@ use crate::widgets::page;
 const DELAY_KEY: &str = "scripting.delay";
 const DEFAULT_DELAY: &str = "0.25";
 
-// Global page state (Signal::global outlives the page's rebuilds), so navigating away and back
-// preserves the working script, the baseline it was last saved/loaded at (for the dirty check that
+// Page state that outlives the page's rebuilds (it lives on the window's `Scene`, lib.rs), so
+// navigating away and back preserves the working script, the baseline it was last saved/loaded at (for the dirty check that
 // gates Save), and which file on disk it maps to (an in-place Save vs a prompt for a new name).
 /// The working script. `pub(crate)` because the toolbar's transport and the App menu record into
 /// and play from this buffer (commands.rs): one recording, whichever surface starts it.
@@ -140,9 +140,11 @@ pub(crate) fn scripting_page() -> AnyPiece {
             // Load a saved script from the app container.
             section((row((
                 label(crate::res::str::scripting_saved_label()).font(Font::Footnote),
-                picker(options, sel).menu().id("scripting-menu"),
+                picker(sel, options.into_iter().enumerate().collect::<Vec<_>>())
+                    .menu()
+                    .id("scripting-menu"),
             ))
-            .spacing(8.0),)),
+            .spacing(Space::S),)),
             // The controls. Every id starts with `scripting-` so the recorder skips them.
             section((
                 row((
@@ -244,9 +246,9 @@ pub(crate) fn scripting_page() -> AnyPiece {
                         })
                         .id("scripting-export"),
                 ))
-                .spacing(8.0),
-                // "Delay between steps": an editable field with - / + steppers (Day has no native
-                // stepper piece), feeding the per-step Playback pause above.
+                .spacing(Space::S),
+                // "Delay between steps": an editable field with - / + buttons, feeding the
+                // per-step Playback pause above.
                 row((
                     label(crate::res::str::scripting_delay_label()).font(Font::Footnote),
                     button("\u{2212}")
@@ -262,7 +264,7 @@ pub(crate) fn scripting_page() -> AnyPiece {
                         .id("scripting-delay-inc"),
                     label(crate::res::str::scripting_delay_unit()).font(Font::Footnote),
                 ))
-                .spacing(8.0),
+                .spacing(Space::S),
                 label(move || status.get())
                     .font(Font::Footnote)
                     .id("scripting-status"),

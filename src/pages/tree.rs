@@ -7,7 +7,7 @@ use crate::widgets::heading;
 /// a nested folder) small enough to read, deep enough to exercise the API. The page drives
 /// every portable option from real controls: an app-owned expansion set (Expand/Collapse
 /// All), two-way selection with a live readout, `reveal` (expands ancestors and scrolls),
-/// drag-to-reparent through `movable` + `on_move` with a `move_guard` the Lock toggle arms
+/// drag-to-reparent through `movable(Move::new(..).guard(..))`, a guard the Lock toggle arms
 /// (macOS shows the native drop-deny affordance; every platform moves rows through each
 /// row's context menu too), per-row context menus built at summon time, native type-ahead,
 /// and a multi-select toggle that rebuilds the tree with the other flag.
@@ -196,25 +196,26 @@ pub(crate) fn tree_page() -> AnyPiece {
         .expandable(move |id: &u32| {
             nodes.with_untracked(|v| v.iter().any(|n| n.id == *id && n.folder))
         })
-        .multi_select(multi_on)
+        .apply_if(multi_on, |t| t.multi_select())
         .selected(move || selection.get())
         .on_selection(move |keys: Vec<u32>| selection.set(keys))
-        .movable(true)
-        .on_move(move |id: u32, parent: Option<u32>, index: Option<usize>| {
-            nodes.update(|v| apply_move(v, id, parent, index));
-            last_move.set(Some((id, parent, index)));
-        })
-        // The structural refusals (into itself, into a descendant, into a leaf) are built
-        // in; this is the app's rule: docs/ takes no drops while the lock is on; macOS
-        // shows the native no-drop cursor live from this verdict.
-        .move_guard(
-            move |_id: &u32, parent: Option<&u32>, _index: Option<usize>| {
-                if locked.get_untracked() && parent == Some(&DOCS) {
-                    MoveVerdict::Deny
-                } else {
-                    MoveVerdict::Allow
-                }
-            },
+        .movable(
+            Move::new(move |id: u32, parent: Option<u32>, index: Option<usize>| {
+                nodes.update(|v| apply_move(v, id, parent, index));
+                last_move.set(Some((id, parent, index)));
+            })
+            // The structural refusals (into itself, into a descendant, into a leaf) are built
+            // in; this is the app's rule: docs/ takes no drops while the lock is on; macOS
+            // shows the native no-drop cursor live from this verdict.
+            .guard(
+                move |_id: &u32, parent: Option<&u32>, _index: Option<usize>| {
+                    if locked.get_untracked() && parent == Some(&DOCS) {
+                        MoveVerdict::Deny
+                    } else {
+                        MoveVerdict::Allow
+                    }
+                },
+            ),
         )
         .type_ahead(move |id: &u32| name_of(*id))
         .reveal(reveal)
@@ -231,7 +232,7 @@ pub(crate) fn tree_page() -> AnyPiece {
             let mut entries = Vec::new();
             if folder {
                 entries.push(
-                    menu_item(crate::res::str::tree_ctx_new_file().format()).action(move || {
+                    menu_item(crate::res::str::tree_ctx_new_file()).action(move || {
                         let nid = next_id.get_untracked();
                         next_id.set(nid + 1);
                         nodes.update(|v| {
@@ -250,7 +251,7 @@ pub(crate) fn tree_page() -> AnyPiece {
                 );
             } else {
                 entries.push(
-                    menu_item(crate::res::str::tree_ctx_duplicate().format()).action(move || {
+                    menu_item(crate::res::str::tree_ctx_duplicate()).action(move || {
                         let nid = next_id.get_untracked();
                         next_id.set(nid + 1);
                         nodes.update(|v| {
@@ -266,25 +267,22 @@ pub(crate) fn tree_page() -> AnyPiece {
             }
             entries.push(menu_separator());
             entries.push(
-                menu_item(crate::res::str::tree_ctx_move_up().format())
+                menu_item(crate::res::str::tree_ctx_move_up())
                     .action(move || nodes.update(|v| nudge(v, id, true))),
             );
             entries.push(
-                menu_item(crate::res::str::tree_ctx_move_down().format())
+                menu_item(crate::res::str::tree_ctx_move_down())
                     .action(move || nodes.update(|v| nudge(v, id, false))),
             );
             entries.push(menu_separator());
             entries.push(
-                menu_item(crate::res::str::tree_ctx_delete().format()).action(move || {
+                menu_item(crate::res::str::tree_ctx_delete()).action(move || {
                     nodes.update(|v| remove_subtree(v, id));
                     selection.update(|s| s.retain(|k| *k != id));
                 }),
             );
             entries
         })
-        // `.id` chains on the tree itself: the driver `expand:`/`tree_move:` address lives
-        // on its node, and a decorator like `.height` wraps a new one (memory: .id before
-        // wrapper decorators).
         .id("demo-tree")
         // day-tweak-tree-style: the sidebar treatment (clear backgrounds over the pane on
         // macOS, Adwaita's navigation-sidebar class on GTK) and a no-op on the toolkits
@@ -307,7 +305,7 @@ pub(crate) fn tree_page() -> AnyPiece {
                     .tint(crate::widgets::primary())
                     .id("tree-add"),
             ))
-            .spacing(8.0),
+            .spacing(Space::S),
             label(crate::res::str::tree_caption())
                 .font(Font::Footnote)
                 .id("tree-caption"),
@@ -327,7 +325,7 @@ pub(crate) fn tree_page() -> AnyPiece {
                     .action(move || reveal.set(Some(REVEAL_TARGET)))
                     .id("tree-reveal"),
             ))
-            .spacing(8.0)
+            .spacing(Space::S)
             .fit(RowFit::Wrap { run_spacing: 8.0 }),
             row((
                 labeled(
@@ -336,7 +334,7 @@ pub(crate) fn tree_page() -> AnyPiece {
                 ),
                 labeled(crate::res::str::tree_lock(), toggle(locked).id("tree-lock")),
             ))
-            .spacing(16.0)
+            .spacing(Space::L)
             .fit(RowFit::Wrap { run_spacing: 8.0 }),
             label(crate::res::str::tree_hint())
                 .font(Font::Footnote)
@@ -353,7 +351,11 @@ pub(crate) fn tree_page() -> AnyPiece {
                     crate::res::str::tree_selection_none().format()
                 } else {
                     let names: Vec<String> = sel.iter().map(|id| name_of(*id)).collect();
-                    crate::res::str::tree_selection(sel.len() as i64, names.join(", ")).format()
+                    crate::res::str::tree_selection(crate::res::str::TreeSelection {
+                        count: sel.len() as i64,
+                        names: names.join(", "),
+                    })
+                    .format()
                 }
             })
             .font(Font::Footnote)
@@ -366,10 +368,19 @@ pub(crate) fn tree_page() -> AnyPiece {
                         None => crate::res::str::tree_root().format(),
                     };
                     match index {
-                        Some(i) => {
-                            crate::res::str::tree_move(i as i64, name_of(id), target).format()
+                        Some(i) => crate::res::str::tree_move(crate::res::str::TreeMove {
+                            name: name_of(id),
+                            parent: target,
+                            index: i as i64,
+                        })
+                        .format(),
+                        None => {
+                            crate::res::str::tree_move_append(crate::res::str::TreeMoveAppend {
+                                name: name_of(id),
+                                parent: target,
+                            })
+                            .format()
                         }
-                        None => crate::res::str::tree_move_append(name_of(id), target).format(),
                     }
                 }
             })
@@ -378,7 +389,7 @@ pub(crate) fn tree_page() -> AnyPiece {
         ))
         .spacing(10.0)
         .align(HAlign::Leading)
-        .padding(16.0),
+        .padding(Space::L),
     )
     .any()
 }

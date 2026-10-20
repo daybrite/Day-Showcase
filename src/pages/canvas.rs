@@ -159,14 +159,14 @@ fn text_section() -> impl Piece {
             // number of lines here and then stops again.
             let st = day::text_metrics_cache_stats();
             d.text(
-                // A generated `res::str` takes its arguments in alphabetical order, not the order
-                // the message mentions them; three `i64`s in the wrong order compile and render
-                // a plausible-looking lie. Named locals, so the call reads as a check.
-                &{
-                    let (entries, hits, misses) =
-                        (st.entries as i64, st.hits as i64, st.misses as i64);
-                    crate::res::str::canvas_metrics_cache(entries, hits, misses).format()
-                },
+                // Named arguments: three `i64`s in the wrong order would compile and render a
+                // plausible-looking lie, so the generated accessor takes a struct.
+                &crate::res::str::canvas_metrics_cache(crate::res::str::CanvasMetricsCache {
+                    hits: st.hits as i64,
+                    misses: st.misses as i64,
+                    entries: st.entries as i64,
+                })
+                .format(),
                 Point::new(8.0, size.height - 6.0),
                 TextStyle {
                     size: 11.0,
@@ -184,9 +184,12 @@ fn text_section() -> impl Piece {
         .id("canvas-text"),
         labeled(
             crate::res::str::canvas_font_label(),
-            picker(families.iter().cloned(), chosen)
-                .menu()
-                .id("canvas-font"),
+            picker(
+                chosen,
+                families.iter().cloned().enumerate().collect::<Vec<_>>(),
+            )
+            .menu()
+            .id("canvas-font"),
         ),
     ))
     .title(crate::res::str::canvas_text_title())
@@ -377,7 +380,14 @@ fn interaction_section() -> impl Piece {
                     fmt(tap.get()),
                     trail.with(|t| t.len() as i64),
                 );
-                crate::res::str::canvas_interaction_readout(hover_s, tap_s, trail_n).format()
+                crate::res::str::canvas_interaction_readout(
+                    crate::res::str::CanvasInteractionReadout {
+                        hover: hover_s,
+                        tap: tap_s,
+                        trail: trail_n,
+                    },
+                )
+                .format()
             })
             .font(Font::Callout)
             .id("canvas-interaction-readout"),
@@ -623,7 +633,7 @@ fn paths_section() -> impl Piece {
         .aspect_ratio(DESIGN_RATIO)
         .grow_w(),
     ))
-    .spacing(16.0),))
+    .spacing(Space::L),))
     .title(crate::res::str::paths_title())
 }
 
@@ -749,7 +759,7 @@ fn gradients_section() -> impl Piece {
                     .grow_w(),
             )),
         ))
-        .spacing(12.0),
+        .spacing(Space::M),
         labeled(
             crate::res::str::gradient_angle(),
             slider(angle).range(0.0..=360.0).id("gradient-angle-slider"),
@@ -869,7 +879,7 @@ fn shapes_section() -> impl Piece {
                 .grow_w(),
             )),
         ))
-        .spacing(12.0),
+        .spacing(Space::M),
         labeled(
             crate::res::str::shapes_angle(),
             slider(angle).range(0.0..=360.0).id("shapes-angle-slider"),
@@ -892,7 +902,7 @@ fn gauge_section() -> impl Piece {
             led_meter(level).height(H).grow_w(),
             sunrise_meter(level).height(H).grow_w(),
         )),))
-        .spacing(12.0),
+        .spacing(Space::M),
         labeled(
             crate::res::str::gauge_value_label(),
             slider(level).range(0.0..=100.0).id("gauge-slider"),
@@ -928,11 +938,11 @@ fn image_section() -> impl Piece {
             Ok(bitmap) => {
                 let info = bitmap.info();
                 readout.set(
-                    crate::res::str::canvas_image_readout(
-                        info.format.map(|f| f.mime()).unwrap_or("—"),
-                        info.pixels.height,
-                        info.pixels.width,
-                    )
+                    crate::res::str::canvas_image_readout(crate::res::str::CanvasImageReadout {
+                        format: info.format.map(|f| f.mime()).unwrap_or("—"),
+                        width: info.pixels.width,
+                        height: info.pixels.height,
+                    })
                     .format(),
                 );
                 shown.set(Some(bitmap));
@@ -958,7 +968,7 @@ fn image_section() -> impl Piece {
         })
         .height(180.0)
         .grow_w()
-        .a11y(|a| a.label(crate::res::str::canvas_image_title().format()))
+        .a11y(|a| a.label(crate::res::str::canvas_image_title()))
         .id("canvas-image"),
         label(move || readout.get()).id("canvas-image-readout"),
     ))
@@ -1004,7 +1014,7 @@ fn led_meter(level: Signal<f64>) -> impl Piece {
     })
     .a11y(move |a| {
         a.role(Role::Meter)
-            .label(crate::res::str::gauge_value_label().format())
+            .label(crate::res::str::gauge_value_label())
             .value(move || format!("{:.0}", level.get()))
     })
     .id("gauge-led")
@@ -1109,7 +1119,7 @@ fn sunrise_meter(level: Signal<f64>) -> impl Piece {
     })
     .a11y(move |a| {
         a.role(Role::Meter)
-            .label(crate::res::str::gauge_value_label().format())
+            .label(crate::res::str::gauge_value_label())
             .value(move || format!("{:.0}", level.get()))
     })
     .id("gauge-sunrise")

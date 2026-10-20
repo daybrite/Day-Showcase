@@ -4,8 +4,9 @@ use day_piece_rating::Card;
 use crate::widgets::page;
 
 /// Layout: the containers a page is made of, and what they do as the window changes. Rows,
-/// columns and layers with their alignment and spacing live; the five row-fit policies
-/// (docs/size-classes.md) over one row of buttons; the card and environment composition tier;
+/// columns and layers with their alignment and spacing live; the row-fit policies and the
+/// adaptive stack (docs/size-classes.md) over one row of buttons; the card and environment
+/// composition tier;
 /// a plain `scroll` with programmatic targets (docs/scroll.md); and the size classes the
 /// window is in right now.
 pub(crate) fn layout_page() -> AnyPiece {
@@ -25,15 +26,10 @@ pub(crate) fn layout_page() -> AnyPiece {
 }
 
 /// Three swatches of different heights in one row: the alignment picker moves them against
-/// each other. `align` is a build-time property, so each alignment is its own `when` arm over
-/// the same swatches; the layered example is a `zstack`.
+/// each other. `align` is a build-time property, so `switch` rebuilds the same swatches per
+/// alignment; the layered example is a `zstack`.
 fn stacks_section() -> impl Piece {
-    let align_idx = Signal::new(1usize);
-    let names: Vec<String> = vec![
-        crate::res::str::layout_align_top().format(),
-        crate::res::str::layout_align_center().format(),
-        crate::res::str::layout_align_bottom().format(),
-    ];
+    let align = Signal::new(VAlign::Center);
     let swatches = move |align: VAlign| {
         row((
             rounded_rectangle(6.0)
@@ -47,21 +43,24 @@ fn stacks_section() -> impl Piece {
                 .frame(56.0, 64.0),
         ))
         .align(align)
-        .spacing(12.0)
+        .spacing(Space::M)
         .id("layout-stack")
     };
-    let arm =
-        move |i: usize, align: VAlign| when(move || align_idx.get() == i, move || swatches(align));
     section((
         labeled(
             crate::res::str::layout_align_label(),
-            picker(names.iter().cloned(), align_idx)
-                .segmented()
-                .id("layout-align"),
+            picker(
+                align,
+                [
+                    (VAlign::Top, crate::res::str::layout_align_top()),
+                    (VAlign::Center, crate::res::str::layout_align_center()),
+                    (VAlign::Bottom, crate::res::str::layout_align_bottom()),
+                ],
+            )
+            .segmented()
+            .id("layout-align"),
         ),
-        arm(0, VAlign::Top),
-        arm(1, VAlign::Center),
-        arm(2, VAlign::Bottom),
+        switch(move || align.get(), move |a| swatches(*a)),
         labeled(
             crate::res::str::layout_layered(),
             zstack((
@@ -81,33 +80,26 @@ fn stacks_section() -> impl Piece {
 const MIN_ITEMS: i64 = 1;
 const MAX_ITEMS: i64 = 20;
 
+/// The arrangements the demo row can take: the four row-fit policies (docs/size-classes.md
+/// "Row fit policies") and the adaptive stack, which is what Column is.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum Fit {
+    Clip,
+    Wrap,
+    WrapColumns,
+    Column,
+    Scroll,
+}
+
 /// Row fit policies (docs/size-classes.md "Row fit policies"), live: one row of buttons is
-/// rendered under whichever policy the picker selects, and a stepper grows or shrinks the
+/// rendered under whichever arrangement the picker selects, and a stepper grows or shrinks the
 /// button count, the quickest way to feel what Clip, Wrap, Column and Scroll each do to the
 /// same content as it outgrows the window.
 fn fit_section() -> impl Piece {
-    // Which fit policy the demo row is built with (picker index), and how many buttons it
-    // holds. Both drive the `when` arms below through tracked reads.
-    let fit_idx = Signal::new(0usize);
+    // Which arrangement the demo row is built with, and how many buttons it holds. Both drive
+    // the `switch` below through tracked reads.
+    let fit = Signal::new(Fit::Clip);
     let count = Signal::new(5i64);
-
-    let names: Vec<String> = vec![
-        crate::res::str::layout_fit_clip().format(),
-        crate::res::str::layout_fit_wrap().format(),
-        crate::res::str::layout_fit_wrap_columns().format(),
-        crate::res::str::layout_fit_column().format(),
-        crate::res::str::layout_fit_scroll().format(),
-    ];
-
-    // One arm per policy: `fit` is a build-time property, so switching policies rebuilds the
-    // row; `when` is the reactive switch for exactly that. Only one arm is live at a time, so
-    // the shared "layout-demo" id stays unique.
-    let arm = |i: usize, fit: RowFit| {
-        when(
-            move || fit_idx.get() == i,
-            move || demo_row(count, fit).id("layout-demo"),
-        )
-    };
 
     section((
         label(crate::res::str::layout_note()).font(Font::Footnote),
@@ -116,9 +108,18 @@ fn fit_section() -> impl Piece {
             // Menu, not segmented: four worded segments outgrow a phone-portrait row, the
             // very failure this page teaches, and a native control day's fit policies cannot
             // reach into. The menu styling is compact at every width.
-            picker(names.iter().cloned(), fit_idx)
-                .menu()
-                .id("layout-fit"),
+            picker(
+                fit,
+                [
+                    (Fit::Clip, crate::res::str::layout_fit_clip()),
+                    (Fit::Wrap, crate::res::str::layout_fit_wrap()),
+                    (Fit::WrapColumns, crate::res::str::layout_fit_wrap_columns()),
+                    (Fit::Column, crate::res::str::layout_fit_column()),
+                    (Fit::Scroll, crate::res::str::layout_fit_scroll()),
+                ],
+            )
+            .menu()
+            .id("layout-fit"),
         ),
         labeled(
             crate::res::str::layout_count_label(),
@@ -135,15 +136,27 @@ fn fit_section() -> impl Piece {
                     .action(move || count.update(|c| *c = (*c + 1).min(MAX_ITEMS)))
                     .id("layout-add"),
             ))
-            .spacing(8.0),
+            .spacing(Space::S),
         ),
-        arm(0, RowFit::Clip),
-        // Wrap and WrapColumns sit next to each other: the same eight buttons
-        // ragged, then aligned into columns, is the comparison the page exists to make.
-        arm(1, RowFit::Wrap { run_spacing: 8.0 }),
-        arm(2, RowFit::WrapColumns { run_spacing: 8.0 }),
-        arm(3, RowFit::ColumnAt(WidthClass::Compact)),
-        arm(4, RowFit::Scroll),
+        // One subtree per arrangement: `fit` is a build-time property, so switching rebuilds
+        // the row, and `switch` is the reactive one-of-N for exactly that. Only one arm is live
+        // at a time, so the shared "layout-demo" id stays unique. Wrap and WrapColumns sit next
+        // to each other: the same eight buttons ragged, then aligned into columns, is the
+        // comparison the page exists to make.
+        switch(
+            move || fit.get(),
+            move |f| match f {
+                Fit::Clip => demo_row(count, RowFit::Clip).id("layout-demo").any(),
+                Fit::Wrap => demo_row(count, RowFit::Wrap { run_spacing: 8.0 })
+                    .id("layout-demo")
+                    .any(),
+                Fit::WrapColumns => demo_row(count, RowFit::WrapColumns { run_spacing: 8.0 })
+                    .id("layout-demo")
+                    .any(),
+                Fit::Column => adaptive_row(count).id("layout-demo").any(),
+                Fit::Scroll => demo_row(count, RowFit::Scroll).id("layout-demo").any(),
+            },
+        ),
     ))
     .title(crate::res::str::layout_row_section())
 }
@@ -151,7 +164,19 @@ fn fit_section() -> impl Piece {
 /// The demo itself: `count` numbered buttons in one `row` under `fit`. The buttons do nothing;
 /// the row is the exhibit.
 fn demo_row(count: Signal<i64>, fit: RowFit) -> impl Piece {
-    row((each(
+    row((demo_buttons(count),)).spacing(Space::S).fit(fit)
+}
+
+/// The same buttons as an `adaptive` stack (docs/size-classes.md): a row while the window is
+/// wider than Compact, a leading-aligned column at or below it, the same nodes re-laid when
+/// the window crosses the breakpoint.
+fn adaptive_row(count: Signal<i64>) -> impl Piece {
+    adaptive((demo_buttons(count),)).spacing(Space::S)
+}
+
+/// The buttons every arrangement holds.
+fn demo_buttons(count: Signal<i64>) -> impl Piece {
+    each(
         items(move || (1..=count.get()).collect::<Vec<_>>(), |n: &i64| *n),
         |slot: ItemSlot<i64, i64>| {
             // Every third button carries a longer label. With labels of one width
@@ -167,9 +192,7 @@ fn demo_row(count: Signal<i64>, fit: RowFit) -> impl Piece {
             }))
             .bordered()
         },
-    ),))
-    .spacing(8.0)
-    .fit(fit)
+    )
 }
 
 /// The composition tier: the `Card` modifier (padding, background and rounded corners as one
@@ -185,7 +208,7 @@ fn cards_section() -> impl Piece {
             label(crate::res::str::compose_card_title()).font(Font::Headline),
             label(crate::res::str::compose_card_body()),
         ))
-        .spacing(4.0)
+        .spacing(Space::XS)
         .align(HAlign::Leading)
         .modifier(Card)
         .id("layout-card"),
@@ -217,7 +240,7 @@ fn scroll_section() -> impl Piece {
                 .action(move || target.set(Some(ScrollTarget::Bottom)))
                 .id("layout-scroll-end"),
         ))
-        .spacing(8.0)
+        .spacing(Space::S)
         .fit(RowFit::Wrap { run_spacing: 8.0 }),
         scroll(
             column((each(
@@ -231,8 +254,6 @@ fn scroll_section() -> impl Piece {
             .align(HAlign::Leading),
         )
         .scroll_target(target)
-        // `.id` before `.height`: the id must tag the scroll piece itself, not the sizing
-        // wrapper, for the dayscript `scroll_to` step to find a realized scroll.
         .id("layout-scroll")
         .height(200.0),
     ))

@@ -24,22 +24,22 @@ pub(crate) fn map_page() -> AnyPiece {
                 .action(move || center.set(PARIS))
                 .id("map-paris"),
         ))
-        .spacing(8.0),
+        .spacing(Space::S),
         label(move || {
             let (lat, lon) = center.get();
             format!("{lat:.4}, {lon:.4}")
         })
         .id("map-coords"),
         map()
-            .center_signal(center)
+            .center(center)
             .span(0.05)
             .marker(BOSTON.0, BOSTON.1)
             .id("map")
             .grow(),
     ))
-    .spacing(12.0)
+    .spacing(Space::M)
     .align(HAlign::Leading)
-    .padding(16.0)
+    .padding(Space::L)
     .grow()
     .any()
 }

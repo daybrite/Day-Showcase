@@ -59,7 +59,7 @@ fn counter() -> impl Piece{
         label(move || format!(\"Count: {}\", n.get())),
         button(\"Add one\").action(move || n.update(|v| *v += 1)),
     ))
-    .spacing(8.0)
+    .spacing(Space::S)
     
 }";
 
@@ -136,7 +136,7 @@ fn plain_sections() -> (impl Piece, impl Piece, impl Piece) {
             .tint(crate::widgets::primary())
             .id("ta-seed-markdown"),
     ))
-    .spacing(8.0),))
+    .spacing(Space::S),))
     .title(crate::res::str::textareas_seed_section());
 
     // Each toggle is disabled where the running toolkit can't honor the attribute (GTK can't stop
@@ -175,7 +175,7 @@ fn styled_sections() -> impl Piece {
     let doc = Signal::new(StyledText::markdown(NOTE, Font::Body));
     let sel = Signal::new(0..0);
     let typing = Signal::new(RunStyle::plain(Font::Body));
-    let which = Signal::new(0usize);
+    let which = Signal::new(Doc::Note);
     // The document the export section last wrote, and which format it used.
     let exported = Signal::new(String::new());
 
@@ -186,7 +186,7 @@ fn styled_sections() -> impl Piece {
     let last = Signal::new(String::new());
     Effect::new(move || {
         let text = doc.with(|d| d.text.clone());
-        if which.get() != 1 || last.get_untracked() == text {
+        if which.get() != Doc::Code || last.get_untracked() == text {
             return;
         }
         last.set(text.clone());
@@ -240,33 +240,34 @@ fn styled_sections() -> impl Piece {
             color_picker(pen)
                 .composed()
                 .title(crate::res::str::textareas_text_color())
-                .key("ed-color")
+                .id("ed-color")
         }),
         labeled(
             crate::res::str::textareas_align(),
             picker(
-                [
-                    crate::res::str::textareas_align_natural().format(),
-                    crate::res::str::textareas_align_center().format(),
-                    crate::res::str::textareas_align_trailing().format(),
-                ],
                 {
-                    let align = Signal::new(0usize);
+                    let align = Signal::new(ParagraphAlign::Natural);
                     Effect::new(move || {
                         let pick = align.get();
                         let range = sel.get_untracked();
-                        doc.update(|d| {
-                            d.apply_paragraph(range.clone(), |p| {
-                                p.align = match pick {
-                                    1 => ParagraphAlign::Center,
-                                    2 => ParagraphAlign::Trailing,
-                                    _ => ParagraphAlign::Natural,
-                                };
-                            })
-                        });
+                        doc.update(|d| d.apply_paragraph(range.clone(), |p| p.align = pick));
                     });
                     align
                 },
+                [
+                    (
+                        ParagraphAlign::Natural,
+                        crate::res::str::textareas_align_natural(),
+                    ),
+                    (
+                        ParagraphAlign::Center,
+                        crate::res::str::textareas_align_center(),
+                    ),
+                    (
+                        ParagraphAlign::Trailing,
+                        crate::res::str::textareas_align_trailing(),
+                    ),
+                ],
             )
             .segmented()
             .id("ed-align"),
@@ -279,8 +280,7 @@ fn styled_sections() -> impl Piece {
             .selection(sel)
             .typing_style(typing)
             .placeholder(crate::res::str::textareas_placeholder())
-            // Prose wants the squiggles; the code sample does not.
-            .spellcheck(true)
+            // Spell-check stays on, the default: prose wants the squiggles.
             .min_lines(8)
             .max_lines(14)
             .id("styled-editor"),
@@ -309,14 +309,12 @@ fn styled_sections() -> impl Piece {
             } else {
                 marks.join(" + ")
             };
-            // The generated accessor takes a message's arguments in name order, not in the order
-            // they appear in the text, so this reads `end, marks, scale, start`.
-            crate::res::str::textareas_inspector(
-                range.end as i64,
+            crate::res::str::textareas_inspector(crate::res::str::TextareasInspector {
+                start: range.start as i64,
+                end: range.end as i64,
                 marks,
-                format!("{:.2}", style.font.scale),
-                range.start as i64,
-            )
+                scale: format!("{:.2}", style.font.scale),
+            })
             .format()
         })
         .font(Font::Footnote)
@@ -344,15 +342,15 @@ fn styled_sections() -> impl Piece {
             .font(Font::Footnote)
             .id("ed-selection-text"),
         ))
-        .spacing(8.0)
+        .spacing(Space::S)
         .align(VAlign::Center),
         row((picker(
-            [
-                crate::res::str::textareas_doc_note().format(),
-                crate::res::str::textareas_doc_code().format(),
-                crate::res::str::textareas_doc_empty().format(),
-            ],
             which,
+            [
+                (Doc::Note, crate::res::str::textareas_doc_note()),
+                (Doc::Code, crate::res::str::textareas_doc_code()),
+                (Doc::Empty, crate::res::str::textareas_doc_empty()),
+            ],
         )
         .segmented()
         .id("ed-document"),)),
@@ -362,11 +360,7 @@ fn styled_sections() -> impl Piece {
     // Swapping the document. The code sample arrives unstyled and the highlighter dresses it on
     // the next pass, which is exactly what happens when a file is opened.
     Effect::new(move || {
-        let pick = match which.get() {
-            1 => Doc::Code,
-            2 => Doc::Empty,
-            _ => Doc::Note,
-        };
+        let pick = which.get();
         last.set(String::new());
         doc.set(match pick {
             Doc::Note => StyledText::markdown(NOTE, Font::Body),
@@ -406,7 +400,7 @@ fn styled_sections() -> impl Piece {
                 .tint(crate::widgets::primary())
                 .id("ed-import"),
         ))
-        .spacing(8.0)
+        .spacing(Space::S)
         .fit(RowFit::Wrap { run_spacing: 8.0 }),
         text_area(exported)
             .editable(false)

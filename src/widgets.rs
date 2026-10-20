@@ -6,12 +6,13 @@ use day::prelude::*;
 /// enum debug form, since it is a value, not prose). Shared by the Battery and About pages.
 pub(crate) fn battery_line() -> LocalizedText {
     match day_part_battery::status() {
-        Some(b) => crate::res::str::battery_reading(
-            b.percent()
+        Some(b) => crate::res::str::battery_reading(crate::res::str::BatteryReading {
+            percent: b
+                .percent()
                 .map(|p| format!("{p}%"))
                 .unwrap_or_else(|| "?".into()),
-            format!("{:?}", b.state),
-        ),
+            state: format!("{:?}", b.state),
+        }),
         // `status()` answers `None` for two unrelated facts — this platform has no battery API,
         // and this machine has no battery — and saying the first on a desktop PC is simply wrong.
         // `support::battery()` knows which case applies, so the readout can name the real one.
@@ -79,7 +80,7 @@ pub(crate) fn gauge(value: Signal<f64>) -> impl Piece {
     // screen reader follows the needle; the walkthrough audits it natively after a move.
     .a11y(move |a| {
         a.role(Role::Meter)
-            .label(crate::res::str::gauge_value_label().format())
+            .label(crate::res::str::gauge_value_label())
             .value(move || format!("{:.0}", value.get()))
     })
     .id("gauge")
@@ -174,7 +175,7 @@ fn page_inner<P1: Piece>(
         Some(t) => {
             if capability(Cap::NavHeader) == Support::Native {
                 column((row((spacer(), t)).grow_w(), head))
-                    .spacing(8.0)
+                    .spacing(Space::S)
                     .grow_w()
                     .any()
             } else {
@@ -183,7 +184,9 @@ fn page_inner<P1: Piece>(
         }
         None => head.any(),
     };
-    let content = column((head, body)).spacing(16.0).align(HAlign::Leading);
+    let content = column((head, body))
+        .spacing(Space::L)
+        .align(HAlign::Leading);
     let content = match max_width {
         Some(w) => content.max_width(w).any(),
         None => content.any(),
@@ -289,7 +292,7 @@ pub(crate) fn support_banner(support: Support) -> Option<AnyPiece> {
             // so the row is exactly as tall as the wrapped sentence.
             label(text).font(Font::Footnote).color(color).grow_w(),
         ))
-        .spacing(8.0)
+        .spacing(Space::S)
         // Top, not center. This sentence wraps to two or three lines on a narrow window, and a
         // centered icon then sits between them; the mark belongs beside the line the reader
         // starts on. `VAlign::FirstBaseline` would not help: a vector has no text baseline, so a
@@ -333,6 +336,6 @@ pub(crate) fn action_result(action: impl Piece, result: impl Piece) -> impl Piec
             .align(HAlign::Leading)
             .any()
     } else {
-        row((action, result)).spacing(8.0).any()
+        row((action, result)).spacing(Space::S).any()
     }
 }

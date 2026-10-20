@@ -157,7 +157,8 @@ pub(crate) const DEFAULT_COUNT: f64 = 48.0;
 /// The Day tab's parameter signals, global so they outlive the page scope: both tabs keep their
 /// slider settings across tab switches and page revisits: the Day side through these, the
 /// SwiftUI side through its `.state_key` (the retained hosting view keeps the `@State`). Guarded
-/// like `lifecycle_log` in lib.rs: `Signal::global` on every build would mint a fresh pair.
+/// like `lifecycle_log` in lib.rs: they live on the window's `Scene`, so a rebuild finds the
+/// same pair.
 fn bench_signals() -> (Signal<f64>, Signal<f64>) {
     crate::scene().bench
 }
@@ -169,16 +170,23 @@ fn bench_signals() -> (Signal<f64>, Signal<f64>) {
 pub(crate) fn benchmark_page() -> AnyPiece {
     let (seed, count) = bench_signals();
 
+    /// The two implementations the picker names.
+    #[derive(Clone, Copy, PartialEq, Eq)]
+    enum Impl {
+        Day,
+        SwiftUi,
+    }
+
     let body: AnyPiece = if day_piece_swiftui::support() == Support::Native {
-        let tab = Signal::new(0usize);
+        let tab = Signal::new(Impl::Day);
         // The picker centers over the pane rather than hugging the leading edge: it names the two
         // implementations being compared, so it reads as a title for the comparison below it.
         let picker_row = column((picker(
-            [
-                crate::res::str::bench_tab_day().format(),
-                crate::res::str::bench_tab_swiftui().format(),
-            ],
             tab,
+            [
+                (Impl::Day, crate::res::str::bench_tab_day()),
+                (Impl::SwiftUi, crate::res::str::bench_tab_swiftui()),
+            ],
         )
         .segmented()
         .id("bench-impl"),))
@@ -187,8 +195,13 @@ pub(crate) fn benchmark_page() -> AnyPiece {
         .any();
         column((
             picker_row,
-            when(move || tab.get() == 0, move || day_native(seed, count)),
-            when(move || tab.get() == 1, swiftui_pane),
+            switch(
+                move || tab.get(),
+                move |t| match t {
+                    Impl::Day => day_native(seed, count).any(),
+                    Impl::SwiftUi => swiftui_pane().any(),
+                },
+            ),
         ))
         .spacing(10.0)
         .align(HAlign::Leading)
@@ -206,7 +219,7 @@ pub(crate) fn benchmark_page() -> AnyPiece {
     ))
     .spacing(10.0)
     .align(HAlign::Leading)
-    .padding(16.0)
+    .padding(Space::L)
     .grow()
     .any()
 }
@@ -231,7 +244,7 @@ fn day_native(seed: Signal<f64>, count: Signal<f64>) -> impl Piece {
                         "bench-seed-value",
                     ),
                 ))
-                .spacing(8.0),
+                .spacing(Space::S),
             ),
             labeled(
                 crate::res::str::bench_count(),
@@ -246,7 +259,7 @@ fn day_native(seed: Signal<f64>, count: Signal<f64>) -> impl Piece {
                         "bench-count-value",
                     ),
                 ))
-                .spacing(8.0),
+                .spacing(Space::S),
             ),
             label(move || {
                 crate::res::str::bench_rows(
@@ -268,7 +281,7 @@ fn day_native(seed: Signal<f64>, count: Signal<f64>) -> impl Piece {
         // flexible share and stretches rows into the leftover height; it fills the pane exactly.
         grid((each(items(rows, |r: &Row| r.key), |slot| {
             let tiles = slot.get().tiles;
-            grid_row(PieceVec(
+            grid_row(
                 tiles
                     .into_iter()
                     .map(|t| {
@@ -276,10 +289,9 @@ fn day_native(seed: Signal<f64>, count: Signal<f64>) -> impl Piece {
                             .fill(cell_color(t.index))
                             .grow()
                             .grid_span(t.span as usize)
-                            .any()
                     })
-                    .collect(),
-            ))
+                    .collect::<Vec<_>>(),
+            )
             .any()
         }),))
         .spacing(2.0)

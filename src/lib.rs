@@ -19,7 +19,18 @@ use crate::pages::*;
 // DayBridge binds the `Java_…` natives, the HarmonyOS ArkTS host binds `day_arkui_start`, and the
 // web host page binds `day_dom_main`. One macro expands to all of them, and to nothing at all on a
 // plain cargo desktop build, where src/main.rs is the entry instead.
-day::day_start!("Day Showcase", root);
+day::day_start!(options: window(), root);
+
+/// The window every entry point opens (docs/windows.md): the generated options carry the locale
+/// catalog, the localized title and the version. The size is a desktop default (the sidebar +
+/// detail split wants room; mobile fills the screen), and the App menu / About show "Showcase",
+/// not the toolkit-tagged window title.
+pub fn window() -> day::WindowOptions {
+    res::window_options()
+        .size(1000.0, 720.0)
+        .min_size(640.0, 480.0)
+        .app_name("Showcase")
+}
 
 /// Typed constants for the files under `resource/`, generated at build time by `day-build` (§18.5):
 /// `res::images::<stem>`, `res::assets::<file>`, `res::fonts::<family>`. The showcase references its
@@ -62,7 +73,7 @@ pub(crate) struct Scene {
     /// The WebView page's `(url, script, result)`, its selected tab, and the embedded tab's
     /// status.
     pub(crate) web: (Signal<String>, Signal<String>, Signal<String>),
-    pub(crate) web_tab: Signal<usize>,
+    pub(crate) web_tab: Signal<crate::pages::WebTab>,
     pub(crate) web_embed_status: Signal<(u8, String)>,
 }
 
@@ -87,7 +98,7 @@ impl Ambient for Scene {
                 Signal::new("document.title".to_string()),
                 Signal::new(String::new()),
             ),
-            web_tab: Signal::new(0usize),
+            web_tab: Signal::new(crate::pages::WebTab::Embedded),
             web_embed_status: Signal::new((0, String::new())),
         }
     }
@@ -524,11 +535,11 @@ impl Group {
     }
 }
 
-/// `Clone` because `.items(…)` re-derives the list on every query keystroke; the fields are a
-/// key, two fn pointers and a name, so a clone is cheap.
+/// `Clone` because `nav_items(…)` re-derives the list on every query keystroke; the fields are
+/// a key, two fn pointers and a name, so a clone is cheap.
 ///
-/// A table, not a chain of `.item_icon(…)` calls, because the sidebar is filterable: its rows
-/// are derived from the search query, and `.items(…)` wants a list it can re-derive. The table
+/// A table, not a tuple of `item(…).icon(…)` values, because the sidebar is filterable: its rows
+/// are derived from the search query, and `nav_items(…)` wants a list it can re-derive. The table
 /// is also what `.destination` looks a key up in, so a row and its page can never drift apart.
 #[derive(Clone)]
 struct Dest {
@@ -942,51 +953,55 @@ fn window_body(primary: bool) -> impl Piece {
     // page. Its commands ride the pane, so they come and go with it (docs/toolbars.md).
     let items = pages::content_list::Scene::ambient();
     // Native grouped navigation keeps every group open, with floating section headers.
-    // Do not opt into collapsed_sections: that replaces the table with a disclosure tree.
+    // Do not opt into `Sections::collapsible`: that replaces the table with a disclosure tree.
     let nav = nav(section)
         .style(NavStyle::Sidebar)
         .title(crate::res::str::app_title())
-        .content_list(pages::content_list::item_list_pane)
-        .content_list_width(320.0)
-        .content_list_for(|k: &Option<Section>| matches!(k, Some(Section::ContentList)))
-        .detail_visible(items.detail_open)
-        // The pushed detail's bar title on a phone: the open item's name on the Content List
-        // page (live, as the scaffold titles its editor), the section's own title elsewhere.
-        .detail_title(move || match section.get() {
-            Some(Section::ContentList) => pages::content_list::detail_title(items),
-            Some(sec) => destinations()
-                .into_iter()
-                .find(|d| d.section == sec)
-                .map(|d| (d.title)().format())
-                .unwrap_or_default(),
-            None => crate::res::str::app_title().format(),
-        })
-        // Search belongs to the surface it filters (docs/search.md). Mobile lists hide
-        // the search field while scrolling; Android keeps navigation actions available.
-        // Desktop placement stays in the window toolbar.
-        .searchable(query)
-        .search_hides_on_scroll(true)
-        .search_initially_hidden(true)
-        .search_prompt(crate::res::str::toolbar_search_placeholder())
-        // Completions, drawn by whatever the platform's search field already has for them (a
-        // QCompleter popup, a <datalist>, an AutoSuggestBox; docs/search.md). Every section
-        // title that starts with what has been typed, localized, so they follow a language
-        // switch like the rows do.
-        .search_suggestions(|q: &str| {
-            let q = q.to_lowercase();
-            if q.is_empty() {
-                return Vec::new();
-            }
-            destinations()
-                .into_iter()
-                .map(|d| (d.title)().format())
-                .filter(|t| t.to_lowercase().starts_with(&q))
-                .take(8)
-                .collect()
-        })
+        .content_list(
+            ContentList::new(pages::content_list::item_list_pane)
+                .width(320.0)
+                .only_for(|k: &Option<Section>| matches!(k, Some(Section::ContentList)))
+                .detail_visible(items.detail_open)
+                // The pushed detail's bar title on a phone: the open item's name on the Content
+                // List page (live, as the scaffold titles its editor), the section's own title
+                // elsewhere.
+                .detail_title(move || match section.get() {
+                    Some(Section::ContentList) => pages::content_list::detail_title(items),
+                    Some(sec) => destinations()
+                        .into_iter()
+                        .find(|d| d.section == sec)
+                        .map(|d| (d.title)().format())
+                        .unwrap_or_default(),
+                    None => crate::res::str::app_title().format(),
+                }),
+        )
+        // Search belongs to the surface it filters (docs/search.md). Mobile lists keep the
+        // field out of the way until a pull reveals it; Android keeps navigation actions
+        // available. Desktop placement stays in the window toolbar.
+        .searchable(
+            Search::new(query)
+                .reveal(SearchReveal::OnPull)
+                .prompt(crate::res::str::toolbar_search_placeholder())
+                // Completions, drawn by whatever the platform's search field already has for
+                // them (a QCompleter popup, a <datalist>, an AutoSuggestBox; docs/search.md).
+                // Every section title that starts with what has been typed, localized, so they
+                // follow a language switch like the rows do.
+                .suggestions(|q: &str| {
+                    let q = q.to_lowercase();
+                    if q.is_empty() {
+                        return Vec::new();
+                    }
+                    destinations()
+                        .into_iter()
+                        .map(|d| (d.title)().format())
+                        .filter(|t| t.to_lowercase().starts_with(&q))
+                        .take(8)
+                        .collect()
+                }),
+        )
         // Reopen on the last-viewed section (web only; see the install_nav_store note above).
         .restore("nav.section")
-        .items(
+        .items(nav_items(
             move || {
                 // Tracked: reads the query and (through `matches_search`) the locale, so the
                 // rows re-filter on a keystroke and re-title on a language switch.
@@ -1036,7 +1051,7 @@ fn window_body(primary: bool) -> impl Piece {
                     // first, through the same handler surface "Show Source" already uses here.
                     .context_menu(vec![
                         crate::commands::star_page(section).menu_item(),
-                        menu_item(crate::res::str::show_source().format())
+                        menu_item(crate::res::str::show_source())
                             .action(move || open_source_of(section)),
                     ]);
                 // The group header rides the group's first row (docs/navigation.md): the
@@ -1054,7 +1069,7 @@ fn window_body(primary: bool) -> impl Piece {
                     row
                 }
             },
-        )
+        ))
         // Dynamic rows carry no page builder of their own; the key is looked up here. Each
         // page carries the three commands that act on it (docs/toolbars.md), so they arrive and
         // leave with the page and every one of them knows its own section without asking the

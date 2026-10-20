@@ -45,7 +45,7 @@ fn appearance_item(mode: Signal<usize>) -> ToolbarEntry {
         ],
         mode,
     )
-    .enabled_when(crate::commands::appearance_supported)
+    .enabled(crate::commands::appearance_supported)
     .action(move || {
         // The control has already written the chosen index into `mode`; turn it into the app's
         // setting. The mirroring effect in `install` writes the index back, which is a no-op when
@@ -140,7 +140,7 @@ pub(crate) fn window_items() -> impl Fn() -> Vec<ToolbarEntry> + 'static {
             // thing File ▸ New Window does.
             toolbar_button("tb-new", crate::res::str::toolbar_new())
                 .icon(Symbol::New)
-                .enabled_when(|| capability(Cap::MultiWindow) != Support::Unsupported)
+                .enabled(|| capability(Cap::MultiWindow) != Support::Unsupported)
                 .action(move || {
                     day::open_new_window();
                     note(s, crate::res::str::toolbar_last_new());
@@ -195,7 +195,7 @@ pub(crate) fn page_commands(sec: crate::Section) -> Vec<ToolbarEntry> {
         toolbar_button("tb-source", crate::res::str::show_source())
             .icon(Symbol::Code)
             .tooltip(crate::res::str::show_source())
-            .enabled_when(move || demo.source_enabled.get())
+            .enabled(move || demo.source_enabled.get())
             .action(move || crate::open_source_of(sec)),
         // The Star command (commands.rs), not a demo toggle. Its label comes from the one
         // `Command`, so this button, the App menu's item and the row's context menu can never
@@ -221,7 +221,7 @@ pub(crate) fn toolbars_page() -> AnyPiece {
             form((controls_section(),)),
             form((vocabulary_section(),)),
         ))
-        .spacing(16.0)
+        .spacing(Space::L)
         .any(),
     )
     .any()
@@ -347,7 +347,7 @@ fn controls_section() -> impl Piece {
                 .action(move || s.query.set(crate::res::str::toolbar_seed_text().format()))
                 .id("toolbar-seed-search"),
         ))
-        .spacing(8.0),
+        .spacing(Space::S),
     ))
     .title(crate::res::str::toolbar_controls_title())
 }

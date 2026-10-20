@@ -29,7 +29,7 @@ fn menu_log() -> Signal<String> {
 /// language change (the Preferences window's language picker), rebuilding the whole bar in
 /// the new language.
 pub(crate) fn install_app_menu() {
-    app_menu_reactive(build_app_menu);
+    app_menu(build_app_menu);
 }
 
 fn build_app_menu() -> Vec<MenuEntry> {
@@ -78,7 +78,7 @@ fn build_app_menu() -> Vec<MenuEntry> {
                     .key("s")
                     .action(log(format!("{file} ▸ {save}"))),
                 menu_item(save_as.clone())
-                    .shortcut(Shortcut::new("s").shift())
+                    .shortcut(Shortcut::primary("s").shift())
                     .action(log(format!("{file} ▸ {save_as}"))),
                 menu_separator(),
                 menu_role(MenuRole::CloseWindow),
@@ -91,7 +91,7 @@ fn build_app_menu() -> Vec<MenuEntry> {
         .bar_role(MenuBarRole::File),
         // Standard edit commands: native items that target the focused control (default shortcuts).
         sub_menu(
-            crate::res::str::menu_edit().format(),
+            crate::res::str::menu_edit(),
             vec![
                 menu_role(MenuRole::Undo),
                 menu_role(MenuRole::Redo),
@@ -104,7 +104,7 @@ fn build_app_menu() -> Vec<MenuEntry> {
                 // The Content List page's row command, as the scaffold's Edit menu carries it
                 // (src/pages/content_list): it acts on the front window's open item, and does
                 // nothing when that window has none open.
-                menu_item(crate::res::str::cmd_delete().format()).action(|| {
+                menu_item(crate::res::str::cmd_delete()).action(|| {
                     if let Some(items) = crate::pages::content_list::Scene::focused() {
                         items.delete_selected();
                     }
@@ -116,7 +116,7 @@ fn build_app_menu() -> Vec<MenuEntry> {
             view.clone(),
             vec![
                 // The Star command (commands.rs). Its title is the command's, so this item reads
-                // "Star" or "Unstar" for the page that is showing; `app_menu_reactive` re-lowers
+                // "Star" or "Unstar" for the page that is showing; `app_menu` re-lowers
                 // the bar when the starred set changes, which is what keeps it in step with the
                 // toolbar button and the sidebar rows without any of them knowing about the
                 // others. ⌘D / Ctrl+D, the platform's usual "bookmark this" key.
@@ -138,7 +138,7 @@ fn build_app_menu() -> Vec<MenuEntry> {
                 // control carries. ⌘⌥1/2/3: the digits are the group's order, and ⌥ keeps them
                 // clear of the tab-switching ⌘1..9 every desktop browser and editor already owns.
                 sub_menu(
-                    crate::res::str::menu_appearance().format(),
+                    crate::res::str::menu_appearance(),
                     vec![
                         crate::commands::appearance_command(crate::commands::Appearance::Light)
                             .menu_item(),
@@ -166,7 +166,7 @@ fn build_app_menu() -> Vec<MenuEntry> {
         // menu. It is the only home for these commands: they act on the app's recording, not on
         // any page, so they earn no room on a page's bar.
         sub_menu(
-            crate::res::str::menu_script().format(),
+            crate::res::str::menu_script(),
             vec![
                 // ⌘⇧R / ⌘⇧P: the recording pair, shifted clear of View ▸ Reload (⌘R) and the
                 // platform's Print (⌘P). Both titles carry their state, so one item is
@@ -176,14 +176,14 @@ fn build_app_menu() -> Vec<MenuEntry> {
                 menu_separator(),
                 crate::commands::clear_recording().menu_item(),
                 menu_separator(),
-                menu_item(crate::res::str::toolbar_menu_open_scripting().format()).action(|| {
+                menu_item(crate::res::str::toolbar_menu_open_scripting()).action(|| {
                     navigate_to(&crate::Section::Scripting);
                 }),
                 {
                     // Moved off the toolbar with the transport: it acts on the recording, and
                     // the Script menu is where the recording lives now.
-                    menu_item(crate::res::str::toolbar_menu_copy_script().format())
-                        .enabled(crate::pages::scripting::has_script())
+                    menu_item(crate::res::str::toolbar_menu_copy_script())
+                        .enabled(crate::pages::scripting::has_script)
                         .action(|| {
                             crate::pages::scripting::buf_signal()
                                 .with(|t| day_part_clipboard::set_text(t));
@@ -243,7 +243,7 @@ fn context_section() -> impl Piece {
     // view), and `.context_menu` after them attaches to that container, so the whole padded
     // pill is the right-click / long-press surface rather than only the label's text run.
     section((label(crate::res::str::menus_target())
-        .padding(Insets::symmetric(24.0, 24.0))
+        .padding(Space::XL)
         // A translucent brand-blue wash: tinted enough to read as "this spot is interactive"
         // over both the light and dark grounds.
         .background(Color::rgba(0.184, 0.435, 0.871, 0.13))
@@ -313,7 +313,7 @@ fn messages_section() -> impl Piece {
                 crate::res::str::msg_subject_three().format(),
             ),
         ))
-        .spacing(8.0),
+        .spacing(Space::S),
         label(crate::res::str::menus_messages_hint()).font(Font::Footnote),
     ))
     .title(crate::res::str::menus_messages_section())
@@ -386,7 +386,7 @@ fn dialogs_section() -> impl Piece {
                 .tint(crate::widgets::danger())
                 .id("btn-delete"),
         ))
-        .spacing(8.0),
+        .spacing(Space::S),
         row((
             button(crate::res::str::modal_sheet())
                 .bordered()
@@ -419,7 +419,7 @@ fn dialogs_section() -> impl Piece {
                 })
                 .id("btn-prompt"),
         ))
-        .spacing(8.0),
+        .spacing(Space::S),
         labeled(
             crate::res::str::modal_result_label(),
             label(move || {
@@ -435,20 +435,16 @@ fn dialogs_section() -> impl Piece {
 /// One definition per operation, presented as content buttons, a context menu, and toolbar items.
 fn commands_section() -> impl Piece {
     let count = Signal::new(0i64);
-    let add = Command {
-        id: "command-add",
-        label: crate::res::str::commands_add(),
-        action: move || count.update(|n| *n += 1),
-    }
-    .build()
+    let add = Command::new("command-add", crate::res::str::commands_add(), move || {
+        count.update(|n| *n += 1)
+    })
     .enabled(move || count.get() < 3)
     .icon(Symbol::Add);
-    let reset = Command {
-        id: "command-reset",
-        label: crate::res::str::anim_reset_label(),
-        action: move || count.set(0),
-    }
-    .build()
+    let reset = Command::new(
+        "command-reset",
+        crate::res::str::anim_reset_label(),
+        move || count.set(0),
+    )
     .enabled(move || count.get() != 0)
     .icon(Symbol::Refresh);
     let (menu_add, menu_reset) = (add.clone(), reset.clone());
@@ -459,9 +455,9 @@ fn commands_section() -> impl Piece {
             .id("commands-count"),
         row((add.button().grow_w(), reset.button().grow_w())).spacing(10.0),
         label(crate::res::str::menus_target())
-            .padding(16.0)
+            .padding(Space::L)
             .id("commands-context")
-            .context_menu_fn(move |_| vec![menu_add.menu_item(), menu_reset.menu_item()]),
+            .context_menu(move || vec![menu_add.menu_item(), menu_reset.menu_item()]),
     ))
     .title(crate::res::str::commands_title())
     .id("commands-demo")

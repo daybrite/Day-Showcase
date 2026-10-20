@@ -2,7 +2,7 @@ use day::prelude::*;
 use day_piece_rating::Card;
 
 day::routes! {
-    /// The tab keys, typed (docs/tabs.md): the `.item` declarations are compile-checked,
+    /// The tab keys, typed (docs/tabs.md): the `item(..)` declarations are compile-checked,
     /// while deep links and dayscript still address the tabs as "one" / "two" / "three".
     enum Tab { One => "one", Two => "two", Three => "three" }
 }
@@ -26,7 +26,7 @@ pub(crate) fn tabs_page() -> AnyPiece {
                 label(body).id(content_id),
                 extra,
             ))
-            .spacing(12.0)
+            .spacing(Space::M)
             .align(HAlign::Leading)
             .padding(20.0),
         )
@@ -36,7 +36,8 @@ pub(crate) fn tabs_page() -> AnyPiece {
     let clicks = Signal::new(0i64);
     let badges = Signal::new(true);
     let sounds = Signal::new(false);
-    // `item_icon` attaches a bundled template vector per tab (docs/tabs.md, docs/vectors.md).
+    // `item(..).icon(..)` attaches a bundled template vector per tab (docs/tabs.md,
+    // docs/vectors.md).
     // Vectors, not PNGs: a tab bar draws its icon at a size the toolkit picks, and on iOS the SVG
     // rides an asset catalog with `preserves-vector-representation`, so it is resolved at display
     // size instead of scaled from a bitmap. Backends whose tab widget shows icons (iOS UITabBar,
@@ -44,50 +45,44 @@ pub(crate) fn tabs_page() -> AnyPiece {
     // widget (NSTabView) ignores the icon and just shows the label.
     let main = nav(tab)
         .style(NavStyle::Tabs)
-        .item_icon(
-            Tab::One,
-            crate::res::str::tab_one(),
-            crate::res::vectors::tab_one.clone(),
-            move || {
-                pane(
-                    crate::res::str::tab_one(),
-                    crate::res::str::tab_one_body(),
-                    "tab-one-content",
-                    overview_extra(clicks),
-                )
-            },
-        )
-        .item_icon(
-            Tab::Two,
-            crate::res::str::tab_two(),
-            crate::res::vectors::tab_two.clone(),
-            || {
-                pane(
-                    crate::res::str::tab_two(),
-                    crate::res::str::tab_two_body(),
-                    "tab-two-content",
-                    // The data-driven tab demo lives inside this pane, two nested tab views:
-                    // the outer typed tabs, and a dynamic string-keyed set within Details.
-                    column((details_extra(), dynamic_tabs_demo()))
-                        .spacing(12.0)
-                        .align(HAlign::Leading)
-                        .any(),
-                )
-            },
-        )
-        .item_icon(
-            Tab::Three,
-            crate::res::str::tab_three(),
-            crate::res::vectors::tab_three.clone(),
-            move || {
-                pane(
-                    crate::res::str::tab_three(),
-                    crate::res::str::tab_three_body(),
-                    "tab-three-content",
-                    settings_extra(badges, sounds),
-                )
-            },
-        )
+        .items((
+            item(Tab::One, crate::res::str::tab_one())
+                .icon(crate::res::vectors::tab_one.clone())
+                .page(move || {
+                    pane(
+                        crate::res::str::tab_one(),
+                        crate::res::str::tab_one_body(),
+                        "tab-one-content",
+                        overview_extra(clicks),
+                    )
+                }),
+            item(Tab::Two, crate::res::str::tab_two())
+                .icon(crate::res::vectors::tab_two.clone())
+                .page(|| {
+                    pane(
+                        crate::res::str::tab_two(),
+                        crate::res::str::tab_two_body(),
+                        "tab-two-content",
+                        // The data-driven tab demo lives inside this pane, two nested tab
+                        // views: the outer typed tabs, and a dynamic string-keyed set within
+                        // Details.
+                        column((details_extra(), dynamic_tabs_demo()))
+                            .spacing(Space::M)
+                            .align(HAlign::Leading)
+                            .any(),
+                    )
+                }),
+            item(Tab::Three, crate::res::str::tab_three())
+                .icon(crate::res::vectors::tab_three.clone())
+                .page(move || {
+                    pane(
+                        crate::res::str::tab_three(),
+                        crate::res::str::tab_three_body(),
+                        "tab-three-content",
+                        settings_extra(badges, sounds),
+                    )
+                }),
+        ))
         .id("demo-tabs")
         .any();
     column((main,)).grow().any()
@@ -122,22 +117,25 @@ fn dynamic_tabs_demo() -> impl Piece {
                 })
                 .id("dyn-tab-remove"),
         ))
-        .spacing(8.0),
+        .spacing(Space::S),
         nav(current)
             .style(NavStyle::Tabs)
             .local()
-            .items(move || tabs.get(), |k: &String| item(k.clone(), k.clone()))
+            .items(nav_items(
+                move || tabs.get(),
+                |k: &String| item(k.clone(), k.clone()),
+            ))
             .destination(|k: &String| {
                 label(format!("Tab: {k}"))
                     .id("dyn-tab-content")
-                    .padding(16.0)
+                    .padding(Space::L)
                     .any()
             })
             .id("dyn-tabs"),
     ))
-    .spacing(8.0)
+    .spacing(Space::S)
     .align(HAlign::Leading)
-    .padding(16.0)
+    .padding(Space::L)
     .frame(560.0, 220.0)
 }
 
@@ -156,10 +154,10 @@ fn overview_extra(clicks: Signal<i64>) -> impl Piece {
                 .action(move || clicks.update(|c| *c += 1))
                 .id("tab-one-inc"),
         ))
-        .spacing(8.0),
+        .spacing(Space::S),
         label(crate::res::str::tab_state_note()).font(Font::Footnote),
     ))
-    .spacing(12.0)
+    .spacing(Space::M)
     .align(HAlign::Leading)
 }
 
@@ -176,7 +174,7 @@ fn details_extra() -> impl Piece {
             label("tabs/two").font(Font::Callout),
         ),
     ))
-    .spacing(8.0)
+    .spacing(Space::S)
     .align(HAlign::Leading)
     .modifier(Card)
 }
@@ -194,6 +192,6 @@ fn settings_extra(badges: Signal<bool>, sounds: Signal<bool>) -> impl Piece {
         ),
         label(crate::res::str::tab_state_note()).font(Font::Footnote),
     ))
-    .spacing(8.0)
+    .spacing(Space::S)
     .align(HAlign::Leading)
 }

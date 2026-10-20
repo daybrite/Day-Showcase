@@ -350,17 +350,17 @@ pub(crate) fn query_page() -> AnyPiece {
                     ),
                     slider(lat_min).range(0.0..=85.0).id("query-lat"),
                     label(move || {
-                        crate::res::str::query_viewport_box(
-                            lat_min.get() as i64,
-                            (lat_min.get() + 15.0) as i64,
-                        )
+                        crate::res::str::query_viewport_box(crate::res::str::QueryViewportBox {
+                            from: lat_min.get() as i64,
+                            to: (lat_min.get() + 15.0) as i64,
+                        })
                         .format()
                     })
                     .tabular()
                     .font(Font::Footnote)
                     .id("query-viewport-box"),
                 ))
-                .spacing(8.0)
+                .spacing(Space::S)
                 .any()
             }
             #[cfg(target_arch = "wasm32")]
@@ -368,15 +368,25 @@ pub(crate) fn query_page() -> AnyPiece {
                 spacer().any()
             }
         },
-        label(move || crate::res::str::query_caption(count() as i64, TOTAL as i64).format())
-            .tabular()
-            .id("query-caption"),
+        label(move || {
+            crate::res::str::query_caption(crate::res::str::QueryCaption {
+                count: count() as i64,
+                total: TOTAL as i64,
+            })
+            .format()
+        })
+        .tabular()
+        .id("query-caption"),
         {
             #[cfg(not(target_arch = "wasm32"))]
             {
                 label(move || {
                     let _ = q.count(); // re-render alongside the set
-                    crate::res::str::query_resident(q.resident.get() as i64, TOTAL as i64).format()
+                    crate::res::str::query_resident(crate::res::str::QueryResident {
+                        resident: q.resident.get() as i64,
+                        total: TOTAL as i64,
+                    })
+                    .format()
                 })
                 .font(Font::Footnote)
                 .id("query-evals")
@@ -416,7 +426,7 @@ pub(crate) fn query_page() -> AnyPiece {
     ))
     .spacing(10.0)
     .align(HAlign::Leading)
-    .padding(16.0)
+    .padding(Space::L)
     .any()
 }
 

@@ -30,7 +30,7 @@ pub(crate) fn tweaks_page() -> AnyPiece {
         ))
         .spacing(10.0),
     ))
-    .spacing(8.0)
+    .spacing(Space::S)
     .align(HAlign::Leading)
     .modifier(Card);
 
@@ -43,7 +43,7 @@ pub(crate) fn tweaks_page() -> AnyPiece {
             .tooltip(crate::res::str::tweaks_tooltip_hint().format())
             .id("tweak-tooltip-button"),
     ))
-    .spacing(8.0)
+    .spacing(Space::S)
     .align(HAlign::Leading)
     .modifier(Card);
 
@@ -59,7 +59,7 @@ pub(crate) fn tweaks_page() -> AnyPiece {
                 .tabular()
                 .id("tweak-ticks-stock-value"),
         ))
-        .spacing(8.0),
+        .spacing(Space::S),
         row((
             label(crate::res::str::tweaks_tweaked()).font(Font::Caption),
             slider(snapped)
@@ -74,9 +74,9 @@ pub(crate) fn tweaks_page() -> AnyPiece {
                 .tabular()
                 .id("tweak-ticks-value"),
         ))
-        .spacing(8.0),
+        .spacing(Space::S),
     ))
-    .spacing(8.0)
+    .spacing(Space::S)
     .align(HAlign::Leading)
     .modifier(Card);
 
@@ -113,7 +113,7 @@ pub(crate) fn tweaks_page() -> AnyPiece {
         })
         .id("tweak-ref-status"),
     ))
-    .spacing(8.0)
+    .spacing(Space::S)
     .align(HAlign::Leading)
     .modifier(Card);
 
@@ -133,7 +133,7 @@ pub(crate) fn tweaks_page() -> AnyPiece {
             label(crate::res::str::text_selectable_toggle()).font(Font::Caption),
             toggle(label_sel).id("tweak-label-selectable"),
         ))
-        .spacing(8.0),
+        .spacing(Space::S),
         when(
             move || label_sel.get(),
             move || tweaked_label(true, seen_class),
@@ -146,7 +146,7 @@ pub(crate) fn tweaks_page() -> AnyPiece {
             .font(Font::Caption)
             .id("tweak-label-class"),
     ))
-    .spacing(8.0)
+    .spacing(Space::S)
     .align(HAlign::Leading)
     .modifier(Card);
 
@@ -161,7 +161,7 @@ pub(crate) fn tweaks_page() -> AnyPiece {
         ))
         .spacing(14.0)
         .align(HAlign::Leading)
-        .padding(16.0),
+        .padding(Space::L),
     )
     .any()
 }

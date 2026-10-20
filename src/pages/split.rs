@@ -13,7 +13,7 @@ pub(crate) fn split_page() -> AnyPiece {
     page_wide(
         crate::res::str::nav_split(),
         "split-title",
-        column((support_section(), arrangement_section(st), demo(st))).spacing(16.0),
+        column((support_section(), arrangement_section(st), demo(st))).spacing(Space::L),
     )
     .any()
 }
@@ -82,7 +82,7 @@ fn arrangement_section(st: Scene) -> impl Piece {
                     .id("split-share-value")
                     .font(Font::Callout),
             ))
-            .spacing(12.0),
+            .spacing(Space::M),
         ),
     ))
     .title(crate::res::str::split_arrangement_title())
@@ -108,11 +108,6 @@ fn demo(st: Scene) -> impl Piece {
 /// The stateful side: every control writes one of the scene's signals. It scrolls, because
 /// stacked under a dragged divider the pane can be shorter than the form.
 fn form_pane(st: Scene) -> impl Piece {
-    let shapes = vec![
-        crate::res::str::split_shape_circle().format(),
-        crate::res::str::split_shape_square().format(),
-        crate::res::str::split_shape_diamond().format(),
-    ];
     scroll(form((section((
         labeled(
             crate::res::str::split_caption(),
@@ -142,7 +137,15 @@ fn form_pane(st: Scene) -> impl Piece {
         ),
         labeled(
             crate::res::str::split_shape(),
-            picker(shapes, st.shape).id("split-shape"),
+            picker(
+                st.shape,
+                [
+                    (0, crate::res::str::split_shape_circle()),
+                    (1, crate::res::str::split_shape_square()),
+                    (2, crate::res::str::split_shape_diamond()),
+                ],
+            )
+            .id("split-shape"),
         ),
     ))
     .title(crate::res::str::split_form_title()),)))
@@ -209,17 +212,17 @@ fn canvas_pane(st: Scene) -> impl Piece {
         .id("split-canvas")
         .grow(),
         label(move || {
-            crate::res::str::split_readout(
-                st.count.get().round() as i64,
-                st.radius.get().round() as i64,
-            )
+            crate::res::str::split_readout(crate::res::str::SplitReadout {
+                count: st.count.get().round() as i64,
+                radius: st.radius.get().round() as i64,
+            })
             .format()
         })
         .id("split-readout")
         .font(Font::Footnote),
     ))
-    .spacing(8.0)
-    .padding(12.0)
+    .spacing(Space::S)
+    .padding(Space::M)
 }
 
 /// A saturated color at `hue` degrees, the same lightness all the way round the wheel, so the

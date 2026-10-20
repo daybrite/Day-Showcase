@@ -23,7 +23,7 @@ pub(crate) fn dates_page() -> AnyPiece {
             date_picker(date).inline().id("date-inline"),
             form((date_section(date), time_section(), composed_section())),
         ))
-        .spacing(16.0)
+        .spacing(Space::L)
         .align(HAlign::Leading)
         .any(),
     )
@@ -58,7 +58,7 @@ fn date_section(date: Signal<DayDate>) -> impl Piece {
                     .tabular()
                     .id("date-bounded-value"),
             ))
-            .spacing(8.0)
+            .spacing(Space::S)
             // The readout is half the picker's height, so centering it would leave its digits
             // riding above the picker's; a control and the value it produces belong on one
             // line (docs/baseline.md).
@@ -86,7 +86,7 @@ fn time_section() -> impl Piece {
         ),
         labeled(
             crate::res::str::time_seconds(),
-            time_picker(time).seconds(true).id("time-seconds"),
+            time_picker(time).seconds().id("time-seconds"),
         ),
         labeled(
             crate::res::str::time_picked(),
@@ -105,7 +105,7 @@ fn composed_section() -> impl Piece {
     let time = Signal::new(DayTime::new(18, 0, 0).expect("valid seed time"));
     section((labeled(
         crate::res::str::dates_composed(),
-        row((date_picker(date), time_picker(time))).spacing(8.0),
+        row((date_picker(date), time_picker(time))).spacing(Space::S),
     ),))
     .title(crate::res::str::dates_composed_section())
 }

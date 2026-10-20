@@ -8,9 +8,8 @@ use crate::widgets::heading;
 
 // Page state that outlives the page. Day rebuilds a destination's whole subtree on every
 // navigation, so anything declared inside `webview_page()` is minted fresh each visit: the URL bar
-// would snap back, the console would clear. `Signal::global` allocates in the root scope instead,
-// and the `OnceCell` keeps the same signal across rebuilds (calling `global` per build would mint a
-// new one every time). Same idiom as pages/scripting.rs.
+// would snap back, the console would clear. The fields live on the window's `Scene` (lib.rs)
+// instead, so every visit finds the same signals. Same idiom as pages/scripting.rs.
 //
 // This is transient, not persisted: it lives as long as the process and is never written to disk.
 
@@ -23,9 +22,12 @@ fn embed_status() -> Signal<(u8, String)> {
     crate::scene().web_embed_status
 }
 
-/// The tabs' picker indices. Embedded comes first, so it is what the page opens on.
-const EMBEDDED: usize = 0;
-const REMOTE: usize = 1;
+/// The two tabs. Embedded comes first, so it is what the page opens on.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub(crate) enum WebTab {
+    Embedded,
+    Remote,
+}
 
 /// A native web view (day-piece-webview, an external standalone piece), in two tabs:
 ///
@@ -56,26 +58,28 @@ pub(crate) fn webview_page() -> AnyPiece {
     column((
         heading(crate::res::str::nav_webview(), "webview-title"),
         column((picker(
-            [
-                crate::res::str::webview_tab_embedded().format(),
-                crate::res::str::webview_tab_remote().format(),
-            ],
             tab,
+            [
+                (WebTab::Embedded, crate::res::str::webview_tab_embedded()),
+                (WebTab::Remote, crate::res::str::webview_tab_remote()),
+            ],
         )
         .segmented()
         .id("webview-tab"),))
         .align(HAlign::Center)
         .grow_w(),
-        when(
-            move || tab.get() == EMBEDDED,
-            move || embedded_pane(js_embedded),
+        switch(
+            move || tab.get(),
+            move |t| match t {
+                WebTab::Embedded => embedded_pane(js_embedded).any(),
+                WebTab::Remote => remote_pane(js_remote).any(),
+            },
         ),
-        when(move || tab.get() == REMOTE, move || remote_pane(js_remote)),
         js_console(tab, js_remote, js_embedded),
     ))
     .spacing(10.0)
     .align(HAlign::Leading)
-    .padding(16.0)
+    .padding(Space::L)
     .any()
 }
 
@@ -85,7 +89,7 @@ pub(crate) fn webview_page() -> AnyPiece {
 /// bound signal whenever the engine answers. Sized in lines, not points, so the editors track
 /// the platform accessibility text scale (day-dom used to ignore the hints; it measures them
 /// now, docs/textarea.md).
-fn js_console(tab: Signal<usize>, js_remote: JsHandle, js_embedded: JsHandle) -> impl Piece {
+fn js_console(tab: Signal<WebTab>, js_remote: JsHandle, js_embedded: JsHandle) -> impl Piece {
     let (_, script, result) = state();
     let can_eval = eval_support() == Support::Native;
     row((
@@ -100,7 +104,7 @@ fn js_console(tab: Signal<usize>, js_remote: JsHandle, js_embedded: JsHandle) ->
             .prominent()
             .enabled(move || can_eval)
             .action(move || {
-                let js = if tab.get_untracked() == REMOTE {
+                let js = if tab.get_untracked() == WebTab::Remote {
                     js_remote
                 } else {
                     js_embedded
@@ -126,7 +130,7 @@ fn js_console(tab: Signal<usize>, js_remote: JsHandle, js_embedded: JsHandle) ->
             .editable(false)
             .id("webview-js-result"),
     ))
-    .spacing(8.0)
+    .spacing(Space::S)
 }
 
 /// The Remote pane: URL bar + history controls over a session-retained view. The JS console
@@ -154,7 +158,7 @@ fn remote_pane(js: JsHandle) -> impl Piece {
                 .tint(crate::widgets::primary())
                 .id("webview-go"),
         ))
-        .spacing(8.0),
+        .spacing(Space::S),
         // Why the three buttons below are dead on this backend.
         when(
             move || iframe,
@@ -186,7 +190,7 @@ fn remote_pane(js: JsHandle) -> impl Piece {
                 .action(move || reload.notify())
                 .id("webview-reload"),
         ))
-        .spacing(8.0),
+        .spacing(Space::S),
         web_view(url)
             // A retained session: the engine outlives this page's subtree, so navigating away and
             // back returns to the page as it was left rather than reloading it.

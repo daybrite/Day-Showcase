@@ -47,7 +47,7 @@ fn image_section() -> impl Piece {
                     .any(),
             ),
         ))
-        .spacing(16.0),
+        .spacing(Space::L),
     ))
     .title(crate::res::str::resources_image_section())
 }
@@ -69,7 +69,11 @@ fn resource_lines() -> (String, String) {
         Some(r) => {
             let mut b = [0u8; 1];
             r.read_at(100, &mut b);
-            crate::res::str::resources_numbers(b[0] as f64, r.len() as f64).format()
+            crate::res::str::resources_numbers(crate::res::str::ResourcesNumbers {
+                len: r.len() as f64,
+                byte: b[0] as f64,
+            })
+            .format()
         }
         None => "numbers.bin: (not bundled)".to_string(),
     };
@@ -97,19 +101,11 @@ fn vectors_section() -> impl Piece {
     let live = Signal::new(0usize);
     let tint = Signal::new(crate::palette::RAMP[0]);
     // The Weight and Size pickers apply to every glyph in the wrapping row below.
-    let weight = Signal::new(1usize); // Light / Regular / Bold; Regular by default
-    let size = Signal::new(1usize); // 16 / 24 / 36 / 48 pt
+    let weight = Signal::new(VectorWeight::Regular);
+    let size = Signal::new(GLYPH_SIZES[1]); // 16 / 24 / 36 / 48 pt
     // Edge length of the zoomable art, in points. The tiger's alone now: the glyph row takes its
     // size from the Size picker, so the two no longer fight over one slider.
     let zoom = Signal::new(96.0_f64);
-
-    fn weight_of(i: usize) -> VectorWeight {
-        match i {
-            0 => VectorWeight::Light,
-            2 => VectorWeight::Bold,
-            _ => VectorWeight::Regular,
-        }
-    }
 
     use crate::res::vectors as gv;
     section((
@@ -117,23 +113,26 @@ fn vectors_section() -> impl Piece {
         // The two pickers that govern every glyph below. Neither is reactive on the piece:
         // `.weight(…)` resolves to a different staged source name and `.frame(…)` is a layout
         // constant, so both are build-time facts, which is why the row is rebuilt through
-        // `each` keyed on the pair rather than patched.
+        // `keyed` on the pair rather than patched.
         labeled(
             crate::res::str::vectors_weights(),
             picker(
-                [
-                    crate::res::str::text_weight_light().format(),
-                    crate::res::str::text_weight_regular().format(),
-                    crate::res::str::text_weight_bold().format(),
-                ],
                 weight,
+                [
+                    (VectorWeight::Light, crate::res::str::text_weight_light()),
+                    (
+                        VectorWeight::Regular,
+                        crate::res::str::text_weight_regular(),
+                    ),
+                    (VectorWeight::Bold, crate::res::str::text_weight_bold()),
+                ],
             )
             .segmented()
             .id("vector-weight"),
         ),
         labeled(
             crate::res::str::vectors_sizes(),
-            picker(GLYPH_SIZES.map(|s| format!("{s:.0}")), size)
+            picker(size, GLYPH_SIZES.map(|s| (s, format!("{s:.0}"))))
                 .segmented()
                 .id("vector-size"),
         ),
@@ -143,13 +142,11 @@ fn vectors_section() -> impl Piece {
         // wrap. `RowFit::Wrap` (docs/size-classes.md) moved that into layout, where the run break
         // happens against the measured width rather than against a guess.
         //
-        // Still rebuilt through `each`, keyed on the weight and size the pickers hold, because
+        // Still rebuilt through `keyed`, on the weight and size the pickers hold, because
         // both change what each glyph is rather than how it is laid out.
-        each(
-            items(move || vec![(weight.get(), size.get())], |k| *k),
-            move |slot| {
-                let (w, s) = slot.get();
-                let px = GLYPH_SIZES[s.min(GLYPH_SIZES.len() - 1)];
+        keyed(
+            move || Some((weight.get(), size.get())),
+            move |&(w, px)| {
                 // `home_symbol` leads: it is the one SF-template source here with true
                 // per-weight art. Every glyph after it is a plain SVG, so moving the Weight
                 // picker off Regular exercises the aliasing path on all 23 at once: a weight a
@@ -185,18 +182,17 @@ fn vectors_section() -> impl Piece {
                     gv::nav_tweaks,
                     gv::nav_webview,
                 ];
-                let cells: Vec<AnyPiece> = glyphs
+                let cells: Vec<_> = glyphs
                     .into_iter()
                     .map(|g| {
                         vector(g)
-                            .weight(weight_of(w))
+                            .weight(w)
                             .tint(crate::palette::SLATE)
                             .frame(px, px)
-                            .any()
                     })
                     .collect();
-                row(PieceVec(cells))
-                    .spacing(12.0)
+                row(cells)
+                    .spacing(Space::M)
                     .fit(RowFit::Wrap { run_spacing: 12.0 })
                     .grow_w()
                     .id("resources-vectors-row")
@@ -213,7 +209,7 @@ fn vectors_section() -> impl Piece {
                 .id("vector-aliased-weight"),
             label(crate::res::str::vectors_alias_note()).font(Font::Footnote),
         ))
-        .spacing(8.0)
+        .spacing(Space::S)
         .align(VAlign::Top),
         // Tints: one glyph through the tint ladder.
         labeled(
@@ -224,7 +220,7 @@ fn vectors_section() -> impl Piece {
                 t(gv::nav_scripting, Color::rgba(0.18, 0.50, 0.94, 1.0)),
                 t(gv::nav_scripting, Color::rgba(0.16, 0.65, 0.37, 1.0)),
             ))
-            .spacing(12.0)
+            .spacing(Space::M)
             .id("resources-vectors-tints"),
         ),
         // A live tint: the same glyph bound to a signal, so any of the three controls beside it
@@ -256,14 +252,13 @@ fn vectors_section() -> impl Piece {
                     .title(crate::res::str::vectors_pick_tint())
                     .id("vector-tint-native"),
                 // Day's own panel, built from pieces and a canvas, identical on all nine
-                // targets. Its `key` is also the well's dayscript id (the piece tags the button
-                // itself, since an id set from out here would land on the wrapper).
+                // targets. Its id is also the well's dayscript id.
                 color_picker(tint)
                     .composed()
                     .title(crate::res::str::vectors_pick_tint())
-                    .key("vector-tint-composed"),
+                    .id("vector-tint-composed"),
             ))
-            .spacing(12.0)
+            .spacing(Space::M)
             .fit(RowFit::Wrap { run_spacing: 8.0 })
             .align(VAlign::Center),
         ),
@@ -281,7 +276,7 @@ fn vectors_section() -> impl Piece {
         //
         // The glyph is rebuilt at each zoom step, not transform-scaled. A `.scale()` would
         // magnify whatever the backend last rasterized, the very thing this demo exists to
-        // disprove, so the size change goes through `each`, whose keyed diff disposes the old
+        // disprove, so the size change goes through `keyed`, which disposes the old
         // view and asks the backend for the art at the new size. Every step is a fresh render
         // from the SVG, which is what keeps the edges crisp as it grows.
         //
@@ -294,16 +289,12 @@ fn vectors_section() -> impl Piece {
         // exactly the detail the raised range exists to show, so past that width the art keeps
         // its full size inside a horizontal scroll strip and the reader pans across it.
         //
-        // The `each` key therefore carries the width class as well as the zoom step: crossing a
-        // breakpoint changes which of the two arrangements applies, and a key that ignored it
+        // The `keyed` key therefore carries the width class as well as the zoom step: crossing
+        // a breakpoint changes which of the two arrangements applies, and a key that ignored it
         // would leave a resized window showing the wrong one.
-        each(
-            items(
-                move || vec![((zoom.get() / 8.0).round() as i64, tiger_room() as i64)],
-                |k| *k,
-            ),
-            move |slot| {
-                let (step, room) = slot.get();
+        keyed(
+            move || Some(((zoom.get() / 8.0).round() as i64, tiger_room() as i64)),
+            move |&(step, room)| {
                 let px = step as f64 * 8.0;
                 let art = vector(gv::tiger).frame(px, px).id("vector-tiger");
                 // Two different piece types, one branch each: `Either` keeps both concrete

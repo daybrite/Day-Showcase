@@ -20,8 +20,8 @@ pub(crate) fn media_page() -> AnyPiece {
         // fixed height keeps the 16:9 sample balanced against the transport row instead of
         // flooding the page with letterboxing.
         media(url)
-            .looping(true)
-            .muted(true)
+            .looping()
+            .muted()
             .play(play)
             .pause(pause)
             .load(load)

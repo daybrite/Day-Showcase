@@ -121,7 +121,7 @@ impl FrameStats {
             ),
             None => ("—".into(), "—".into(), "—".into()),
         };
-        crate::res::str::frame_fps(avg, max, min).format()
+        crate::res::str::frame_fps(crate::res::str::FrameFps { min, max, avg }).format()
     }
 }
 
@@ -597,7 +597,13 @@ fn gravity_text(g: f64) -> String {
     .find(|(at, _)| (g - at).abs() < 0.05)
     .map(|(_, name)| name().format());
     match body {
-        Some(body) => crate::res::str::physics_gravity_named(body, value).format(),
+        Some(body) => {
+            crate::res::str::physics_gravity_named(crate::res::str::PhysicsGravityNamed {
+                value,
+                body,
+            })
+            .format()
+        }
         None => crate::res::str::physics_gravity(value).format(),
     }
 }
@@ -635,12 +641,12 @@ fn control(
     if compact {
         column((
             row((label(title).grow_w(), readout))
-                .spacing(12.0)
+                .spacing(Space::M)
                 .align(VAlign::Center)
                 .grow_w(),
             column((slider,)).grow_w(),
         ))
-        .spacing(4.0)
+        .spacing(Space::XS)
         .grow_w()
         .any()
     } else {
@@ -649,7 +655,7 @@ fn control(
             column((slider,)).grow_w(),
             readout,
         ))
-        .spacing(12.0)
+        .spacing(Space::M)
         .align(VAlign::Center)
         .any()
     }
@@ -799,10 +805,7 @@ pub(crate) fn physics_page() -> AnyPiece {
         })
         // Every marble leaps toward the point tapped, then falls under the slider's gravity.
         .on_tap_at(move |at| tap.kick_toward(at))
-        .a11y(|a| {
-            a.role(Role::Button)
-                .label(crate::res::str::frame_hint().format())
-        })
+        .a11y(|a| a.role(Role::Button).label(crate::res::str::frame_hint()))
         .id("frame-ball")
         .grow(),
         // The three controls as one form under the marbles, each slider with its value beside it.
@@ -813,7 +816,7 @@ pub(crate) fn physics_page() -> AnyPiece {
                 slider(count)
                     .range(1.0..=MAX_BALLS as f64)
                     .step(1.0)
-                    .a11y(|a| a.label(crate::res::str::frame_balls_label().format()))
+                    .a11y(|a| a.label(crate::res::str::frame_balls_label()))
                     .id("frame-ball-slider"),
                 move || day::format_decimal(count.get().round(), 0),
                 widest_value.clone(),
@@ -825,7 +828,7 @@ pub(crate) fn physics_page() -> AnyPiece {
                 slider(mass)
                     .range(0.0..=MAX_MASS_MT)
                     .step(0.001)
-                    .a11y(|a| a.label(crate::res::str::physics_mass_label().format()))
+                    .a11y(|a| a.label(crate::res::str::physics_mass_label()))
                     .id("physics-mass-slider"),
                 move || mass_text(mass.get()),
                 widest_value.clone(),
@@ -837,14 +840,14 @@ pub(crate) fn physics_page() -> AnyPiece {
                 slider(gravity)
                     .range(0.0..=JUPITER)
                     .step(0.01)
-                    .a11y(|a| a.label(crate::res::str::physics_gravity_label().format()))
+                    .a11y(|a| a.label(crate::res::str::physics_gravity_label()))
                     .id("physics-gravity-slider"),
                 move || gravity_text(gravity.get()),
                 widest_value,
                 "physics-gravity-value",
             ),
         ))
-        .spacing(8.0),)),
+        .spacing(Space::S),)),
         row((
             button(crate::res::str::frame_bounce())
                 .action(move || bounce.kick())
@@ -880,7 +883,14 @@ pub(crate) fn physics_page() -> AnyPiece {
                 .tabular()
                 .align(TextAlign::Trailing)
                 .id("frame-fps")
-                .reserving(crate::res::str::frame_fps("999.9", "999.9", "999.9").format())
+                .reserving(
+                    crate::res::str::frame_fps(crate::res::str::FrameFps {
+                        min: "999.9",
+                        max: "999.9",
+                        avg: "999.9",
+                    })
+                    .format(),
+                )
                 .font(Font::Caption),
         )),
         label(crate::res::str::frame_explanation()).font(Font::Caption),

@@ -108,8 +108,8 @@ pub(crate) fn stack_page() -> AnyPiece {
                         .action(move || cover_open.set(None))
                         .id("cover-dismiss"),
                 ))
-                .spacing(12.0)
-                .padding(24.0)
+                .spacing(Space::M)
+                .padding(Space::XL)
                 .any()
             }),
             button(crate::res::str::stack_half_button())
@@ -135,15 +135,15 @@ pub(crate) fn stack_page() -> AnyPiece {
                         .action(move || half_open.set(None))
                         .id("half-dismiss"),
                 ))
-                .spacing(12.0)
-                .padding(24.0)
+                .spacing(Space::M)
+                .padding(Space::XL)
                 .any()
             })
             .half_sheet(),
         ))
-        .spacing(12.0)
+        .spacing(Space::M)
         .align(HAlign::Leading)
-        .padding(16.0),
+        .padding(Space::L),
     );
     nav_stack(path, root)
         .destination(move |d: &Drill| {
@@ -154,39 +154,30 @@ pub(crate) fn stack_page() -> AnyPiece {
             };
             // Params travel with navigate(): a push performed by writing the path signal
             // carries its data in the route value itself (docs/navigation.md). The hint row
-            // exists only when the param does, so paramless pushes get no phantom gap.
-            let mut parts: Vec<AnyPiece> = vec![
-                depth_dots(depth).any(),
-                label(title).font(Font::Title).id("stack-detail").any(),
-                label(crate::res::str::stack_detail_body()).any(),
-            ];
-            if let Some(h) = route_param("hint") {
-                parts.push(
-                    label(crate::res::str::stack_param_hint(h))
-                        .font(Font::Footnote)
-                        .id("stack-param")
-                        .any(),
-                );
-            }
-            parts.push(
-                labeled(
-                    crate::res::str::stack_unsaved(),
-                    toggle(dirty).id("stack-dirty"),
-                )
-                .any(),
-            );
-            parts.push(
-                button(crate::res::str::stack_push())
-                    .prominent()
-                    .action(move || push(path))
-                    .id("stack-deeper")
-                    .any(),
-            );
+            // exists only when the param does (an `Option` child builds nothing for `None`),
+            // so paramless pushes get no phantom gap.
             scroll(
-                column(PieceVec(parts))
-                    .spacing(12.0)
-                    .align(HAlign::Leading)
-                    .padding(16.0),
+                column((
+                    depth_dots(depth),
+                    label(title).font(Font::Title).id("stack-detail"),
+                    label(crate::res::str::stack_detail_body()),
+                    route_param("hint").map(|h| {
+                        label(crate::res::str::stack_param_hint(h))
+                            .font(Font::Footnote)
+                            .id("stack-param")
+                    }),
+                    labeled(
+                        crate::res::str::stack_unsaved(),
+                        toggle(dirty).id("stack-dirty"),
+                    ),
+                    button(crate::res::str::stack_push())
+                        .prominent()
+                        .action(move || push(path))
+                        .id("stack-deeper"),
+                ))
+                .spacing(Space::M)
+                .align(HAlign::Leading)
+                .padding(Space::L),
             )
         })
         .on_back(move |req| {
@@ -226,7 +217,7 @@ fn stack_glyph() -> impl Piece {
 /// The path so far, one numbered dot per level in the sunrise ramp's order; each push adds
 /// a dot, each pop removes one, mirroring the `Vec<Drill>` behind the native stack.
 fn depth_dots(depth: u32) -> impl Piece {
-    let dots: Vec<AnyPiece> = (1..=depth)
+    let dots: Vec<_> = (1..=depth)
         .map(|n| {
             zstack((
                 circle()
@@ -237,8 +228,7 @@ fn depth_dots(depth: u32) -> impl Piece {
                     .color(Color::WHITE)
                     .bold(),
             ))
-            .any()
         })
         .collect();
-    row(PieceVec(dots)).spacing(6.0)
+    row(dots).spacing(6.0)
 }

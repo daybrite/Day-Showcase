@@ -91,8 +91,6 @@ fn support_section() -> impl Piece {
 fn swatch(cursor: Cursor, id_prefix: &str) -> impl Piece {
     let id: &'static str =
         Box::leak(format!("cursor-{id_prefix}-{}", cursor.css_name()).into_boxed_str());
-    // `.id` on the label itself, before the wrappers: `.background()` adds a container node,
-    // and an id after it would name that instead (a script then reads no text).
     label(cursor.css_name().to_string())
         .id(id)
         .font(Font::Callout)
@@ -102,16 +100,12 @@ fn swatch(cursor: Cursor, id_prefix: &str) -> impl Piece {
         .cursor(cursor)
 }
 
-/// Tiles in rows of four: Day has no flow container, and four fits the page width on every
-/// desktop while a phone, which shows no pointer anyway, just scrolls.
+/// Tiles in one wrapped row (docs/size-classes.md "Row fit policies"): as many per line as
+/// the page width fits, while a phone, which shows no pointer anyway, just scrolls.
 fn tile_rows(tiles: Vec<AnyPiece>) -> impl Piece {
-    let mut rows: Vec<AnyPiece> = Vec::new();
-    let mut it = tiles.into_iter().peekable();
-    while it.peek().is_some() {
-        let chunk: Vec<AnyPiece> = it.by_ref().take(4).collect();
-        rows.push(row(PieceVec(chunk)).spacing(8.0).any());
-    }
-    column(PieceVec(rows)).spacing(8.0)
+    row(tiles)
+        .spacing(Space::S)
+        .fit(RowFit::Wrap { run_spacing: 8.0 })
 }
 
 fn swatches_section(
@@ -128,17 +122,20 @@ fn swatches_section(
 
 /// One box whose shape follows the picker: the reactive form, `cursor(closure)`.
 fn reactive_section() -> impl Piece {
-    let names: Vec<String> = Cursor::NAMED
-        .iter()
-        .map(|c| c.css_name().to_string())
-        .collect();
-    let selected = Signal::new(1usize);
-    let shape = move || Cursor::NAMED[selected.get().min(Cursor::NAMED.len() - 1)].clone();
+    let selected = Signal::new(Cursor::NAMED[1].clone());
+    let shape = move || selected.get();
     section((
         label(crate::res::str::cursors_reactive_caption()).font(Font::Footnote),
         labeled(
             crate::res::str::cursors_reactive_pick(),
-            picker(names, selected).id("cursors-pick"),
+            picker(
+                selected,
+                Cursor::NAMED
+                    .iter()
+                    .map(|c| (c.clone(), c.css_name().to_string()))
+                    .collect::<Vec<_>>(),
+            )
+            .id("cursors-pick"),
         ),
         label(move || shape().css_name().to_string())
             .id("cursors-reactive-box")
@@ -166,8 +163,8 @@ fn nested_section() -> impl Piece {
                 .cursor(Cursor::Pointer),
         ))
         .id("cursors-nested-outer")
-        .spacing(12.0)
-        .padding(24.0)
+        .spacing(Space::M)
+        .padding(Space::XL)
         .background(Color::rgba(0.5, 0.5, 0.5, 0.1))
         .corner_radius(12.0)
         .cursor(Cursor::Crosshair),

@@ -181,7 +181,7 @@ pub(crate) fn model_page() -> AnyPiece {
                 toggle(hide_done).id("model-filter"),
             ),
         ))
-        .spacing(8.0),
+        .spacing(Space::S),
         // How many rows the projection currently shows.
         label(move || crate::res::str::model_caption(rows().len() as i64).format())
             .tabular()
@@ -191,10 +191,10 @@ pub(crate) fn model_page() -> AnyPiece {
         // scrolling a 300-row list does not move it.
         label(move || {
             store.with(|_| {});
-            crate::res::str::model_cost(
-                day::model::observed_paths() as i64,
-                day::model::interned_nodes() as i64,
-            )
+            crate::res::str::model_cost(crate::res::str::ModelCost {
+                paths: day::model::observed_paths() as i64,
+                nodes: day::model::interned_nodes() as i64,
+            })
             .format()
         })
         .font(Font::Footnote)
@@ -210,24 +210,20 @@ pub(crate) fn model_page() -> AnyPiece {
         // The selected row's editor: two controls bound straight to the store through the
         // element's field accessors, the mirror of what the row labels read, with no plumbing.
         //
-        // Keyed on the row, as a collection of nought-or-one, because the editor is tied to its
-        // row: an `Elem`'s field accessors name one key for the life of the subtree, so the
-        // selection moving from one row to the next has to build a new one. A `when` on
-        // "something is selected" would not: the condition is still true, so the arm it built
-        // for the first selection stays mounted, and every later edit writes to whatever row
-        // that was.
-        each(
-            items(
-                move || selected.get().into_iter().collect::<Vec<u64>>(),
-                |id: &u64| *id,
-            ),
-            move |slot: ItemSlot<u64, u64>| {
-                let it = tasks().elem(slot.key());
+        // `keyed` on the row, because the editor is tied to its row: an `Elem`'s field
+        // accessors name one key for the life of the subtree, so the selection moving from one
+        // row to the next has to build a new one. A `when` on "something is selected" would
+        // not: the condition is still true, so the arm it built for the first selection stays
+        // mounted, and every later edit writes to whatever row that was.
+        keyed(
+            move || selected.get(),
+            move |&id| {
+                let it = tasks().elem(id);
                 row((
                     text_field(it.title()).id("model-name"),
                     toggle(it.done()).id("model-done"),
                 ))
-                .spacing(8.0)
+                .spacing(Space::S)
             },
         ),
         // What is selected, read back out of the store; asserting this after typing into the
@@ -313,7 +309,7 @@ pub(crate) fn model_page() -> AnyPiece {
                 .enabled(move || history().can_redo().get())
                 .id("model-redo"),
         ))
-        .spacing(8.0)
+        .spacing(Space::S)
         .fit(RowFit::Wrap { run_spacing: 8.0 }),
         // What one ⌘Z would take back, in the same words the native Edit menu interpolates into
         // its item; both read this signal, so they can never disagree.
@@ -323,6 +319,6 @@ pub(crate) fn model_page() -> AnyPiece {
     ))
     .spacing(10.0)
     .align(HAlign::Leading)
-    .padding(16.0)
+    .padding(Space::L)
     .any()
 }

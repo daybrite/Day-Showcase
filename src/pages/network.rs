@@ -238,12 +238,20 @@ pub(crate) fn network_page() -> AnyPiece {
             previous = next;
         }
     });
-    let operation = Signal::new(0usize);
+    /// The right-hand form's two faces.
+    #[derive(Clone, Copy, PartialEq, Eq)]
+    enum Operation {
+        Request,
+        WebSocket,
+    }
+    let operation = Signal::new(Operation::Request);
     let ws_base = base.clone();
     crate::widgets::page_wide(
         tr::nav_network_http(),
         "network-title",
-        row((
+        // The two forms sit side by side on a wide window and stack on a Medium or narrower
+        // one (docs/size-classes.md), the same nodes re-laid.
+        adaptive((
             form((
                 section((
                     provider_picker(st),
@@ -256,26 +264,28 @@ pub(crate) fn network_page() -> AnyPiece {
             .grow_w(),
             form((
                 picker(
-                    [tr::net_request().format(), tr::ws_title().format()],
                     operation,
+                    [
+                        (Operation::Request, tr::net_request()),
+                        (Operation::WebSocket, tr::ws_title()),
+                    ],
                 )
                 .segmented()
                 .id("network-operation"),
-                when(
-                    move || operation.get() == 0,
-                    move || request_section(st, base.clone()),
-                ),
-                when(
-                    move || operation.get() == 1,
-                    move || websocket_section(st, ws_base.clone()),
+                switch(
+                    move || operation.get(),
+                    move |op| match op {
+                        Operation::Request => request_section(st, base.clone()).any(),
+                        Operation::WebSocket => websocket_section(st, ws_base.clone()).any(),
+                    },
                 ),
                 statistics_section(st),
             ))
             .grow_w(),
         ))
-        .spacing(16.0)
-        .align(VAlign::Top)
-        .fit(RowFit::ColumnAt(WidthClass::Medium)),
+        .spacing(Space::L)
+        .stack_at(WidthClass::Medium)
+        .align(VAlign::Top),
     )
     .any()
 }
@@ -285,12 +295,9 @@ fn provider_picker(st: Model) -> AnyPiece {
     {
         labeled(
             tr::net_provider(),
-            picker(
-                [tr::net_native().format(), tr::net_reqwest().format()],
-                st.provider,
-            )
-            .segmented()
-            .id("network-provider"),
+            picker(st.provider, [(0, tr::net_native()), (1, tr::net_reqwest())])
+                .segmented()
+                .id("network-provider"),
         )
         .any()
     }
@@ -331,7 +338,7 @@ fn simulation_section(st: Model) -> impl Piece {
                         labeled(tr::net_pause(), toggle(st.paused).id("network-pause")),
                         labeled(tr::net_offline(), toggle(st.offline).id("network-offline")),
                     ))
-                    .spacing(16.0)
+                    .spacing(Space::L)
                     .fit(RowFit::Wrap { run_spacing: 8.0 }),
                 ))
                 .spacing(6.0)
@@ -418,9 +425,19 @@ fn request_section(st: Model, base: String) -> impl Piece {
     section((
         labeled(
             tr::net_method(),
-            picker(["GET", "POST", "PATCH", "HEAD", "PUT", "DELETE"], st.method)
-                .segmented()
-                .id("http-method"),
+            picker(
+                st.method,
+                [
+                    (0, "GET"),
+                    (1, "POST"),
+                    (2, "PATCH"),
+                    (3, "HEAD"),
+                    (4, "PUT"),
+                    (5, "DELETE"),
+                ],
+            )
+            .segmented()
+            .id("http-method"),
         ),
         labeled(tr::net_url(), text_field(st.url).id("http-url")),
         labeled(tr::net_body(), text_field(st.body).id("http-body")),
@@ -460,7 +477,7 @@ fn request_section(st: Model, base: String) -> impl Piece {
                     })
                     .id("http-cancel"),
             ))
-            .spacing(8.0),
+            .spacing(Space::S),
             label(move || st.status.get())
                 .max_lines(4)
                 .id("http-status"),
@@ -490,7 +507,7 @@ fn request_section(st: Model, base: String) -> impl Piece {
                 })
                 .id("http-upload-preset"),
         ))
-        .spacing(8.0),
+        .spacing(Space::S),
         label(move || tr::net_received(st.received.get().to_string()).format()).id("http-received"),
     ))
     .title(tr::net_request())
@@ -581,7 +598,7 @@ fn websocket_section(st: Model, base: String) -> impl Piece {
                 .action(close)
                 .id("ws-close"),
         ))
-        .spacing(8.0),
+        .spacing(Space::S),
         labeled(tr::net_message(), text_field(text).id("ws-text")),
         button(tr::ws_send()).bordered().action(send).id("ws-send"),
         label(move || state.get()).id("ws-state"),
@@ -628,21 +645,21 @@ fn statistics_section(st: Model) -> impl Piece {
         plot,
         label(move || {
             let s = st.statistics.get();
-            tr::net_totals(
-                s.active.to_string(),
-                s.failed.to_string(),
-                s.downloaded_bytes.to_string(),
-                s.uploaded_bytes.to_string(),
-            )
+            tr::net_totals(tr::NetTotals {
+                sent: s.uploaded_bytes.to_string(),
+                received: s.downloaded_bytes.to_string(),
+                active: s.active.to_string(),
+                failed: s.failed.to_string(),
+            })
             .format()
         })
         .id("network-totals"),
         label(move || {
             let s = st.statistics.get();
-            tr::net_average(
-                format!("{:.1}", s.download_bytes_per_second() / 1024.0),
-                format!("{:.1}", s.upload_bytes_per_second() / 1024.0),
-            )
+            tr::net_average(tr::NetAverage {
+                upload: format!("{:.1}", s.upload_bytes_per_second() / 1024.0),
+                download: format!("{:.1}", s.download_bytes_per_second() / 1024.0),
+            })
             .format()
         }),
         label(tr::net_stats_note()).font(Font::Footnote),

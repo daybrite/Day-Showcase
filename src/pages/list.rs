@@ -76,7 +76,7 @@ pub(crate) fn list_page() -> AnyPiece {
                 .tint(crate::widgets::primary())
                 .id("list-add"),
         ))
-        .spacing(8.0),
+        .spacing(Space::S),
         label(move || crate::res::str::list_caption(rows.get().len() as i64).format())
             .tabular()
             .id("list-caption"),
@@ -129,7 +129,7 @@ pub(crate) fn list_page() -> AnyPiece {
                 .action(move || rows.set((1..=total.get_untracked()).collect()))
                 .id("list-reset"),
         ))
-        .spacing(8.0)
+        .spacing(Space::S)
         .fit(RowFit::Wrap { run_spacing: 8.0 }),
         // Drag-to-reorder (docs/list.md): the hint names the pinned-row guard, and the order
         // readout makes the committed order assertable (dayscript `reorder` steps check it).
@@ -148,7 +148,11 @@ pub(crate) fn list_page() -> AnyPiece {
             if sel.is_empty() {
                 crate::res::str::list_selection_none().format()
             } else {
-                crate::res::str::list_selection(sel.len() as i64, format_rows(&sel)).format()
+                crate::res::str::list_selection(crate::res::str::ListSelection {
+                    count: sel.len() as i64,
+                    rows: format_rows(&sel),
+                })
+                .format()
             }
         })
         .font(Font::Footnote)
@@ -179,7 +183,7 @@ pub(crate) fn list_page() -> AnyPiece {
                 },
             )
             .row_height(RowHeight::Uniform(36.0))
-            .multi_select(true)
+            .multi_select()
             // Keys are the row numbers, so the selection set is the report itself.
             .on_activate(move |key| activated.set(key))
             .on_selection(move |keys: Vec<i64>| selected.set(keys.into_iter().collect()))
@@ -197,51 +201,53 @@ pub(crate) fn list_page() -> AnyPiece {
             .scroll_to_end(jump_end)
             // Native drag-to-reorder, with a guard demo: the first row is pinned: it cannot be
             // dragged, and a drop aimed at its slot lands just below it instead (Retarget).
-            .reorderable(true)
-            .reorder_guard(|from, to| {
-                if from == 0 {
-                    Reorder::Deny
-                } else if to == 0 {
-                    Reorder::Retarget(1)
-                } else {
-                    Reorder::Allow
-                }
-            })
-            .on_reorder(move |from, to| {
-                rows.update(|v| {
-                    let it = v.remove(from);
-                    v.insert(to, it);
-                });
-            })
+            .reorderable(
+                Reorder::new(move |from, to| {
+                    rows.update(|v| {
+                        let it = v.remove(from);
+                        v.insert(to, it);
+                    });
+                })
+                .guard(|from, to| {
+                    if from == 0 {
+                        ReorderVerdict::Deny
+                    } else if to == 0 {
+                        ReorderVerdict::Retarget(1)
+                    } else {
+                        ReorderVerdict::Allow
+                    }
+                }),
+            )
             // Leading swipe opens the same row as activation. WinUI also offers these actions
             // in a native context menu for mouse and keyboard users.
             .swipe_leading(move |index| {
                 let key = rows.get_untracked()[index];
                 vec![
-                    swipe_action(crate::res::str::menu_open().format())
+                    swipe_action(crate::res::str::menu_open())
                         .symbol(Symbol::Open)
                         .action(move || activated.set(key)),
                 ]
             })
             // Native swipe-to-delete where supported (including WinUI). The same first row is
             // pinned as for reorder, so one demo shows both guards agreeing about it.
-            .deletable(true)
-            .delete_label(crate::res::str::list_delete().format())
-            .delete_guard(|index| index != 0)
-            .on_delete(move |index| {
-                rows.update(|v| {
-                    if index < v.len() {
-                        v.remove(index);
-                    }
-                });
-            })
+            .deletable(
+                Delete::new(move |index| {
+                    rows.update(|v| {
+                        if index < v.len() {
+                            v.remove(index);
+                        }
+                    });
+                })
+                .label(crate::res::str::list_delete())
+                .guard(|index| index != 0),
+            )
             .id("demo-list"),
         )
         .id("list-refresh"),
     ))
     .spacing(10.0)
     .align(HAlign::Leading)
-    .padding(16.0)
+    .padding(Space::L)
     .any()
 }
 

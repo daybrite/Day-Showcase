@@ -24,36 +24,23 @@ pub(crate) fn grid_page() -> AnyPiece {
         let tab = Signal::new(GridDemo::Basics);
         nav(tab)
             .style(NavStyle::Tabs)
-            .item_icon(
-                GridDemo::Basics,
-                crate::res::str::grid_tab_basics(),
-                crate::res::vectors::grid_basics.clone(),
-                basics_demo,
-            )
-            .item_icon(
-                GridDemo::Sizing,
-                crate::res::str::grid_tab_sizing(),
-                crate::res::vectors::grid_sizing.clone(),
-                sizing_demo,
-            )
-            .item_icon(
-                GridDemo::Spanning,
-                crate::res::str::grid_tab_spanning(),
-                crate::res::vectors::grid_spanning.clone(),
-                spanning_demo,
-            )
-            .item_icon(
-                GridDemo::Composite,
-                crate::res::str::grid_tab_composite(),
-                crate::res::vectors::grid_composite.clone(),
-                composite_demo,
-            )
-            .item_icon(
-                GridDemo::Stress,
-                crate::res::str::grid_tab_stress(),
-                crate::res::vectors::grid_stress.clone(),
-                stress_demo,
-            )
+            .items((
+                item(GridDemo::Basics, crate::res::str::grid_tab_basics())
+                    .icon(crate::res::vectors::grid_basics.clone())
+                    .page(basics_demo),
+                item(GridDemo::Sizing, crate::res::str::grid_tab_sizing())
+                    .icon(crate::res::vectors::grid_sizing.clone())
+                    .page(sizing_demo),
+                item(GridDemo::Spanning, crate::res::str::grid_tab_spanning())
+                    .icon(crate::res::vectors::grid_spanning.clone())
+                    .page(spanning_demo),
+                item(GridDemo::Composite, crate::res::str::grid_tab_composite())
+                    .icon(crate::res::vectors::grid_composite.clone())
+                    .page(composite_demo),
+                item(GridDemo::Stress, crate::res::str::grid_tab_stress())
+                    .icon(crate::res::vectors::grid_stress.clone())
+                    .page(stress_demo),
+            ))
             .id("grid-tabs")
             .any()
     } else {
@@ -109,9 +96,9 @@ pub(crate) fn grid_page() -> AnyPiece {
 fn pane(title: LocalizedText, body: impl Piece) -> impl Piece {
     scroll(
         column((label(title).font(Font::Title), body))
-            .spacing(12.0)
+            .spacing(Space::M)
             .align(HAlign::Leading)
-            .padding(16.0),
+            .padding(Space::L),
     )
 }
 
@@ -146,7 +133,7 @@ fn basics_demo() -> impl Piece {
             score_row("Grace", "11", "1024"),
             score_row("Katherine", "7", "512"),
         ))
-        .column_spacing(24.0)
+        .column_spacing(Space::XL)
         .row_spacing(6.0)
         .align(Alignment::Leading)
         .id("grid-basics")
@@ -196,17 +183,15 @@ fn sizing_demo() -> impl Piece {
 /// three columns via `.grid_span`, with `spacer()` holding the empty day slots.
 fn spanning_demo() -> impl Piece {
     fn day_cells(from: u32) -> impl Piece {
-        let cells: Vec<AnyPiece> = (from..from + 7)
+        let cells: Vec<_> = (from..from + 7)
             .map(|n| {
-                // Grid modifiers go last so the facts land on the outermost (width) wrapper.
                 label(n.to_string())
                     .tabular()
                     .width(32.0)
                     .grid_align(Alignment::Center)
-                    .any()
             })
             .collect();
-        grid_row(PieceVec(cells))
+        grid_row(cells)
     }
     fn event(text: LocalizedText, color: u32, span: usize) -> impl Piece {
         label(text)
@@ -231,7 +216,7 @@ fn spanning_demo() -> impl Piece {
             )),
             day_cells(8),
         ))
-        .spacing(8.0)
+        .spacing(Space::S)
         .align(Alignment::Leading)
         .id("grid-spanning")
         .any(),
@@ -359,9 +344,9 @@ fn composite_demo() -> impl Piece {
         .collect();
     pane(
         crate::res::str::grid_tab_composite(),
-        grid(PieceVec(rows))
-            .column_spacing(12.0)
-            .row_spacing(8.0)
+        grid(rows)
+            .column_spacing(Space::M)
+            .row_spacing(Space::S)
             .id("grid-composite")
             .any(),
     )
@@ -404,10 +389,10 @@ fn stress_demo() -> impl Piece {
                     );
                 }
             }
-            grid_row(PieceVec(cells)).any()
+            grid_row(cells).any()
         },
     ),))
-    .spacing(4.0)
+    .spacing(Space::XS)
     .align(Alignment::Leading)
     .id("grid-stress");
     pane(
@@ -421,10 +406,10 @@ fn stress_demo() -> impl Piece {
                     .action(move || hot.update(|h| *h += 1))
                     .id("grid-stress-bump"),
             ))
-            .spacing(12.0),
+            .spacing(Space::M),
             body,
         ))
-        .spacing(12.0)
+        .spacing(Space::M)
         .align(HAlign::Leading)
         .any(),
     )
