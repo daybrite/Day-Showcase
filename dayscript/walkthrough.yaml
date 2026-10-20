@@ -644,7 +644,9 @@ flow:
   # `settings/general` pushes the page; the language picker is universal, the theme picker is
   # Cap::Appearance-gated and asserted in the desktop windows script instead.
   - navigate: { route: settings }
-  - navigate: { route: settings/general, only_on: [uikit, mdc, arkui, dom] }
+  # Exercise the settings root's declared IDs and row activation as well as the page.
+  - assert_visible: { id: settings_about, only_on: [uikit, mdc, arkui, dom] }
+  - tap: { id: "prefs_group:general", only_on: [uikit, mdc, arkui, dom] }
   - wait_for: { id: language_picker }
   - screenshot:
       name: preferences
