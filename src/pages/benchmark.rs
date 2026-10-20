@@ -23,10 +23,11 @@ use day::prelude::*;
 
 /// The height reserved for the Parameters block, so the patchwork below it starts at the same y in
 /// the Day-native tab and the SwiftUI tab. Two slider rows plus the row-count line at the default
-/// text size. One constant for both implementations: the Day tab fixes its form to it, and it is
+/// text size, including the native form's title and padding (WinUI needs 150 points). One
+/// constant for both implementations: the Day tab fixes its form to it, and it is
 /// passed through `BenchGridsView`'s initializer so the SwiftUI tab pins its GroupBox slot to the
 /// same number, so the grids begin at the identical y whichever tab is selected.
-const PARAMS_HEIGHT: f64 = 132.0;
+const PARAMS_HEIGHT: f64 = 150.0;
 
 use crate::widgets::heading;
 
