@@ -18,10 +18,10 @@ pub(crate) fn text_page() -> AnyPiece {
     let md = Signal::new(crate::res::str::text_markdown_sample().format());
     page_trailing(
         crate::res::str::nav_text(),
-        "text-title",
+        day::id!(text_title),
         row((
             label(crate::res::str::text_selectable_toggle()).font(Font::Subheadline),
-            toggle(sel_on).id("text-selectable-toggle"),
+            toggle(sel_on).id(day::id!(text_selectable_toggle)),
         ))
         .spacing(Space::S)
         .any(),
@@ -46,7 +46,7 @@ fn sections(on: bool, md: Signal<String>) -> impl Piece {
     // A style name (localized) rendered in its own style, a self-documenting type specimen.
     // The dayscript id keeps the stable English style id regardless of locale.
     fn specimen(on: bool, id: &'static str, name: LocalizedText, f: Font) -> impl Piece {
-        sel(on, label(name).font(f).id_keyed("text-style", id))
+        sel(on, label(name).font(f).id(day::id!(text_style, id)))
     }
     // Every semantic style (largest → smallest), each rendered in its own style.
     let styles = section((
@@ -119,7 +119,7 @@ fn sections(on: bool, md: Signal<String>) -> impl Piece {
             on,
             label(crate::res::str::text_weight_ultralight())
                 .weight(FontWeight::UltraLight)
-                .id("text-w-ultralight"),
+                .id(day::id!(text_w_ultralight)),
         ),
         sel(
             on,
@@ -141,7 +141,7 @@ fn sections(on: bool, md: Signal<String>) -> impl Piece {
             on,
             label(crate::res::str::text_weight_bold())
                 .weight(FontWeight::Bold)
-                .id("text-w-bold"),
+                .id(day::id!(text_w_bold)),
         ),
         sel(
             on,
@@ -157,20 +157,22 @@ fn sections(on: bool, md: Signal<String>) -> impl Piece {
     let styling = section((
         sel(
             on,
-            label(crate::res::str::text_bold()).bold().id("text-bold"),
+            label(crate::res::str::text_bold())
+                .bold()
+                .id(day::id!(text_bold)),
         ),
         sel(
             on,
             label(crate::res::str::text_italic())
                 .italic()
-                .id("text-italic"),
+                .id(day::id!(text_italic)),
         ),
         sel(
             on,
             label(crate::res::str::text_bolditalic())
                 .bold()
                 .italic()
-                .id("text-bolditalic"),
+                .id(day::id!(text_bolditalic)),
         ),
         sel(
             on,
@@ -179,7 +181,7 @@ fn sections(on: bool, md: Signal<String>) -> impl Piece {
                 .weight(FontWeight::Heavy)
                 .italic()
                 .color(VIOLET)
-                .id("text-emphasis"),
+                .id(day::id!(text_emphasis)),
         ),
     ))
     .title(crate::res::str::text_styling_header());
@@ -222,7 +224,7 @@ fn sections(on: bool, md: Signal<String>) -> impl Piece {
             on,
             label(crate::res::str::text_size_pt(28))
                 .font(Font::System(28.0))
-                .id("text-custom-28"),
+                .id(day::id!(text_custom_28)),
         ),
         sel(
             on,
@@ -246,26 +248,26 @@ fn sections(on: bool, md: Signal<String>) -> impl Piece {
             on,
             label(crate::res::str::text_font_pacifico())
                 .font(Font::custom(crate::res::fonts::pacifico, 24.0))
-                .id("text-font-pacifico"),
+                .id(day::id!(text_font_pacifico)),
         ),
         sel(
             on,
             label(crate::res::str::text_font_bungee())
                 .font(Font::custom(crate::res::fonts::bungee, 20.0))
-                .id("text-font-bungee"),
+                .id(day::id!(text_font_bungee)),
         ),
         sel(
             on,
             label(crate::res::str::text_font_specialelite())
                 .font(Font::custom(crate::res::fonts::special_elite, 20.0))
-                .id("text-font-specialelite"),
+                .id(day::id!(text_font_specialelite)),
         ),
         sel(
             on,
             label(crate::res::str::text_font_pacifico_lg())
                 .font(Font::custom(crate::res::fonts::pacifico, 36.0))
                 .color(SKY)
-                .id("text-font-pacifico-lg"),
+                .id(day::id!(text_font_pacifico_lg)),
         ),
     ))
     .title(crate::res::str::text_fonts_header());
@@ -283,7 +285,7 @@ fn sections(on: bool, md: Signal<String>) -> impl Piece {
         // "daybrite.dev" is the URL itself (a value), so it stays raw.
         sel(
             on,
-            link("daybrite.dev", "https://daybrite.dev").id("text-link-web"),
+            link("daybrite.dev", "https://daybrite.dev").id(day::id!(text_link_web)),
         ),
         sel(
             on,
@@ -292,7 +294,7 @@ fn sections(on: bool, md: Signal<String>) -> impl Piece {
                 "https://fonts.google.com/icons",
             )
             .font(Font::Footnote)
-            .id("text-link-icons"),
+            .id(day::id!(text_link_icons)),
         ),
         sel(
             on,
@@ -301,7 +303,7 @@ fn sections(on: bool, md: Signal<String>) -> impl Piece {
                 "mailto:hello@daybrite.dev",
             )
             .color(TEAL)
-            .id("text-link-mail"),
+            .id(day::id!(text_link_mail)),
         ),
     ))
     .title(crate::res::str::text_links_section());
@@ -317,7 +319,7 @@ fn sections(on: bool, md: Signal<String>) -> impl Piece {
         ),
         sel(
             on,
-            label(crate::res::str::tweaks_selectable_text()).id("text-selectable"),
+            label(crate::res::str::tweaks_selectable_text()).id(day::id!(text_selectable)),
         ),
     ))
     .title(crate::res::str::tweaks_selectable_title());
@@ -377,7 +379,7 @@ fn rich(on: bool) -> impl Piece {
         .build();
     section((
         crate::widgets::support_note(crate::support::cap(Cap::TextRuns)),
-        sel(on, label(text).runs(runs).id("text-runs")),
+        sel(on, label(text).runs(runs).id(day::id!(text_runs))),
     ))
     .title(crate::res::str::text_runs_section())
 }
@@ -396,14 +398,17 @@ fn markdown_live(on: bool, md: Signal<String>) -> impl Piece {
             on,
             label(crate::res::str::text_markdown_caption()).font(Font::Footnote),
         ),
-        text_area(md).min_lines(3).max_lines(5).id("text-md-input"),
+        text_area(md)
+            .min_lines(3)
+            .max_lines(5)
+            .id(day::id!(text_md_input)),
         divider(),
         sel(
             on,
             label(move || md.get())
                 .markdown()
                 .on_link(move |url| opened.set(url.to_string()))
-                .id("text-md-output"),
+                .id(day::id!(text_md_output)),
         ),
         when(
             move || !opened.get().is_empty(),
@@ -411,7 +416,7 @@ fn markdown_live(on: bool, md: Signal<String>) -> impl Piece {
                 label(crate::res::str::text_markdown_opened(opened))
                     .font(Font::Footnote)
                     .color(TEAL)
-                    .id("text-md-opened")
+                    .id(day::id!(text_md_opened))
             },
         ),
     ))
@@ -439,7 +444,7 @@ fn baseline() -> impl Piece {
         label(crate::res::str::text_baseline_caption()).font(Font::Footnote),
         row((
             label(crate::res::str::text_baseline_toggle()).font(Font::Subheadline),
-            toggle(aligned).id("text-baseline-toggle"),
+            toggle(aligned).id(day::id!(text_baseline_toggle)),
         ))
         .spacing(Space::S),
         when(
@@ -468,7 +473,7 @@ fn baseline_rows(align: VAlign, qty: Signal<String>, due: Signal<DayDate>) -> im
             lead(crate::res::str::text_baseline_quantity()),
             text_field(qty)
                 .width(70.0)
-                .id_keyed("text-baseline-qty", tag),
+                .id(day::id!(text_baseline_qty, tag)),
             label(crate::res::str::text_baseline_unit()).font(Font::Caption),
         ))
         .spacing(Space::S)
@@ -478,7 +483,7 @@ fn baseline_rows(align: VAlign, qty: Signal<String>, due: Signal<DayDate>) -> im
             lead(crate::res::str::text_baseline_total()),
             label("$1,240.00")
                 .font(Font::Title2)
-                .id_keyed("text-baseline-total", tag),
+                .id(day::id!(text_baseline_total, tag)),
             label(crate::res::str::text_baseline_currency()).font(Font::Caption),
         ))
         .spacing(Space::S)
@@ -487,7 +492,7 @@ fn baseline_rows(align: VAlign, qty: Signal<String>, due: Signal<DayDate>) -> im
         // its text, which is where centering goes most obviously wrong.
         row((
             lead(crate::res::str::text_baseline_due()),
-            date_picker(due).id_keyed("text-baseline-due", tag),
+            date_picker(due).id(day::id!(text_baseline_due, tag)),
         ))
         .spacing(Space::S)
         .align(align),

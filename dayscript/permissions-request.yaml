@@ -9,9 +9,9 @@ flow:
   - wait_for: { id: nav }
   - navigate: { route: system }
   - assert_route: { route: system }
-  - assert_visible: { id: location-perm }
+  - assert_visible: { id: location_perm }
   # The button only exists where the platform gates the capability; on a target where it
   # does not, this step is expected to fail, which is itself the signal.
-  - tap: { id: location-perm-action }
+  - tap: { id: permission_action:location_perm }
   - pause: { secs: 3 }
   - screenshot: permission-prompt

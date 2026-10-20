@@ -10,15 +10,19 @@ const NOTE_LENGTH: u32 = 12;
 /// Text fields (docs/textfield.md): how a `text_field` takes its text. Every section is the
 /// platform's own single-line field; what changes is what it is told about its contents.
 pub(crate) fn text_fields_page() -> AnyPiece {
-    page(crate::res::str::nav_textfields(), "textfields-title", {
-        form((
-            password_section(),
-            purpose_section(),
-            pin_section(),
-            attributes_section(),
-        ))
-        .any()
-    })
+    page(
+        crate::res::str::nav_textfields(),
+        day::id!(textfields_title),
+        {
+            form((
+                password_section(),
+                purpose_section(),
+                pin_section(),
+                attributes_section(),
+            ))
+            .any()
+        },
+    )
     .any()
 }
 
@@ -34,16 +38,17 @@ fn password_section() -> impl Piece {
             secure_field(password)
                 .secure(move || !shown.get())
                 .placeholder(crate::res::str::textfields_password_placeholder())
-                .id("tf-password"),
+                .id(day::id!(tf_password)),
         ),
         labeled(
             crate::res::str::textfields_show_password(),
-            toggle(shown).id("tf-show-password"),
+            toggle(shown).id(day::id!(tf_show_password)),
         ),
         // The length, never the text: a readout of a password would defeat the field above it.
         labeled(
             crate::res::str::textfields_length(),
-            label(move || password.get().chars().count().to_string()).id("tf-password-length"),
+            label(move || password.get().chars().count().to_string())
+                .id(day::id!(tf_password_length)),
         ),
     ))
     .title(crate::res::str::textfields_password_section())
@@ -55,7 +60,7 @@ fn purpose_section() -> impl Piece {
     let field = |title: day::LocalizedText,
                  purpose: InputPurpose,
                  placeholder: &'static str,
-                 id: &'static str| {
+                 id: day::ElementId| {
         labeled(
             title,
             text_field(Signal::new(String::new()))
@@ -70,37 +75,37 @@ fn purpose_section() -> impl Piece {
             crate::res::str::textfields_email(),
             InputPurpose::Email,
             "ada@example.com",
-            "tf-email",
+            day::id!(tf_email),
         ),
         field(
             crate::res::str::textfields_phone(),
             InputPurpose::Phone,
             "+1 555 0100",
-            "tf-phone",
+            day::id!(tf_phone),
         ),
         field(
             crate::res::str::textfields_url(),
             InputPurpose::Url,
             "https://daybrite.dev",
-            "tf-url",
+            day::id!(tf_url),
         ),
         field(
             crate::res::str::textfields_number(),
             InputPurpose::Number,
             "42",
-            "tf-number",
+            day::id!(tf_number),
         ),
         field(
             crate::res::str::textfields_decimal(),
             InputPurpose::Decimal,
             "19.99",
-            "tf-decimal",
+            day::id!(tf_decimal),
         ),
         field(
             crate::res::str::textfields_code(),
             InputPurpose::OneTimeCode,
             "123456",
-            "tf-code",
+            day::id!(tf_code),
         ),
     ))
     .title(crate::res::str::textfields_purpose_section())
@@ -116,12 +121,12 @@ fn pin_section() -> impl Piece {
                 .input_purpose(InputPurpose::Number)
                 .max_length(PIN_LENGTH)
                 .submit_label(SubmitLabel::Done)
-                .id("tf-pin"),
+                .id(day::id!(tf_pin)),
         ),
         labeled(
             crate::res::str::textfields_length(),
             label(move || format!("{} / {PIN_LENGTH}", pin.get().chars().count()))
-                .id("tf-pin-count"),
+                .id(day::id!(tf_pin_count)),
         ),
     ))
     .title(crate::res::str::textfields_pin_section())
@@ -137,20 +142,24 @@ fn attributes_section() -> impl Piece {
     section((
         labeled(
             crate::res::str::textfields_reference(),
-            text_field(reference).read_only(read_only).id("tf-readonly"),
+            text_field(reference)
+                .read_only(read_only)
+                .id(day::id!(tf_readonly)),
         ),
         labeled(
             crate::res::str::textfields_read_only(),
-            toggle(read_only).id("tf-readonly-toggle"),
+            toggle(read_only).id(day::id!(tf_readonly_toggle)),
         ),
         labeled(
             crate::res::str::textfields_limited(),
-            text_field(note).max_length(NOTE_LENGTH).id("tf-limited"),
+            text_field(note)
+                .max_length(NOTE_LENGTH)
+                .id(day::id!(tf_limited)),
         ),
         labeled(
             crate::res::str::textfields_length(),
             label(move || format!("{} / {NOTE_LENGTH}", note.get().chars().count()))
-                .id("tf-limited-count"),
+                .id(day::id!(tf_limited_count)),
         ),
         labeled(
             crate::res::str::textfields_message(),
@@ -163,11 +172,11 @@ fn attributes_section() -> impl Piece {
                     }
                 })
                 .placeholder(crate::res::str::textfields_message_placeholder())
-                .id("tf-message"),
+                .id(day::id!(tf_message)),
         ),
         labeled(
             crate::res::str::textfields_sent(),
-            label(move || sent.get().to_string()).id("tf-sent-count"),
+            label(move || sent.get().to_string()).id(day::id!(tf_sent_count)),
         ),
     ))
     .title(crate::res::str::textfields_attrs_section())

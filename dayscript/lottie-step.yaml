@@ -4,13 +4,13 @@ description: Verify the speed slider snaps to its .step(0.25) — off-grid value
 flow:
   - wait_for: { id: nav }
   - navigate: { route: lottie }
-  - assert_text: { id: lottie-speed-value, text: "1.00×" }
-  - set_value: { id: lottie-speed-slider, value: 1.6 }
-  - assert_text: { id: lottie-speed-value, text: "1.50×" }
-  - set_value: { id: lottie-speed-slider, value: 0.6 }
-  - assert_text: { id: lottie-speed-value, text: "0.50×" }
-  - set_value: { id: lottie-speed-slider, value: 2.9 }
-  - assert_text: { id: lottie-speed-value, text: "3.00×" }
-  - set_value: { id: lottie-speed-slider, value: 0.1 }
-  - assert_text: { id: lottie-speed-value, text: "0.25×" }
+  - assert_text: { id: lottie_speed_value, text: "1.00×" }
+  - set_value: { id: lottie_speed_slider, value: 1.6 }
+  - assert_text: { id: lottie_speed_value, text: "1.50×" }
+  - set_value: { id: lottie_speed_slider, value: 0.6 }
+  - assert_text: { id: lottie_speed_value, text: "0.50×" }
+  - set_value: { id: lottie_speed_slider, value: 2.9 }
+  - assert_text: { id: lottie_speed_value, text: "3.00×" }
+  - set_value: { id: lottie_speed_slider, value: 0.1 }
+  - assert_text: { id: lottie_speed_value, text: "0.25×" }
   - pause: 1

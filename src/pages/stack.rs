@@ -77,12 +77,12 @@ pub(crate) fn stack_page() -> AnyPiece {
     let root = scroll(
         column((
             stack_glyph(),
-            label(crate::res::str::stack_root_body()).id("stack-root"),
+            label(crate::res::str::stack_root_body()).id(day::id!(stack_root)),
             button(crate::res::str::stack_push())
                 .prominent()
                 .action(move || push(path))
                 .tint(crate::widgets::primary())
-                .id("stack-push"),
+                .id(day::id!(stack_push)),
             // An absolute route with query params (docs/navigation.md), built typed: it anchors
             // the enclosing nav at Section::Stack, resets this stack, pushes Item { id: 42 };
             // the destination builder reads the ?hint= param via route_param().
@@ -92,21 +92,21 @@ pub(crate) fn stack_page() -> AnyPiece {
                     .then(&Drill::Item { id: 42 })
                     .param("hint", "linked"),
             )
-            .id("stack-link"),
+            .id(day::id!(stack_link)),
             button(crate::res::str::stack_cover_button())
                 .action(move || cover_open.set(Some(CoverKey)))
                 .tint(crate::widgets::secondary())
-                .id("cover-present"),
+                .id(day::id!(cover_present)),
             cover(cover_open, move |_| {
                 column((
                     label(crate::res::str::cover_title())
                         .font(Font::Title)
-                        .id("cover-title"),
+                        .id(day::id!(cover_title)),
                     label(crate::res::str::cover_body()),
                     button(crate::res::str::cover_dismiss())
                         .prominent()
                         .action(move || cover_open.set(None))
-                        .id("cover-dismiss"),
+                        .id(day::id!(cover_dismiss)),
                 ))
                 .spacing(Space::M)
                 .padding(Space::XL)
@@ -115,25 +115,25 @@ pub(crate) fn stack_page() -> AnyPiece {
             button(crate::res::str::stack_half_button())
                 .action(move || half_open.set(Some(HalfKey)))
                 .tint(crate::widgets::secondary())
-                .id("half-present"),
+                .id(day::id!(half_present)),
             label(move || {
                 crate::res::str::half_readout((level.get().round() as i64).to_string()).format()
             })
-            .id("half-readout"),
+            .id(day::id!(half_readout)),
             cover(half_open, move |_| {
                 column((
                     label(crate::res::str::half_title())
                         .font(Font::Title)
-                        .id("half-title"),
+                        .id(day::id!(half_title)),
                     label(crate::res::str::half_body()),
                     labeled(
                         crate::res::str::half_level(),
-                        slider(level).range(0.0..=100.0).id("half-level"),
+                        slider(level).range(0.0..=100.0).id(day::id!(half_level)),
                     ),
                     button(crate::res::str::cover_dismiss())
                         .prominent()
                         .action(move || half_open.set(None))
-                        .id("half-dismiss"),
+                        .id(day::id!(half_dismiss)),
                 ))
                 .spacing(Space::M)
                 .padding(Space::XL)
@@ -159,21 +159,21 @@ pub(crate) fn stack_page() -> AnyPiece {
             scroll(
                 column((
                     depth_dots(depth),
-                    label(title).font(Font::Title).id("stack-detail"),
+                    label(title).font(Font::Title).id(day::id!(stack_detail)),
                     label(crate::res::str::stack_detail_body()),
                     route_param("hint").map(|h| {
                         label(crate::res::str::stack_param_hint(h))
                             .font(Font::Footnote)
-                            .id("stack-param")
+                            .id(day::id!(stack_param))
                     }),
                     labeled(
                         crate::res::str::stack_unsaved(),
-                        toggle(dirty).id("stack-dirty"),
+                        toggle(dirty).id(day::id!(stack_dirty)),
                     ),
                     button(crate::res::str::stack_push())
                         .prominent()
                         .action(move || push(path))
-                        .id("stack-deeper"),
+                        .id(day::id!(stack_deeper)),
                 ))
                 .spacing(Space::M)
                 .align(HAlign::Leading)
@@ -198,7 +198,7 @@ pub(crate) fn stack_page() -> AnyPiece {
                 BackResponse::Proceed
             }
         })
-        .id("demo-stack")
+        .id(day::id!(demo_stack))
         .any()
 }
 

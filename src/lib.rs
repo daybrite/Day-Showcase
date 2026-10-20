@@ -330,7 +330,7 @@ pub fn root() -> impl Piece {
     // override the app.
     if std::env::var("DAY_LOG_ACTIONS").as_deref() != Ok("0") {
         // The Scripting page's own controls stay out, exactly as they stay out of a recording.
-        day::record::exclude_prefix("scripting-");
+        day::record::exclude_prefix("scripting_");
         day::record::log_actions(true);
     }
     // Every locale under `resource/locales/` (en, fr, ar, zh-CN), embedded and registered by the
@@ -410,7 +410,7 @@ fn install_settings() -> day_piece_settings::Prefs {
                     rows::info(res::str::settings_starred_count(), || {
                         crate::commands::starred_count().to_string()
                     })
-                    .id("settings-starred-count"),
+                    .id(day::id!(settings_starred_count)),
                 )
                 .row(
                     rows::action(
@@ -419,7 +419,7 @@ fn install_settings() -> day_piece_settings::Prefs {
                     )
                     .destructive()
                     .confirm(res::str::settings_clear_starred_confirm())
-                    .id("settings-clear-starred"),
+                    .id(day::id!(settings_clear_starred)),
                 ),
         )
         .group(
@@ -431,16 +431,16 @@ fn install_settings() -> day_piece_settings::Prefs {
                 .subtitle(res::str::settings_diagnostics_subtitle())
                 .row(
                     rows::info(res::str::about_toolkit(), day::toolkit_name().to_string())
-                        .id("about-toolkit"),
+                        .id(day::id!(about_toolkit)),
                 )
                 .row(
                     rows::info(
                         res::str::about_os(),
                         format!("{} {}", d.system_name, d.system_version),
                     )
-                    .id("about-os"),
+                    .id(day::id!(about_os)),
                 )
-                .row(rows::info(res::str::about_model(), d.model).id("about-model"))
+                .row(rows::info(res::str::about_model(), d.model).id(day::id!(about_model)))
                 .row(
                     // Baked from Day.toml's [app].id by build.rs (DAY_APP_ID, set by `day
                     // build`); a bare `cargo` build has no identity to show.
@@ -449,15 +449,16 @@ fn install_settings() -> day_piece_settings::Prefs {
                         option_env!("DAY_SHOWCASE_APP_ID").unwrap_or("\u{2014}"),
                     )
                     .copyable()
-                    .id("about-id"),
+                    .id(day::id!(about_id)),
                 )
                 .row(
                     // Live: switching on the Localization page re-renders this tag on the spot.
-                    rows::info(res::str::about_locale(), || day::locale().get()).id("about-locale"),
+                    rows::info(res::str::about_locale(), || day::locale().get())
+                        .id(day::id!(about_locale)),
                 )
                 .row(
                     rows::info(res::str::menus_lifecycle(), || lifecycle_log().get())
-                        .id("about-lifecycle"),
+                        .id(day::id!(about_lifecycle)),
                 ),
         )
         .install();
@@ -1095,5 +1096,5 @@ fn window_body(primary: bool) -> impl Piece {
     // carry for HarmonyOS and the web is gone.
     let nav = nav.toolbar(pages::toolbars::window_items());
     let nav = if primary { nav } else { nav.local() };
-    nav.id("nav")
+    nav.id(day::id!(nav))
 }

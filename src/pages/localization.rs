@@ -11,7 +11,7 @@ use crate::widgets::page;
 pub(crate) fn localization_page() -> AnyPiece {
     page(
         crate::res::str::nav_localization(),
-        "localization-title",
+        day::id!(localization_title),
         form((
             locale_section(),
             numbers_section(),
@@ -37,33 +37,33 @@ fn locale_section() -> impl Piece {
         row((
             button("English")
                 .action(|| set_locale("en"))
-                .id("locale-en"),
+                .id(day::id!(locale_en)),
             button("Français")
                 .action(|| set_locale("fr"))
-                .id("locale-fr"),
+                .id(day::id!(locale_fr)),
             button("العربية")
                 .action(|| set_locale("ar"))
-                .id("locale-ar"),
+                .id(day::id!(locale_ar)),
             button("中文")
                 .action(|| set_locale("zh-CN"))
-                .id("locale-zh"),
+                .id(day::id!(locale_zh)),
         ))
         .spacing(8.0)
         .fit(RowFit::Wrap { run_spacing: 8.0 }),
         labeled(
             crate::res::str::loc_current_label(),
             // The raw locale tag, a locale-independent value the walkthrough asserts literally.
-            label(move || day::locale().get()).id("loc-current"),
+            label(move || day::locale().get()).id(day::id!(loc_current)),
         ),
         row((
             button(crate::res::str::loc_reset())
                 .action(move || set_locale(&initial))
                 .tint(crate::widgets::primary())
-                .id("locale-reset"),
+                .id(day::id!(locale_reset)),
             // `en-XA`, the layout stress-test pseudolocale, accents + expands every string.
             button("Ⓔⓝ-ⓍⒶ")
                 .action(|| set_locale("en-XA"))
-                .id("locale-xa"),
+                .id(day::id!(locale_xa)),
         ))
         .spacing(8.0),
     ))
@@ -77,15 +77,15 @@ fn numbers_section() -> impl Piece {
     section((
         labeled(
             crate::res::str::fmt_number_label(),
-            label(crate::res::str::fmt_number(1234567.891)).id("fmt-number"),
+            label(crate::res::str::fmt_number(1234567.891)).id(day::id!(fmt_number)),
         ),
         labeled(
             crate::res::str::fmt_fraction_label(),
-            label(crate::res::str::fmt_fraction(1234.5)).id("fmt-fraction"),
+            label(crate::res::str::fmt_fraction(1234.5)).id(day::id!(fmt_fraction)),
         ),
         labeled(
             crate::res::str::fmt_percent_label(),
-            label(crate::res::str::fmt_percent(0.72)).id("fmt-percent"),
+            label(crate::res::str::fmt_percent(0.72)).id(day::id!(fmt_percent)),
         ),
     ))
     .title(crate::res::str::loc_numbers_section())
@@ -97,15 +97,15 @@ fn datetimes_section() -> impl Piece {
     section((
         labeled(
             crate::res::str::fmt_date_label(),
-            label(crate::res::str::fmt_date("2026-07-18")).id("fmt-date"),
+            label(crate::res::str::fmt_date("2026-07-18")).id(day::id!(fmt_date)),
         ),
         labeled(
             crate::res::str::fmt_time_label(),
-            label(crate::res::str::fmt_time("14:45")).id("fmt-time"),
+            label(crate::res::str::fmt_time("14:45")).id(day::id!(fmt_time)),
         ),
         labeled(
             crate::res::str::fmt_datetime_label(),
-            label(crate::res::str::fmt_datetime("2026-07-18T14:45")).id("fmt-datetime"),
+            label(crate::res::str::fmt_datetime("2026-07-18T14:45")).id(day::id!(fmt_datetime)),
         ),
     ))
     .title(crate::res::str::loc_dates_section())
@@ -119,12 +119,12 @@ fn plurals_section() -> impl Piece {
         button(crate::res::str::decrement())
             .bordered()
             .action(move || count.update(|c| *c = (*c - 1).max(0)))
-            .id("plural-remove"),
-        label(crate::res::str::plural_items(count)).id("plural-label"),
+            .id(day::id!(plural_remove)),
+        label(crate::res::str::plural_items(count)).id(day::id!(plural_label)),
         button(crate::res::str::increment())
             .prominent()
             .action(move || count.update(|c| *c += 1))
-            .id("plural-add"),
+            .id(day::id!(plural_add)),
     ))
     .spacing(8.0),))
     .title(crate::res::str::loc_plurals_section())
@@ -146,7 +146,7 @@ fn sorting_section() -> impl Piece {
             sort_localized(&mut fruits);
             fruits.join(" · ")
         })
-        .id("fmt-sorted"),
+        .id(day::id!(fmt_sorted)),
     ),))
     .title(crate::res::str::loc_sorting_section())
 }

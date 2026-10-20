@@ -217,16 +217,16 @@ pub(crate) fn drag_drop_page() -> AnyPiece {
                     .unwrap_or_else(|| crate::res::str::dnd_empty().format())
             })
             .font(Font::Caption)
-            .id(format!("dnd-value-{index}"))
+            .id(day::id!(dnd_value, index))
             .width(170.),
         ))
         .drag_source(source)
         .drop_target(target)
-        .id(format!("dnd-slot-{index}"))
+        .id(day::id!(dnd_slot, index))
     };
     crate::widgets::page_wide(
         crate::res::str::nav_drag_drop(),
-        "dnd-title",
+        day::id!(dnd_title),
         column((
             label(crate::res::str::dnd_hint()),
             row((
@@ -234,7 +234,7 @@ pub(crate) fn drag_drop_page() -> AnyPiece {
                     .action(|| {
                         day::open_new_window();
                     })
-                    .id("dnd-new-window"),
+                    .id(day::id!(dnd_new_window)),
                 button(crate::res::str::dnd_choose_file())
                     .action(move || {
                         day::task(async move {
@@ -270,11 +270,11 @@ pub(crate) fn drag_drop_page() -> AnyPiece {
                             }
                         });
                     })
-                    .id("dnd-choose-file"),
-                labeled(crate::res::str::dnd_accept(), toggle(enabled)).id("dnd-accept"),
+                    .id(day::id!(dnd_choose_file)),
+                labeled(crate::res::str::dnd_accept(), toggle(enabled)).id(day::id!(dnd_accept)),
                 labeled(
                     crate::res::str::dnd_disallowed(),
-                    toggle(disallowed_regions).id("dnd-disallowed"),
+                    toggle(disallowed_regions).id(day::id!(dnd_disallowed)),
                 ),
             ))
             .spacing(12.)
@@ -285,7 +285,7 @@ pub(crate) fn drag_drop_page() -> AnyPiece {
             row((zone(3), zone(4), zone(5)))
                 .spacing(12.)
                 .fit(RowFit::Wrap { run_spacing: 12. }),
-            label(move || status.get()).id("dnd-status"),
+            label(move || status.get()).id(day::id!(dnd_status)),
             crate::widgets::support_note(capability(Cap::DragDrop)),
         ))
         .spacing(16.)

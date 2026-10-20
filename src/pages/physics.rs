@@ -627,7 +627,7 @@ fn control(
     slider: impl Piece,
     readout: impl Fn() -> String + 'static,
     widest: String,
-    readout_id: &'static str,
+    readout_id: day::ElementId,
 ) -> AnyPiece {
     let compact = day::size_class()
         .map(|c| c.width == WidthClass::Compact)
@@ -795,7 +795,7 @@ pub(crate) fn physics_page() -> AnyPiece {
     // Not `widgets::page`: that scrolls, and the marbles' box takes every point the page has
     // left, which a scroll view never offers.
     column((
-        crate::widgets::heading(crate::res::str::nav_physics(), "physics-title"),
+        crate::widgets::heading(crate::res::str::nav_physics(), day::id!(physics_title)),
         label(crate::res::str::frame_hint()).font(Font::Callout),
         canvas(move |d, size| {
             draw.repaint.track();
@@ -806,7 +806,7 @@ pub(crate) fn physics_page() -> AnyPiece {
         // Every marble leaps toward the point tapped, then falls under the slider's gravity.
         .on_tap_at(move |at| tap.kick_toward(at))
         .a11y(|a| a.role(Role::Button).label(crate::res::str::frame_hint()))
-        .id("frame-ball")
+        .id(day::id!(frame_ball))
         .grow(),
         // The three controls as one form under the marbles, each slider with its value beside it.
         section((column((
@@ -817,10 +817,10 @@ pub(crate) fn physics_page() -> AnyPiece {
                     .range(1.0..=MAX_BALLS as f64)
                     .step(1.0)
                     .a11y(|a| a.label(crate::res::str::frame_balls_label()))
-                    .id("frame-ball-slider"),
+                    .id(day::id!(frame_ball_slider)),
                 move || day::format_decimal(count.get().round(), 0),
                 widest_value.clone(),
-                "frame-ball-count",
+                day::id!(frame_ball_count),
             ),
             control(
                 crate::res::str::physics_mass_label(),
@@ -829,10 +829,10 @@ pub(crate) fn physics_page() -> AnyPiece {
                     .range(0.0..=MAX_MASS_MT)
                     .step(0.001)
                     .a11y(|a| a.label(crate::res::str::physics_mass_label()))
-                    .id("physics-mass-slider"),
+                    .id(day::id!(physics_mass_slider)),
                 move || mass_text(mass.get()),
                 widest_value.clone(),
-                "physics-mass-value",
+                day::id!(physics_mass_value),
             ),
             control(
                 crate::res::str::physics_gravity_label(),
@@ -841,20 +841,20 @@ pub(crate) fn physics_page() -> AnyPiece {
                     .range(0.0..=JUPITER)
                     .step(0.01)
                     .a11y(|a| a.label(crate::res::str::physics_gravity_label()))
-                    .id("physics-gravity-slider"),
+                    .id(day::id!(physics_gravity_slider)),
                 move || gravity_text(gravity.get()),
                 widest_value,
-                "physics-gravity-value",
+                day::id!(physics_gravity_value),
             ),
         ))
         .spacing(Space::S),)),
         row((
             button(crate::res::str::frame_bounce())
                 .action(move || bounce.kick())
-                .id("frame-bounce"),
+                .id(day::id!(frame_bounce)),
             button(crate::res::str::frame_shuffle())
                 .action(move || shuffle.shuffle(count, gravity, mass))
-                .id("physics-shuffle"),
+                .id(day::id!(physics_shuffle)),
             button(crate::res::str::frame_pause())
                 .action(move || {
                     let handle = pause.handle.borrow();
@@ -870,19 +870,19 @@ pub(crate) fn physics_page() -> AnyPiece {
                         pause.status.set(crate::res::str::frame_paused().format());
                     }
                 })
-                .id("frame-pause"),
+                .id(day::id!(frame_pause)),
             button(crate::res::str::anim_reset_label())
                 .action(move || reset.reset())
-                .id("frame-reset"),
+                .id(day::id!(frame_reset)),
         ))
         .spacing(10.0),
         row((
-            label(status).id("frame-status"),
+            label(status).id(day::id!(frame_status)),
             spacer(),
             label(fps)
                 .tabular()
                 .align(TextAlign::Trailing)
-                .id("frame-fps")
+                .id(day::id!(frame_fps))
                 .reserving(
                     crate::res::str::frame_fps(crate::res::str::FrameFps {
                         min: "999.9",
@@ -898,7 +898,7 @@ pub(crate) fn physics_page() -> AnyPiece {
     .spacing(10.0)
     .padding(20.0)
     .grow()
-    .id("frame-demo")
+    .id(day::id!(frame_demo))
     .any()
 }
 

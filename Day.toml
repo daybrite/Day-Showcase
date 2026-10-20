@@ -141,3 +141,7 @@ optimize = true
 
 [harmony]
 vendor = "daybrite"
+
+# Report compiled ID coverage while establishing per-target baselines.
+[dayscript.coverage]
+enabled = true

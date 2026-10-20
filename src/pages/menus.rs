@@ -200,7 +200,7 @@ fn build_app_menu() -> Vec<MenuEntry> {
 pub(crate) fn menus_page() -> AnyPiece {
     page(
         crate::res::str::nav_menus(),
-        "menus-title",
+        day::id!(menus_title),
         form((
             app_menu_section(),
             commands_section(),
@@ -220,7 +220,7 @@ fn app_menu_section() -> impl Piece {
     section((
         labeled(
             crate::res::str::menus_last(),
-            label(move || menu_log().get()).id("menus-last"),
+            label(move || menu_log().get()).id(day::id!(menus_last)),
         ),
         label(crate::res::str::menus_shortcut_hint()).font(Font::Footnote),
     ))
@@ -248,7 +248,7 @@ fn context_section() -> impl Piece {
         // over both the light and dark grounds.
         .background(Color::rgba(0.184, 0.435, 0.871, 0.13))
         .corner_radius(10.0)
-        .id("menus-context-target")
+        .id(day::id!(menus_context_target))
         .context_menu(vec![
             menu_item(rename.clone()).action(log(format!("{context} ▸ {rename}"))),
             menu_item(duplicate.clone())
@@ -296,7 +296,7 @@ fn messages_section() -> impl Piece {
             .padding(Insets::symmetric(14.0, 10.0))
             .background(Color::rgba(0.5, 0.5, 0.5, 0.10))
             .corner_radius(8.0)
-            .id(format!("menus-message-{i}"))
+            .id(day::id!(menus_message, i))
             .context_menu(menu)
     };
     section((
@@ -330,7 +330,7 @@ fn photo_section() -> impl Piece {
     section((image(crate::res::images::day_logo)
         .frame(96.0, 96.0)
         .corner_radius(12.0)
-        .id("menus-photo-target")
+        .id(day::id!(menus_photo_target))
         .context_menu(vec![
             menu_item(share.clone()).action(log(share.clone())),
             menu_item(copy_image.clone()).action(log(copy_image.clone())),
@@ -360,7 +360,7 @@ fn dialogs_section() -> impl Piece {
                     });
                 })
                 .tint(crate::widgets::primary())
-                .id("btn-alert"),
+                .id(day::id!(btn_alert)),
             button(crate::res::str::modal_confirm())
                 .bordered()
                 .action(move || {
@@ -371,7 +371,7 @@ fn dialogs_section() -> impl Piece {
                         last.set(if ok { "confirm-yes" } else { "confirm-no" }.into());
                     });
                 })
-                .id("btn-confirm"),
+                .id(day::id!(btn_confirm)),
             button(crate::res::str::modal_delete())
                 .action(move || {
                     day::task(async move {
@@ -384,7 +384,7 @@ fn dialogs_section() -> impl Piece {
                     });
                 })
                 .tint(crate::widgets::danger())
-                .id("btn-delete"),
+                .id(day::id!(btn_delete)),
         ))
         .spacing(Space::S),
         row((
@@ -405,7 +405,7 @@ fn dialogs_section() -> impl Piece {
                         });
                     });
                 })
-                .id("btn-sheet"),
+                .id(day::id!(btn_sheet)),
             button(crate::res::str::modal_prompt())
                 .bordered()
                 .action(move || {
@@ -417,7 +417,7 @@ fn dialogs_section() -> impl Piece {
                         });
                     });
                 })
-                .id("btn-prompt"),
+                .id(day::id!(btn_prompt)),
         ))
         .spacing(Space::S),
         labeled(
@@ -426,7 +426,7 @@ fn dialogs_section() -> impl Piece {
                 let v = last.get();
                 if v.is_empty() { "—".into() } else { v }
             })
-            .id("modal-result"),
+            .id(day::id!(modal_result)),
         ),
     ))
     .title(crate::res::str::menus_dialogs_section())
@@ -435,13 +435,15 @@ fn dialogs_section() -> impl Piece {
 /// One definition per operation, presented as content buttons, a context menu, and toolbar items.
 fn commands_section() -> impl Piece {
     let count = Signal::new(0i64);
-    let add = Command::new("command-add", crate::res::str::commands_add(), move || {
-        count.update(|n| *n += 1)
-    })
+    let add = Command::new(
+        day::id!(command_add),
+        crate::res::str::commands_add(),
+        move || count.update(|n| *n += 1),
+    )
     .enabled(move || count.get() < 3)
     .icon(Symbol::Add);
     let reset = Command::new(
-        "command-reset",
+        day::id!(command_reset),
         crate::res::str::anim_reset_label(),
         move || count.set(0),
     )
@@ -452,19 +454,19 @@ fn commands_section() -> impl Piece {
         label(crate::res::str::commands_hint()).font(Font::Callout),
         label(move || count.get().to_string())
             .tabular()
-            .id("commands-count"),
+            .id(day::id!(commands_count)),
         row((add.button().grow_w(), reset.button().grow_w())).spacing(10.0),
         label(crate::res::str::menus_target())
             .padding(Space::L)
-            .id("commands-context")
+            .id(day::id!(commands_context))
             .context_menu(move || vec![menu_add.menu_item(), menu_reset.menu_item()]),
     ))
     .title(crate::res::str::commands_title())
-    .id("commands-demo")
+    .id(day::id!(commands_demo))
     .toolbar(move || {
         vec![
-            add.toolbar_item().id("command-add-toolbar"),
-            reset.toolbar_item().id("command-reset-toolbar"),
+            add.toolbar_item().id(day::id!(command_add_toolbar)),
+            reset.toolbar_item().id(day::id!(command_reset_toolbar)),
         ]
     })
 }

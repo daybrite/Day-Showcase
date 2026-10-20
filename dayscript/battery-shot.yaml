@@ -3,11 +3,11 @@ description: Battery visualization states — charging bolt, low-red, amber.
 flow:
   - wait_for: { id: nav }
   - navigate: { route: system }
-  - set_value: { id: battery-level, value: 65 }
-  - toggle: { id: battery-charging, value: true }
+  - set_value: { id: battery_level, value: 65 }
+  - toggle: { id: battery_charging, value: true }
   - screenshot: battery-charging
-  - toggle: { id: battery-charging, value: false }
-  - set_value: { id: battery-level, value: 12 }
+  - toggle: { id: battery_charging, value: false }
+  - set_value: { id: battery_level, value: 12 }
   - screenshot: battery-low
-  - set_value: { id: battery-level, value: 35 }
+  - set_value: { id: battery_level, value: 35 }
   - screenshot: battery-mid

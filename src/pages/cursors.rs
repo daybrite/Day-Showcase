@@ -9,7 +9,7 @@ use crate::widgets::{page, support_note};
 pub(crate) fn cursors_page() -> AnyPiece {
     page(
         crate::res::str::nav_cursors(),
-        "cursors-title",
+        day::id!(cursors_title),
         form((
             support_section(),
             swatches_section(
@@ -80,7 +80,7 @@ fn support_section() -> impl Piece {
         label(crate::res::str::cursors_hint()).font(Font::Footnote),
         labeled(
             crate::res::str::cursors_support_label(),
-            label(text).id("cursors-support"),
+            label(text).id(day::id!(cursors_support)),
         ),
     ))
     .title(crate::res::str::cursors_support_title())
@@ -89,8 +89,7 @@ fn support_section() -> impl Piece {
 /// A tile per shape: its API name, with that shape over it. The name is the `Cursor` variant's
 /// CSS keyword, which is what every backend maps from, so it stays as it is in every language.
 fn swatch(cursor: Cursor, id_prefix: &str) -> impl Piece {
-    let id: &'static str =
-        Box::leak(format!("cursor-{id_prefix}-{}", cursor.css_name()).into_boxed_str());
+    let id = day::id!(cursor_swatch, format!("{id_prefix}:{}", cursor.css_name()));
     label(cursor.css_name().to_string())
         .id(id)
         .font(Font::Callout)
@@ -135,10 +134,10 @@ fn reactive_section() -> impl Piece {
                     .map(|c| (c.clone(), c.css_name().to_string()))
                     .collect::<Vec<_>>(),
             )
-            .id("cursors-pick"),
+            .id(day::id!(cursors_pick)),
         ),
         label(move || shape().css_name().to_string())
-            .id("cursors-reactive-box")
+            .id(day::id!(cursors_reactive_box))
             .font(Font::Title2)
             .frame(320.0, 120.0)
             .background(Color::rgba(0.2, 0.5, 0.9, 0.15))
@@ -156,13 +155,13 @@ fn nested_section() -> impl Piece {
         column((
             label(crate::res::str::cursors_nested_outer()).font(Font::Footnote),
             label(crate::res::str::cursors_nested_inner())
-                .id("cursors-nested-inner")
+                .id(day::id!(cursors_nested_inner))
                 .padding(Insets::symmetric(20.0, 12.0))
                 .background(Color::rgba(0.9, 0.5, 0.2, 0.2))
                 .corner_radius(8.0)
                 .cursor(Cursor::Pointer),
         ))
-        .id("cursors-nested-outer")
+        .id(day::id!(cursors_nested_outer))
         .spacing(Space::M)
         .padding(Space::XL)
         .background(Color::rgba(0.5, 0.5, 0.5, 0.1))
@@ -180,7 +179,7 @@ fn native_section() -> impl Piece {
     let tiles: Vec<AnyPiece> = extras
         .into_iter()
         .map(|(name, c)| {
-            let id: &'static str = Box::leak(format!("cursor-native-{name}").into_boxed_str());
+            let id = day::id!(cursor_native, name);
             label(name)
                 .id(id)
                 .font(Font::Callout)

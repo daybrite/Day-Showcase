@@ -7,33 +7,33 @@ flow:
   - wait_for: { id: nav }
   - navigate: { route: split }
   - assert_route: { route: split }
-  - assert_visible: { id: split-demo }
-  - assert_text: { id: split-support, key: split_native, only_on: [appkit, gtk, qt] }
-  - assert_text: { id: split-support, key: split_composed, only_on: [uikit, mdc, arkui, dom, xaml] }
-  - set_value: { id: split-count, value: 7 }
-  - set_value: { id: split-radius, value: 36 }
-  - assert_text: { id: split-readout, key: split_readout, args: { count: 7, radius: 36 } }
-  - toggle: { id: split-filled, value: true }
-  - select: { id: split-shape, index: 2 }
-  - input: { id: split-caption, text: "Seven" }
-  - set_value: { id: split-share, value: 0.4 }
-  - assert_text: { id: split-share-value, text: "40%" }
-  - assert_visible: { id: split-canvas }
+  - assert_visible: { id: split_demo }
+  - assert_text: { id: split_support, key: split_native, only_on: [appkit, gtk, qt] }
+  - assert_text: { id: split_support, key: split_composed, only_on: [uikit, mdc, arkui, dom, xaml] }
+  - set_value: { id: split_count, value: 7 }
+  - set_value: { id: split_radius, value: 36 }
+  - assert_text: { id: split_readout, key: split_readout, args: { count: 7, radius: 36 } }
+  - toggle: { id: split_filled, value: true }
+  - select: { id: split_shape, index: 2 }
+  - input: { id: split_caption, text: "Seven" }
+  - set_value: { id: split_share, value: 0.4 }
+  - assert_text: { id: split_share_value, text: "40%" }
+  - assert_visible: { id: split_canvas }
   - screenshot:
       name: split
       title: { en: "Split", fr: "Partage", ar: "التقسيم", zh-CN: "分割" }
       caption: { en: "A form and the drawing it describes, either side of a divider.", fr: "Un formulaire et le dessin qu'il décrit, de part et d'autre d'un séparateur.", ar: "نموذج والرسم الذي يصفه على جانبي فاصل.", zh-CN: "分隔线两侧：表单与它描述的绘图。" }
       source: src/pages/split.rs
-  - toggle: { id: split-stacked, value: true }
+  - toggle: { id: split_stacked, value: true }
   - wait_idle:
-  - assert_visible: { id: split-canvas }
-  - scroll_to: { id: split-form, edge: bottom }
-  - assert_visible: { id: split-shape }
-  - scroll_to: { id: split-form, edge: top }
+  - assert_visible: { id: split_canvas }
+  - scroll_to: { id: split_form, edge: bottom }
+  - assert_visible: { id: split_shape }
+  - scroll_to: { id: split_form, edge: top }
   - screenshot:
       name: split-stacked
       title: { en: "Split, stacked", fr: "Partage empilé", ar: "التقسيم المتراكب", zh-CN: "上下分割" }
       source: src/pages/split.rs
-  - toggle: { id: split-stacked, value: false }
+  - toggle: { id: split_stacked, value: false }
   - wait_idle:
-  - assert_visible: { id: split-canvas }
+  - assert_visible: { id: split_canvas }

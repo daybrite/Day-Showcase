@@ -3,10 +3,10 @@ description: The Platform Services notifications group — capability lines, con
 flow:
   - wait_for: { id: nav }
   - navigate: { route: notify }
-  - wait_for: { id: notify-supported }
-  - scroll_to: { id: notify-post }
+  - wait_for: { id: notify_supported }
+  - scroll_to: { id: notify_post }
   - screenshot: notify-controls
-  - tap: { id: notify-post }
-  - wait_for: { id: notify-status }
-  - scroll_to: { id: notify-status }
+  - tap: { id: notify_post }
+  - wait_for: { id: notify_status }
+  - scroll_to: { id: notify_status }
   - screenshot: notify-posted

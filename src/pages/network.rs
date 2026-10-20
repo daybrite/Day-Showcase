@@ -248,7 +248,7 @@ pub(crate) fn network_page() -> AnyPiece {
     let ws_base = base.clone();
     crate::widgets::page_wide(
         tr::nav_network_http(),
-        "network-title",
+        day::id!(network_title),
         // The two forms sit side by side on a wide window and stack on a Medium or narrower
         // one (docs/size-classes.md), the same nodes re-laid.
         adaptive((
@@ -271,7 +271,7 @@ pub(crate) fn network_page() -> AnyPiece {
                     ],
                 )
                 .segmented()
-                .id("network-operation"),
+                .id(day::id!(network_operation)),
                 switch(
                     move || operation.get(),
                     move |op| match op {
@@ -297,7 +297,7 @@ fn provider_picker(st: Model) -> AnyPiece {
             tr::net_provider(),
             picker(st.provider, [(0, tr::net_native()), (1, tr::net_reqwest())])
                 .segmented()
-                .id("network-provider"),
+                .id(day::id!(network_provider)),
         )
         .any()
     }
@@ -305,7 +305,7 @@ fn provider_picker(st: Model) -> AnyPiece {
     {
         let _ = st;
         label(tr::net_native_only())
-            .id("network-provider-unavailable")
+            .id(day::id!(network_provider_unavailable))
             .any()
     }
 }
@@ -313,7 +313,7 @@ fn simulation_section(st: Model) -> impl Piece {
     section((
         labeled(
             tr::net_intercept(),
-            toggle(st.enabled).id("network-intercept"),
+            toggle(st.enabled).id(day::id!(network_intercept)),
         ),
         label(tr::net_sim_note()).font(Font::Footnote),
         when(
@@ -322,21 +322,31 @@ fn simulation_section(st: Model) -> impl Piece {
                 column((
                     labeled(
                         tr::net_speed(),
-                        slider(st.speed).range(16.0..=4096.0).id("network-speed"),
+                        slider(st.speed)
+                            .range(16.0..=4096.0)
+                            .id(day::id!(network_speed)),
                     ),
                     label(move || tr::net_speed_value(format!("{:.0}", st.speed.get())).format())
-                        .id("network-speed-value"),
+                        .id(day::id!(network_speed_value)),
                     labeled(
                         tr::net_failures(),
-                        slider(st.failure).range(0.0..=100.0).id("network-failure"),
+                        slider(st.failure)
+                            .range(0.0..=100.0)
+                            .id(day::id!(network_failure)),
                     ),
                     label(move || {
                         tr::net_failure_value(format!("{:.0}", st.failure.get())).format()
                     })
-                    .id("network-failure-value"),
+                    .id(day::id!(network_failure_value)),
                     row((
-                        labeled(tr::net_pause(), toggle(st.paused).id("network-pause")),
-                        labeled(tr::net_offline(), toggle(st.offline).id("network-offline")),
+                        labeled(
+                            tr::net_pause(),
+                            toggle(st.paused).id(day::id!(network_pause)),
+                        ),
+                        labeled(
+                            tr::net_offline(),
+                            toggle(st.offline).id(day::id!(network_offline)),
+                        ),
                     ))
                     .spacing(Space::L)
                     .fit(RowFit::Wrap { run_spacing: 8.0 }),
@@ -437,26 +447,34 @@ fn request_section(st: Model, base: String) -> impl Piece {
                 ],
             )
             .segmented()
-            .id("http-method"),
+            .id(day::id!(http_method)),
         ),
-        labeled(tr::net_url(), text_field(st.url).id("http-url")),
-        labeled(tr::net_body(), text_field(st.body).id("http-body")),
-        labeled(tr::net_options(), toggle(options).id("http-options")),
+        labeled(tr::net_url(), text_field(st.url).id(day::id!(http_url))),
+        labeled(tr::net_body(), text_field(st.body).id(day::id!(http_body))),
+        labeled(
+            tr::net_options(),
+            toggle(options).id(day::id!(http_options)),
+        ),
         when(
             move || options.get(),
             move || {
                 column((
-                    labeled(tr::net_headers(), text_field(st.headers).id("http-headers")),
+                    labeled(
+                        tr::net_headers(),
+                        text_field(st.headers).id(day::id!(http_headers)),
+                    ),
                     labeled(
                         tr::net_timeout(),
-                        slider(st.timeout).range(1.0..=30.0).id("http-timeout"),
+                        slider(st.timeout)
+                            .range(1.0..=30.0)
+                            .id(day::id!(http_timeout)),
                     ),
                     label(move || {
                         tr::net_timeout_value(format!("{:.0}", st.timeout.get())).format()
                     }),
                     label(move || st.response_headers.get())
                         .max_lines(5)
-                        .id("http-response-headers"),
+                        .id(day::id!(http_response_headers)),
                 ))
                 .spacing(6.0)
             },
@@ -466,7 +484,7 @@ fn request_section(st: Model, base: String) -> impl Piece {
                 button(tr::net_send_request())
                     .prominent()
                     .action(run)
-                    .id("http-fetch"),
+                    .id(day::id!(http_fetch)),
                 button(tr::net_cancel())
                     .bordered()
                     .action(move || {
@@ -475,12 +493,12 @@ fn request_section(st: Model, base: String) -> impl Piece {
                         }
                         st.status.set(tr::net_cancelled().format());
                     })
-                    .id("http-cancel"),
+                    .id(day::id!(http_cancel)),
             ))
             .spacing(Space::S),
             label(move || st.status.get())
                 .max_lines(4)
-                .id("http-status"),
+                .id(day::id!(http_status)),
         ),
         row((
             button(tr::net_download_preset())
@@ -493,7 +511,7 @@ fn request_section(st: Model, base: String) -> impl Piece {
                         format!("{stream_base}/bytes/524288")
                     });
                 })
-                .id("http-download-preset"),
+                .id(day::id!(http_download_preset)),
             button(tr::net_upload_preset())
                 .bordered()
                 .action(move || {
@@ -505,10 +523,11 @@ fn request_section(st: Model, base: String) -> impl Piece {
                     });
                     st.body.set("x".repeat(64 * 1024));
                 })
-                .id("http-upload-preset"),
+                .id(day::id!(http_upload_preset)),
         ))
         .spacing(Space::S),
-        label(move || tr::net_received(st.received.get().to_string()).format()).id("http-received"),
+        label(move || tr::net_received(st.received.get().to_string()).format())
+            .id(day::id!(http_received)),
     ))
     .title(tr::net_request())
 }
@@ -587,22 +606,25 @@ fn websocket_section(st: Model, base: String) -> impl Piece {
     };
     section((
         label(tr::net_ws_note()).font(Font::Footnote),
-        labeled(tr::net_url(), text_field(url).id("ws-url")),
+        labeled(tr::net_url(), text_field(url).id(day::id!(ws_url))),
         row((
             button(tr::ws_connect())
                 .bordered()
                 .action(connect)
-                .id("ws-connect"),
+                .id(day::id!(ws_connect)),
             button(tr::ws_close())
                 .bordered()
                 .action(close)
-                .id("ws-close"),
+                .id(day::id!(ws_close)),
         ))
         .spacing(Space::S),
-        labeled(tr::net_message(), text_field(text).id("ws-text")),
-        button(tr::ws_send()).bordered().action(send).id("ws-send"),
-        label(move || state.get()).id("ws-state"),
-        label(move || last.get()).id("ws-last"),
+        labeled(tr::net_message(), text_field(text).id(day::id!(ws_text))),
+        button(tr::ws_send())
+            .bordered()
+            .action(send)
+            .id(day::id!(ws_send)),
+        label(move || state.get()).id(day::id!(ws_state)),
+        label(move || last.get()).id(day::id!(ws_last)),
     ))
     .title(tr::ws_title())
 }
@@ -640,7 +662,7 @@ fn statistics_section(st: Model) -> impl Piece {
     .legend(LegendPosition::Leading)
     .y_label(tr::net_rate().format())
     .height(190.0)
-    .id("network-chart");
+    .id(day::id!(network_chart));
     section((
         plot,
         label(move || {
@@ -653,7 +675,7 @@ fn statistics_section(st: Model) -> impl Piece {
             })
             .format()
         })
-        .id("network-totals"),
+        .id(day::id!(network_totals)),
         label(move || {
             let s = st.statistics.get();
             tr::net_average(tr::NetAverage {

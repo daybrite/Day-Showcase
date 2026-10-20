@@ -15,12 +15,12 @@ pub(crate) fn dates_page() -> AnyPiece {
     let date = Signal::new(seed_date());
     page(
         crate::res::str::nav_dates(),
-        "dates-title",
+        day::id!(dates_title),
         column((
             // The embedded calendar, full-width and unlabeled: the native month grid needs the
             // whole content width. Inside a labeled form row the control column was too narrow and
             // clipped the grid's trailing edge on iOS/Android, so it lives outside the form.
-            date_picker(date).inline().id("date-inline"),
+            date_picker(date).inline().id(day::id!(date_inline)),
             form((date_section(date), time_section(), composed_section())),
         ))
         .spacing(Space::L)
@@ -44,7 +44,7 @@ fn date_section(date: Signal<DayDate>) -> impl Piece {
         // Compact: a field/button that summons the platform's transient chooser.
         labeled(
             crate::res::str::date_compact(),
-            date_picker(date).id("date-compact"),
+            date_picker(date).id(day::id!(date_compact)),
         ),
         // Bounded: min/max clamp every pick into 2026 (readout beside it, the volume pattern).
         labeled(
@@ -53,10 +53,10 @@ fn date_section(date: Signal<DayDate>) -> impl Piece {
                 date_picker(bounded)
                     .min(DayDate::new(2026, 1, 1).expect("valid min"))
                     .max(DayDate::new(2026, 12, 31).expect("valid max"))
-                    .id("date-bounded"),
+                    .id(day::id!(date_bounded)),
                 label(move || bounded.get().to_string())
                     .tabular()
-                    .id("date-bounded-value"),
+                    .id(day::id!(date_bounded_value)),
             ))
             .spacing(Space::S)
             // The readout is half the picker's height, so centering it would leave its digits
@@ -69,7 +69,7 @@ fn date_section(date: Signal<DayDate>) -> impl Piece {
             crate::res::str::date_picked(),
             label(move || date.get().to_string())
                 .tabular()
-                .id("date-value"),
+                .id(day::id!(date_value)),
         ),
     ))
     .title(crate::res::str::dates_date_section())
@@ -82,17 +82,17 @@ fn time_section() -> impl Piece {
     section((
         labeled(
             crate::res::str::time_compact(),
-            time_picker(time).id("time-compact"),
+            time_picker(time).id(day::id!(time_compact)),
         ),
         labeled(
             crate::res::str::time_seconds(),
-            time_picker(time).seconds().id("time-seconds"),
+            time_picker(time).seconds().id(day::id!(time_seconds)),
         ),
         labeled(
             crate::res::str::time_picked(),
             label(move || time.get().to_string())
                 .tabular()
-                .id("time-value"),
+                .id(day::id!(time_value)),
         ),
     ))
     .title(crate::res::str::dates_time_section())

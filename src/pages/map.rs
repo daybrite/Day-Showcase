@@ -12,29 +12,29 @@ pub(crate) fn map_page() -> AnyPiece {
     column((
         label(crate::res::str::nav_map())
             .font(Font::Title)
-            .id("map-title"),
-        label(crate::res::str::map_caption()).id("map-caption"),
+            .id(day::id!(map_title)),
+        label(crate::res::str::map_caption()).id(day::id!(map_caption)),
         row((
             button(crate::res::str::map_boston())
                 .bordered()
                 .action(move || center.set(BOSTON))
-                .id("map-boston"),
+                .id(day::id!(map_boston)),
             button(crate::res::str::map_paris())
                 .bordered()
                 .action(move || center.set(PARIS))
-                .id("map-paris"),
+                .id(day::id!(map_paris)),
         ))
         .spacing(Space::S),
         label(move || {
             let (lat, lon) = center.get();
             format!("{lat:.4}, {lon:.4}")
         })
-        .id("map-coords"),
+        .id(day::id!(map_coords)),
         map()
             .center(center)
             .span(0.05)
             .marker(BOSTON.0, BOSTON.1)
-            .id("map")
+            .id(day::id!(map))
             .grow(),
     ))
     .spacing(Space::M)

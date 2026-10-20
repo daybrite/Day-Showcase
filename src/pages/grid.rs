@@ -41,7 +41,7 @@ pub(crate) fn grid_page() -> AnyPiece {
                     .icon(crate::res::vectors::grid_stress.clone())
                     .page(stress_demo),
             ))
-            .id("grid-tabs")
+            .id(day::id!(grid_tabs))
             .any()
     } else {
         let path = Signal::new(Vec::<GridDemo>::new());
@@ -54,23 +54,23 @@ pub(crate) fn grid_page() -> AnyPiece {
         };
         let menu = crate::widgets::page(
             crate::res::str::nav_grid(),
-            "grid-title",
+            day::id!(grid_title),
             column((
                 button(crate::res::str::grid_tab_basics())
                     .action(push(GridDemo::Basics))
-                    .id("grid-open-basics"),
+                    .id(day::id!(grid_open_basics)),
                 button(crate::res::str::grid_tab_sizing())
                     .action(push(GridDemo::Sizing))
-                    .id("grid-open-sizing"),
+                    .id(day::id!(grid_open_sizing)),
                 button(crate::res::str::grid_tab_spanning())
                     .action(push(GridDemo::Spanning))
-                    .id("grid-open-spanning"),
+                    .id(day::id!(grid_open_spanning)),
                 button(crate::res::str::grid_tab_composite())
                     .action(push(GridDemo::Composite))
-                    .id("grid-open-composite"),
+                    .id(day::id!(grid_open_composite)),
                 button(crate::res::str::grid_tab_stress())
                     .action(push(GridDemo::Stress))
-                    .id("grid-open-stress"),
+                    .id(day::id!(grid_open_stress)),
             ))
             .spacing(10.0)
             .align(HAlign::Leading)
@@ -85,7 +85,7 @@ pub(crate) fn grid_page() -> AnyPiece {
                 GridDemo::Composite => composite_demo().any(),
                 GridDemo::Stress => stress_demo().any(),
             })
-            .id("grid-stack")
+            .id(day::id!(grid_stack))
             .any()
     }
     .any()
@@ -136,7 +136,7 @@ fn basics_demo() -> impl Piece {
         .column_spacing(Space::XL)
         .row_spacing(6.0)
         .align(Alignment::Leading)
-        .id("grid-basics")
+        .id(day::id!(grid_basics))
         .any(),
     )
 }
@@ -174,7 +174,7 @@ fn sizing_demo() -> impl Piece {
         ))
         .spacing(10.0)
         .align(Alignment::Leading)
-        .id("grid-sizing")
+        .id(day::id!(grid_sizing))
         .any(),
     )
 }
@@ -218,7 +218,7 @@ fn spanning_demo() -> impl Piece {
         ))
         .spacing(Space::S)
         .align(Alignment::Leading)
-        .id("grid-spanning")
+        .id(day::id!(grid_spanning))
         .any(),
     )
 }
@@ -347,7 +347,7 @@ fn composite_demo() -> impl Piece {
         grid(rows)
             .column_spacing(Space::M)
             .row_spacing(Space::S)
-            .id("grid-composite")
+            .id(day::id!(grid_composite))
             .any(),
     )
 }
@@ -368,7 +368,7 @@ fn stress_demo() -> impl Piece {
                     cells.push(
                         label(move || hot.get().to_string())
                             .tabular()
-                            .id("grid-stress-hot")
+                            .id(day::id!(grid_stress_hot))
                             .any(),
                     );
                 } else if c == COLS - 1 {
@@ -394,17 +394,17 @@ fn stress_demo() -> impl Piece {
     ),))
     .spacing(Space::XS)
     .align(Alignment::Leading)
-    .id("grid-stress");
+    .id(day::id!(grid_stress));
     pane(
         crate::res::str::grid_tab_stress(),
         column((
             row((
                 button(crate::res::str::grid_stress_add())
                     .action(move || rows.update(|r| *r += 50))
-                    .id("grid-stress-add"),
+                    .id(day::id!(grid_stress_add)),
                 button(crate::res::str::grid_stress_bump())
                     .action(move || hot.update(|h| *h += 1))
-                    .id("grid-stress-bump"),
+                    .id(day::id!(grid_stress_bump)),
             ))
             .spacing(Space::M),
             body,

@@ -174,18 +174,18 @@ pub(crate) fn model_page() -> AnyPiece {
 
     column((
         row((
-            heading(crate::res::str::nav_model(), "model-title"),
+            heading(crate::res::str::nav_model(), day::id!(model_title)),
             spacer(),
             labeled(
                 crate::res::str::model_hide_done(),
-                toggle(hide_done).id("model-filter"),
+                toggle(hide_done).id(day::id!(model_filter)),
             ),
         ))
         .spacing(Space::S),
         // How many rows the projection currently shows.
         label(move || crate::res::str::model_caption(rows().len() as i64).format())
             .tabular()
-            .id("model-caption"),
+            .id(day::id!(model_caption)),
         // The observation tables, live: triggers and interner slots currently held. A coarse
         // read of the store re-renders this on every change; the number is there to show that
         // scrolling a 300-row list does not move it.
@@ -198,7 +198,7 @@ pub(crate) fn model_page() -> AnyPiece {
             .format()
         })
         .font(Font::Footnote)
-        .id("model-cost"),
+        .id(day::id!(model_cost)),
         // Where the rows actually are. The file name is the part of a persistence demo that can
         // be checked: it is openable with any SQLite tool, and it is still there next launch.
         label(move || match with_backing(|b| b.file.clone()) {
@@ -206,7 +206,7 @@ pub(crate) fn model_page() -> AnyPiece {
             None => crate::res::str::model_storage_memory().format(),
         })
         .font(Font::Footnote)
-        .id("model-storage"),
+        .id(day::id!(model_storage)),
         // The selected row's editor: two controls bound straight to the store through the
         // element's field accessors, the mirror of what the row labels read, with no plumbing.
         //
@@ -220,8 +220,8 @@ pub(crate) fn model_page() -> AnyPiece {
             move |&id| {
                 let it = tasks().elem(id);
                 row((
-                    text_field(it.title()).id("model-name"),
-                    toggle(it.done()).id("model-done"),
+                    text_field(it.title()).id(day::id!(model_name)),
+                    toggle(it.done()).id(day::id!(model_done)),
                 ))
                 .spacing(Space::S)
             },
@@ -238,7 +238,7 @@ pub(crate) fn model_page() -> AnyPiece {
             None => crate::res::str::model_selected_none().format(),
         })
         .font(Font::Footnote)
-        .id("model-selected"),
+        .id(day::id!(model_selected)),
         list(store.rows(rows), |slot: ModelSlot<Task>| {
             row((
                 label(move || slot.title().read())
@@ -249,7 +249,7 @@ pub(crate) fn model_page() -> AnyPiece {
                     || label("✓").padding(Insets::symmetric(12.0, 8.0)),
                 ),
             ))
-            .id_of(move || format!("model-row:{}", slot.item().key()))
+            .id_of(move || day::id!(model_row, slot.item().key()))
         })
         .row_height(RowHeight::Uniform(36.0))
         .on_select(move |it: Elem<Task>| selected.set(Some(it.key())))
@@ -262,7 +262,7 @@ pub(crate) fn model_page() -> AnyPiece {
                 .into_iter()
                 .collect()
         })
-        .id("model-list"),
+        .id(day::id!(model_list)),
         row((
             button(crate::res::str::model_add())
                 .prominent()
@@ -280,7 +280,7 @@ pub(crate) fn model_page() -> AnyPiece {
                     });
                     selected.set(Some(id as u64));
                 })
-                .id("model-add"),
+                .id(day::id!(model_add)),
             button(crate::res::str::model_delete())
                 .bordered()
                 .action(move || {
@@ -291,7 +291,7 @@ pub(crate) fn model_page() -> AnyPiece {
                         selected.set(None);
                     }
                 })
-                .id("model-delete"),
+                .id(day::id!(model_delete)),
             // One unit per turn, inverted out of the change log: the deleted row comes back
             // whole, data included, because the log's `Delete` carries it.
             button(crate::res::str::model_undo())
@@ -300,14 +300,14 @@ pub(crate) fn model_page() -> AnyPiece {
                     history().undo();
                 })
                 .enabled(move || history().can_undo().get())
-                .id("model-undo"),
+                .id(day::id!(model_undo)),
             button(crate::res::str::model_redo())
                 .bordered()
                 .action(move || {
                     history().redo();
                 })
                 .enabled(move || history().can_redo().get())
-                .id("model-redo"),
+                .id(day::id!(model_redo)),
         ))
         .spacing(Space::S)
         .fit(RowFit::Wrap { run_spacing: 8.0 }),
@@ -315,7 +315,7 @@ pub(crate) fn model_page() -> AnyPiece {
         // its item; both read this signal, so they can never disagree.
         label(move || history().undo_label().get())
             .font(Font::Footnote)
-            .id("model-undo-label"),
+            .id(day::id!(model_undo_label)),
     ))
     .spacing(10.0)
     .align(HAlign::Leading)

@@ -4,9 +4,9 @@ flow:
   - wait_for: { id: nav }
   - navigate: { route: text }
   - assert_route: { route: text }
-  - assert_visible: { id: text-emphasis }
-  - assert_visible: { id: text-font-pacifico }
-  - assert_visible: { id: text-font-bungee }
-  - assert_visible: { id: text-font-specialelite }
+  - assert_visible: { id: text_emphasis }
+  - assert_visible: { id: text_font_pacifico }
+  - assert_visible: { id: text_font_bungee }
+  - assert_visible: { id: text_font_specialelite }
   - screenshot: text
   - pause: 1

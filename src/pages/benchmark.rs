@@ -189,7 +189,7 @@ pub(crate) fn benchmark_page() -> AnyPiece {
             ],
         )
         .segmented()
-        .id("bench-impl"),))
+        .id(day::id!(bench_impl)),))
         .align(HAlign::Center)
         .grow_w()
         .any();
@@ -214,7 +214,7 @@ pub(crate) fn benchmark_page() -> AnyPiece {
     // Not widgets::page(): that scroll-wraps its body, and the patchwork must fill the remaining
     // pane exactly (the benchmark's whole invariant). The tabs page sets the same precedent.
     column((
-        heading(crate::res::str::nav_benchmark(), "benchmark-title"),
+        heading(crate::res::str::nav_benchmark(), day::id!(benchmark_title)),
         body,
     ))
     .spacing(10.0)
@@ -237,11 +237,14 @@ fn day_native(seed: Signal<f64>, count: Signal<f64>) -> impl Piece {
             labeled(
                 crate::res::str::bench_seed(),
                 row((
-                    slider(seed).range(0.0..=999.0).step(1.0).id("bench-seed"),
+                    slider(seed)
+                        .range(0.0..=999.0)
+                        .step(1.0)
+                        .id(day::id!(bench_seed)),
                     crate::widgets::numeric_readout(
                         move || (seed.get() as u32).to_string(),
                         "999",
-                        "bench-seed-value",
+                        day::id!(bench_seed_value),
                     ),
                 ))
                 .spacing(Space::S),
@@ -252,11 +255,11 @@ fn day_native(seed: Signal<f64>, count: Signal<f64>) -> impl Piece {
                     slider(count)
                         .range(0.0..=2000.0)
                         .step(1.0)
-                        .id("bench-count"),
+                        .id(day::id!(bench_count)),
                     crate::widgets::numeric_readout(
                         move || (count.get() as u32).to_string(),
                         "2000",
-                        "bench-count-value",
+                        day::id!(bench_count_value),
                     ),
                 ))
                 .spacing(Space::S),
@@ -269,7 +272,7 @@ fn day_native(seed: Signal<f64>, count: Signal<f64>) -> impl Piece {
             })
             .tabular()
             .font(Font::Footnote)
-            .id("bench-rows"),
+            .id(day::id!(bench_rows)),
         ))
         .title(crate::res::str::bench_parameters()),))
         // A fixed height, because the page's comparison depends on the two tabs drawing the
@@ -296,7 +299,7 @@ fn day_native(seed: Signal<f64>, count: Signal<f64>) -> impl Piece {
         }),))
         .spacing(2.0)
         .grow()
-        .id("bench-grid"),
+        .id(day::id!(bench_grid)),
     ))
     .spacing(10.0)
     .align(HAlign::Leading)
@@ -319,7 +322,7 @@ fn swiftui_pane() -> impl Piece {
     )
     .state_key("bench-grids")
     .grow()
-    .id("bench-swiftui")
+    .id(day::id!(bench_swiftui))
 }
 
 #[cfg(test)]

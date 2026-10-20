@@ -10,7 +10,7 @@ use crate::widgets::{gauge, page_wide};
 pub(crate) fn canvas_page() -> AnyPiece {
     page_wide(
         crate::res::str::nav_canvas(),
-        "canvas-title",
+        day::id!(canvas_title),
         form((
             shapes_section(),
             text_section(),
@@ -181,7 +181,7 @@ fn text_section() -> impl Piece {
         })
         .height(H)
         .grow_w()
-        .id("canvas-text"),
+        .id(day::id!(canvas_text)),
         labeled(
             crate::res::str::canvas_font_label(),
             picker(
@@ -189,7 +189,7 @@ fn text_section() -> impl Piece {
                 families.iter().cloned().enumerate().collect::<Vec<_>>(),
             )
             .menu()
-            .id("canvas-font"),
+            .id(day::id!(canvas_font)),
         ),
     ))
     .title(crate::res::str::canvas_text_title())
@@ -293,7 +293,7 @@ fn anchors_section() -> impl Piece {
     })
     .height(H)
     .grow_w()
-    .id("canvas-anchors"),))
+    .id(day::id!(canvas_anchors)),))
     .title(crate::res::str::canvas_anchors_title())
 }
 
@@ -365,7 +365,7 @@ fn interaction_section() -> impl Piece {
                 dragging.set(false);
             }
         })
-        .id("canvas-interaction"),
+        .id(day::id!(canvas_interaction)),
         labeled(
             crate::res::str::canvas_interaction_label(),
             label(move || {
@@ -390,7 +390,7 @@ fn interaction_section() -> impl Piece {
                 .format()
             })
             .font(Font::Callout)
-            .id("canvas-interaction-readout"),
+            .id(day::id!(canvas_interaction_readout)),
         ),
     ))
     .title(crate::res::str::canvas_interaction_title())
@@ -450,7 +450,7 @@ fn paths_section() -> impl Piece {
                 );
             });
         })
-        .id("canvas-arcs")
+        .id(day::id!(canvas_arcs))
         .aspect_ratio(DESIGN_RATIO)
         .grow_w(),
         // Arbitrary paths: the same two contours under both fill rules (even-odd cuts the
@@ -485,7 +485,7 @@ fn paths_section() -> impl Piece {
                 );
             });
         })
-        .id("canvas-paths")
+        .id(day::id!(canvas_paths))
         .aspect_ratio(DESIGN_RATIO)
         .grow_w(),
         // Stroke styles and clipping: the three caps, the three joins, a dashed rule, a
@@ -556,7 +556,7 @@ fn paths_section() -> impl Piece {
                 });
             });
         })
-        .id("canvas-strokes")
+        .id(day::id!(canvas_strokes))
         .aspect_ratio(DESIGN_RATIO)
         .grow_w(),
         // SVG path data, parsed at compile time into PathBuilder chains (build_path!). Each
@@ -629,7 +629,7 @@ fn paths_section() -> impl Piece {
                 });
             });
         })
-        .id("canvas-svg-paths")
+        .id(day::id!(canvas_svg_paths))
         .aspect_ratio(DESIGN_RATIO)
         .grow_w(),
     ))
@@ -705,7 +705,7 @@ fn gradients_section() -> impl Piece {
                         vec![(0.0, AMBER), (1.0, RUST)],
                     ))
                     .height(H)
-                    .id("gradient-vertical")
+                    .id(day::id!(gradient_vertical))
                     .grow_w(),
                 rounded_rectangle(12.0)
                     .fill_linear(linear(
@@ -714,7 +714,7 @@ fn gradients_section() -> impl Piece {
                         vec![(0.0, VIOLET), (1.0, SKY)],
                     ))
                     .height(H)
-                    .id("gradient-horizontal")
+                    .id(day::id!(gradient_horizontal))
                     .grow_w(),
                 // The website's sunrise gradient (--grad-day): amber through coral into blue.
                 circle()
@@ -724,7 +724,7 @@ fn gradients_section() -> impl Piece {
                         vec![(0.0, AMBER), (0.5, CORAL), (1.0, AZURE)],
                     ))
                     .height(H)
-                    .id("gradient-stops")
+                    .id(day::id!(gradient_stops))
                     .grow_w(),
             )),
             grid_row((
@@ -735,7 +735,7 @@ fn gradients_section() -> impl Piece {
                         vec![(0.0, TEAL), (1.0, INK)],
                     ))
                     .height(H)
-                    .id("gradient-angle")
+                    .id(day::id!(gradient_angle))
                     .grow_w(),
                 // Radial: off-center highlight, and a multi-stop "sunset" in a non-square
                 // frame (the unit-space radius stretches elliptically to the bounds).
@@ -746,7 +746,7 @@ fn gradients_section() -> impl Piece {
                         vec![(0.0, Color::hex(0xD9E6FF)), (1.0, SKY)],
                     ))
                     .height(H)
-                    .id("gradient-radial-offset")
+                    .id(day::id!(gradient_radial_offset))
                     .grow_w(),
                 rounded_rectangle(12.0)
                     .fill_radial(radial(
@@ -755,14 +755,16 @@ fn gradients_section() -> impl Piece {
                         vec![(0.0, AMBER), (0.5, RUST), (1.0, INK)],
                     ))
                     .height(H)
-                    .id("gradient-radial-stops")
+                    .id(day::id!(gradient_radial_stops))
                     .grow_w(),
             )),
         ))
         .spacing(Space::M),
         labeled(
             crate::res::str::gradient_angle(),
-            slider(angle).range(0.0..=360.0).id("gradient-angle-slider"),
+            slider(angle)
+                .range(0.0..=360.0)
+                .id(day::id!(gradient_angle_slider)),
         ),
     ))
     .title(crate::res::str::gradients_title())
@@ -799,30 +801,30 @@ fn shapes_section() -> impl Piece {
         grid((
             grid_row((
                 cell(0.5, || rectangle().fill(SKY))
-                    .id("shape-rect")
+                    .id(day::id!(shape_rect))
                     .grow_w(),
                 cell(0.5, || rounded_rectangle(12.0).fill(VIOLET))
-                    .id("shape-rrect")
+                    .id(day::id!(shape_rrect))
                     .grow_w(),
                 cell(1.0, || circle().fill(TEAL))
-                    .id("shape-circle")
+                    .id(day::id!(shape_circle))
                     .grow_w(),
             )),
             grid_row((
                 cell(0.45, || capsule().fill(CORAL))
-                    .id("shape-capsule")
+                    .id(day::id!(shape_capsule))
                     .grow_w(),
                 cell(0.55, || ellipse().stroke(AZURE, 4.0))
-                    .id("shape-ellipse")
+                    .id(day::id!(shape_ellipse))
                     .grow_w(),
                 cell(1.0, || arc(135.0, 270.0).stroke(TEAL, 6.0))
-                    .id("shape-arc")
+                    .id(day::id!(shape_arc))
                     .grow_w(),
             )),
             grid_row((
                 // Line + polygon resolve unit points against their box (docs/shapes.md §3.1).
                 cell(1.0, || line((0.1, 0.85), (0.9, 0.15)).stroke(SLATE, 4.0))
-                    .id("shape-line")
+                    .id(day::id!(shape_line))
                     .grow_w(),
                 cell(1.0, || {
                     polygon([
@@ -839,7 +841,7 @@ fn shapes_section() -> impl Piece {
                     ])
                     .fill(AMBER)
                 })
-                .id("shape-polygon")
+                .id(day::id!(shape_polygon))
                 .grow_w(),
                 // A multi-shape group in one canvas leaf (docs/shapes.md §3.6): a target
                 // (ring, disc, four tick lines) spun by rotating just the lines (each line's
@@ -875,14 +877,16 @@ fn shapes_section() -> impl Piece {
                     ]
                 })
                 .height(H)
-                .id("shape-group")
+                .id(day::id!(shape_group))
                 .grow_w(),
             )),
         ))
         .spacing(Space::M),
         labeled(
             crate::res::str::shapes_angle(),
-            slider(angle).range(0.0..=360.0).id("shapes-angle-slider"),
+            slider(angle)
+                .range(0.0..=360.0)
+                .id(day::id!(shapes_angle_slider)),
         ),
     ))
     .title(crate::res::str::shapes_kinds())
@@ -905,7 +909,7 @@ fn gauge_section() -> impl Piece {
         .spacing(Space::M),
         labeled(
             crate::res::str::gauge_value_label(),
-            slider(level).range(0.0..=100.0).id("gauge-slider"),
+            slider(level).range(0.0..=100.0).id(day::id!(gauge_slider)),
         ),
     ))
     .title(crate::res::str::canvas_gauge())
@@ -969,8 +973,8 @@ fn image_section() -> impl Piece {
         .height(180.0)
         .grow_w()
         .a11y(|a| a.label(crate::res::str::canvas_image_title()))
-        .id("canvas-image"),
-        label(move || readout.get()).id("canvas-image-readout"),
+        .id(day::id!(canvas_image)),
+        label(move || readout.get()).id(day::id!(canvas_image_readout)),
     ))
     .title(crate::res::str::canvas_image_title())
 }
@@ -1017,7 +1021,7 @@ fn led_meter(level: Signal<f64>) -> impl Piece {
             .label(crate::res::str::gauge_value_label())
             .value(move || format!("{:.0}", level.get()))
     })
-    .id("gauge-led")
+    .id(day::id!(gauge_led))
 }
 
 /// Blend two colors component-wise, `t` = 0 → `a`, 1 → `b`.
@@ -1122,5 +1126,5 @@ fn sunrise_meter(level: Signal<f64>) -> impl Piece {
             .label(crate::res::str::gauge_value_label())
             .value(move || format!("{:.0}", level.get()))
     })
-    .id("gauge-sunrise")
+    .id(day::id!(gauge_sunrise))
 }

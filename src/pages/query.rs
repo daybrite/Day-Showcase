@@ -307,7 +307,7 @@ pub(crate) fn query_page() -> AnyPiece {
                 || label("★").padding(Insets::symmetric(12.0, 6.0)),
             ),
         ))
-        .id_of(move || format!("query-row:{}", slot.item().key()))
+        .id_of(move || day::id!(query_row, slot.item().key()))
     };
     #[cfg(not(target_arch = "wasm32"))]
     let track_list = list(store.rows(move || q.ids()), row_view)
@@ -320,20 +320,23 @@ pub(crate) fn query_page() -> AnyPiece {
         .on_select(move |it: Elem<Track>| selected.set(Some(it.key())))
         .any();
     // One textual id for both engines (day lint counts the literal).
-    let track_list = track_list.id("query-list");
+    let track_list = track_list.id(day::id!(query_list));
 
     column((
-        heading(crate::res::str::nav_query(), "query-title"),
-        search_field(term).id("query-search"),
+        heading(crate::res::str::nav_query(), day::id!(query_title)),
+        search_field(term).id(day::id!(query_search)),
         // Stacked, not a three-up row: phone widths clip it.
         labeled(
             crate::res::str::query_starred(),
-            toggle(starred).id("query-filter"),
+            toggle(starred).id(day::id!(query_filter)),
         ),
         {
             #[cfg(not(target_arch = "wasm32"))]
             {
-                labeled(crate::res::str::query_fts(), toggle(fts).id("query-fts"))
+                labeled(
+                    crate::res::str::query_fts(),
+                    toggle(fts).id(day::id!(query_fts)),
+                )
             }
             #[cfg(target_arch = "wasm32")]
             {
@@ -346,9 +349,9 @@ pub(crate) fn query_page() -> AnyPiece {
                 column((
                     labeled(
                         crate::res::str::query_viewport(),
-                        toggle(viewport).id("query-viewport"),
+                        toggle(viewport).id(day::id!(query_viewport)),
                     ),
-                    slider(lat_min).range(0.0..=85.0).id("query-lat"),
+                    slider(lat_min).range(0.0..=85.0).id(day::id!(query_lat)),
                     label(move || {
                         crate::res::str::query_viewport_box(crate::res::str::QueryViewportBox {
                             from: lat_min.get() as i64,
@@ -358,7 +361,7 @@ pub(crate) fn query_page() -> AnyPiece {
                     })
                     .tabular()
                     .font(Font::Footnote)
-                    .id("query-viewport-box"),
+                    .id(day::id!(query_viewport_box)),
                 ))
                 .spacing(Space::S)
                 .any()
@@ -376,7 +379,7 @@ pub(crate) fn query_page() -> AnyPiece {
             .format()
         })
         .tabular()
-        .id("query-caption"),
+        .id(day::id!(query_caption)),
         {
             #[cfg(not(target_arch = "wasm32"))]
             {
@@ -389,7 +392,7 @@ pub(crate) fn query_page() -> AnyPiece {
                     .format()
                 })
                 .font(Font::Footnote)
-                .id("query-evals")
+                .id(day::id!(query_evals))
                 .any()
             }
             #[cfg(target_arch = "wasm32")]
@@ -407,7 +410,7 @@ pub(crate) fn query_page() -> AnyPiece {
             None => crate::res::str::query_selected_none().format(),
         })
         .font(Font::Footnote)
-        .id("query-selected"),
+        .id(day::id!(query_selected)),
         track_list,
         button(crate::res::str::query_star())
             .bordered()
@@ -422,7 +425,7 @@ pub(crate) fn query_page() -> AnyPiece {
                     }
                 }
             })
-            .id("query-star"),
+            .id(day::id!(query_star)),
     ))
     .spacing(10.0)
     .align(HAlign::Leading)

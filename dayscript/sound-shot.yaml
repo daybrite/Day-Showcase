@@ -3,14 +3,14 @@ description: The Sound effects group — the clip grid, the panned clip, the vol
 flow:
   - wait_for: { id: nav }
   - navigate: { route: speech }
-  - wait_for: { id: sound-click }
-  - scroll_to: { id: sound-looping }
-  - tap: { id: sound-card }
-  - assert_text: { id: sound-last-played, key: sound_last_played, args: { clip: "sounds/card.wav" } }
-  - tap: { id: sound-left }
-  - assert_text: { id: sound-last-played, key: sound_last_played, args: { clip: "sounds/glass.wav" } }
-  - toggle: { id: sound-loop, value: true }
-  - assert_text: { id: sound-looping, key: sound_looping_clip, args: { clip: "sounds/hum.wav" } }
+  - wait_for: { id: sound_click }
+  - scroll_to: { id: sound_looping }
+  - tap: { id: sound_card }
+  - assert_text: { id: sound_last_played, key: sound_last_played, args: { clip: "sounds/card.wav" } }
+  - tap: { id: sound_left }
+  - assert_text: { id: sound_last_played, key: sound_last_played, args: { clip: "sounds/glass.wav" } }
+  - toggle: { id: sound_loop, value: true }
+  - assert_text: { id: sound_looping, key: sound_looping_clip, args: { clip: "sounds/hum.wav" } }
   - screenshot: sound-grid
-  - toggle: { id: sound-loop, value: false }
-  - assert_text: { id: sound-looping, key: sound_looping_none }
+  - toggle: { id: sound_loop, value: false }
+  - assert_text: { id: sound_looping, key: sound_looping_none }

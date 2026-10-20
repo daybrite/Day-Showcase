@@ -45,14 +45,14 @@ pub(crate) fn crash_page() -> AnyPiece {
             button(crate::res::str::crash_abort())
                 .action(|| schedule(|| std::process::abort()))
                 .tint(crate::widgets::danger())
-                .id("crash-abort"),
+                .id(day::id!(crash_abort)),
         ),
         crash_action(
             crate::res::str::crash_segv_label().format(),
             button(crate::res::str::crash_segv())
                 .action(|| schedule(segfault))
                 .tint(crate::widgets::tinted(crate::palette::VIOLET))
-                .id("crash-segv"),
+                .id(day::id!(crash_segv)),
         ),
         crash_action(
             crate::res::str::crash_contained_label().format(),
@@ -62,7 +62,7 @@ pub(crate) fn crash_page() -> AnyPiece {
             button(crate::res::str::crash_contained())
                 .action(|| panic!("intentional contained panic from the showcase crash page"))
                 .tint(crate::widgets::tinted(crate::palette::AMBER))
-                .id("crash-contained"),
+                .id(day::id!(crash_contained)),
         ),
     ))
     .title(crate::res::str::crash_trigger_section());
@@ -83,7 +83,7 @@ pub(crate) fn crash_page() -> AnyPiece {
                     .spellcheck(false)
                     .min_lines(8)
                     .max_lines(20)
-                    .id("crash-report")
+                    .id(day::id!(crash_report))
                     .any()
             },
         ),
@@ -91,7 +91,7 @@ pub(crate) fn crash_page() -> AnyPiece {
             move || report.get().is_empty(),
             move || {
                 label(crate::res::str::crash_empty())
-                    .id("crash-empty")
+                    .id(day::id!(crash_empty))
                     .any()
             },
         ),
@@ -103,11 +103,11 @@ pub(crate) fn crash_page() -> AnyPiece {
                     button(crate::res::str::crash_send())
                         .action(send_newest)
                         .tint(crate::widgets::primary())
-                        .id("crash-send"),
+                        .id(day::id!(crash_send)),
                     button(crate::res::str::crash_clear())
                         .action(clear_reports)
                         .tint(crate::widgets::secondary())
-                        .id("crash-clear"),
+                        .id(day::id!(crash_clear)),
                 ))
                 .spacing(8.0)
                 .any()
@@ -118,7 +118,7 @@ pub(crate) fn crash_page() -> AnyPiece {
             move || {
                 label(disclosure.clone())
                     .font(Font::Caption2)
-                    .id("crash-disclosure")
+                    .id(day::id!(crash_disclosure))
                     .any()
             },
         ),
@@ -127,7 +127,7 @@ pub(crate) fn crash_page() -> AnyPiece {
 
     page(
         crate::res::str::nav_crash(),
-        "crash-title",
+        day::id!(crash_title),
         form((crash_controls, report_view)).any(),
     )
     .any()

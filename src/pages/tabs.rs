@@ -16,7 +16,7 @@ pub(crate) fn tabs_page() -> AnyPiece {
     fn pane<P1: Piece>(
         title: LocalizedText,
         body: LocalizedText,
-        content_id: &'static str,
+        content_id: day::ElementId,
         extra: P1,
     ) -> impl Piece + use<P1> {
         // Scrolled, so a phone in landscape (a Compact height) still reaches every row.
@@ -52,7 +52,7 @@ pub(crate) fn tabs_page() -> AnyPiece {
                     pane(
                         crate::res::str::tab_one(),
                         crate::res::str::tab_one_body(),
-                        "tab-one-content",
+                        day::id!(tab_one_content),
                         overview_extra(clicks),
                     )
                 }),
@@ -62,7 +62,7 @@ pub(crate) fn tabs_page() -> AnyPiece {
                     pane(
                         crate::res::str::tab_two(),
                         crate::res::str::tab_two_body(),
-                        "tab-two-content",
+                        day::id!(tab_two_content),
                         // The data-driven tab demo lives inside this pane, two nested tab
                         // views: the outer typed tabs, and a dynamic string-keyed set within
                         // Details.
@@ -78,12 +78,12 @@ pub(crate) fn tabs_page() -> AnyPiece {
                     pane(
                         crate::res::str::tab_three(),
                         crate::res::str::tab_three_body(),
-                        "tab-three-content",
+                        day::id!(tab_three_content),
                         settings_extra(badges, sounds),
                     )
                 }),
         ))
-        .id("demo-tabs")
+        .id(day::id!(demo_tabs))
         .any();
     column((main,)).grow().any()
 }
@@ -98,7 +98,7 @@ fn dynamic_tabs_demo() -> impl Piece {
     column((
         label(crate::res::str::tab_dynamic_title())
             .font(Font::Headline)
-            .id("dyn-tabs-title"),
+            .id(day::id!(dyn_tabs_title)),
         row((
             button(crate::res::str::tab_dynamic_add())
                 .action(move || {
@@ -107,7 +107,7 @@ fn dynamic_tabs_demo() -> impl Piece {
                         v.push(format!("tab-{n}"));
                     })
                 })
-                .id("dyn-tab-add"),
+                .id(day::id!(dyn_tab_add)),
             button(crate::res::str::tab_dynamic_remove())
                 .bordered()
                 .action(move || {
@@ -115,7 +115,7 @@ fn dynamic_tabs_demo() -> impl Piece {
                         v.pop();
                     })
                 })
-                .id("dyn-tab-remove"),
+                .id(day::id!(dyn_tab_remove)),
         ))
         .spacing(Space::S),
         nav(current)
@@ -127,11 +127,11 @@ fn dynamic_tabs_demo() -> impl Piece {
             ))
             .destination(|k: &String| {
                 label(format!("Tab: {k}"))
-                    .id("dyn-tab-content")
+                    .id(day::id!(dyn_tab_content))
                     .padding(Space::L)
                     .any()
             })
-            .id("dyn-tabs"),
+            .id(day::id!(dyn_tabs)),
     ))
     .spacing(Space::S)
     .align(HAlign::Leading)
@@ -147,12 +147,12 @@ fn overview_extra(clicks: Signal<i64>) -> impl Piece {
             button(crate::res::str::decrement())
                 .bordered()
                 .action(move || clicks.update(|c| *c -= 1))
-                .id("tab-one-dec"),
-            label(crate::res::str::counter_value(clicks)).id("tab-one-count"),
+                .id(day::id!(tab_one_dec)),
+            label(crate::res::str::counter_value(clicks)).id(day::id!(tab_one_count)),
             button(crate::res::str::increment())
                 .prominent()
                 .action(move || clicks.update(|c| *c += 1))
-                .id("tab-one-inc"),
+                .id(day::id!(tab_one_inc)),
         ))
         .spacing(Space::S),
         label(crate::res::str::tab_state_note()).font(Font::Footnote),
@@ -184,11 +184,11 @@ fn settings_extra(badges: Signal<bool>, sounds: Signal<bool>) -> impl Piece {
     column((
         labeled(
             crate::res::str::tab_set_badges(),
-            toggle(badges).id("tab-set-badges"),
+            toggle(badges).id(day::id!(tab_set_badges)),
         ),
         labeled(
             crate::res::str::tab_set_sounds(),
-            toggle(sounds).id("tab-set-sounds"),
+            toggle(sounds).id(day::id!(tab_set_sounds)),
         ),
         label(crate::res::str::tab_state_note()).font(Font::Footnote),
     ))

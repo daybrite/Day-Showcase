@@ -2,28 +2,28 @@ name: showcase-chart-interactions
 description: Exercise the shared declarative chart gallery inside Day Showcase.
 flow:
   - navigate: { route: charts }
-  - wait_for: { id: charts-gallery-picker }
-  - select: { id: charts-gallery-picker, index: 14 }
-  - wait_for: { id: linked-primary }
-  - tap: { id: linked-select-sample }
-  - assert_text: { id: linked-count, key: day_piece_charts_gallery::inter_count, args: { count: 1 } }
+  - wait_for: { id: charts_gallery_picker }
+  - select: { id: charts_gallery_picker, index: 14 }
+  - wait_for: { id: linked_primary }
+  - tap: { id: linked_select_sample }
+  - assert_text: { id: linked_count, key: day_piece_charts_gallery::inter_count, args: { count: 1 } }
   - screenshot: charts-linked
-  - select: { id: charts-gallery-picker, index: 15 }
-  - wait_for: { id: brush-source }
-  - drag: { id: brush-source, from: [80, 40], to: [250, 130] }
+  - select: { id: charts_gallery_picker, index: 15 }
+  - wait_for: { id: brush_source }
+  - drag: { id: brush_source, from: [80, 40], to: [250, 130] }
   - pause: { secs: 1 }
   - screenshot: charts-brush
-  - select: { id: charts-gallery-picker, index: 17 }
-  - wait_for: { id: legend-donut }
-  - tap: { id: 'interactive-legend-Group A' }
+  - select: { id: charts_gallery_picker, index: 17 }
+  - wait_for: { id: legend_donut }
+  - tap: { id: 'interactive_legend:Group%20A' }
   - screenshot: charts-legend
-  - select: { id: charts-gallery-picker, index: 21 }
-  - wait_for: { id: interactive-links }
-  - tap: { id: 'link-series-Group C' }
-  - assert_text: { id: link-target, key: day_piece_charts_gallery::inter_link_target, args: { target: 'sample:2' } }
-  - select: { id: charts-gallery-picker, index: 23 }
-  - wait_for: { id: inputs-picker }
-  - select: { id: inputs-picker, index: 2 }
-  - tap: { id: 'input-group-Group C' }
-  - assert_value: { id: inputs-picker, value: 3 }
+  - select: { id: charts_gallery_picker, index: 21 }
+  - wait_for: { id: interactive_links }
+  - tap: { id: 'link_series:Group%20C' }
+  - assert_text: { id: link_target, key: day_piece_charts_gallery::inter_link_target, args: { target: 'sample:2' } }
+  - select: { id: charts_gallery_picker, index: 23 }
+  - wait_for: { id: inputs_picker }
+  - select: { id: inputs_picker, index: 2 }
+  - tap: { id: 'input_group:Group%20C' }
+  - assert_value: { id: inputs_picker, value: 3 }
   - screenshot: charts-inputs

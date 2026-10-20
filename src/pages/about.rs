@@ -11,7 +11,7 @@ use crate::widgets::page;
 pub(crate) fn about_page() -> AnyPiece {
     page(
         crate::res::str::nav_about(),
-        "about-title",
+        day::id!(about_title),
         crate::prefs().about_page(),
     )
     .any()

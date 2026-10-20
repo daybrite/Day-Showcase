@@ -15,8 +15,8 @@ flow:
   # The permission was granted out of band, so the viewfinder started at build. The emulator's
   # camera takes a moment to open.
   - pause: { secs: 5 }
-  - assert_text: { id: camera-state, text: "running" }
+  - assert_text: { id: camera_state, text: "running" }
   - screenshot: camera-running
-  - tap: { id: camera-shoot }
-  - wait_for: { id: camera-photo, timeout_secs: 20 }
+  - tap: { id: camera_shoot }
+  - wait_for: { id: camera_photo, timeout_secs: 20 }
   - screenshot: camera-photo

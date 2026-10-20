@@ -103,7 +103,7 @@ fn active_section() -> Option<Section> {
 /// Disabled when there is no active page to star, which on mobile is the root list itself.
 pub(crate) fn star() -> Command {
     Command::new(
-        "cmd-star",
+        day::id!(cmd_star),
         move || {
             match active_section() {
                 Some(s) if is_starred(s) => crate::res::str::cmd_unstar(),
@@ -142,7 +142,7 @@ pub(crate) fn pseudo_locale() -> bool {
 /// than the Localization page's fixed `en-XA` button.
 pub(crate) fn pseudo_locale_command() -> Command {
     Command::new(
-        "cmd-pseudo-locale",
+        day::id!(cmd_pseudo_locale),
         crate::res::str::cmd_toggle_pseudo_locale(),
         || {
             let current = day::locale().get_untracked();
@@ -166,23 +166,27 @@ pub(crate) fn pseudo_locale_command() -> Command {
 /// Disabled where the toolkit cannot rasterize itself, so the affordance is absent rather than
 /// present-and-failing (`Cap::Snapshot`; today that is web-dom).
 pub(crate) fn screenshot() -> Command {
-    Command::new("cmd-screenshot", crate::res::str::cmd_screenshot(), || {
-        day::task(async move {
-            day::sleep(150).await;
-            let png = match day::window_image().capture() {
-                Ok(bytes) => bytes,
-                Err(e) => {
-                    warn!("window image capture failed: {e}");
-                    return;
-                }
-            };
-            let _ = save_file(png)
-                .title(crate::res::str::cmd_screenshot())
-                .suggested_name(default_shot_name())
-                .filter("PNG", &["png"])
-                .await;
-        });
-    })
+    Command::new(
+        day::id!(cmd_screenshot),
+        crate::res::str::cmd_screenshot(),
+        || {
+            day::task(async move {
+                day::sleep(150).await;
+                let png = match day::window_image().capture() {
+                    Ok(bytes) => bytes,
+                    Err(e) => {
+                        warn!("window image capture failed: {e}");
+                        return;
+                    }
+                };
+                let _ = save_file(png)
+                    .title(crate::res::str::cmd_screenshot())
+                    .suggested_name(default_shot_name())
+                    .filter("PNG", &["png"])
+                    .await;
+            });
+        },
+    )
     .enabled(|| day::window_image_support() == Support::Native)
     .shortcut(Shortcut::primary("s").alt())
 }
@@ -224,11 +228,11 @@ fn appearance_title(mode: Appearance) -> day::LocalizedText {
     }
 }
 
-fn appearance_id(mode: Appearance) -> &'static str {
+fn appearance_id(mode: Appearance) -> day::ElementId {
     match mode {
-        Appearance::Light => "cmd-appearance-light",
-        Appearance::System => "cmd-appearance-system",
-        Appearance::Dark => "cmd-appearance-dark",
+        Appearance::Light => day::id!(cmd_appearance_light),
+        Appearance::System => day::id!(cmd_appearance_system),
+        Appearance::Dark => day::id!(cmd_appearance_dark),
     }
 }
 
@@ -274,7 +278,7 @@ pub(crate) fn appearance_supported() -> bool {
 /// Record ↔ Stop. The title and optional check both follow the recorder state.
 pub(crate) fn record() -> Command {
     Command::new(
-        "cmd-record",
+        day::id!(cmd_record),
         move || {
             match day::record::recording_signal().get() {
                 true => crate::res::str::cmd_stop_recording(),
@@ -305,7 +309,7 @@ pub(crate) fn play_pause() -> Command {
 /// The content field may hold an edit before its preferences write has flushed.
 pub(crate) fn play_pause_with_delay(delay: impl Fn() -> f64 + 'static) -> Command {
     Command::new(
-        "cmd-play",
+        day::id!(cmd_play),
         move || {
             match (
                 day::record::playing_signal().get(),
@@ -336,7 +340,7 @@ pub(crate) fn play_pause_with_delay(delay: impl Fn() -> f64 + 'static) -> Comman
 /// Throw the recording away: the transport's reset, and the one destructive command here.
 pub(crate) fn clear_recording() -> Command {
     Command::new(
-        "cmd-clear-recording",
+        day::id!(cmd_clear_recording),
         crate::res::str::cmd_clear_recording(),
         crate::pages::scripting::clear_buffer,
     )
@@ -363,7 +367,7 @@ fn default_shot_name() -> String {
 /// Star a particular page, independent of whichever window is frontmost at invocation.
 pub(crate) fn star_page(section: Section) -> Command {
     Command::new(
-        "cmd-star",
+        day::id!(cmd_star),
         move || {
             if is_starred(section) {
                 crate::res::str::cmd_unstar()

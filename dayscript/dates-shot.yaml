@@ -5,9 +5,9 @@ flow:
   - wait_for: { id: nav }
   - navigate: { route: dates }
   - assert_route: { route: dates }
-  - assert_visible: { id: date-compact }
-  - assert_visible: { id: date-inline }
-  - assert_visible: { id: time-compact }
-  - assert_visible: { id: time-seconds }
-  - assert_visible: { id: date-bounded }
+  - assert_visible: { id: date_compact }
+  - assert_visible: { id: date_inline }
+  - assert_visible: { id: time_compact }
+  - assert_visible: { id: time_seconds }
+  - assert_visible: { id: date_bounded }
   - screenshot: dates

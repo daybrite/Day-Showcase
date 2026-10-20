@@ -36,7 +36,7 @@ pub(crate) fn camera_page() -> AnyPiece {
 
     page(
         crate::res::str::nav_camera(),
-        "camera-title",
+        day::id!(camera_title),
         form((
             permission_section(active),
             section((
@@ -47,7 +47,7 @@ pub(crate) fn camera_page() -> AnyPiece {
                     .state(state)
                     .photo(photo)
                     .frame(320.0, 240.0)
-                    .id("camera-view"),))
+                    .id(day::id!(camera_view)),))
                 .align(HAlign::Center)
                 .grow_w(),
                 row((
@@ -55,18 +55,18 @@ pub(crate) fn camera_page() -> AnyPiece {
                         .prominent()
                         .enabled(move || state.get() == CameraState::Running)
                         .action(move || shutter.notify())
-                        .id("camera-shoot"),
+                        .id(day::id!(camera_shoot)),
                     button(crate::res::str::camera_flip())
                         .bordered()
                         .enabled(move || state.get() == CameraState::Running)
                         .action(move || facing.update(|f| *f = f.flipped()))
-                        .id("camera-flip"),
+                        .id(day::id!(camera_flip)),
                 ))
                 .spacing(Space::S),
                 labeled(
                     crate::res::str::camera_state_label(),
                     // The locale-independent label, so a script can assert it.
-                    label(move || state.get().label().to_string()).id("camera-state"),
+                    label(move || state.get().label().to_string()).id(day::id!(camera_state)),
                 ),
             ))
             .title(crate::res::str::camera_viewfinder_section()),
@@ -74,9 +74,11 @@ pub(crate) fn camera_page() -> AnyPiece {
                 when(
                     move || bytes.get().is_some(),
                     move || {
-                        column((remote_image(bytes).frame(240.0, 180.0).id("camera-photo"),))
-                            .align(HAlign::Center)
-                            .grow_w()
+                        column((remote_image(bytes)
+                            .frame(240.0, 180.0)
+                            .id(day::id!(camera_photo)),))
+                        .align(HAlign::Center)
+                        .grow_w()
                     },
                 ),
                 labeled(
@@ -92,7 +94,7 @@ pub(crate) fn camera_page() -> AnyPiece {
                         }
                         None => crate::res::str::camera_no_photo().format(),
                     })
-                    .id("camera-photo-size"),
+                    .id(day::id!(camera_photo_size)),
                 ),
             ))
             .title(crate::res::str::camera_last_photo_section()),
@@ -120,7 +122,7 @@ fn permission_section(active: Signal<bool>) -> impl Piece {
     section((labeled(
         crate::res::str::camera_permission_label(),
         adaptive((
-            label(move || status.get()).id("camera-perm"),
+            label(move || status.get()).id(day::id!(camera_perm)),
             when(
                 move || gated && !active.get(),
                 move || {
@@ -151,7 +153,7 @@ fn permission_section(active: Signal<bool>) -> impl Piece {
                                 ));
                             }
                         })
-                        .id("camera-perm-action")
+                        .id(day::id!(camera_perm_action))
                 },
             ),
         ))

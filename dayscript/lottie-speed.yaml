@@ -4,41 +4,41 @@ flow:
   - wait_for: { id: nav }
   - navigate: { route: lottie }
   - assert_route: { route: lottie }
-  - assert_visible: { id: lottie-view }
-  - assert_visible: { id: lottie-speed-slider }
+  - assert_visible: { id: lottie_view }
+  - assert_visible: { id: lottie_speed_slider }
   # The piece's headless reader, answering inside this build from the same file the view plays.
   # The page opens on pin jump.
-  - assert_text: { id: lottie-model-frames, text: "93 @ 30 fps" }
-  - assert_text: { id: lottie-model-duration, text: "3.1 s" }
-  - assert_text: { id: lottie-model-layers, text: "1 null, 8 shape" }
-  - assert_text: { id: lottie-model-issues, text: "0" }
+  - assert_text: { id: lottie_model_frames, text: "93 @ 30 fps" }
+  - assert_text: { id: lottie_model_duration, text: "3.1 s" }
+  - assert_text: { id: lottie_model_layers, text: "1 null, 8 shape" }
+  - assert_text: { id: lottie_model_issues, text: "0" }
   # The picker swaps the bundled file under the same view (a Name patch), and the facts follow.
-  - select: { id: lottie-animation, index: 8 }
-  - assert_text: { id: lottie-model-frames, text: "116 @ 60 fps" }
-  - assert_text: { id: lottie-model-duration, text: "1.9 s" }
-  - assert_text: { id: lottie-model-layers, text: "18 shape" }
-  - assert_text: { id: lottie-model-issues, text: "0" }
+  - select: { id: lottie_animation, index: 8 }
+  - assert_text: { id: lottie_model_frames, text: "116 @ 60 fps" }
+  - assert_text: { id: lottie_model_duration, text: "1.9 s" }
+  - assert_text: { id: lottie_model_layers, text: "18 shape" }
+  - assert_text: { id: lottie_model_issues, text: "0" }
   - pause: { secs: 1.0 }
   - screenshot: lottie-heart
-  - select: { id: lottie-animation, index: 0 }
-  - assert_text: { id: lottie-model-frames, text: "60 @ 30 fps" }
+  - select: { id: lottie_animation, index: 0 }
+  - assert_text: { id: lottie_model_frames, text: "60 @ 30 fps" }
   - pause: { secs: 1.0 }
   - screenshot: lottie-square
   # Back to pin jump for the speed captures.
-  - select: { id: lottie-animation, index: 7 }
-  - assert_text: { id: lottie-model-frames, text: "93 @ 30 fps" }
+  - select: { id: lottie_animation, index: 7 }
+  - assert_text: { id: lottie_model_frames, text: "93 @ 30 fps" }
   # Default speed is 1.0.
-  - assert_text: { id: lottie-speed-value, text: "1.00×" }
+  - assert_text: { id: lottie_speed_value, text: "1.00×" }
   # The facts follow the picker at once; the player loads the file a moment later, and the
   # capture should show it playing rather than the animation it replaced.
   - pause: { secs: 1.0 }
   - screenshot: lottie-1x
   # Drive the slider to 3×; the signal feeds both the readout label and `.speed(speed)`, which
   # pushes a Speed patch to the native LottieAnimationView (animationSpeed / setSpeed).
-  - set_value: { id: lottie-speed-slider, value: 3.0 }
-  - assert_text: { id: lottie-speed-value, text: "3.00×" }
+  - set_value: { id: lottie_speed_slider, value: 3.0 }
+  - assert_text: { id: lottie_speed_value, text: "3.00×" }
   - screenshot: lottie-3x
   # And down to 0.25×.
-  - set_value: { id: lottie-speed-slider, value: 0.25 }
-  - assert_text: { id: lottie-speed-value, text: "0.25×" }
+  - set_value: { id: lottie_speed_slider, value: 0.25 }
+  - assert_text: { id: lottie_speed_value, text: "0.25×" }
   - screenshot: lottie-quarter

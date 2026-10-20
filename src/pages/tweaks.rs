@@ -20,13 +20,13 @@ pub(crate) fn tweaks_page() -> AnyPiece {
         label(crate::res::str::tweaks_bezel_title()).font(Font::Headline),
         label(crate::res::str::tweaks_bezel_caption()).font(Font::Footnote),
         row((
-            button(crate::res::str::tweaks_stock()).id("tweak-bezel-stock"),
+            button(crate::res::str::tweaks_stock()).id(day::id!(tweak_bezel_stock)),
             button(crate::res::str::tweaks_tweaked())
                 .bezel(Bezel::Toolbar)
-                .id("tweak-bezel-toolbar"),
+                .id(day::id!(tweak_bezel_toolbar)),
             button(crate::res::str::tweaks_tweaked())
                 .bezel(Bezel::Badge)
-                .id("tweak-bezel-badge"),
+                .id(day::id!(tweak_bezel_badge)),
         ))
         .spacing(10.0),
     ))
@@ -41,7 +41,7 @@ pub(crate) fn tweaks_page() -> AnyPiece {
         label(crate::res::str::tweaks_tooltip_caption()).font(Font::Footnote),
         button(crate::res::str::tweaks_tooltip_label())
             .tooltip(crate::res::str::tweaks_tooltip_hint().format())
-            .id("tweak-tooltip-button"),
+            .id(day::id!(tweak_tooltip_button)),
     ))
     .spacing(Space::S)
     .align(HAlign::Leading)
@@ -54,10 +54,12 @@ pub(crate) fn tweaks_page() -> AnyPiece {
         label(crate::res::str::tweaks_ticks_caption()).font(Font::Footnote),
         row((
             label(crate::res::str::tweaks_stock()).font(Font::Caption),
-            slider(free).range(0.0..=100.0).id("tweak-ticks-stock"),
+            slider(free)
+                .range(0.0..=100.0)
+                .id(day::id!(tweak_ticks_stock)),
             label(move || format!("{:.0}", free.get()))
                 .tabular()
-                .id("tweak-ticks-stock-value"),
+                .id(day::id!(tweak_ticks_stock_value)),
         ))
         .spacing(Space::S),
         row((
@@ -69,10 +71,10 @@ pub(crate) fn tweaks_page() -> AnyPiece {
                         .snap(true)
                         .position(TickPosition::Below),
                 )
-                .id("tweak-ticks-slider"),
+                .id(day::id!(tweak_ticks_slider)),
             label(move || format!("{:.0}", snapped.get()))
                 .tabular()
-                .id("tweak-ticks-value"),
+                .id(day::id!(tweak_ticks_value)),
         ))
         .spacing(Space::S),
     ))
@@ -85,7 +87,7 @@ pub(crate) fn tweaks_page() -> AnyPiece {
         label(crate::res::str::tweaks_ref_title()).font(Font::Headline),
         label(crate::res::str::tweaks_ref_caption()).font(Font::Footnote),
         toggle(ref_mounted)
-            .id("tweak-ref-toggle")
+            .id(day::id!(tweak_ref_toggle))
             .a11y(|a| a.label("Mount the tweaked piece")),
         when(move || ref_mounted.get(), {
             let r = slider_ref.clone();
@@ -97,7 +99,7 @@ pub(crate) fn tweaks_page() -> AnyPiece {
                     .range(0.0..=100.0)
                     .tickmarks(Tickmarks::count(5))
                     .native_ref(&r)
-                    .id("tweak-ref-slider")
+                    .id(day::id!(tweak_ref_slider))
             }
         }),
         label({
@@ -111,7 +113,7 @@ pub(crate) fn tweaks_page() -> AnyPiece {
                 }
             }
         })
-        .id("tweak-ref-status"),
+        .id(day::id!(tweak_ref_status)),
     ))
     .spacing(Space::S)
     .align(HAlign::Leading)
@@ -131,7 +133,7 @@ pub(crate) fn tweaks_page() -> AnyPiece {
         label(crate::res::str::tweaks_label_caption()).font(Font::Footnote),
         row((
             label(crate::res::str::text_selectable_toggle()).font(Font::Caption),
-            toggle(label_sel).id("tweak-label-selectable"),
+            toggle(label_sel).id(day::id!(tweak_label_selectable)),
         ))
         .spacing(Space::S),
         when(
@@ -144,7 +146,7 @@ pub(crate) fn tweaks_page() -> AnyPiece {
         ),
         label(move || crate::res::str::tweaks_label_class(seen_class.get()).format())
             .font(Font::Caption)
-            .id("tweak-label-class"),
+            .id(day::id!(tweak_label_class)),
     ))
     .spacing(Space::S)
     .align(HAlign::Leading)
@@ -152,7 +154,7 @@ pub(crate) fn tweaks_page() -> AnyPiece {
 
     scroll(
         column((
-            heading(crate::res::str::nav_tweaks(), "tweaks-title"),
+            heading(crate::res::str::nav_tweaks(), day::id!(tweaks_title)),
             bezel_card,
             tooltip_card,
             ticks_card,
@@ -170,7 +172,7 @@ pub(crate) fn tweaks_page() -> AnyPiece {
 /// the backing (UIKit), then the tweak, so it runs against the widget that ships and reports
 /// that widget's class (docs/tweaks.md "Conditional backings").
 fn tweaked_label(selectable: bool, seen: Signal<String>) -> impl Piece {
-    let l = label(crate::res::str::tweaks_label_sample()).id("tweak-label-sample");
+    let l = label(crate::res::str::tweaks_label_sample()).id(day::id!(tweak_label_sample));
     let l = if selectable { l.selectable() } else { l };
     #[cfg(feature = "appkit")]
     let l = {

@@ -9,11 +9,11 @@ flow:
   - wait_for: { id: nav }
   - navigate: { route: benchmark }
   - assert_route: { route: benchmark }
-  - wait_for: { id: bench-grid }
-  - assert_text: { id: bench-rows, key: bench_rows, args: { rows: 10 } }
+  - wait_for: { id: bench_grid }
+  - assert_text: { id: bench_rows, key: bench_rows, args: { rows: 10 } }
   - screenshot: benchmark-day-default
-  - select: { id: bench-impl, index: 1 }
-  - wait_for: { id: bench-swiftui }
+  - select: { id: bench_impl, index: 1 }
+  - wait_for: { id: bench_swiftui }
   - pause: { secs: 1.0 }
   - screenshot: benchmark-swiftui-default
-  - select: { id: bench-impl, index: 0 }
+  - select: { id: bench_impl, index: 0 }

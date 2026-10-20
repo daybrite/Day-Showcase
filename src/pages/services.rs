@@ -18,7 +18,7 @@ use crate::widgets::page;
 pub(crate) fn notify_page() -> AnyPiece {
     page(
         crate::res::str::nav_notify_badge(),
-        "notify-page-title",
+        day::id!(notify_page_title),
         form((notify_section(), badge_section())).any(),
     )
     .any()
@@ -29,7 +29,7 @@ pub(crate) fn notify_page() -> AnyPiece {
 pub(crate) fn speech_page() -> AnyPiece {
     page(
         crate::res::str::nav_speech_haptics(),
-        "speech-title",
+        day::id!(speech_title),
         form((speech_section(), sound_section(), haptics_section())).any(),
     )
     .any()
@@ -40,7 +40,7 @@ pub(crate) fn speech_page() -> AnyPiece {
 pub(crate) fn files_page() -> AnyPiece {
     page(
         crate::res::str::nav_files_storage(),
-        "files-title",
+        day::id!(files_title),
         form((
             clipboard_section(),
             prefs_section(),
@@ -81,11 +81,11 @@ fn speech_section() -> impl Piece {
         label(crate::res::str::speech_caption()).font(Font::Footnote),
         labeled(
             crate::res::str::speech_support_label(),
-            label(support_text).id("speech-support"),
+            label(support_text).id(day::id!(speech_support)),
         ),
         text_field(phrase)
             .placeholder(crate::res::str::speech_phrase())
-            .id("speech-text"),
+            .id(day::id!(speech_text)),
         row((
             button(crate::res::str::speech_speak())
                 .action(move || {
@@ -115,16 +115,16 @@ fn speech_section() -> impl Piece {
                     });
                 })
                 .tint(crate::widgets::primary())
-                .id("speech-speak"),
+                .id(day::id!(speech_speak)),
             button(crate::res::str::speech_stop())
                 .bordered()
                 .action(day_part_speech::stop)
-                .id("speech-stop"),
+                .id(day::id!(speech_stop)),
         ))
         .spacing(Space::S),
         label(move || state.get())
             .font(Font::Footnote)
-            .id("speech-state"),
+            .id(day::id!(speech_state)),
     ))
     .title(crate::res::str::speech_title())
 }
@@ -137,7 +137,7 @@ fn clipboard_section() -> impl Piece {
         label(crate::res::str::clipboard_caption()).font(Font::Footnote),
         text_field(draft)
             .placeholder(crate::res::str::clipboard_placeholder())
-            .id("clipboard-field"),
+            .id(day::id!(clipboard_field)),
         row((
             button(crate::res::str::clipboard_copy())
                 .action(move || {
@@ -150,7 +150,7 @@ fn clipboard_section() -> impl Piece {
                     status.set(msg.format());
                 })
                 .tint(crate::widgets::primary())
-                .id("clipboard-copy"),
+                .id(day::id!(clipboard_copy)),
             button(crate::res::str::clipboard_paste())
                 .bordered()
                 .action(move || match day_part_clipboard::get_text() {
@@ -160,11 +160,11 @@ fn clipboard_section() -> impl Piece {
                     }
                     None => status.set(crate::res::str::clipboard_empty().format()),
                 })
-                .id("clipboard-paste"),
-            label(move || status.get()).id("clipboard-status"),
+                .id(day::id!(clipboard_paste)),
+            label(move || status.get()).id(day::id!(clipboard_status)),
         ))
         .spacing(Space::S),
-        label(move || pasted.get()).id("clipboard-pasted"),
+        label(move || pasted.get()).id(day::id!(clipboard_pasted)),
     ))
     .title(crate::res::str::nav_clipboard())
 }
@@ -178,7 +178,7 @@ fn prefs_section() -> impl Piece {
         label(crate::res::str::prefs_caption()).font(Font::Footnote),
         text_field(field)
             .placeholder(crate::res::str::prefs_placeholder())
-            .id("prefs-field"),
+            .id(day::id!(prefs_field)),
         row((
             button(crate::res::str::prefs_save())
                 .action(move || {
@@ -191,7 +191,7 @@ fn prefs_section() -> impl Piece {
                     status.set(msg.format());
                 })
                 .tint(crate::widgets::primary())
-                .id("prefs-save"),
+                .id(day::id!(prefs_save)),
             button(crate::res::str::prefs_load())
                 .bordered()
                 .action(move || match day::prefs::get(KEY) {
@@ -204,7 +204,7 @@ fn prefs_section() -> impl Piece {
                         status.set(crate::res::str::prefs_missing().format());
                     }
                 })
-                .id("prefs-load"),
+                .id(day::id!(prefs_load)),
             button(crate::res::str::prefs_clear())
                 .action(move || {
                     day::prefs::remove(KEY);
@@ -212,13 +212,13 @@ fn prefs_section() -> impl Piece {
                     status.set(crate::res::str::prefs_cleared().format());
                 })
                 .tint(crate::widgets::danger())
-                .id("prefs-clear"),
-            label(move || status.get()).id("prefs-status"),
+                .id(day::id!(prefs_clear)),
+            label(move || status.get()).id(day::id!(prefs_status)),
         ))
         .spacing(Space::S),
         labeled(
             crate::res::str::prefs_value_label(),
-            label(move || value.get()).id("prefs-value"),
+            label(move || value.get()).id(day::id!(prefs_value)),
         ),
     ))
     .title(crate::res::str::nav_prefs())
@@ -227,7 +227,7 @@ fn prefs_section() -> impl Piece {
 /// One button that plays a bundled clip at `pan` and shows the part's record of the play in
 /// `#sound-last-played`.
 fn sound_button(
-    id: &'static str,
+    id: day::ElementId,
     title: LocalizedText,
     clip: AssetName,
     pan: f32,
@@ -313,34 +313,34 @@ fn sound_section() -> impl Piece {
         grid((
             grid_row((
                 clip(
-                    "sound-click",
+                    day::id!(sound_click),
                     crate::res::str::sound_click(),
                     sounds::click_wav,
                 ),
                 clip(
-                    "sound-confirm",
+                    day::id!(sound_confirm),
                     crate::res::str::sound_confirm(),
                     sounds::confirm_wav,
                 ),
                 clip(
-                    "sound-error",
+                    day::id!(sound_error),
                     crate::res::str::sound_error(),
                     sounds::error_wav,
                 ),
             )),
             grid_row((
                 clip(
-                    "sound-glass",
+                    day::id!(sound_glass),
                     crate::res::str::sound_glass(),
                     sounds::glass_wav,
                 ),
                 clip(
-                    "sound-card",
+                    day::id!(sound_card),
                     crate::res::str::sound_card(),
                     sounds::card_wav,
                 ),
                 clip(
-                    "sound-jingle",
+                    day::id!(sound_jingle),
                     crate::res::str::sound_jingle(),
                     sounds::jingle_wav,
                 ),
@@ -349,31 +349,33 @@ fn sound_section() -> impl Piece {
         .spacing(Space::S),
         label(crate::res::str::sound_pan_caption()).font(Font::Footnote),
         grid((grid_row((
-            panned("sound-left", crate::res::str::sound_left(), -1.0),
-            panned("sound-center", crate::res::str::sound_center(), 0.0),
-            panned("sound-right", crate::res::str::sound_right(), 1.0),
+            panned(day::id!(sound_left), crate::res::str::sound_left(), -1.0),
+            panned(day::id!(sound_center), crate::res::str::sound_center(), 0.0),
+            panned(day::id!(sound_right), crate::res::str::sound_right(), 1.0),
         )),))
         .spacing(Space::S),
         labeled(
             crate::res::str::sound_volume(),
-            slider(volume).range(0.0..=1.0).id("sound-volume"),
+            slider(volume).range(0.0..=1.0).id(day::id!(sound_volume)),
         ),
         labeled(
             crate::res::str::sound_last(),
-            label(move || last.get()).id("sound-last-played"),
+            label(move || last.get()).id(day::id!(sound_last_played)),
         ),
         label(crate::res::str::sound_loop_caption()).font(Font::Footnote),
         labeled(
             crate::res::str::sound_loop(),
-            toggle(looping).id("sound-loop"),
+            toggle(looping).id(day::id!(sound_loop)),
         ),
         labeled(
             crate::res::str::sound_loop_volume(),
-            slider(loop_volume).range(0.0..=1.0).id("sound-loop-volume"),
+            slider(loop_volume)
+                .range(0.0..=1.0)
+                .id(day::id!(sound_loop_volume)),
         ),
         labeled(
             crate::res::str::sound_looping(),
-            label(move || looping_now.get()).id("sound-looping"),
+            label(move || looping_now.get()).id(day::id!(sound_looping)),
         ),
     ))
     .title(crate::res::str::nav_sound())
@@ -381,7 +383,7 @@ fn sound_section() -> impl Piece {
 
 /// One button that plays a haptic and records the style name into `#haptics-last-played`.
 fn haptic_button(
-    id: &'static str,
+    id: day::ElementId,
     title: LocalizedText,
     h: Haptic,
     playing: Signal<bool>,
@@ -640,7 +642,7 @@ fn haptics_section() -> impl Piece {
         crate::widgets::support_note(crate::support::haptics()),
         label(supported)
             .font(Font::Footnote)
-            .id("haptics-supported"),
+            .id(day::id!(haptics_supported)),
         // A grid, not rows: every cell is `grow_w`, so all three columns are flexible and the
         // layout divides the width evenly between them. Buttons stay the same size and none can
         // overflow, whatever the label or the screen. The trailing `spacer()`s are inert cells that
@@ -648,21 +650,21 @@ fn haptics_section() -> impl Piece {
         grid((
             grid_row((
                 haptic_button(
-                    "haptics-light",
+                    day::id!(haptics_light),
                     crate::res::str::haptics_light(),
                     Haptic::Light,
                     playing,
                     last,
                 ),
                 haptic_button(
-                    "haptics-medium",
+                    day::id!(haptics_medium),
                     crate::res::str::haptics_medium(),
                     Haptic::Medium,
                     playing,
                     last,
                 ),
                 haptic_button(
-                    "haptics-heavy",
+                    day::id!(haptics_heavy),
                     crate::res::str::haptics_heavy(),
                     Haptic::Heavy,
                     playing,
@@ -671,21 +673,21 @@ fn haptics_section() -> impl Piece {
             )),
             grid_row((
                 haptic_button(
-                    "haptics-success",
+                    day::id!(haptics_success),
                     crate::res::str::haptics_success(),
                     Haptic::Success,
                     playing,
                     last,
                 ),
                 haptic_button(
-                    "haptics-warning",
+                    day::id!(haptics_warning),
                     crate::res::str::haptics_warning(),
                     Haptic::Warning,
                     playing,
                     last,
                 ),
                 haptic_button(
-                    "haptics-error",
+                    day::id!(haptics_error),
                     crate::res::str::haptics_error(),
                     Haptic::Error,
                     playing,
@@ -694,7 +696,7 @@ fn haptics_section() -> impl Piece {
             )),
             grid_row((
                 haptic_button(
-                    "haptics-selection",
+                    day::id!(haptics_selection),
                     crate::res::str::haptics_selection(),
                     Haptic::Selection,
                     playing,
@@ -713,7 +715,7 @@ fn haptics_section() -> impl Piece {
         grid((
             grid_row((
                 song_button(
-                    "haptics-song-celebration",
+                    day::id!(haptics_song_celebration),
                     crate::res::str::haptics_song_celebration(),
                     "Celebration",
                     CELEBRATION,
@@ -722,7 +724,7 @@ fn haptics_section() -> impl Piece {
                     last,
                 ),
                 song_button(
-                    "haptics-song-levelup",
+                    day::id!(haptics_song_levelup),
                     crate::res::str::haptics_song_levelup(),
                     "Level up",
                     LEVEL_UP,
@@ -733,7 +735,7 @@ fn haptics_section() -> impl Piece {
             )),
             grid_row((
                 song_button(
-                    "haptics-song-heartbeat",
+                    day::id!(haptics_song_heartbeat),
                     crate::res::str::haptics_song_heartbeat(),
                     "Heartbeat",
                     HEARTBEAT,
@@ -742,7 +744,7 @@ fn haptics_section() -> impl Piece {
                     last,
                 ),
                 song_button(
-                    "haptics-song-cascade",
+                    day::id!(haptics_song_cascade),
                     crate::res::str::haptics_song_cascade(),
                     "Cascade",
                     CASCADE,
@@ -755,7 +757,7 @@ fn haptics_section() -> impl Piece {
         .spacing(Space::S),
         labeled(
             crate::res::str::haptics_last(),
-            label(move || last.get()).id("haptics-last-played"),
+            label(move || last.get()).id(day::id!(haptics_last_played)),
         ),
     ))
     .title(crate::res::str::nav_haptics())
@@ -764,7 +766,7 @@ fn haptics_section() -> impl Piece {
 /// A colored button that plays one haptic song.
 #[allow(clippy::too_many_arguments)]
 fn song_button(
-    id: &'static str,
+    id: day::ElementId,
     title: LocalizedText,
     name: &'static str,
     beats: &'static [Beat],
@@ -847,21 +849,23 @@ fn notify_section() -> impl Piece {
 
     section((
         crate::widgets::support_note(crate::support::notifications()),
-        label(supported).font(Font::Footnote).id("notify-supported"),
+        label(supported)
+            .font(Font::Footnote)
+            .id(day::id!(notify_supported)),
         label(scheduling)
             .font(Font::Footnote)
-            .id("notify-scheduling"),
+            .id(day::id!(notify_scheduling)),
         labeled(
             crate::res::str::notify_title_label(),
             text_field(title)
                 .placeholder(crate::res::str::notify_title_placeholder())
-                .id("notify-title"),
+                .id(day::id!(notify_title)),
         ),
         labeled(
             crate::res::str::notify_body_label(),
             text_field(body)
                 .placeholder(crate::res::str::notify_body_placeholder())
-                .id("notify-body"),
+                .id(day::id!(notify_body)),
         ),
         labeled(
             crate::res::str::notify_delay(),
@@ -874,7 +878,7 @@ fn notify_section() -> impl Piece {
                     (60, crate::res::str::notify_delay_60s()),
                 ],
             )
-            .id("notify-delay"),
+            .id(day::id!(notify_delay)),
         ),
         labeled(
             crate::res::str::notify_importance(),
@@ -887,11 +891,11 @@ fn notify_section() -> impl Piece {
                     (3, crate::res::str::notify_importance_urgent()),
                 ],
             )
-            .id("notify-importance"),
+            .id(day::id!(notify_importance)),
         ),
         labeled(
             crate::res::str::notify_sound(),
-            toggle(sound).id("notify-sound"),
+            toggle(sound).id(day::id!(notify_sound)),
         ),
         // Badge is Apple-only among the wired backends. Day's Decorate trait has no `disabled`,
         // so the control is omitted where it would do nothing rather than shown doing nothing.
@@ -900,7 +904,10 @@ fn notify_section() -> impl Piece {
             move || {
                 labeled(
                     crate::res::str::notify_badge(),
-                    slider(badge).range(0.0..=9.0).step(1.0).id("notify-badge"),
+                    slider(badge)
+                        .range(0.0..=9.0)
+                        .step(1.0)
+                        .id(day::id!(notify_badge)),
                 )
             },
         ),
@@ -928,7 +935,7 @@ fn notify_section() -> impl Piece {
                         }
                     })
                     .font(Font::Footnote)
-                    .id("notify-perm"),
+                    .id(day::id!(notify_perm)),
                     when(
                         move || !granted.get(),
                         move || {
@@ -964,7 +971,7 @@ fn notify_section() -> impl Piece {
                                     );
                                 }
                             })
-                            .id("notify-perm-request")
+                            .id(day::id!(notify_perm_request))
                         },
                     ),
                 ))
@@ -1014,19 +1021,19 @@ fn notify_section() -> impl Piece {
                     status.set(msg);
                 })
                 .tint(crate::widgets::primary())
-                .id("notify-post"),
+                .id(day::id!(notify_post)),
             button(crate::res::str::notify_cancel())
                 .bordered()
                 .action(move || {
                     day_part_local_notify::cancel_all();
                     status.set(crate::res::str::notify_status_cancelled().format());
                 })
-                .id("notify-cancel"),
+                .id(day::id!(notify_cancel)),
         ))
         .spacing(Space::S),
         labeled(
             crate::res::str::notify_last(),
-            label(move || status.get()).id("notify-status"),
+            label(move || status.get()).id(day::id!(notify_status)),
         ),
     ))
     .title(crate::res::str::nav_notify())
@@ -1053,14 +1060,16 @@ fn badge_section() -> impl Piece {
 
     section((
         crate::widgets::support_note(crate::support::cap(Cap::AppBadgeCount)),
-        label(caps_line).font(Font::Footnote).id("badge-supported"),
+        label(caps_line)
+            .font(Font::Footnote)
+            .id(day::id!(badge_supported)),
         // Named so a user on Android reads why rather than assuming it is broken.
         when(
             move || !supported,
             move || {
                 label(crate::res::str::badge_android_note())
                     .font(Font::Footnote)
-                    .id("badge-unsupported-why")
+                    .id(day::id!(badge_unsupported_why))
             },
         ),
         labeled(
@@ -1070,15 +1079,15 @@ fn badge_section() -> impl Piece {
                     .bordered()
                     .enabled(move || supported && count.get() > 0.0)
                     .action(move || count.set((count.get() - 1.0).max(0.0)))
-                    .id("badge-minus"),
+                    .id(day::id!(badge_minus)),
                 label(move || format!("{}", count.get() as u32))
                     .tabular()
-                    .id("badge-value"),
+                    .id(day::id!(badge_value)),
                 button(crate::res::str::badge_plus())
                     .bordered()
                     .enabled(move || supported && count.get() < 99.0)
                     .action(move || count.set((count.get() + 1.0).min(99.0)))
-                    .id("badge-plus"),
+                    .id(day::id!(badge_plus)),
             ))
             .spacing(Space::S),
         ),
@@ -1091,7 +1100,7 @@ fn badge_section() -> impl Piece {
                     day::set_app_badge(&day::AppBadge::Count(n));
                     status.set(crate::res::str::badge_status_set(n.to_string()).format());
                 })
-                .id("badge-set"),
+                .id(day::id!(badge_set)),
             button(crate::res::str::badge_clear())
                 .bordered()
                 .enabled(supported)
@@ -1099,7 +1108,7 @@ fn badge_section() -> impl Piece {
                     day::set_app_badge(&day::AppBadge::None);
                     status.set(crate::res::str::badge_status_cleared().format());
                 })
-                .id("badge-clear"),
+                .id(day::id!(badge_clear)),
             // Text is macOS-only, so the control is not offered elsewhere rather than
             // sitting there doing nothing.
             when(
@@ -1111,14 +1120,14 @@ fn badge_section() -> impl Piece {
                             day::set_app_badge(&day::AppBadge::Text("beta".into()));
                             status.set(crate::res::str::badge_status_text().format());
                         })
-                        .id("badge-set-text")
+                        .id(day::id!(badge_set_text))
                 },
             ),
         ))
         .spacing(Space::S),
         labeled(
             crate::res::str::badge_last(),
-            label(move || status.get()).id("badge-status"),
+            label(move || status.get()).id(day::id!(badge_status)),
         ),
     ))
     .title(crate::res::str::nav_badge())
@@ -1136,7 +1145,7 @@ fn files_section() -> impl Piece {
         label(crate::res::str::files_caption()).font(Font::Footnote),
         text_field(content)
             .placeholder(crate::res::str::files_placeholder())
-            .id("files-content"),
+            .id(day::id!(files_content)),
         row((
             button(crate::res::str::files_open())
                 .action(move || {
@@ -1165,7 +1174,7 @@ fn files_section() -> impl Piece {
                     });
                 })
                 .tint(crate::widgets::primary())
-                .id("btn-open-file"),
+                .id(day::id!(btn_open_file)),
             button(crate::res::str::files_save())
                 .bordered()
                 .action(move || {
@@ -1183,7 +1192,7 @@ fn files_section() -> impl Piece {
                         }
                     });
                 })
-                .id("btn-save-file"),
+                .id(day::id!(btn_save_file)),
             when(
                 || cfg!(target_os = "macos"),
                 move || {
@@ -1212,15 +1221,15 @@ fn files_section() -> impl Piece {
                                 tr("files_bookmark_failed").format()
                             });
                         })
-                        .id("btn-reopen-file")
+                        .id(day::id!(btn_reopen_file))
                 },
             ),
-            label(move || status.get()).id("files-status"),
+            label(move || status.get()).id(day::id!(files_status)),
         ))
         .spacing(Space::S),
         when(
             move || !opened.with(|s| s.is_empty()),
-            move || label(crate::res::str::files_opened(opened)).id("files-opened-name"),
+            move || label(crate::res::str::files_opened(opened)).id(day::id!(files_opened_name)),
         ),
     ))
     .title(crate::res::str::nav_files())
@@ -1248,7 +1257,7 @@ fn storage_section() -> impl Piece {
         label(crate::res::str::storage_caption()).font(Font::Footnote),
         text_field(note)
             .placeholder(crate::res::str::storage_placeholder())
-            .id("fs-note"),
+            .id(day::id!(fs_note)),
         row((
             button(crate::res::str::storage_save())
                 .action(move || {
@@ -1263,7 +1272,7 @@ fn storage_section() -> impl Piece {
                     });
                 })
                 .tint(crate::widgets::primary())
-                .id("fs-save"),
+                .id(day::id!(fs_save)),
             button(crate::res::str::storage_load())
                 .bordered()
                 .action(move || {
@@ -1277,7 +1286,7 @@ fn storage_section() -> impl Piece {
                         status.set(text);
                     });
                 })
-                .id("fs-load"),
+                .id(day::id!(fs_load)),
             button(crate::res::str::storage_delete())
                 .action(move || {
                     day::task(async move {
@@ -1290,15 +1299,15 @@ fn storage_section() -> impl Piece {
                     });
                 })
                 .tint(crate::widgets::danger())
-                .id("fs-delete"),
-            label(move || status.get()).id("fs-status"),
+                .id(day::id!(fs_delete)),
+            label(move || status.get()).id(day::id!(fs_status)),
         ))
         .spacing(Space::S),
         labeled(
             crate::res::str::storage_files_label(),
             label(move || files.get())
                 .font(Font::Footnote)
-                .id("fs-list"),
+                .id(day::id!(fs_list)),
         ),
     ))
     .title(crate::res::str::storage_title())
@@ -1311,8 +1320,8 @@ pub(super) fn network_section() -> impl Piece {
         button(crate::res::str::network_refresh())
             .bordered()
             .action(move || reading.set(network_line().format()))
-            .id("network-refresh"),
-        label(move || reading.get()).id("network-reading"),
+            .id(day::id!(network_refresh)),
+        label(move || reading.get()).id(day::id!(network_reading)),
     ))
     .spacing(Space::S),))
     .title(crate::res::str::network_status_section())

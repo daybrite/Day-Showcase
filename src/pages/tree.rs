@@ -219,7 +219,7 @@ pub(crate) fn tree_page() -> AnyPiece {
         )
         .type_ahead(move |id: &u32| name_of(*id))
         .reveal(reveal)
-        .row_id(|id: &u32| format!("tree-node-{id}"))
+        .row_id(|id: &u32| day::id!(tree_node, *id))
         // Built when the menu is summoned (docs/menus.md "Dynamic context menus"), so the
         // items match the row under the pointer, and a summon outside the selection selects
         // it first.
@@ -283,7 +283,7 @@ pub(crate) fn tree_page() -> AnyPiece {
             );
             entries
         })
-        .id("demo-tree")
+        .id(day::id!(demo_tree))
         // day-tweak-tree-style: the sidebar treatment (clear backgrounds over the pane on
         // macOS, Adwaita's navigation-sidebar class on GTK) and a no-op on the toolkits
         // whose trees are composed from day pieces (docs/tweaks.md).
@@ -297,54 +297,57 @@ pub(crate) fn tree_page() -> AnyPiece {
     scroll(
         column((
             row((
-                heading(crate::res::str::nav_tree(), "tree-title"),
+                heading(crate::res::str::nav_tree(), day::id!(tree_title)),
                 spacer(),
                 button(crate::res::str::tree_add_file())
                     .prominent()
                     .action(add_into)
                     .tint(crate::widgets::primary())
-                    .id("tree-add"),
+                    .id(day::id!(tree_add)),
             ))
             .spacing(Space::S),
             label(crate::res::str::tree_caption())
                 .font(Font::Footnote)
-                .id("tree-caption"),
+                .id(day::id!(tree_caption)),
             row((
                 button(crate::res::str::tree_expand_all())
                     .bordered()
                     .action(move || open.set(folder_ids()))
-                    .id("tree-expand-all"),
+                    .id(day::id!(tree_expand_all)),
                 button(crate::res::str::tree_collapse_all())
                     .bordered()
                     .action(move || open.set(std::collections::HashSet::new()))
-                    .id("tree-collapse-all"),
+                    .id(day::id!(tree_collapse_all)),
                 button(crate::res::str::tree_reveal())
                     .bordered()
                     // Two collapsed ancestors sit above the target: reveal expands them through
                     // the same app-owned signal the chevrons write, then scrolls.
                     .action(move || reveal.set(Some(REVEAL_TARGET)))
-                    .id("tree-reveal"),
+                    .id(day::id!(tree_reveal)),
             ))
             .spacing(Space::S)
             .fit(RowFit::Wrap { run_spacing: 8.0 }),
             row((
                 labeled(
                     crate::res::str::tree_multi(),
-                    toggle(multi).id("tree-multi"),
+                    toggle(multi).id(day::id!(tree_multi)),
                 ),
-                labeled(crate::res::str::tree_lock(), toggle(locked).id("tree-lock")),
+                labeled(
+                    crate::res::str::tree_lock(),
+                    toggle(locked).id(day::id!(tree_lock)),
+                ),
             ))
             .spacing(Space::L)
             .fit(RowFit::Wrap { run_spacing: 8.0 }),
             label(crate::res::str::tree_hint())
                 .font(Font::Footnote)
-                .id("tree-hint"),
+                .id(day::id!(tree_hint)),
             when(move || multi.get(), move || build_tree(true))
                 .otherwise(move || build_tree(false)),
             label(move || crate::res::str::tree_count(nodes.get().len() as i64).format())
                 .font(Font::Footnote)
                 .tabular()
-                .id("tree-count"),
+                .id(day::id!(tree_count)),
             label(move || {
                 let sel = selection.get();
                 if sel.is_empty() {
@@ -359,7 +362,7 @@ pub(crate) fn tree_page() -> AnyPiece {
                 }
             })
             .font(Font::Footnote)
-            .id("tree-selection"),
+            .id(day::id!(tree_selection)),
             label(move || match last_move.get() {
                 None => crate::res::str::tree_move_none().format(),
                 Some((id, parent, index)) => {
@@ -385,7 +388,7 @@ pub(crate) fn tree_page() -> AnyPiece {
                 }
             })
             .font(Font::Footnote)
-            .id("tree-last-move"),
+            .id(day::id!(tree_last_move)),
         ))
         .spacing(10.0)
         .align(HAlign::Leading)

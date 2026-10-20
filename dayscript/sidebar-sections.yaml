@@ -4,11 +4,11 @@ flow:
   - screenshot: grouped-navigation
   - navigate: { route: controls }
   - assert_route: { route: controls }
-  - assert_visible: { id: btn-plain }
+  - assert_visible: { id: btn_plain }
   - nav_back:
   - assert_route: { route: "" }
   - navigate: { route: about }
-  - assert_visible: { id: about-page }
+  - assert_visible: { id: about_page }
   - nav_back:
   - assert_route: { route: "" }
   - screenshot: grouped-navigation-returned

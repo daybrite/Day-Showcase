@@ -13,21 +13,21 @@ flow:
   - navigate: { route: speech }
   - assert_route: { route: speech }
   # The support label is the part's answer for this target: Native, Emulated, or Unsupported.
-  - wait_for: { id: speech-support }
+  - wait_for: { id: speech_support }
   - screenshot:
       name: speech
       title: { en: "Speech", fr: "Voix", ar: "الكلام", zh-CN: "语音" }
       source: src/pages/services.rs
   # Empty means "speak the localized sample the placeholder shows"; typing overrides it.
-  - input: { id: speech-text, text: "Day speaks through the bridge." }
-  - tap: { id: speech-speak }
+  - input: { id: speech_text, text: "Day speaks through the bridge." }
+  - tap: { id: speech_speak }
   # Playback needs an audio output. Hosted Windows runners have no audio endpoint (the shared
   # dayapp workflow documents the same limitation for media); SAPI can create a voice there,
   # but Speak fails. Headless Chromium likewise reports `synthesis-failed`. Keep exercising
   # Speak/Stop and the editor on both targets, without requiring successful playback states.
-  - assert_text: { id: speech-state, key: speech_state_speaking, skip_on: [linux-gtk, linux-qt, macos-gtk, macos-qt, windows-gtk, windows-qt, windows-winui, harmony-arkui, web-dom] }
-  - tap: { id: speech-stop }
+  - assert_text: { id: speech_state, key: speech_state_speaking, skip_on: [linux-gtk, linux-qt, macos-gtk, macos-qt, windows-gtk, windows-qt, windows-winui, harmony-arkui, web-dom] }
+  - tap: { id: speech_stop }
   # The engine's cancellation arrives through the completion and lands as "Stopped". Targets whose
   # arm reports no end (speech-dispatcher), or that have no arm, settle on their own answer.
-  - assert_text: { id: speech-state, key: speech_state_stopped, skip_on: [linux-gtk, linux-qt, macos-gtk, macos-qt, windows-gtk, windows-qt, windows-winui, harmony-arkui, web-dom] }
-  - assert_text: { id: speech-text, text: "Day speaks through the bridge." }
+  - assert_text: { id: speech_state, key: speech_state_stopped, skip_on: [linux-gtk, linux-qt, macos-gtk, macos-qt, windows-gtk, windows-qt, windows-winui, harmony-arkui, web-dom] }
+  - assert_text: { id: speech_text, text: "Day speaks through the bridge." }

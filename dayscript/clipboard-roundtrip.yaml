@@ -10,9 +10,9 @@ flow:
   - wait_for: { id: nav }
   - navigate: { route: files }
   - assert_route: { route: files }
-  - input: { id: clipboard-field, text: "day walkthrough clip" }
-  - tap: { id: clipboard-copy }
+  - input: { id: clipboard_field, text: "day walkthrough clip" }
+  - tap: { id: clipboard_copy }
   # Overwrite the field so a passing paste proves the value came from the OS clipboard, not the field.
-  - input: { id: clipboard-field, text: "overwritten in the field" }
-  - tap: { id: clipboard-paste }
-  - assert_text: { id: clipboard-pasted, text: "day walkthrough clip" }
+  - input: { id: clipboard_field, text: "overwritten in the field" }
+  - tap: { id: clipboard_paste }
+  - assert_text: { id: clipboard_pasted, text: "day walkthrough clip" }

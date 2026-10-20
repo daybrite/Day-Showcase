@@ -9,7 +9,7 @@ use crate::widgets::page;
 pub(crate) fn resources_page() -> AnyPiece {
     page(
         crate::res::str::nav_resources(),
-        "resources-title",
+        day::id!(resources_title),
         form((image_section(), vectors_section(), data_section())).any(),
     )
     .any()
@@ -56,8 +56,8 @@ fn image_section() -> impl Piece {
 fn data_section() -> impl Piece {
     let (numbers_line, greeting_line) = resource_lines();
     section((
-        label(move || numbers_line.clone()).id("resources-numbers"),
-        label(move || greeting_line.clone()).id("resources-greeting"),
+        label(move || numbers_line.clone()).id(day::id!(resources_numbers)),
+        label(move || greeting_line.clone()).id(day::id!(resources_greeting)),
     ))
     .title(crate::res::str::resources_data_section())
 }
@@ -128,13 +128,13 @@ fn vectors_section() -> impl Piece {
                 ],
             )
             .segmented()
-            .id("vector-weight"),
+            .id(day::id!(vector_weight)),
         ),
         labeled(
             crate::res::str::vectors_sizes(),
             picker(size, GLYPH_SIZES.map(|s| (s, format!("{s:.0}"))))
                 .segmented()
-                .id("vector-size"),
+                .id(day::id!(vector_size)),
         ),
         // The glyph row is derived, not hand-written: one list of glyphs in one `row`, wrapped by
         // the row itself. It was a `grid` whose column count this page computed from the window's
@@ -195,7 +195,7 @@ fn vectors_section() -> impl Piece {
                     .spacing(Space::M)
                     .fit(RowFit::Wrap { run_spacing: 12.0 })
                     .grow_w()
-                    .id("resources-vectors-row")
+                    .id(day::id!(resources_vectors_row))
             },
         ),
         // The aliasing case again, called out on its own so a script can assert it directly: a
@@ -206,7 +206,7 @@ fn vectors_section() -> impl Piece {
                 .weight(VectorWeight::Bold)
                 .tint(crate::palette::SLATE)
                 .frame(28.0, 28.0)
-                .id("vector-aliased-weight"),
+                .id(day::id!(vector_aliased_weight)),
             label(crate::res::str::vectors_alias_note()).font(Font::Footnote),
         ))
         .spacing(Space::S)
@@ -221,7 +221,7 @@ fn vectors_section() -> impl Piece {
                 t(gv::nav_scripting, Color::rgba(0.16, 0.65, 0.37, 1.0)),
             ))
             .spacing(Space::M)
-            .id("resources-vectors-tints"),
+            .id(day::id!(resources_vectors_tints)),
         ),
         // A live tint: the same glyph bound to a signal, so any of the three controls beside it
         // repaints the realized view through `ImagePatch::Tint` instead of rebuilding it
@@ -234,7 +234,7 @@ fn vectors_section() -> impl Piece {
                 vector(gv::nav_animation)
                     .tint(move || tint.get())
                     .frame(28.0, 28.0)
-                    .id("vector-live-tint"),
+                    .id(day::id!(vector_live_tint)),
                 button(crate::res::str::vectors_cycle_tint())
                     .action(move || {
                         live.update(|i| *i += 1);
@@ -242,7 +242,7 @@ fn vectors_section() -> impl Piece {
                             crate::palette::RAMP[live.get_untracked() % crate::palette::RAMP.len()],
                         );
                     })
-                    .id("vector-cycle-tint"),
+                    .id(day::id!(vector_cycle_tint)),
                 // The platform's chooser. `.native()` is literal: on a toolkit with no
                 // color picker (android-mdc, harmony-arkui) this draws Day's placeholder rather
                 // than quietly substituting the composed panel, which is what the page is here
@@ -250,13 +250,13 @@ fn vectors_section() -> impl Piece {
                 color_picker(tint)
                     .native()
                     .title(crate::res::str::vectors_pick_tint())
-                    .id("vector-tint-native"),
+                    .id(day::id!(vector_tint_native)),
                 // Day's own panel, built from pieces and a canvas, identical on all nine
                 // targets. Its id is also the well's dayscript id.
                 color_picker(tint)
                     .composed()
                     .title(crate::res::str::vectors_pick_tint())
-                    .id("vector-tint-composed"),
+                    .id(day::id!(vector_tint_composed)),
             ))
             .spacing(Space::M)
             .fit(RowFit::Wrap { run_spacing: 8.0 })
@@ -296,7 +296,7 @@ fn vectors_section() -> impl Piece {
             move || Some(((zoom.get() / 8.0).round() as i64, tiger_room() as i64)),
             move |&(step, room)| {
                 let px = step as f64 * 8.0;
-                let art = vector(gv::tiger).frame(px, px).id("vector-tiger");
+                let art = vector(gv::tiger).frame(px, px).id(day::id!(vector_tiger));
                 // Two different piece types, one branch each: `Either` keeps both concrete
                 // instead of boxing whichever arm this row takes.
                 if px <= room as f64 {
@@ -310,7 +310,7 @@ fn vectors_section() -> impl Piece {
         // above takes its size from the Size picker instead.
         labeled(
             crate::res::str::vectors_zoom(),
-            slider(zoom).range(48.0..=1200.0).id("vector-zoom"),
+            slider(zoom).range(48.0..=1200.0).id(day::id!(vector_zoom)),
         ),
         label(crate::res::str::vectors_scene_note()).font(Font::Footnote),
     ))

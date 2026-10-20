@@ -27,9 +27,9 @@ flow:
   # Settings window's Diagnostics group now (asserted with the settings steps below).
   - navigate: { route: about }
   - assert_route: { route: about }
-  - assert_visible: { id: about-page }
-  - assert_visible: { id: about-name }
-  - assert_visible: { id: about-version }
+  - assert_visible: { id: about_page }
+  - assert_visible: { id: about_name }
+  - assert_visible: { id: about_version }
   - screenshot:
       name: about
       title: { en: "About", fr: "À propos", ar: "حول", zh-CN: "关于" }
@@ -50,111 +50,111 @@ flow:
   - assert_route: { route: controls }
   # Buttons: every style counts a press into one readout, so two taps in two styles read "2".
   # The styles are presentation, the action is one.
-  - tap: { id: btn-plain }
-  - tap: { id: btn-bordered }
-  - assert_text: { id: btn-presses, text: "2" }
-  - assert_text: { id: state-presses, text: "2" }
-  - assert_visible: { id: btn-prominent }
-  - assert_visible: { id: btn-tinted }
-  - assert_visible: { id: btn-destructive }
-  - assert_visible: { id: btn-disabled }
-  - assert_visible: { id: btn-icon-label }
-  - assert_visible: { id: btn-image }
-  - assert_text: { id: btn-icon-only, key: media_play }
-  - tap: { id: btn-icon-only }
-  - assert_text: { id: btn-icon-only, key: media_pause }
-  - tap: { id: btn-icon-only }
-  - assert_text: { id: btn-icon-only, key: media_play }
-  - assert_visible: { id: ctl-link }
+  - tap: { id: btn_plain }
+  - tap: { id: btn_bordered }
+  - assert_text: { id: btn_presses, text: "2" }
+  - assert_text: { id: state_presses, text: "2" }
+  - assert_visible: { id: btn_prominent }
+  - assert_visible: { id: btn_tinted }
+  - assert_visible: { id: btn_destructive }
+  - assert_visible: { id: btn_disabled }
+  - assert_visible: { id: btn_icon_label }
+  - assert_visible: { id: btn_image }
+  - assert_text: { id: btn_icon_only, key: media_play }
+  - tap: { id: btn_icon_only }
+  - assert_text: { id: btn_icon_only, key: media_pause }
+  - tap: { id: btn_icon_only }
+  - assert_text: { id: btn_icon_only, key: media_play }
+  - assert_visible: { id: ctl_link }
   # Slider → the numeric readout, the progress bar, the State row, and the preset label. 42 sits
   # on no preset, so the label reads "Custom": the derivation from level back to preset terms.
-  - set_value: { id: volume-slider, value: 42 }
-  - assert_text: { id: volume-value, text: "42" }
-  - assert_text: { id: state-level, text: "42" }
-  - assert_value: { id: volume-progress, value: 0.42 }
-  - assert_text: { id: picker-value, key: mix_custom }
+  - set_value: { id: volume_slider, value: 42 }
+  - assert_text: { id: volume_value, text: "42" }
+  - assert_text: { id: state_level, text: "42" }
+  - assert_value: { id: volume_progress, value: 0.42 }
+  - assert_text: { id: picker_value, key: mix_custom }
   # The stepper keeps its own count (seeded at 3), shown native and composed side by side.
-  - assert_visible: { id: stepper-field }
-  - assert_text: { id: stepper-value, text: "3" }
-  - assert_text: { id: state-count, text: "3" }
-  - assert_visible: { id: stepped-slider }
+  - assert_visible: { id: stepper_field }
+  - assert_text: { id: stepper_value, text: "3" }
+  - assert_text: { id: state_count, text: "3" }
+  - assert_visible: { id: stepped_slider }
   # No activity arm on web-dom: the placeholder leaf has no frame to be visible.
-  - assert_visible: { id: activity-spinner, skip_on: [web-dom] }
-  - assert_visible: { id: ctl-spinner }
+  - assert_visible: { id: activity_spinner, skip_on: [web-dom] }
+  - assert_visible: { id: ctl_spinner }
   # Accessibility (docs/accessibility.md): the heading role and the hint are what a screen
   # reader is told; the announcement reaches it without moving focus, so the count is the only
   # thing a script can see of it.
-  - assert_visible: { id: ctl-a11y-heading }
-  - tap: { id: ctl-announce }
-  - assert_text: { id: ctl-announce-count, key: ctl_announced_times, args: { count: 1 } }
-  - assert_visible: { id: ctl-announce-support }
+  - assert_visible: { id: ctl_a11y_heading }
+  - tap: { id: ctl_announce }
+  - assert_text: { id: ctl_announce_count, key: ctl_announced_times, args: { count: 1 } }
+  - assert_visible: { id: ctl_announce_support }
   # Text field → the State row.
-  - input: { id: name-field, text: "Ada" }
-  - assert_text: { id: state-name, text: "Ada" }
-  - assert_visible: { id: notes-area }
+  - input: { id: name_field, text: "Ada" }
+  - assert_text: { id: state_name, text: "Ada" }
+  - assert_visible: { id: notes_area }
   # Three native picker stylings over one Signal<usize>: selecting in any one moves the other two,
   # and the watch in Catalog::new snaps the level, which the readout and progress bar report.
-  - select: { id: picker-segmented, index: 2 }
-  - assert_text: { id: picker-value, key: size_large }
-  - assert_text: { id: volume-value, text: "90" }
-  - assert_text: { id: state-level, text: "90" }
-  - assert_value: { id: volume-progress, value: 0.9 }
-  - select: { id: picker-menu, index: 0 }
-  - assert_text: { id: picker-value, key: size_small }
-  - assert_text: { id: volume-value, text: "25" }
-  - assert_value: { id: volume-progress, value: 0.25 }
-  - select: { id: picker-inline, index: 1 }
-  - assert_text: { id: picker-value, key: size_medium }
-  - assert_text: { id: volume-value, text: "60" }
+  - select: { id: picker_segmented, index: 2 }
+  - assert_text: { id: picker_value, key: size_large }
+  - assert_text: { id: volume_value, text: "90" }
+  - assert_text: { id: state_level, text: "90" }
+  - assert_value: { id: volume_progress, value: 0.9 }
+  - select: { id: picker_menu, index: 0 }
+  - assert_text: { id: picker_value, key: size_small }
+  - assert_text: { id: volume_value, text: "25" }
+  - assert_value: { id: volume_progress, value: 0.25 }
+  - select: { id: picker_inline, index: 1 }
+  - assert_text: { id: picker_value, key: size_medium }
+  - assert_text: { id: volume_value, text: "60" }
   # The master switch dims the editors, stops the activity indicator, and the State row says so.
-  - toggle: { id: subscribe-toggle, value: false }
-  - assert_text: { id: activity-status, key: activity_off }
-  - assert_text: { id: state-toggle, key: ctl_off }
-  - toggle: { id: subscribe-toggle, value: true }
-  - assert_text: { id: activity-status, key: activity_on }
-  - assert_text: { id: state-toggle, key: ctl_on }
+  - toggle: { id: subscribe_toggle, value: false }
+  - assert_text: { id: activity_status, key: activity_off }
+  - assert_text: { id: state_toggle, key: ctl_off }
+  - toggle: { id: subscribe_toggle, value: true }
+  - assert_text: { id: activity_status, key: activity_on }
+  - assert_text: { id: state_toggle, key: ctl_on }
   # Combo box (day-piece-combobox, docs/combobox.md): menu selection and free-form entry over the
   # same list. `select` is the menu path (options are localized, so assert by key); `input` is the
   # free-form path (a literal, since user input is not localized); Add grows the list for both.
-  - select: { id: flavor-combo, index: 2 }
-  - assert_text: { id: flavor-value, key: pistachio }
-  - input: { id: flavor-combo, text: "Stracciatella" }
-  - assert_text: { id: flavor-value, text: "Stracciatella" }
-  - tap: { id: flavor-add }
-  - select: { id: flavor-combo, index: 3 }
-  - assert_text: { id: flavor-value, text: "Stracciatella" }
+  - select: { id: flavor_combo, index: 2 }
+  - assert_text: { id: flavor_value, key: pistachio }
+  - input: { id: flavor_combo, text: "Stracciatella" }
+  - assert_text: { id: flavor_value, text: "Stracciatella" }
+  - tap: { id: flavor_add }
+  - select: { id: flavor_combo, index: 3 }
+  - assert_text: { id: flavor_value, text: "Stracciatella" }
   # The search field filters the same collection the combo offers, so the two share state too.
-  - input: { id: search-input, key: chocolate }
-  - assert_text: { id: search-result, key: chocolate }
-  - tap: { id: search-clear }
-  - assert_text: { id: search-result, key: vanilla }
+  - input: { id: search_input, key: chocolate }
+  - assert_text: { id: search_result, key: chocolate }
+  - tap: { id: search_clear }
+  - assert_text: { id: search_result, key: vanilla }
   # The compact date and time pickers (docs/datepicker.md): a synthetic ISO `input:` on every
   # backend, and the State rows are locale-independent ISO from the bound signals, the same
   # two-way binding the Date & time page asserts in depth.
-  - input: { id: ctl-date, text: "2026-11-05" }
-  - assert_text: { id: state-date, text: "2026-11-05" }
-  - input: { id: ctl-time, text: "14:45" }
-  - assert_text: { id: state-time, text: "14:45" }
-  - assert_visible: { id: ctl-color }
-  - assert_visible: { id: state-color }
+  - input: { id: ctl_date, text: "2026-11-05" }
+  - assert_text: { id: state_date, text: "2026-11-05" }
+  - input: { id: ctl_time, text: "14:45" }
+  - assert_text: { id: state_time, text: "14:45" }
+  - assert_visible: { id: ctl_color }
+  - assert_visible: { id: state_color }
   # Indicators: tap the 4th star (each star is `compose-rating:N`) and assert both bound readouts
   # re-rendered with the count. The gauge is a canvas over the shared level; the badge and the
   # divider are presence-only.
-  - tap: { id: "compose-rating:4" }
-  - assert_text: { id: rating-value, text: "4" }
-  - assert_text: { id: state-rating, text: "4" }
-  - assert_visible: { id: ctl-badge }
+  - tap: { id: "compose_rating_star:4" }
+  - assert_text: { id: rating_value, text: "4" }
+  - assert_text: { id: state_rating, text: "4" }
+  - assert_visible: { id: ctl_badge }
   - assert_visible: { id: gauge }
-  - assert_visible: { id: ctl-divider }
+  - assert_visible: { id: ctl_divider }
   # Two shots: the top of the page, then the pickers scrolled into view. Where the nav chrome
   # names the page there is no in-content title to scroll to, so the first button stands in.
-  - scroll_to: { id: controls-title, skip_on: [ios-uikit, android-mdc, harmony-arkui, windows-winui] }
-  - scroll_to: { id: btn-plain, only_on: [ios-uikit, android-mdc, harmony-arkui, windows-winui] }
+  - scroll_to: { id: controls_title, skip_on: [ios-uikit, android-mdc, harmony-arkui, windows-winui] }
+  - scroll_to: { id: btn_plain, only_on: [ios-uikit, android-mdc, harmony-arkui, windows-winui] }
   - screenshot:
       name: controls
       title: { en: "Controls", fr: "Contrôles", ar: "عناصر التحكّم", zh-CN: "控件" }
       source: src/pages/controls.rs
-  - scroll_to: { id: ctl-date }
+  - scroll_to: { id: ctl_date }
   - screenshot:
       name: controls-pickers
       title: { en: "Controls · pickers", fr: "Contrôles · sélecteurs", ar: "عناصر التحكّم · المنتقيات", zh-CN: "控件 · 选择器" }
@@ -165,26 +165,26 @@ flow:
   # at startup for these labels to realize.
   - navigate: { route: text }
   - assert_route: { route: text }
-  - assert_visible: { id: text-emphasis }
-  - assert_visible: { id: text-custom-28 }
-  - assert_visible: { id: text-font-pacifico }
-  - assert_visible: { id: text-font-bungee }
-  - assert_visible: { id: text-font-specialelite }
-  - assert_visible: { id: text-selectable }
+  - assert_visible: { id: text_emphasis }
+  - assert_visible: { id: text_custom_28 }
+  - assert_visible: { id: text_font_pacifico }
+  - assert_visible: { id: text_font_bungee }
+  - assert_visible: { id: text_font_specialelite }
+  - assert_visible: { id: text_selectable }
   # Styled runs (docs/text-runs.md): one label carrying bold/italic/code/strike/color spans. The
   # toggle below rebuilds it as a selectable backing, which on iOS is a different native class,
   # so the swap has to carry the attributed text across.
-  - assert_visible: { id: text-runs }
+  - assert_visible: { id: text_runs }
   # Markdown parsed at run time (docs/markdown.md): type into the editor, and the label under it
   # re-parses. Asserting its text proves the parse ran (the markers are gone from what the label
   # shows), and the second case proves unfinished markup stays literal instead of flickering.
-  - assert_visible: { id: text-md-output }
-  - input: { id: text-md-input, text: "**bold** and *italic* and `code` and [a link](https://daybrite.dev)" }
+  - assert_visible: { id: text_md_output }
+  - input: { id: text_md_input, text: "**bold** and *italic* and `code` and [a link](https://daybrite.dev)" }
   - wait_idle:
-  - assert_text: { id: text-md-output, text: "bold and italic and code and a link" }
-  - input: { id: text-md-input, text: "half **open and a \\*literal\\* star" }
+  - assert_text: { id: text_md_output, text: "bold and italic and code and a link" }
+  - input: { id: text_md_input, text: "half **open and a \\*literal\\* star" }
   - wait_idle:
-  - assert_text: { id: text-md-output, text: "half **open and a *literal* star" }
+  - assert_text: { id: text_md_output, text: "half **open and a *literal* star" }
   - screenshot:
       name: text
       title: { en: "Text", fr: "Texte", ar: "النص", zh-CN: "文字" }
@@ -192,59 +192,59 @@ flow:
   # The page-wide Selectable toggle (upper-right): every text piece rebuilds out of and back
   # into `.selectable()`; on iOS that swaps each label to a read-only text view and back
   # (docs/text.md), so both arms must realize cleanly on every backend.
-  - toggle: { id: text-selectable-toggle, value: false }
-  - assert_visible: { id: text-selectable }
-  - assert_visible: { id: text-font-pacifico }
-  - assert_visible: { id: text-runs }
-  - toggle: { id: text-selectable-toggle, value: true }
-  - assert_visible: { id: text-selectable }
-  - assert_visible: { id: text-runs }
+  - toggle: { id: text_selectable_toggle, value: false }
+  - assert_visible: { id: text_selectable }
+  - assert_visible: { id: text_font_pacifico }
+  - assert_visible: { id: text_runs }
+  - toggle: { id: text_selectable_toggle, value: true }
+  - assert_visible: { id: text_selectable }
+  - assert_visible: { id: text_runs }
 
   # Text fields (docs/textfield.md): secure entry, a length limit, read-only. The Show Password
   # switch flips `.secure(_)` on a live field. On AppKit and WinUI that rebuilds the widget as
   # its other native class, so typing after each flip proves the node follows the replacement.
   - navigate: { route: textfields }
   - assert_route: { route: textfields }
-  - assert_visible: { id: tf-password }
-  - input: { id: tf-password, text: "correct horse" }
-  - assert_text: { id: tf-password-length, text: "13" }
+  - assert_visible: { id: tf_password }
+  - input: { id: tf_password, text: "correct horse" }
+  - assert_text: { id: tf_password_length, text: "13" }
   # Six digits into a four-digit PIN: the bound value and the field both hold four.
-  - input: { id: tf-pin, text: "123456" }
-  - assert_text: { id: tf-pin-count, text: "4 / 4" }
-  - assert_text: { id: tf-pin, text: "1234" }
+  - input: { id: tf_pin, text: "123456" }
+  - assert_text: { id: tf_pin_count, text: "4 / 4" }
+  - assert_text: { id: tf_pin, text: "1234" }
   - screenshot:
       name: textfields
       title: { en: "Text fields", fr: "Champs de texte", ar: "حقول النص", zh-CN: "文本框" }
       source: src/pages/text_fields.rs
-  - toggle: { id: tf-show-password, value: true }
+  - toggle: { id: tf_show_password, value: true }
   - wait_idle:
-  - assert_text: { id: tf-password, text: "correct horse" }
-  - input: { id: tf-password, text: "correct horse battery" }
-  - assert_text: { id: tf-password-length, text: "21" }
+  - assert_text: { id: tf_password, text: "correct horse" }
+  - input: { id: tf_password, text: "correct horse battery" }
+  - assert_text: { id: tf_password_length, text: "21" }
   - screenshot:
       name: textfields-shown
       title: { en: "Password shown", fr: "Mot de passe affiché", ar: "كلمة المرور ظاهرة", zh-CN: "显示密码" }
       source: src/pages/text_fields.rs
-  - toggle: { id: tf-show-password, value: false }
+  - toggle: { id: tf_show_password, value: false }
   - wait_idle:
-  - input: { id: tf-password, text: "staple" }
-  - assert_text: { id: tf-password-length, text: "6" }
-  - input: { id: tf-limited, text: "abcdefghijklmnopqrstuvwxyz" }
-  - assert_text: { id: tf-limited-count, text: "12 / 12" }
+  - input: { id: tf_password, text: "staple" }
+  - assert_text: { id: tf_password_length, text: "6" }
+  - input: { id: tf_limited, text: "abcdefghijklmnopqrstuvwxyz" }
+  - assert_text: { id: tf_limited_count, text: "12 / 12" }
 
   # Text editing (docs/textarea.md): the native multi-line editor with editable/selectable/spell-check
   # attributes and per-toolkit capability-gated toggles. Seed the markdown sample for a stable shot.
   - navigate: { route: textareas }
   - assert_route: { route: textareas }
-  - assert_visible: { id: textareas-editor }
-  - tap: { id: ta-seed-markdown }
+  - assert_visible: { id: textareas_editor }
+  - tap: { id: ta_seed_markdown }
   - wait_idle:
 
   # The styled editor (docs/texteditor.md): the platform's rich-text view over the same
   # `StyledText` a label renders. Everything below is Day's state: the toolbar reads and
   # writes the bound document, so what it asserts is true on all nine targets.
-  - assert_visible: { id: styled-editor }
-  - assert_visible: { id: ed-inspector }
+  - assert_visible: { id: styled_editor }
+  - assert_visible: { id: ed_inspector }
   - screenshot:
       name: textareas
       title: { en: "Text editing", fr: "Édition de texte", ar: "تحرير النص", zh-CN: "文本编辑" }
@@ -253,44 +253,44 @@ flow:
   # element to apply attributes, so it has to put the selection back by offset, and when its two
   # offset directions disagreed, a bolded word came back shifted by one character per line above
   # it. The readout says which characters are selected, so this asserts it on every backend.
-  - tap: { id: ed-select-word }
+  - tap: { id: ed_select_word }
   - wait_idle:
-  - assert_text: { id: ed-selection-text, text: "The" }
-  - tap: { id: ed-bold }
+  - assert_text: { id: ed_selection_text, text: "The" }
+  - tap: { id: ed_bold }
   - wait_idle:
-  - assert_text: { id: ed-selection-text, text: "The" }
-  - tap: { id: ed-bold }
+  - assert_text: { id: ed_selection_text, text: "The" }
+  - tap: { id: ed_bold }
   - wait_idle:
 
   # Formatting with no selection sets the typing style, which is what the next character takes.
   # The inspector reads it back out of the document, so this drives the whole round trip.
-  - tap: { id: ed-bold }
+  - tap: { id: ed_bold }
   - wait_idle:
-  - tap: { id: ed-italic }
+  - tap: { id: ed_italic }
   - wait_idle:
   # The three documents. `Code` is the live-highlighting one: the page re-tokenizes on every
   # text change and pushes fresh runs, which patches attributes rather than replacing the
   # document, so the caret survives, and the editor keeps its content.
-  - select: { id: ed-document, index: 1 }
+  - select: { id: ed_document, index: 1 }
   - wait_idle:
-  - assert_value: { id: ed-document, value: 1 }
-  - assert_visible: { id: styled-editor }
+  - assert_value: { id: ed_document, value: 1 }
+  - assert_visible: { id: styled_editor }
   - screenshot:
       name: textareas-code
       title: { en: "Live syntax highlighting", fr: "Coloration syntaxique en direct", ar: "تلوين نحوي حي", zh-CN: "实时语法高亮" }
       source: src/pages/text_areas.rs
   # Export and read back. Every format is lossy in its own way (docs/texteditor.md); what this
   # pins is that the button produces text and the import parses it back into a document.
-  - tap: { id: ed-export-md }
+  - tap: { id: ed_export_md }
   - wait_idle:
-  - tap: { id: ed-import }
+  - tap: { id: ed_import }
   - wait_idle:
-  - assert_visible: { id: styled-editor }
-  - select: { id: ed-document, index: 0 }
+  - assert_visible: { id: styled_editor }
+  - select: { id: ed_document, index: 0 }
   - wait_idle:
-  - tap: { id: ed-export-html }
+  - tap: { id: ed_export_html }
   - wait_idle:
-  - assert_visible: { id: ed-export-out }
+  - assert_visible: { id: ed_export_out }
 
   # Date & time (docs/datepicker.md): native pickers bound two-way to civil date/time signals.
   # Every picker accepts a synthetic ISO `input:` on every backend, and the readouts are
@@ -299,19 +299,19 @@ flow:
   - memory_usage: # Checkpoint after the preceding group of screens.
   - navigate: { route: dates }
   - assert_route: { route: dates }
-  - input: { id: date-compact, text: "2026-11-05" }
-  - assert_text: { id: date-value, text: "2026-11-05" }
+  - input: { id: date_compact, text: "2026-11-05" }
+  - assert_text: { id: date_value, text: "2026-11-05" }
   # The inline calendar is bound to the same date signal; driving it moves the same readout.
-  - input: { id: date-inline, text: "2026-03-09" }
-  - assert_text: { id: date-value, text: "2026-03-09" }
+  - input: { id: date_inline, text: "2026-03-09" }
+  - assert_text: { id: date_value, text: "2026-03-09" }
   # Both time pickers share one signal; the seconds variant mirrors the compact one.
-  - input: { id: time-compact, text: "14:45" }
-  - assert_text: { id: time-value, text: "14:45" }
-  - input: { id: time-seconds, text: "14:45:30" }
-  - assert_text: { id: time-value, text: "14:45:30" }
+  - input: { id: time_compact, text: "14:45" }
+  - assert_text: { id: time_value, text: "14:45" }
+  - input: { id: time_seconds, text: "14:45:30" }
+  - assert_text: { id: time_value, text: "14:45:30" }
   # The bounded picker clamps every pick into 2026 (min/max, docs/datepicker.md).
-  - input: { id: date-bounded, text: "2027-06-15" }
-  - assert_text: { id: date-bounded-value, text: "2026-12-31" }
+  - input: { id: date_bounded, text: "2027-06-15" }
+  - assert_text: { id: date_bounded_value, text: "2026-12-31" }
   - screenshot:
       name: dates
       title: { en: "Date & time", fr: "Date et heure", ar: "التاريخ والوقت", zh-CN: "日期与时间" }
@@ -327,29 +327,29 @@ flow:
   # a freshly shown page an initial focus of its own (the first field, in the Arabic layout),
   # which made "next" land on Email there (linux-gtk light-ar and dark-ar in CI). Clear first,
   # so the cycle provably starts from nothing.
-  - tap: { id: focus-clear-button }
+  - tap: { id: focus_clear_button }
   - wait_idle:
-  - tap: { id: focus-next-button }
+  - tap: { id: focus_next_button }
   - wait_idle:
-  - assert_focused: { id: focus-name-field }
-  - assert_text: { id: focus-current, key: focus_name_label }
+  - assert_focused: { id: focus_name_field }
+  - assert_text: { id: focus_current, key: focus_name_label }
   # Script-driven duty: land focus directly on the email field. The readout following proves the
   # loss/gain pair moved the group signal without blipping through None.
-  - focus: { id: focus-email-field }
-  - assert_focused: { id: focus-email-field }
-  - assert_focused: { id: focus-name-field, focused: false }
-  - assert_text: { id: focus-current, key: focus_email_label }
+  - focus: { id: focus_email_field }
+  - assert_focused: { id: focus_email_field }
+  - assert_focused: { id: focus_name_field, focused: false }
+  - assert_text: { id: focus_current, key: focus_email_label }
   # Clear resigns: nobody holds focus and the readout empties.
-  - tap: { id: focus-clear-button }
-  - assert_focused: { id: focus-email-field, focused: false }
-  - assert_text: { id: focus-current, text: "—" }
+  - tap: { id: focus_clear_button }
+  - assert_focused: { id: focus_email_field, focused: false }
+  - assert_text: { id: focus_current, text: "—" }
   # Bool binding: buttons write the signal; the readout mirrors what the toolkit reports back.
-  - tap: { id: focus-bool-focus }
-  - assert_focused: { id: focus-bool-field }
-  - assert_text: { id: focus-bool-state, key: focus_state_on }
-  - tap: { id: focus-bool-blur }
-  - assert_focused: { id: focus-bool-field, focused: false }
-  - assert_text: { id: focus-bool-state, key: focus_state_off }
+  - tap: { id: focus_bool_focus }
+  - assert_focused: { id: focus_bool_field }
+  - assert_text: { id: focus_bool_state, key: focus_state_on }
+  - tap: { id: focus_bool_blur }
+  - assert_focused: { id: focus_bool_field, focused: false }
+  - assert_text: { id: focus_bool_state, key: focus_state_off }
   - screenshot:
       name: focus
       title: { en: "Focus", fr: "Focus", ar: "التركيز", zh-CN: "焦点" }
@@ -366,102 +366,102 @@ flow:
   - assert_route: { route: layout }
   # Alignment is a build-time property, so each pick rebuilds the swatch row through its own
   # `when` arm. Drive all three so every arm realizes on every backend, then back to Center.
-  - assert_visible: { id: layout-stack }
-  - select: { id: layout-align, index: 0 }
-  - assert_visible: { id: layout-stack }
-  - select: { id: layout-align, index: 2 }
-  - assert_visible: { id: layout-stack }
-  - select: { id: layout-align, index: 1 }
-  - assert_visible: { id: layout-stack }
-  - assert_visible: { id: layout-layers }
+  - assert_visible: { id: layout_stack }
+  - select: { id: layout_align, index: 0 }
+  - assert_visible: { id: layout_stack }
+  - select: { id: layout_align, index: 2 }
+  - assert_visible: { id: layout_stack }
+  - select: { id: layout_align, index: 1 }
+  - assert_visible: { id: layout_stack }
+  - assert_visible: { id: layout_layers }
   # Row fit policies (docs/size-classes.md "Row fit policies"): One row of numbered buttons
   # rebuilt under whichever policy the picker selects, with a stepper for the count. Drive
   # every policy so each arm realizes on every backend (the arms are `when`-gated rebuilds,
   # which is exactly what a build-time property needs), then screenshot the Wrap arm with
   # the count raised, the state where the policies visibly differ.
-  - assert_text: { id: layout-count, text: "5" }
-  - assert_visible: { id: layout-demo }
-  - tap: { id: layout-add, repeat: 3 }
-  - assert_text: { id: layout-count, text: "8" }
-  - select: { id: layout-fit, index: 1 }
-  - assert_visible: { id: layout-demo }
+  - assert_text: { id: layout_count, text: "5" }
+  - assert_visible: { id: layout_demo }
+  - tap: { id: layout_add, repeat: 3 }
+  - assert_text: { id: layout_count, text: "8" }
+  - select: { id: layout_fit, index: 1 }
+  - assert_visible: { id: layout_demo }
   - screenshot:
       name: layout
       title: { en: "Layout", fr: "Disposition", ar: "التخطيط", zh-CN: "布局" }
       caption: { en: "One row under each fit policy.", fr: "Une même rangée selon chaque politique d'ajustement.", ar: "صف واحد وفق كل سياسة ملاءمة.", zh-CN: "同一行在各种适配策略下的表现。" }
       source: src/pages/layout.rs
   # The same eight buttons one policy over: Wrap's ragged lines become aligned columns.
-  - select: { id: layout-fit, index: 2 }
-  - assert_visible: { id: layout-demo }
-  - select: { id: layout-fit, index: 3 }
-  - assert_visible: { id: layout-demo }
-  - select: { id: layout-fit, index: 4 }
-  - assert_visible: { id: layout-demo }
+  - select: { id: layout_fit, index: 2 }
+  - assert_visible: { id: layout_demo }
+  - select: { id: layout_fit, index: 3 }
+  - assert_visible: { id: layout_demo }
+  - select: { id: layout_fit, index: 4 }
+  - assert_visible: { id: layout_demo }
   # Back to the defaults, so the page reads pristine if a later variant revisits it.
-  - select: { id: layout-fit, index: 0 }
-  - assert_visible: { id: layout-demo }
-  - tap: { id: layout-remove, repeat: 3 }
-  - assert_text: { id: layout-count, text: "5" }
+  - select: { id: layout_fit, index: 0 }
+  - assert_visible: { id: layout_demo }
+  - tap: { id: layout_remove, repeat: 3 }
+  - assert_text: { id: layout_count, text: "5" }
   # Cards & environment (the composition tier): the Card modifier as one reusable surface, and
   # an ambient value flowed through with_environment and read back by a descendant.
-  - assert_visible: { id: layout-card }
-  - assert_text: { id: compose-env-value, key: compose_env_value }
+  - assert_visible: { id: layout_card }
+  - assert_text: { id: compose_env_value, key: compose_env_value }
   # The dayscript scroll_to step on a plain `scroll` piece: reveal an element, jump edges,
   # pin an offset (docs/scroll.md; unanimated, so each following step sees the settled offset).
   # The two buttons write the same ScrollTarget the step drives.
-  - assert_visible: { id: layout-scroll }
-  - scroll_to: { id: "layout-row:1" }
-  - scroll_to: { id: layout-scroll, edge: bottom }
-  - scroll_to: { id: layout-scroll, x: 0, y: 100 }
-  - scroll_to: { id: layout-scroll, edge: top }
-  - tap: { id: layout-scroll-end }
+  - assert_visible: { id: layout_scroll }
+  - scroll_to: { id: "layout_row:1" }
+  - scroll_to: { id: layout_scroll, edge: bottom }
+  - scroll_to: { id: layout_scroll, x: 0, y: 100 }
+  - scroll_to: { id: layout_scroll, edge: top }
+  - tap: { id: layout_scroll_end }
   - wait_idle:
-  - assert_visible: { id: "layout-row:30" }
-  - tap: { id: layout-scroll-top }
+  - assert_visible: { id: "layout_row:30" }
+  - tap: { id: layout_scroll_top }
   - wait_idle:
-  - assert_visible: { id: "layout-row:1" }
+  - assert_visible: { id: "layout_row:1" }
   # Size classes (docs/size-classes.md): tracked reads of the window's class. The values differ
   # per target and window, so presence only.
-  - assert_visible: { id: layout-size-width }
-  - assert_visible: { id: layout-size-height }
+  - assert_visible: { id: layout_size_width }
+  - assert_visible: { id: layout_size_height }
 
   # Split (docs/split.md): two panes and a divider, the toolkit's own splitter where it has one
   # (`Cap::Split`), Day's drawn divider elsewhere. The form and the canvas read the same signals,
   # and the share slider and the divider write the same one.
   - navigate: { route: split }
   - assert_route: { route: split }
-  - assert_visible: { id: split-demo }
-  - assert_text: { id: split-support, key: split_native, only_on: [appkit, gtk, qt] }
-  - assert_text: { id: split-support, key: split_composed, only_on: [uikit, mdc, arkui, dom, xaml] }
-  - set_value: { id: split-count, value: 7 }
-  - set_value: { id: split-radius, value: 36 }
-  - assert_text: { id: split-readout, key: split_readout, args: { count: 7, radius: 36 } }
-  - toggle: { id: split-filled, value: true }
-  - select: { id: split-shape, index: 2 }
-  - input: { id: split-caption, text: "Seven" }
-  - set_value: { id: split-share, value: 0.4 }
-  - assert_text: { id: split-share-value, text: "40%" }
-  - assert_visible: { id: split-canvas }
+  - assert_visible: { id: split_demo }
+  - assert_text: { id: split_support, key: split_native, only_on: [appkit, gtk, qt] }
+  - assert_text: { id: split_support, key: split_composed, only_on: [uikit, mdc, arkui, dom, xaml] }
+  - set_value: { id: split_count, value: 7 }
+  - set_value: { id: split_radius, value: 36 }
+  - assert_text: { id: split_readout, key: split_readout, args: { count: 7, radius: 36 } }
+  - toggle: { id: split_filled, value: true }
+  - select: { id: split_shape, index: 2 }
+  - input: { id: split_caption, text: "Seven" }
+  - set_value: { id: split_share, value: 0.4 }
+  - assert_text: { id: split_share_value, text: "40%" }
+  - assert_visible: { id: split_canvas }
   - screenshot:
       name: split
       title: { en: "Split", fr: "Partage", ar: "التقسيم", zh-CN: "分割" }
       caption: { en: "A form and the drawing it describes, either side of a divider.", fr: "Un formulaire et le dessin qu'il décrit, de part et d'autre d'un séparateur.", ar: "نموذج والرسم الذي يصفه على جانبي فاصل.", zh-CN: "分隔线两侧：表单与它描述的绘图。" }
       source: src/pages/split.rs
   # The same split turned live: the response pane goes under the form and back.
-  - toggle: { id: split-stacked, value: true }
+  - toggle: { id: split_stacked, value: true }
   - wait_idle:
-  - assert_visible: { id: split-canvas }
+  - assert_visible: { id: split_canvas }
   # Stacked under the divider the form is shorter than its pane allows, so it scrolls.
-  - scroll_to: { id: split-form, edge: bottom }
-  - assert_visible: { id: split-shape }
-  - scroll_to: { id: split-form, edge: top }
+  - scroll_to: { id: split_form, edge: bottom }
+  - assert_visible: { id: split_shape }
+  - scroll_to: { id: split_form, edge: top }
   - screenshot:
       name: split-stacked
       title: { en: "Split, stacked", fr: "Partage empilé", ar: "التقسيم المتراكب", zh-CN: "上下分割" }
       source: src/pages/split.rs
-  - toggle: { id: split-stacked, value: false }
+  - toggle: { id: split_stacked, value: false }
   - wait_idle:
-  - assert_visible: { id: split-canvas }
+  - assert_visible: { id: split_canvas }
 
   # Grid (docs/grid.md): columns sized by content, spans, and flexible cells. Desktop hosts the
   # sub-pages as tabs (basics preselected), mobile as a menu of pushed pages; grid behavior
@@ -477,7 +477,7 @@ flow:
   # stack (a stack claims only "", docs/navigation.md), so the path form is the portable one.
   - navigate: { route: grid/spanning }
   - assert_route: { route: grid/spanning }
-  - wait_for: { id: grid-spanning }
+  - wait_for: { id: grid_spanning }
   # Let the mobile push transition settle so the capture has no mid-animation sliver.
   - pause: { secs: 0.5, animation: true }
   - screenshot:
@@ -492,16 +492,16 @@ flow:
   # Push/pop stack (docs/navigation.md): tapping pushes onto the path signal; the
   # native back button writes the pop back into it. current_route reports the stack's top.
   - navigate: { route: stack }
-  - assert_visible: { id: stack-root }
-  - tap: { id: stack-push }
-  - assert_visible: { id: stack-detail }
+  - assert_visible: { id: stack_root }
+  - tap: { id: stack_push }
+  - assert_visible: { id: stack_detail }
   # assert_route sees the full path: nav host key + the stack's segments (docs/navigation.md).
   - assert_route: { route: stack/1 }
   - screenshot:
       name: stack-detail
       title: { en: "Stack", fr: "Pile", ar: "المكدّس", zh-CN: "堆栈" }
       source: src/pages/stack.rs
-  - tap: { id: stack-deeper }
+  - tap: { id: stack_deeper }
   - assert_route: { route: stack/1/2 }
   # The platform's back (the bar's button on iOS, the system back on Android) rather than
   # Day's rail: it runs the backend's user-back path (shouldPop, the pop, the report to Day),
@@ -515,16 +515,16 @@ flow:
   - assert_route: { route: stack }
   # Absolute route with params: anchors the nav host, resets the stack, pushes the segment;
   # the destination reads ?hint= via route_param.
-  - tap: { id: stack-link }
+  - tap: { id: stack_link }
   - assert_route: { route: stack/item-42 }
-  - assert_text: { id: stack-param, key: stack_param_hint, args: { hint: "linked" } }
+  - assert_text: { id: stack_param, key: stack_param_hint, args: { hint: "linked" } }
   - nav_back:
   - assert_route: { route: stack }
   # Back interception (docs/navigation.md): push a detail, mark it dirty, then a back is
   # intercepted by on_back and a confirm dialog appears; "cancel" keeps the page, "discard" pops.
-  - tap: { id: stack-push }
+  - tap: { id: stack_push }
   - assert_route: { route: stack/1 }
-  - toggle: { id: stack-dirty, value: true }
+  - toggle: { id: stack_dirty, value: true }
   - nav_back:
   - assert_presented: {}
   # Respond "cancel" (button 0): the guard consumed the back, so we stay on the detail.
@@ -538,43 +538,43 @@ flow:
   # The same guard through the platform's back: on iOS the bar's shouldPop vetoes the pop and
   # hands it to Day, on Android the dispatcher's guard callback does; both must raise the
   # confirm, and "discard" must then pop through Day's rail.
-  - tap: { id: stack-push, only_on: [uikit, mdc] }
+  - tap: { id: stack_push, only_on: [uikit, mdc] }
   - assert_route: { route: stack/1, only_on: [uikit, mdc] }
-  - toggle: { id: stack-dirty, value: true, only_on: [uikit, mdc] }
+  - toggle: { id: stack_dirty, value: true, only_on: [uikit, mdc] }
   - nav_back: { native: true, only_on: [uikit, mdc] }
   - assert_presented: { only_on: [uikit, mdc] }
   - respond: { button: 1, only_on: [uikit, mdc] }
   - assert_route: { route: stack, only_on: [uikit, mdc] }
   # Fullscreen cover (docs/cover.md): native modal on iOS/Android, topmost child elsewhere.
   # Every backend presents it now, so these steps run everywhere.
-  - tap: { id: cover-present }
-  - assert_visible: { id: cover-title }
+  - tap: { id: cover_present }
+  - assert_visible: { id: cover_title }
   - screenshot:
       name: cover
       title: { en: "Stack · fullscreen cover", fr: "Pile · couverture plein écran", ar: "المكدّس · غطاء ملء الشاشة", zh-CN: "堆栈 · 全屏覆盖层" }
       source: src/pages/stack.rs
-  - tap: { id: cover-dismiss }
-  - assert_visible: { id: stack-root }
+  - tap: { id: cover_dismiss }
+  - assert_visible: { id: stack_root }
   # Half sheet (docs/cover.md "Half sheet"): the bottom half, the page on show beneath. The
   # slider in the sheet drives the readout on the page.
-  - tap: { id: half-present }
-  - assert_visible: { id: half-title }
-  - set_value: { id: half-level, value: 75 }
-  - assert_text: { id: half-readout, key: half_readout, args: { level: 75 } }
+  - tap: { id: half_present }
+  - assert_visible: { id: half_title }
+  - set_value: { id: half_level, value: 75 }
+  - assert_text: { id: half_readout, key: half_readout, args: { level: 75 } }
   - screenshot:
       name: half-sheet
       title: { en: "Stack · half sheet", fr: "Pile · demi-feuille", ar: "المكدّس · نصف ورقة", zh-CN: "堆栈 · 半高面板" }
       source: src/pages/stack.rs
-  - tap: { id: half-dismiss }
-  - assert_visible: { id: stack-root }
+  - tap: { id: half_dismiss }
+  - assert_visible: { id: stack_root }
 
   # Native tabs (docs/tabs.md): a nav(Tabs) bound to a signal. Tab keys are routes, so
   # navigate/assert_route select the active tab; the inner nav host reports the innermost route.
   - navigate: { route: tabs }
   # Full-tree routes (docs/navigation.md): the nav host key + the tab key.
   - assert_route: { route: tabs/one }
-  - assert_visible: { id: tab-one-content }
-  - assert_value: { id: demo-tabs, value: 0 }
+  - assert_visible: { id: tab_one_content }
+  - assert_value: { id: demo_tabs, value: 0 }
   # Let the mobile push transition settle so the capture has no mid-animation sliver.
   - pause: { secs: 0.5, animation: true }
   - screenshot:
@@ -583,27 +583,27 @@ flow:
       source: src/pages/tabs.rs
   - navigate: { route: two }
   - assert_route: { route: tabs/two }
-  - assert_value: { id: demo-tabs, value: 1 }
+  - assert_value: { id: demo_tabs, value: 1 }
   # Data-driven tabs (docs/navigation.md), nested inside the Details tab, two tab views deep:
   # Add grows the inner native tab strip, Remove shrinks it.
-  - assert_visible: { id: dyn-tabs-title }
-  - assert_visible: { id: dyn-tab-add }
-  - assert_visible: { id: dyn-tab-remove }
-  - tap: { id: dyn-tab-add }
-  - tap: { id: dyn-tab-remove }
+  - assert_visible: { id: dyn_tabs_title }
+  - assert_visible: { id: dyn_tab_add }
+  - assert_visible: { id: dyn_tab_remove }
+  - tap: { id: dyn_tab_add }
+  - tap: { id: dyn_tab_remove }
   - screenshot:
       name: tabs-two
       title: { en: "Dynamic tabs", fr: "Onglets dynamiques", ar: "علامات تبويب ديناميكية", zh-CN: "动态标签页" }
       source: src/pages/tabs.rs
   - navigate: { route: three }
   - assert_route: { route: tabs/three }
-  - assert_value: { id: demo-tabs, value: 2 }
+  - assert_value: { id: demo_tabs, value: 2 }
   # Returning to a resident page must retain usable native control measurements.
   - navigate: { route: two }
   - assert_route: { route: tabs/two }
-  - assert_value: { id: demo-tabs, value: 1 }
-  - tap: { id: dyn-tab-add }
-  - tap: { id: dyn-tab-remove }
+  - assert_value: { id: demo_tabs, value: 1 }
+  - tap: { id: dyn_tab_add }
+  - tap: { id: dyn_tab_remove }
 
   # Menus & dialogs (docs/menus.md, docs/dialogs.md): the transient native surfaces in one
   # page, namely the app-menu action readout, the context-menu target, and the imperative
@@ -611,28 +611,28 @@ flow:
   # result.
   - navigate: { route: menus }
   - assert_route: { route: menus }
-  - assert_visible: { id: menus-last }
-  - assert_visible: { id: menus-context-target }
+  - assert_visible: { id: menus_last }
+  - assert_visible: { id: menus_context_target }
   - screenshot:
       name: menus
       title: { en: "Menus & dialogs", fr: "Menus et dialogues", ar: "القوائم والحوارات", zh-CN: "菜单与对话框" }
       source: src/pages/menus.rs
-  - tap: { id: btn-confirm }
+  - tap: { id: btn_confirm }
   - assert_presented: {}
   - respond: { button: 1 }
-  - assert_text: { id: modal-result, text: "confirm-yes" }
-  - tap: { id: btn-delete }
+  - assert_text: { id: modal_result, text: "confirm-yes" }
+  - tap: { id: btn_delete }
   - assert_presented: {}
   - respond: { button: 1 }
-  - assert_text: { id: modal-result, text: "delete-yes" }
-  - tap: { id: btn-prompt }
+  - assert_text: { id: modal_result, text: "delete-yes" }
+  - tap: { id: btn_prompt }
   - assert_presented: {}
   - respond: { text: "Ada" }
-  - assert_text: { id: modal-result, text: "prompt-Ada" }
-  - tap: { id: btn-sheet }
+  - assert_text: { id: modal_result, text: "prompt-Ada" }
+  - tap: { id: btn_sheet }
   - assert_presented: {}
   - respond: { button: 1 }
-  - assert_text: { id: modal-result, text: "sheet-1" }
+  - assert_text: { id: modal_result, text: "sheet-1" }
   - assert_not_presented:
   # The `menu:` step drives an app-menu action by localized key, toolkit-uniform
   # (docs/menus.md), with no native menu automation involved.
@@ -645,7 +645,7 @@ flow:
   # Cap::Appearance-gated and asserted in the desktop windows script instead.
   - navigate: { route: settings }
   - navigate: { route: settings/general, only_on: [uikit, mdc, arkui, dom] }
-  - wait_for: { id: language-picker }
+  - wait_for: { id: language_picker }
   - screenshot:
       name: preferences
       window: day.preferences
@@ -662,8 +662,8 @@ flow:
   # route selects the window's tab on a desktop and pushes the page on a phone. Close runs the
   # async confirm → teardown path where the surface is a window.
   - navigate: { route: settings/diagnostics }
-  - wait_for: { id: about-toolkit }
-  - assert_visible: { id: about-lifecycle }
+  - wait_for: { id: about_toolkit }
+  - assert_visible: { id: about_lifecycle }
   - screenshot: { name: diagnostics, window: day.preferences, skip_on: [uikit, mdc, arkui, dom] }
   - screenshot: { name: diagnostics, only_on: [uikit, mdc, arkui, dom] }
   # web-dom presents the settings surface as a cover window (docs/settings.md, the emulated
@@ -683,7 +683,7 @@ flow:
   # appearance and star steps; the recorder steps below stay off it. iOS and
   # Android dock the bar under the navigation controller's pages (2026-09, docs/toolbars.md) and
   # web-dom draws an emulated strip; the finer per-step skips below say which items each of them
-  # can drive; search rides the navigation list on a phone, so the `day.search` item never
+  # can drive; search rides the navigation list on a phone, so the `day::search` item never
   # reaches a phone's bar.
   - navigate: { route: toolbars }
   - assert_route: { route: toolbars }
@@ -701,23 +701,23 @@ flow:
   # day-android does not yet survive a second nativeStart in one process (DayActivity.java): the
   # sidebar mounts twice and every navigation after it is ambiguous. The CI variants cover dark
   # mode on Android by launching with DAY_THEME set instead.
-  - toolbar: { item: tb-theme, index: 2, skip_on: [mdc, dom, qt] }
+  - toolbar: { item: tb_theme, index: 2, skip_on: [mdc, dom, qt] }
   - wait_idle:
-  - assert_text: { id: toolbar-appearance, key: cmd_appearance_dark, skip_on: [mdc, dom, qt] }
-  - toolbar: { item: tb-theme, index: 1, skip_on: [mdc, dom, qt] }
+  - assert_text: { id: toolbar_appearance, key: cmd_appearance_dark, skip_on: [mdc, dom, qt] }
+  - toolbar: { item: tb_theme, index: 1, skip_on: [mdc, dom, qt] }
   - wait_idle:
-  - assert_text: { id: toolbar-appearance, key: cmd_appearance_system, skip_on: [mdc, dom, qt] }
+  - assert_text: { id: toolbar_appearance, key: cmd_appearance_system, skip_on: [mdc, dom, qt] }
   # The recorder's transport (docs/agent.md), driven from the Script menu it lives in: it acts on
   # the app's recording rather than on any page, so it earns no room on a page's bar. Record two
   # taps that stay on this page (a replay that navigated away would take the readout with it),
   # then stop, play, pause, resume. `tb-new` is not exercised: it opens a second window, whose
   # chrome would then sit behind every later screenshot in the run.
-  - assert_text: { id: toolbar-transport, key: toolbar_transport_idle, skip_on: [harmony-arkui, web-dom] }
+  - assert_text: { id: toolbar_transport, key: toolbar_transport_idle, skip_on: [harmony-arkui, web-dom] }
   - menu: { key: cmd_record, path: [menu_script], skip_on: [harmony-arkui, web-dom] }
   - wait_idle:
-  - assert_text: { id: toolbar-transport, key: toolbar_transport_recording, skip_on: [harmony-arkui, web-dom] }
-  - tap: { id: toolbar-seed-search, skip_on: [harmony-arkui, web-dom] }
-  - tap: { id: toolbar-clear-search, skip_on: [harmony-arkui, web-dom] }
+  - assert_text: { id: toolbar_transport, key: toolbar_transport_recording, skip_on: [harmony-arkui, web-dom] }
+  - tap: { id: toolbar_seed_search, skip_on: [harmony-arkui, web-dom] }
+  - tap: { id: toolbar_clear_search, skip_on: [harmony-arkui, web-dom] }
   - menu: { key: cmd_stop_recording, path: [menu_script], skip_on: [harmony-arkui, web-dom] }
   - wait_idle:
   # Stopping jumps to Scripting (commands.rs): the script you just recorded is on that page, and
@@ -727,20 +727,20 @@ flow:
   # Two taps have only ONE inter-step delay. At the default 0.25 s, playback can finish
   # between the Playing assertion and Pause on a loaded runner (android-mdc, light-en).
   # Give the transport commands headroom through the real setting, then restore it below.
-  - input: { id: scripting-delay, text: "5", skip_on: [harmony-arkui, web-dom] }
+  - input: { id: scripting_delay, text: "5", skip_on: [harmony-arkui, web-dom] }
   - wait_idle:
   # Back to the bar for the rest of this section. The transport readout and the two taps the
   # replay below re-dispatches all live on the Toolbars page, so the playback has to run there.
   - navigate: { route: toolbars, skip_on: [harmony-arkui, web-dom] }
   - wait_idle:
-  - assert_text: { id: toolbar-transport, key: toolbar_transport_idle, skip_on: [harmony-arkui, web-dom] }
+  - assert_text: { id: toolbar_transport, key: toolbar_transport_idle, skip_on: [harmony-arkui, web-dom] }
   # Play ↔ Pause ↔ Resume on one item: the title and icon follow the run.
   - menu: { key: cmd_play, path: [menu_script], skip_on: [harmony-arkui, web-dom] }
   - wait_idle:
-  - assert_text: { id: toolbar-transport, key: toolbar_transport_playing, skip_on: [harmony-arkui, web-dom] }
+  - assert_text: { id: toolbar_transport, key: toolbar_transport_playing, skip_on: [harmony-arkui, web-dom] }
   - menu: { key: cmd_pause, path: [menu_script], skip_on: [harmony-arkui, web-dom] }
   - wait_idle:
-  - assert_text: { id: toolbar-transport, key: toolbar_transport_paused, skip_on: [harmony-arkui, web-dom] }
+  - assert_text: { id: toolbar_transport, key: toolbar_transport_paused, skip_on: [harmony-arkui, web-dom] }
   # Resume can dispatch the final tap immediately if the inter-step delay elapsed while paused.
   # Reaching Idle from Paused proves resume ran without racing a transient Playing readout.
   - menu: { key: cmd_resume, path: [menu_script], skip_on: [harmony-arkui, web-dom] }
@@ -751,38 +751,38 @@ flow:
   # `toolbar-query` on macos-appkit and stomped `toolbar-last` on gtk/qt in CI. `wait_idle` cannot
   # cover it: that flushes the reactive drain, while the replay is a timed sequence still to come.
   # This assert is retryable, so it polls until `playing_signal` clears and costs nothing after.
-  - assert_text: { id: toolbar-transport, key: toolbar_transport_idle, timeout_secs: 15, skip_on: [harmony-arkui, web-dom] }
+  - assert_text: { id: toolbar_transport, key: toolbar_transport_idle, timeout_secs: 15, skip_on: [harmony-arkui, web-dom] }
   - navigate: { route: scripting, skip_on: [harmony-arkui, web-dom] }
-  - input: { id: scripting-delay, text: "0.25", skip_on: [harmony-arkui, web-dom] }
+  - input: { id: scripting_delay, text: "0.25", skip_on: [harmony-arkui, web-dom] }
   - wait_idle:
   - navigate: { route: toolbars, skip_on: [harmony-arkui, web-dom] }
   - wait_idle:
   # `key:`, not a literal: the search field filters the sidebar on localized titles, so an English
   # query drops every row under `--locale fr` (and with them this very page). Typing a title matches
   # itself: a query is compared against each word start, and the start at 0 is the whole title.
-  - toolbar: { item: day.search, key: nav_toolbars, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - toolbar: { item: day::search, key: nav_toolbars, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   # The star is the shared Star command (src/commands.rs), not a demo toggle: it stars whichever
   # page is showing (here, Toolbars), and the page's readout mirrors its state.
-  - toolbar: { item: tb-star, on: true }
+  - toolbar: { item: tb_star, on: true }
   - wait_idle:
-  - assert_text: { id: toolbar-query, key: nav_toolbars, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
-  - assert_text: { id: toolbar-star-state, key: toolbar_on }
+  - assert_text: { id: toolbar_query, key: nav_toolbars, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - assert_text: { id: toolbar_star_state, key: toolbar_on }
   # One command, four surfaces (docs/menus.md, docs/toolbars.md): the App menu's item carries the
   # state in its title, so with this page starred it must now read "Unstar". Invoking it unstars,
   # and the toolbar's readout follows without the two knowing about each other. `key:` rather
   # than a literal so the step survives the localized runs.
   - menu: { key: cmd_unstar, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - wait_idle:
-  - assert_text: { id: toolbar-star-state, key: toolbar_off, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - assert_text: { id: toolbar_star_state, key: toolbar_off, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   # …and back, from the menu this time, leaving the page starred for the screenshot below.
   - menu: { key: cmd_star, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - wait_idle:
-  - assert_text: { id: toolbar-star-state, key: toolbar_on, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - assert_text: { id: toolbar_star_state, key: toolbar_on, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   # Screenshot (docs/window-image.md), from the View menu: the command captures the window
   # in-process first and only opens the save picker once it has bytes, so the picker appearing at
   # all is what proves the capture worked; a failed capture returns early and presents nothing.
   # Dismissed rather than saved: where the shot lands is the user's business, not a walkthrough's.
-  - menu: { id: cmd-screenshot, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - menu: { id: cmd_screenshot, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - assert_presented: { skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - respond: { dismiss: true, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   # Adding an item is just a different list: tick the switch, then the new item is drivable,
@@ -795,28 +795,28 @@ flow:
   # ("headless Linux has no system clipboard"), which is why the strict assertion lives in
   # dayscript/clipboard-roundtrip.yaml, gated to macOS + Android. Asserting it here made linux-gtk
   # and linux-qt fail on a capability the step is not about.
-  - toggle: { id: toolbar-extra-switch, value: true, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - toggle: { id: toolbar_extra_switch, value: true, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - wait_idle:
-  - toolbar: { item: tb-extra, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - toolbar: { item: tb_extra, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   # Disabling one item patches only that item; `toolbar:` refuses a disabled command.
-  - toggle: { id: toolbar-enabled-switch, value: false, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - toggle: { id: toolbar_enabled_switch, value: false, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - wait_idle:
-  - tap: { id: toolbar-clear-search, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - tap: { id: toolbar_clear_search, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - wait_idle:
-  - assert_text: { id: toolbar-query, key: toolbar_query_empty, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - assert_text: { id: toolbar_query, key: toolbar_query_empty, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   # The search field also filters the sidebar by localized word-prefix (docs/localization.md
   # "Searching"). Navigating while filtered proves the row set and the selection can change
   # together without stranding the detail pane, the bug the nav derive effect now closes. The
   # query is the Stack destination's own localized title, so the row it navigates to is in the
   # filtered set in every locale; the word-prefix behaviour itself is pinned by day-l10n's tests.
-  - toolbar: { item: day.search, key: nav_stack, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - toolbar: { item: day::search, key: nav_stack, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - wait_idle:
   - navigate: { route: stack, skip_on: [ios-uikit, android-mdc, harmony-arkui] }
   - assert_route: { route: stack, skip_on: [ios-uikit, android-mdc, harmony-arkui] }
-  - assert_visible: { id: stack-root, skip_on: [ios-uikit, android-mdc, harmony-arkui] }
+  - assert_visible: { id: stack_root, skip_on: [ios-uikit, android-mdc, harmony-arkui] }
   # A visual record only (untitled): the page's gallery row is the `toolbars` shot below.
   # Clearing the query restores every row, and the page opened while filtered is still there.
-  - toolbar: { item: day.search, text: "", skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - toolbar: { item: day::search, text: "", skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - wait_idle:
   - assert_route: { route: stack, skip_on: [ios-uikit, android-mdc, harmony-arkui] }
   - navigate: { route: toolbars, skip_on: [ios-uikit, android-mdc, harmony-arkui] }
@@ -828,7 +828,7 @@ flow:
   # A checked menu item, addressed by the app's id (docs/menus.md). Two things are being
   # shown at once. The item carries `.checked`, so the platform draws its real check mark and the
   # mark moves only because `app_menu_reactive` re-lowers the bar; no backend flips it. And the
-  # step names `id: cmd-pseudo-locale` rather than a label: this item's title is localized, and
+  # step names `id: cmd_pseudo_locale` rather than a label: this item's title is localized, and
   # the appearance trio beside it rewrites nothing but its mark, so an id is the only address that
   # holds across all four language runs.
   #
@@ -837,15 +837,15 @@ flow:
   # run stays in the run's locale. It runs after the sidebar search above is cleared: the filter
   # is a word-prefix match against the rows' live titles, and a query typed in the run's locale
   # matches nothing once every title is accented, and the filtered-out page would unmount.
-  - menu: { id: cmd-pseudo-locale, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - menu: { id: cmd_pseudo_locale, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - wait_idle:
   # The key resolves in the locale now in force (the pseudo one), so the label must have
   # re-rendered under it to match.
-  - assert_text: { id: toolbar-star-state, key: toolbar_on, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - assert_text: { id: toolbar_star_state, key: toolbar_on, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - screenshot: { name: toolbars-pseudo-locale, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
-  - menu: { id: cmd-pseudo-locale, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - menu: { id: cmd_pseudo_locale, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   - wait_idle:
-  - assert_text: { id: toolbar-star-state, key: toolbar_on, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - assert_text: { id: toolbar_star_state, key: toolbar_on, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
   # Unstar now that the shot has it. The starred set is written through to prefs
   # (`showcase.starred`, src/commands.rs), so a run that ends starred is a run that changed the
   # machine: the next launch opens with Toolbars sorted to the top of the sidebar, and every
@@ -854,9 +854,9 @@ flow:
   # src/pages/toolbars.rs), so it restores whether or not the page is currently starred, and it
   # completes the surface matrix: starred from the toolbar, unstarred and restarred from the menu,
   # unstarred from the toolbar.
-  - toolbar: { item: tb-star, on: false }
+  - toolbar: { item: tb_star, on: false }
   - wait_idle:
-  - assert_text: { id: toolbar-star-state, key: toolbar_off }
+  - assert_text: { id: toolbar_star_state, key: toolbar_off }
 
   # The Content List page (src/pages/content_list): the `day new` scaffold's list and
   # editor, as the host's content-list pane (docs/navigation.md), a third column on a desktop or
@@ -865,15 +865,15 @@ flow:
   - memory_usage: # Checkpoint after the preceding group of screens.
   - navigate: { route: content-list }
   - assert_route: { route: content-list }
-  - wait_for: { id: item-list }
+  - wait_for: { id: item_list }
   # The pane's Add opens a new row for editing straight away: beside the list on a desktop,
   # pushed over it on a phone. The list starts empty, so this is also what fills it.
-  - toolbar: { item: tb-add }
-  - wait_for: { id: field-name }
-  - input: { id: field-name, text: "Written by the walkthrough" }
-  - assert_text: { id: field-name, text: "Written by the walkthrough" }
-  - toggle: { id: field-done, value: true }
-  - assert_value: { id: field-done, value: true }
+  - toolbar: { item: tb_add }
+  - wait_for: { id: field_name }
+  - input: { id: field_name, text: "Written by the walkthrough" }
+  - assert_text: { id: field_name, text: "Written by the walkthrough" }
+  - toggle: { id: field_done, value: true }
+  - assert_value: { id: field_done, value: true }
   - screenshot:
       name: content-list
       title: { en: "Content list", fr: "Liste de contenu", ar: "قائمة المحتوى", zh-CN: "内容列表" }
@@ -882,9 +882,9 @@ flow:
   # The editor's Delete removes the item this run created, so the saved list is left as it was
   # found and the next variant starts from the same place. Deleting the open item closes its
   # editor: a phone pops back to the list, and a wide window empties the pane beside it.
-  - toolbar: { item: tb-delete }
-  - wait_for: { id: item-list }
-  - assert_missing: { id: field-name }
+  - toolbar: { item: tb_delete }
+  - wait_for: { id: item_list }
+  - assert_missing: { id: field_name }
   - assert_route: { route: content-list }
 
 
@@ -899,77 +899,77 @@ flow:
   - assert_route: { route: list }
   # The tier line (docs/pullrefresh.md) says whether the pull is native or emulated here; it
   # differs per backend, so presence only.
-  - assert_visible: { id: list-tier }
+  - assert_visible: { id: list_tier }
   # Selection (docs/list.md): the synthetic select drives the same rail as a native tap;
   # the app signal echoes it back into the native list, so the screenshot shows the
   # highlighted row. Row index 1 = row number 2. Clear syncs an empty selection natively.
-  - assert_text: { id: list-selection, key: list_selection_none }
-  - assert_text: { id: list-activated, key: list_activated, args: { row: 0 } }
-  - select: { id: demo-list, index: 1 }
-  - assert_text: { id: list-selection, key: list_selection, args: { count: 1, rows: "2" } }
-  - assert_text: { id: list-activated, key: list_activated, args: { row: 0 } }
-  - activate: { id: demo-list, index: 3 }
-  - assert_text: { id: list-activated, key: list_activated, args: { row: 4 } }
-  - assert_text: { id: list-selection, key: list_selection, args: { count: 1, rows: "2" } }
+  - assert_text: { id: list_selection, key: list_selection_none }
+  - assert_text: { id: list_activated, key: list_activated, args: { row: 0 } }
+  - select: { id: demo_list, index: 1 }
+  - assert_text: { id: list_selection, key: list_selection, args: { count: 1, rows: "2" } }
+  - assert_text: { id: list_activated, key: list_activated, args: { row: 0 } }
+  - activate: { id: demo_list, index: 3 }
+  - assert_text: { id: list_activated, key: list_activated, args: { row: 4 } }
+  - assert_text: { id: list_selection, key: list_selection, args: { count: 1, rows: "2" } }
   - screenshot:
       name: list
       title: { en: "List", fr: "Liste", ar: "القائمة", zh-CN: "列表" }
       source: src/pages/list.rs
-  - tap: { id: list-clear }
-  - assert_text: { id: list-selection, key: list_selection_none }
-  - assert_text: { id: list-caption, key: list_caption, args: { count: 500 } }
-  - toggle: { id: list-refresh, value: true }
+  - tap: { id: list_clear }
+  - assert_text: { id: list_selection, key: list_selection_none }
+  - assert_text: { id: list_caption, key: list_caption, args: { count: 500 } }
+  - toggle: { id: list_refresh, value: true }
   # Assert the asynchronous refresh result as soon as it arrives.
-  - assert_text: { id: list-caption, key: list_caption, args: { count: 600 } }
+  - assert_text: { id: list_caption, key: list_caption, args: { count: 600 } }
   # Drag-to-reorder (docs/list.md): the `reorder` step drives the same guard → commit path a
   # native drag takes. The order readout shows the first five row numbers. Row 2 (index 1) drops
   # at index 4; then a drop aimed at the pinned first slot lands at index 1 instead, the
   # guard's Retarget verdict, observable in the readout (index 0 never changes).
-  - assert_text: { id: list-order, key: list_order, args: { rows: "1,2,3,4,5" } }
-  - reorder: { id: demo-list, from: 1, to: 4 }
-  - assert_text: { id: list-order, key: list_order, args: { rows: "1,3,4,5,2" } }
-  - reorder: { id: demo-list, from: 2, to: 0 }
-  - assert_text: { id: list-order, key: list_order, args: { rows: "1,4,3,5,2" } }
+  - assert_text: { id: list_order, key: list_order, args: { rows: "1,2,3,4,5" } }
+  - reorder: { id: demo_list, from: 1, to: 4 }
+  - assert_text: { id: list_order, key: list_order, args: { rows: "1,3,4,5,2" } }
+  - reorder: { id: demo_list, from: 2, to: 0 }
+  - assert_text: { id: list_order, key: list_order, args: { rows: "1,4,3,5,2" } }
   # Programmatic scrolling, merged from the old Scrolling page: the buttons drive the
   # recycling list (scroll-to-row realizes virtualized rows; row 100 is highlighted so the
   # jump visibly lands). Then Shuffle randomizes the order (animated as native row moves
   # where the toolkit supports it), and Reset restores it, undoing the reorders above too.
-  - tap: { id: list-scroll-bottom }
+  - tap: { id: list_scroll_bottom }
   - wait_idle:
   - pause: { secs: 0.7, animation: true }
-  - tap: { id: list-scroll-item }
+  - tap: { id: list_scroll_item }
   - wait_idle:
   - pause: { secs: 0.7, animation: true }
   # The jump targets the row, not the position: it selects row 100, and the selection readout
   # names it whatever index the row currently sits at.
-  - assert_text: { id: list-selection, key: list_selection, args: { count: 1, rows: "100" } }
-  - tap: { id: list-scroll-top }
+  - assert_text: { id: list_selection, key: list_selection, args: { count: 1, rows: "100" } }
+  - tap: { id: list_scroll_top }
   - wait_idle:
   # Shuffle moves row 100 somewhere else, then jump again: the same assertion has to hold, which
   # it would not for a hardcoded index 99.
-  - tap: { id: list-shuffle }
+  - tap: { id: list_shuffle }
   - pause: { secs: 0.7, animation: true }
-  - tap: { id: list-clear }
-  - assert_text: { id: list-selection, key: list_selection_none }
-  - tap: { id: list-scroll-item }
+  - tap: { id: list_clear }
+  - assert_text: { id: list_selection, key: list_selection_none }
+  - tap: { id: list_scroll_item }
   - wait_idle:
   - pause: { secs: 0.7, animation: true }
-  - assert_text: { id: list-selection, key: list_selection, args: { count: 1, rows: "100" } }
-  - tap: { id: list-reset }
-  - assert_text: { id: list-order, key: list_order, args: { rows: "1,2,3,4,5" } }
+  - assert_text: { id: list_selection, key: list_selection, args: { count: 1, rows: "100" } }
+  - tap: { id: list_reset }
+  - assert_text: { id: list_order, key: list_order, args: { rows: "1,2,3,4,5" } }
 
   # Swipe-to-delete (docs/list.md). The `delete_row` step drives the guard → commit path, not a
   # platform gesture, so this asserts on every target, including the desktops, whose toolkits
   # answer Cap::ListDelete = Unsupported and have no swipe to simulate.
-  - delete_row: { id: demo-list, row: 1 }
-  - assert_text: { id: list-order, key: list_order, args: { rows: "1,3,4,5,6" } }
-  - delete_row: { id: demo-list, row: 1 }
-  - assert_text: { id: list-order, key: list_order, args: { rows: "1,4,5,6,7" } }
+  - delete_row: { id: demo_list, row: 1 }
+  - assert_text: { id: list_order, key: list_order, args: { rows: "1,3,4,5,6" } }
+  - delete_row: { id: demo_list, row: 1 }
+  - assert_text: { id: list_order, key: list_order, args: { rows: "1,4,5,6,7" } }
   # (The pinned first row is protected by `delete_guard` too, but dayscript has no
   # assert-this-step-fails form, so that refusal is covered by day-pieces' mock tests instead.)
   # Reset restores the deleted rows as well as the order.
-  - tap: { id: list-reset }
-  - assert_text: { id: list-order, key: list_order, args: { rows: "1,2,3,4,5" } }
+  - tap: { id: list_reset }
+  - assert_text: { id: list_order, key: list_order, args: { rows: "1,2,3,4,5" } }
 
   # The tree piece (docs/tree.md): native on macOS/iOS/GTK, composed from day pieces on the
   # other targets; one script either way, because `expand:`/`tree_move:` drive the same
@@ -979,17 +979,17 @@ flow:
   - navigate: { route: tree }
   - assert_route: { route: tree }
   # Initial disclosure: src open, pages and docs closed, so both directions are one step away.
-  - wait_for: { id: tree-node-1 }
-  - wait_for: { id: tree-node-2 }
-  - assert_missing: { id: tree-node-5 }
-  - assert_text: { id: tree-count, key: tree_count, args: { count: 9 } }
-  - expand: { id: demo-tree, row: tree-node-4 }
-  - wait_for: { id: tree-node-5 }
+  - wait_for: { id: tree_node:1 }
+  - wait_for: { id: tree_node:2 }
+  - assert_missing: { id: tree_node:5 }
+  - assert_text: { id: tree_count, key: tree_count, args: { count: 9 } }
+  - expand: { id: demo_tree, row: tree_node:4 }
+  - wait_for: { id: tree_node:5 }
   # Cargo.toml re-files into src at position 0; the readout echoes the committed move.
-  - tree_move: { id: demo-tree, row: tree-node-9, parent: tree-node-1, index: 0 }
-  - assert_text: { id: tree-last-move, key: tree_move, args: { index: 0, name: "Cargo.toml", parent: "src" } }
-  - tap: { id: tree-expand-all }
-  - wait_for: { id: tree-node-8 }
+  - tree_move: { id: demo_tree, row: tree_node:9, parent: tree_node:1, index: 0 }
+  - assert_text: { id: tree_last_move, key: tree_move, args: { index: 0, name: "Cargo.toml", parent: "src" } }
+  - tap: { id: tree_expand_all }
+  - wait_for: { id: tree_node:8 }
   - pause: { secs: 0.7, animation: true }
   - screenshot:
       name: tree
@@ -1002,113 +1002,113 @@ flow:
   # cell; hiding done rows re-runs only the key projection.
   - navigate: { route: model }
   - assert_route: { route: model }
-  - assert_text: { id: model-caption, key: model_caption, args: { count: 300 } }
-  - assert_text: { id: model-selected, key: model_selected_none }
-  - select: { id: model-list, index: 0 }
-  - assert_text: { id: model-selected, key: model_selected, args: { title: "Task 1" } }
-  - input: { id: model-name, text: "Renamed task" }
-  - assert_text: { id: model-selected, key: model_selected, args: { title: "Renamed task" } }
+  - assert_text: { id: model_caption, key: model_caption, args: { count: 300 } }
+  - assert_text: { id: model_selected, key: model_selected_none }
+  - select: { id: model_list, index: 0 }
+  - assert_text: { id: model_selected, key: model_selected, args: { title: "Task 1" } }
+  - input: { id: model_name, text: "Renamed task" }
+  - assert_text: { id: model_selected, key: model_selected, args: { title: "Renamed task" } }
   - screenshot:
       name: model
       title: { en: "Model", fr: "Modèle", ar: "النموذج", zh-CN: "模型" }
       source: src/pages/model.rs
   # Filtering: 75 of the 300 seeds are done (every fourth); hiding them changes the projection.
-  - toggle: { id: model-filter, value: true }
-  - assert_text: { id: model-caption, key: model_caption, args: { count: 225 } }
+  - toggle: { id: model_filter, value: true }
+  - assert_text: { id: model_caption, key: model_caption, args: { count: 225 } }
   # Marking the selected task done removes it from the filtered projection too.
-  - toggle: { id: model-done, value: true }
-  - assert_text: { id: model-caption, key: model_caption, args: { count: 224 } }
-  - toggle: { id: model-filter, value: false }
-  - assert_text: { id: model-caption, key: model_caption, args: { count: 300 } }
+  - toggle: { id: model_done, value: true }
+  - assert_text: { id: model_caption, key: model_caption, args: { count: 224 } }
+  - toggle: { id: model_filter, value: false }
+  - assert_text: { id: model_caption, key: model_caption, args: { count: 300 } }
   # Persistence (docs/persistence.md): the store above is loaded from a ModelContainer on every
   # native target (the readout names the SQLite file), and insert/edit/delete below fold to one
   # INSERT, one UPDATE and one DELETE through the change log. The web build stays in memory, so
   # the file-name assert skips dom.
-  - assert_visible: { id: model-storage }
-  - assert_text: { id: model-storage, key: model_storage_file, args: { file: "showcase-model.db" }, skip_on: [dom] }
-  - tap: { id: model-add }
-  - assert_text: { id: model-caption, key: model_caption, args: { count: 301 } }
-  - assert_text: { id: model-selected, key: model_selected, args: { title: "Task 301" } }
-  - input: { id: model-name, text: "Persisted row" }
-  - assert_text: { id: model-selected, key: model_selected, args: { title: "Persisted row" } }
-  - tap: { id: model-delete }
-  - assert_text: { id: model-caption, key: model_caption, args: { count: 300 } }
-  - assert_text: { id: model-selected, key: model_selected_none }
+  - assert_visible: { id: model_storage }
+  - assert_text: { id: model_storage, key: model_storage_file, args: { file: "showcase-model.db" }, skip_on: [dom] }
+  - tap: { id: model_add }
+  - assert_text: { id: model_caption, key: model_caption, args: { count: 301 } }
+  - assert_text: { id: model_selected, key: model_selected, args: { title: "Task 301" } }
+  - input: { id: model_name, text: "Persisted row" }
+  - assert_text: { id: model_selected, key: model_selected, args: { title: "Persisted row" } }
+  - tap: { id: model_delete }
+  - assert_text: { id: model_caption, key: model_caption, args: { count: 300 } }
+  - assert_text: { id: model_selected, key: model_selected_none }
   # Undo (docs/model.md): the change log read backward. The deleted row comes back whole,
   # data included, as one unit; redo re-deletes it. The label readout carries the same string
   # the native Edit menu title interpolates ("remove" resolved to "Remove").
-  - assert_text: { id: model-undo-label, text: "Remove" }
-  - tap: { id: model-undo }
-  - assert_text: { id: model-caption, key: model_caption, args: { count: 301 } }
-  - tap: { id: model-redo }
-  - assert_text: { id: model-caption, key: model_caption, args: { count: 300 } }
+  - assert_text: { id: model_undo_label, text: "Remove" }
+  - tap: { id: model_undo }
+  - assert_text: { id: model_caption, key: model_caption, args: { count: 301 } }
+  - tap: { id: model_redo }
+  - assert_text: { id: model_caption, key: model_caption, args: { count: 300 } }
   # The redone unit is back on top of the undo stack: same label, ready to undo again.
-  - assert_text: { id: model-undo-label, text: "Remove" }
+  - assert_text: { id: model_undo_label, text: "Remove" }
 
   # Live queries (docs/persistence.md): 10,000 rows behind a typed query kept current
   # incrementally. Counts are arithmetic from the deterministic seed: "0042" appears in
   # exactly one title, every seventh row is starred (1428 of 10000), and id 42 is one of them.
   - navigate: { route: query }
   - assert_route: { route: query }
-  - assert_text: { id: query-caption, key: query_caption, args: { count: 10000, total: 10000 } }
-  - toggle: { id: query-filter, value: true }
-  - assert_text: { id: query-caption, key: query_caption, args: { count: 1428, total: 10000 } }
-  - toggle: { id: query-filter, value: false }
-  - input: { id: query-search, text: "0042" }
-  - assert_text: { id: query-caption, key: query_caption, args: { count: 1, total: 10000 } }
-  - select: { id: query-list, index: 0 }
-  - assert_text: { id: query-selected, key: query_selected, args: { title: "Electric Harbor Light 0042" } }
+  - assert_text: { id: query_caption, key: query_caption, args: { count: 10000, total: 10000 } }
+  - toggle: { id: query_filter, value: true }
+  - assert_text: { id: query_caption, key: query_caption, args: { count: 1428, total: 10000 } }
+  - toggle: { id: query_filter, value: false }
+  - input: { id: query_search, text: "0042" }
+  - assert_text: { id: query_caption, key: query_caption, args: { count: 1, total: 10000 } }
+  - select: { id: query_list, index: 0 }
+  - assert_text: { id: query_selected, key: query_selected, args: { title: "Electric Harbor Light 0042" } }
   # Row identity across a filter flip: the same keyed row stays on screen, same selection.
-  - toggle: { id: query-filter, value: true }
-  - assert_text: { id: query-caption, key: query_caption, args: { count: 1, total: 10000 } }
-  - assert_visible: { id: "query-row:42" }
-  - assert_text: { id: query-selected, key: query_selected, args: { title: "Electric Harbor Light 0042" } }
-  - toggle: { id: query-filter, value: false }
-  - assert_visible: { id: "query-row:42" }
+  - toggle: { id: query_filter, value: true }
+  - assert_text: { id: query_caption, key: query_caption, args: { count: 1, total: 10000 } }
+  - assert_visible: { id: "query_row:42" }
+  - assert_text: { id: query_selected, key: query_selected, args: { title: "Electric Harbor Light 0042" } }
+  - toggle: { id: query_filter, value: false }
+  - assert_visible: { id: "query_row:42" }
   - screenshot:
       name: query
       title: { en: "Query", fr: "Requête", ar: "الاستعلام", zh-CN: "查询" }
       caption: { en: "A live query over 10,000 rows.", fr: "Une requête en direct sur 10 000 lignes.", ar: "استعلام مباشر على 10000 صف.", zh-CN: "对一万行的实时查询。" }
       source: src/pages/query.rs
   # An edit that moves a row across the predicate, both directions, while the query watches.
-  - input: { id: query-search, text: "0043" }
+  - input: { id: query_search, text: "0043" }
   # Async searches can have the same count as the previous result; wait for identity.
-  - wait_for: { id: "query-row:43" }
-  - assert_text: { id: query-caption, key: query_caption, args: { count: 1, total: 10000 } }
-  - select: { id: query-list, index: 0 }
-  - tap: { id: query-star }
-  - toggle: { id: query-filter, value: true }
+  - wait_for: { id: "query_row:43" }
+  - assert_text: { id: query_caption, key: query_caption, args: { count: 1, total: 10000 } }
+  - select: { id: query_list, index: 0 }
+  - tap: { id: query_star }
+  - toggle: { id: query_filter, value: true }
   # wait_for, not assert_visible: the reload realizes cells on the host's next layout pass
   # (Android defers notifyDataSetChanged), so the row's keyed id lands a beat later.
-  - wait_for: { id: "query-row:43" }
-  - assert_text: { id: query-caption, key: query_caption, args: { count: 1, total: 10000 } }
-  - tap: { id: query-star }
-  - assert_text: { id: query-caption, key: query_caption, args: { count: 0, total: 10000 } }
-  - toggle: { id: query-filter, value: false }
-  - input: { id: query-search, text: "" }
-  - assert_text: { id: query-caption, key: query_caption, args: { count: 10000, total: 10000 } }
-  - assert_visible: { id: query-evals, skip_on: [dom] }
+  - wait_for: { id: "query_row:43" }
+  - assert_text: { id: query_caption, key: query_caption, args: { count: 1, total: 10000 } }
+  - tap: { id: query_star }
+  - assert_text: { id: query_caption, key: query_caption, args: { count: 0, total: 10000 } }
+  - toggle: { id: query_filter, value: false }
+  - input: { id: query_search, text: "" }
+  - assert_text: { id: query_caption, key: query_caption, args: { count: 10000, total: 10000 } }
+  - assert_visible: { id: query_evals, skip_on: [dom] }
   # FTS5 through the generated shadow index (native only; web has no SQLite). The same term
   # answers identically through substring and MATCH; FTS-only syntax then narrows further.
   # 1250 = every eighth title is "Electric …"; 313 of those also carry a Harbor token.
-  - input: { id: query-search, text: "electric", skip_on: [dom] }
-  - assert_text: { id: query-caption, key: query_caption, args: { count: 1250, total: 10000 }, skip_on: [dom] }
-  - toggle: { id: query-fts, value: true, skip_on: [dom] }
-  - assert_text: { id: query-caption, key: query_caption, args: { count: 1250, total: 10000 }, skip_on: [dom] }
-  - input: { id: query-search, text: "electric AND harbor", skip_on: [dom] }
-  - assert_text: { id: query-caption, key: query_caption, args: { count: 313, total: 10000 }, skip_on: [dom] }
-  - toggle: { id: query-fts, value: false, skip_on: [dom] }
-  - input: { id: query-search, text: "", skip_on: [dom] }
+  - input: { id: query_search, text: "electric", skip_on: [dom] }
+  - assert_text: { id: query_caption, key: query_caption, args: { count: 1250, total: 10000 }, skip_on: [dom] }
+  - toggle: { id: query_fts, value: true, skip_on: [dom] }
+  - assert_text: { id: query_caption, key: query_caption, args: { count: 1250, total: 10000 }, skip_on: [dom] }
+  - input: { id: query_search, text: "electric AND harbor", skip_on: [dom] }
+  - assert_text: { id: query_caption, key: query_caption, args: { count: 313, total: 10000 }, skip_on: [dom] }
+  - toggle: { id: query_fts, value: false, skip_on: [dom] }
+  - input: { id: query_search, text: "", skip_on: [dom] }
   # The R*Tree viewport: a 16-degree latitude band of the deterministic pin grid holds 1600
   # pins; starred-only narrows it to 229.
-  - toggle: { id: query-viewport, value: true, skip_on: [dom] }
-  - set_value: { id: query-lat, value: 20, skip_on: [dom] }
-  - assert_text: { id: query-caption, key: query_caption, args: { count: 1600, total: 10000 }, skip_on: [dom] }
-  - toggle: { id: query-filter, value: true, skip_on: [dom] }
-  - assert_text: { id: query-caption, key: query_caption, args: { count: 229, total: 10000 }, skip_on: [dom] }
-  - toggle: { id: query-filter, value: false, skip_on: [dom] }
-  - toggle: { id: query-viewport, value: false, skip_on: [dom] }
-  - assert_text: { id: query-caption, key: query_caption, args: { count: 10000, total: 10000 } }
+  - toggle: { id: query_viewport, value: true, skip_on: [dom] }
+  - set_value: { id: query_lat, value: 20, skip_on: [dom] }
+  - assert_text: { id: query_caption, key: query_caption, args: { count: 1600, total: 10000 }, skip_on: [dom] }
+  - toggle: { id: query_filter, value: true, skip_on: [dom] }
+  - assert_text: { id: query_caption, key: query_caption, args: { count: 229, total: 10000 }, skip_on: [dom] }
+  - toggle: { id: query_filter, value: false, skip_on: [dom] }
+  - toggle: { id: query_viewport, value: false, skip_on: [dom] }
+  - assert_text: { id: query_caption, key: query_caption, args: { count: 10000, total: 10000 } }
 
   # ---------------------------------------------------------------------------------------------
   # Graphics & media
@@ -1121,27 +1121,27 @@ flow:
   - memory_usage: # Checkpoint after the preceding group of screens.
   - navigate: { route: canvas }
   - assert_route: { route: canvas }
-  - set_value: { id: shapes-angle-slider, value: 45 }
+  - set_value: { id: shapes_angle_slider, value: 45 }
   # Canvas text in a chosen font (docs/fonts.md): the font menu lists the platform's families
   # plus the bundled Pacifico it starts on; the list itself differs per platform, so the
   # walkthrough proves the section mounts and leaves the face to the screenshot.
-  - wait_for: { id: canvas-text }
-  - wait_for: { id: canvas-font }
+  - wait_for: { id: canvas_text }
+  - wait_for: { id: canvas_font }
   # Every `TextAnchor` placement on a crosshair (docs/canvas.md "Anchors"). The alignment is the
   # backend's, so this is a per-toolkit check that only a picture can make: the assert proves the
   # canvas mounted, and the screenshot below is what catches a backend hanging the line box off
   # the wrong edge. Twelve cells, three across by four down.
-  - wait_for: { id: canvas-anchors }
+  - wait_for: { id: canvas_anchors }
   # Three figures built from `PathBuilder::arc_to` (docs/canvas.md "Paths"): a donut wedge, a
   # round-capped gauge, and a leaf from two arcs curving opposite ways. They show that arcs
   # compose with lines in one contour, so a fill and a stroke both close correctly, which is
   # a face, not a value, and rides the screenshot below.
-  - wait_for: { id: canvas-arcs }
+  - wait_for: { id: canvas_arcs }
   # `scroll_to` reveals minimally, so the arcs land on the viewport's bottom edge rather than
   # centered. Aiming at a later canvas to push them up does not work here (on macos-appkit the
   # frame came back identical), so the arcs are named directly and the capture is read from
   # the bottom of it.
-  - scroll_to: { id: canvas-arcs }
+  - scroll_to: { id: canvas_arcs }
   - wait_idle:
   - screenshot:
       name: canvas-arcs
@@ -1149,21 +1149,21 @@ flow:
   # a script (it needs a real pointer, and half the targets here have none), so what is asserted
   # is the pair that can be: a tap leaves its ring, and a drag leaves a trail of the samples it
   # reported. The readout names all three, so the screenshot says which the backend delivered.
-  - wait_for: { id: canvas-interaction }
-  - tap: { id: canvas-interaction, at: [120, 60] }
+  - wait_for: { id: canvas_interaction }
+  - tap: { id: canvas_interaction, at: [120, 60] }
   - wait_idle:
-  - drag: { id: canvas-interaction, from: [200, 40], to: [420, 150], steps: 10 }
+  - drag: { id: canvas_interaction, from: [200, 40], to: [420, 150], steps: 10 }
   - wait_idle:
-  - assert_visible: { id: canvas-interaction-readout }
+  - assert_visible: { id: canvas_interaction_readout }
   # An image decoded from bytes and drawn on a canvas (docs/images.md): the bundled PNG is read
   # as a blob, decoded by the platform's decoder, and drawn by handle, the path a download or
   # a paste takes, with no staged image resource behind it. The readout names what that decoder
   # said the bytes were, so a backend that reads them differently says so here; the picture is
   # what catches one that decodes but draws nothing.
-  - scroll_to: { id: canvas-image }
+  - scroll_to: { id: canvas_image }
   - wait_idle:
-  - assert_visible: { id: canvas-image }
-  - assert_visible: { id: canvas-image-readout }
+  - assert_visible: { id: canvas_image }
+  - assert_visible: { id: canvas_image_readout }
   - screenshot:
       name: canvas-image
   # Accessibility (§13): diff the native AX tree against day's expectations. The gauge is a
@@ -1173,7 +1173,7 @@ flow:
   - a11y_audit: { id: gauge }
   # The gauge's spoken value reads the slider's signal: after a move, the native tree must
   # carry the new number, which only a second audit can show.
-  - set_value: { id: gauge-slider, value: 72 }
+  - set_value: { id: gauge_slider, value: 72 }
   - wait_idle:
   - a11y_audit: { id: gauge }
   - a11y_audit: {}
@@ -1188,10 +1188,10 @@ flow:
   # locale this app ships. The chart itself is drawn on a canvas and rides the screenshot.
   - navigate: { route: charts }
   - assert_route: { route: charts }
-  - wait_for: { id: charts-gallery-picker }
-  - select: { id: charts-gallery-picker, index: 10 }
+  - wait_for: { id: charts_gallery_picker }
+  - select: { id: charts_gallery_picker, index: 10 }
   - wait_for: { id: scatter }
-  - assert_text: { id: charts-example-title, key: day_piece_charts_gallery::ex_scatter }
+  - assert_text: { id: charts_example_title, key: day_piece_charts_gallery::ex_scatter }
   - pause: { secs: 1.0, animation: true } # normal runs exercise the entrance
   - screenshot:
       name: charts
@@ -1202,12 +1202,12 @@ flow:
   # the tapped point; once they have come back down and settled, the capture is repeatable.
   - navigate: { route: physics }
   - assert_route: { route: physics }
-  - set_value: { id: frame-ball-slider, value: 40 }
+  - set_value: { id: frame_ball_slider, value: 40 }
   # The page opens at zero-G, where the marbles would still be drifting at capture time.
-  - set_value: { id: physics-gravity-slider, value: 9.81 }
-  - tap: { id: frame-ball, at: [160, 80] }
+  - set_value: { id: physics_gravity_slider, value: 9.81 }
+  - tap: { id: frame_ball, at: [160, 80] }
   - pause: { secs: 5.0 }
-  - assert_visible: { id: physics-gravity-slider }
+  - assert_visible: { id: physics_gravity_slider }
   - screenshot:
       name: physics
       title: { en: "Physics", fr: "Physique", ar: "الفيزياء", zh-CN: "物理" }
@@ -1215,17 +1215,17 @@ flow:
 
   # XAML Rendering may fire inside the screenshot's nested message pump. It must not
   # reenter Day's borrowed tree or strand the next page's frame subscription.
-  - tap: { id: frame-bounce, only_on: [windows-winui] }
+  - tap: { id: frame_bounce, only_on: [windows-winui] }
   - pause: { secs: 0.3, only_on: [windows-winui] }
-  - assert_text: { id: frame-status, key: frame_running, only_on: [windows-winui] }
+  - assert_text: { id: frame_status, key: frame_running, only_on: [windows-winui] }
   - screenshot: { name: physics-running, only_on: [windows-winui] }
   - navigate: { route: about, only_on: [windows-winui] }
   - navigate: { route: physics, only_on: [windows-winui] }
-  - tap: { id: frame-bounce, only_on: [windows-winui] }
+  - tap: { id: frame_bounce, only_on: [windows-winui] }
   - pause: { secs: 0.3, only_on: [windows-winui] }
-  - assert_text: { id: frame-status, key: frame_running, only_on: [windows-winui] }
-  - tap: { id: frame-reset, only_on: [windows-winui] }
-  - assert_text: { id: frame-status, key: frame_resting, only_on: [windows-winui] }
+  - assert_text: { id: frame_status, key: frame_running, only_on: [windows-winui] }
+  - tap: { id: frame_reset, only_on: [windows-winui] }
+  - assert_text: { id: frame_status, key: frame_resting, only_on: [windows-winui] }
 
   # Declarative animation (§8.4, docs/animation.md): queue deterministic targets (fixed values,
   # not Randomize!, since screenshots must reproduce), commit them inside one with_animation via
@@ -1235,11 +1235,11 @@ flow:
   # The reduced-motion readout (docs/accessibility.md) reads the live gate: a `--fast` run
   # says On, an ordinary run says whatever the system setting says, so only its presence is
   # asserted here.
-  - assert_visible: { id: anim-reduced-motion }
-  - set_value: { id: anim-scale, value: 1.25 }
-  - set_value: { id: anim-rotation, value: 30 }
-  - set_value: { id: anim-hue, value: 200 }
-  - tap: { id: anim-go }
+  - assert_visible: { id: anim_reduced_motion }
+  - set_value: { id: anim_scale, value: 1.25 }
+  - set_value: { id: anim_rotation, value: 30 }
+  - set_value: { id: anim_hue, value: 200 }
+  - tap: { id: anim_go }
   - pause: { secs: 1.0, animation: true }
   - screenshot:
       name: animation
@@ -1250,51 +1250,51 @@ flow:
   # random-access reads of embedded data through the native data API.
   - navigate: { route: resources }
   - assert_route: { route: resources }
-  - assert_visible: { id: resources-numbers }
-  - assert_visible: { id: resources-greeting }
+  - assert_visible: { id: resources_numbers }
+  - assert_visible: { id: resources_greeting }
   # Full-color vector art (docs/vectors.md): every other glyph here is a monochrome symbol that
   # takes a tint, so this is the only step covering many-path authored-color art. On android-mdc
   # it is a VectorDrawable rather than a raster. Driving the zoom rebuilds the glyph at the new
   # size (see resources.rs), so this also covers that the art survives a resize on every backend.
-  - assert_visible: { id: vector-tiger }
+  - assert_visible: { id: vector_tiger }
   # The glyph row wraps itself now (`RowFit::Wrap`), and the two segmented pickers govern every
   # glyph in it: a weight change re-resolves each source name, a size change re-frames each cell,
   # and both go through the same keyed rebuild. Driving them covers that the row survives both,
   # and the weight sweep is what caught android-mdc drawing nothing for an aliased weight, which
   # `assert_visible` alone cannot see (the view has a frame either way; docs/vectors.md).
-  - assert_visible: { id: resources-vectors-row }
-  - select: { id: vector-weight, index: 0 }
-  - select: { id: vector-size, index: 3 }
+  - assert_visible: { id: resources_vectors_row }
+  - select: { id: vector_weight, index: 0 }
+  - select: { id: vector_size, index: 3 }
   - wait_idle:
-  - assert_visible: { id: resources-vectors-row }
-  - select: { id: vector-weight, index: 1 }
-  - select: { id: vector-size, index: 1 }
+  - assert_visible: { id: resources_vectors_row }
+  - select: { id: vector_weight, index: 1 }
+  - select: { id: vector_size, index: 1 }
   - wait_idle:
   # A plain SVG asked for a weight it has no art for: it must resolve back to its base glyph
   # rather than draw nothing (docs/vectors.md). Only SF templates stage `__light`/`__bold`, so
   # this is the case every other glyph in the app is in.
-  - assert_visible: { id: vector-aliased-weight }
+  - assert_visible: { id: vector_aliased_weight }
   # The zoom drives the tiger alone now (the glyph row takes its size from the picker above), and
   # its top is five times what it was; past the content column the art becomes a pannable strip
   # rather than being clipped, so this covers both arrangements.
-  - set_value: { id: vector-zoom, value: 1200 }
+  - set_value: { id: vector_zoom, value: 1200 }
   - wait_idle:
-  - assert_visible: { id: vector-tiger }
-  - set_value: { id: vector-zoom, value: 96 }
+  - assert_visible: { id: vector_tiger }
+  - set_value: { id: vector_zoom, value: 96 }
   - wait_idle:
-  - assert_visible: { id: vector-tiger }
+  - assert_visible: { id: vector_tiger }
   # The composed color picker (docs/colorpicker.md): Day's panel, built from pieces and a
   # canvas, so these same steps run identically on all nine targets, including the two with no
   # native chooser to fall back on. Pressing the shade field's white corner is what proves
   # `on_tap_at` reports where the press landed; Cancel then puts the tint back.
-  - tap: { id: vector-tint-composed }
+  - tap: { id: vector_tint_composed }
   - wait_idle:
-  - assert_visible: { id: color-picker-panel }
-  - assert_visible: { id: color-picker-shade }
-  - assert_visible: { id: color-picker-hue }
-  - assert_visible: { id: color-picker-presets }
-  - assert_text: { id: color-picker-value, text: "#e86a3c" }
-  - tap: { id: color-picker-cancel }
+  - assert_visible: { id: color_picker_panel }
+  - assert_visible: { id: color_picker_shade }
+  - assert_visible: { id: color_picker_hue }
+  - assert_visible: { id: color_picker_presets }
+  - assert_text: { id: color_picker_value, text: "#e86a3c" }
+  - tap: { id: color_picker_cancel }
   - wait_idle:
   - screenshot:
       name: resources
@@ -1309,10 +1309,10 @@ flow:
   - navigate: { route: media }
   - assert_route: { route: media }
   - assert_visible: { id: media }
-  - assert_visible: { id: media-play }
-  - assert_visible: { id: media-load }
+  - assert_visible: { id: media_play }
+  - assert_visible: { id: media_load }
   - pause: { secs: 5 }
-  - tap: { id: media-pause }
+  - tap: { id: media_pause }
   - screenshot:
       name: media
       title: { en: "Media", fr: "Médias", ar: "الوسائط", zh-CN: "媒体" }
@@ -1328,19 +1328,19 @@ flow:
   # The page is day-piece-lottie's playground (its `gallery()` became the playground alone on
   # 2026-09-28, dropping the picker between example pages), so the animation picker the steps
   # below drive is on screen from the start.
-  - wait_for: { id: lottie-view, only_on: [ios-uikit, android-mdc] }
-  - select: { id: lottie-animation, index: 7, only_on: [ios-uikit, android-mdc] }
-  - assert_visible: { id: lottie-view, only_on: [ios-uikit, android-mdc] }
-  - assert_visible: { id: lottie-speed-slider, only_on: [ios-uikit, android-mdc] }
-  - assert_text: { id: lottie-speed-value, text: "1.00×", only_on: [ios-uikit, android-mdc] }
-  - tap: { id: lottie-speed-double, only_on: [ios-uikit, android-mdc] }
-  - assert_text: { id: lottie-speed-value, text: "2.00×", only_on: [ios-uikit, android-mdc] }
+  - wait_for: { id: lottie_view, only_on: [ios-uikit, android-mdc] }
+  - select: { id: lottie_animation, index: 7, only_on: [ios-uikit, android-mdc] }
+  - assert_visible: { id: lottie_view, only_on: [ios-uikit, android-mdc] }
+  - assert_visible: { id: lottie_speed_slider, only_on: [ios-uikit, android-mdc] }
+  - assert_text: { id: lottie_speed_value, text: "1.00×", only_on: [ios-uikit, android-mdc] }
+  - tap: { id: lottie_speed_double, only_on: [ios-uikit, android-mdc] }
+  - assert_text: { id: lottie_speed_value, text: "2.00×", only_on: [ios-uikit, android-mdc] }
   # The one picker of the gallery's animations: a bound name swaps the file under the same native
   # view, and the facts rows follow. The playground was put on pin jump above; the capture shows
   # the heart, then the run puts pin jump back.
-  - assert_text: { id: lottie-model-frames, text: "93 @ 30 fps", only_on: [ios-uikit, android-mdc] }
-  - select: { id: lottie-animation, index: 8, only_on: [ios-uikit, android-mdc] }
-  - assert_text: { id: lottie-model-frames, text: "116 @ 60 fps", only_on: [ios-uikit, android-mdc] }
+  - assert_text: { id: lottie_model_frames, text: "93 @ 30 fps", only_on: [ios-uikit, android-mdc] }
+  - select: { id: lottie_animation, index: 8, only_on: [ios-uikit, android-mdc] }
+  - assert_text: { id: lottie_model_frames, text: "116 @ 60 fps", only_on: [ios-uikit, android-mdc] }
   - pause: { secs: 1.0, only_on: [ios-uikit, android-mdc] }
   - screenshot:
       name: lottie
@@ -1348,10 +1348,10 @@ flow:
       title: { en: "Lottie", fr: "Lottie", ar: "رسوم Lottie", zh-CN: "Lottie 动画" }
       source: src/pages/lottie.rs
   # Back to 1× and pin jump so the page reads pristine if a later variant revisits it.
-  - tap: { id: lottie-speed-one, only_on: [ios-uikit, android-mdc] }
-  - assert_text: { id: lottie-speed-value, text: "1.00×", only_on: [ios-uikit, android-mdc] }
-  - select: { id: lottie-animation, index: 7, only_on: [ios-uikit, android-mdc] }
-  - assert_text: { id: lottie-model-frames, text: "93 @ 30 fps", only_on: [ios-uikit, android-mdc] }
+  - tap: { id: lottie_speed_one, only_on: [ios-uikit, android-mdc] }
+  - assert_text: { id: lottie_speed_value, text: "1.00×", only_on: [ios-uikit, android-mdc] }
+  - select: { id: lottie_animation, index: 7, only_on: [ios-uikit, android-mdc] }
+  - assert_text: { id: lottie_model_frames, text: "93 @ 30 fps", only_on: [ios-uikit, android-mdc] }
 
   # Map (day-piece-map, docs/map.md): a native MKMapView, so the page exists only on the two
   # Apple targets (map.rs, lib.rs `destinations`) and the whole section is gated. A preset
@@ -1360,16 +1360,16 @@ flow:
   - navigate: { route: map, only_on: [macos-appkit, ios-uikit] }
   - assert_route: { route: map, only_on: [macos-appkit, ios-uikit] }
   - assert_visible: { id: map, only_on: [macos-appkit, ios-uikit] }
-  - tap: { id: map-paris, only_on: [macos-appkit, ios-uikit] }
-  - assert_text: { id: map-coords, text: "48.8566, 2.3522", only_on: [macos-appkit, ios-uikit] }
+  - tap: { id: map_paris, only_on: [macos-appkit, ios-uikit] }
+  - assert_text: { id: map_coords, text: "48.8566, 2.3522", only_on: [macos-appkit, ios-uikit] }
   - pause: { secs: 1, only_on: [macos-appkit, ios-uikit] }
   - screenshot:
       name: map
       only_on: [macos-appkit, ios-uikit]
       title: { en: "Map", fr: "Carte", ar: "الخريطة", zh-CN: "地图" }
       source: src/pages/map.rs
-  - tap: { id: map-boston, only_on: [macos-appkit, ios-uikit] }
-  - assert_text: { id: map-coords, text: "42.3601, -71.0589", only_on: [macos-appkit, ios-uikit] }
+  - tap: { id: map_boston, only_on: [macos-appkit, ios-uikit] }
+  - assert_text: { id: map_coords, text: "42.3601, -71.0589", only_on: [macos-appkit, ios-uikit] }
 
   # Native web view (docs/webview.md): each toolkit's native browser, on the page's default
   # Embedded tab: a whole site bundled under resource/assets/web/minisite/, served through
@@ -1381,18 +1381,18 @@ flow:
   # Shared Harmony CI installs the x86_64 ArkWeb runtime before this walkthrough.
   - navigate: { route: webview }
   - assert_route: { route: webview }
-  - assert_visible: { id: webview-tab }
+  - assert_visible: { id: webview_tab }
   # The status line is a day label (asserted everywhere the page shows); what renders inside the
   # web view is native web content, reached through web_eval and the JS console below.
-  - assert_visible: { id: webview-embedded-status }
+  - assert_visible: { id: webview_embedded_status }
   - assert_text:
       {
-        id: webview-embedded-status,
+        id: webview_embedded_status,
         key: webview_embedded_status_none,
       }
   # Verify HTML, stylesheet and image readiness rather than sleeping for a guessed duration.
   - web_eval:
-      id: webview-embedded
+      id: webview_embedded
       script: "document.title === 'Day mini site' && document.readyState === 'complete' && !!document.querySelector('link[rel=stylesheet]').sheet && Array.from(document.images).every(i => i.complete && i.naturalWidth > 0)"
       text: "true"
       timeout_secs: 15
@@ -1403,30 +1403,30 @@ flow:
   # assertions are engine-independent: JSON.stringify's output and a TypeError's name/message are
   # spec-defined, so WebKit and V8 agree. A SyntaxError's text is not, so it is not asserted here.
   - input:
-      { id: webview-js, text: "1+1", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc] }
-  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc] }
+      { id: webview_js, text: "1+1", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc] }
+  - tap: { id: webview_js_run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc] }
   - assert_text:
-      { id: webview-js-result, text: "2", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc] }
+      { id: webview_js_result, text: "2", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc] }
   # Evaluated in the bundled site's own document, not a blank frame.
   - input:
-      { id: webview-js, text: "document.title", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc] }
-  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc] }
+      { id: webview_js, text: "document.title", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc] }
+  - tap: { id: webview_js_run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc] }
   - assert_text:
       {
-        id: webview-js-result,
+        id: webview_js_result,
         text: '"Day mini site"',
         only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc],
       }
   - input:
       {
-        id: webview-js,
+        id: webview_js,
         text: "throw new TypeError('boom')",
         only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc],
       }
-  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc] }
+  - tap: { id: webview_js_run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc] }
   - assert_text:
       {
-        id: webview-js-result,
+        id: webview_js_result,
         text: "TypeError: boom",
         only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc],
       }
@@ -1441,40 +1441,40 @@ flow:
   # into the document that stays.
   - input:
       {
-        id: webview-js,
+        id: webview_js,
         text: "window.__dayMarker = 'survived'",
         only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt],
       }
-  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
-  - assert_text: { id: webview-js-result, text: '"survived"', only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - tap: { id: webview_js_run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - assert_text: { id: webview_js_result, text: '"survived"', only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
   # Prove the marker took before leaving: if this fails the plant itself lost a race, which is a
   # different fault from the retention the steps below are about.
-  - input: { id: webview-js, text: "window.__dayMarker", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
-  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
-  - assert_text: { id: webview-js-result, text: '"survived"', only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - input: { id: webview_js, text: "window.__dayMarker", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - tap: { id: webview_js_run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - assert_text: { id: webview_js_result, text: '"survived"', only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
   # Overwrite the readout before leaving. The result label is a global signal that outlives this
   # page, so leaving "survived" on screen would let the final assertion below pass on a stale
   # label without the marker having survived anything.
-  - input: { id: webview-js, text: "'left the page'", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
-  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
-  - assert_text: { id: webview-js-result, text: '"left the page"', only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - input: { id: webview_js, text: "'left the page'", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - tap: { id: webview_js_run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - assert_text: { id: webview_js_result, text: '"left the page"', only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
   - navigate: { route: controls, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
   - navigate: { route: webview, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
   # The hoisted signals survived the rebuild: the editor still holds the last text typed into
   # it, which is the line that overwrote the readout before leaving.
   - assert_text:
       {
-        id: webview-js,
+        id: webview_js,
         text: "'left the page'",
         only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt],
       }
   # …and so did the engine's own JS context: reading the marker back turns the stale readout
   # into "survived", which it cannot do unless the live context outlived the page.
-  - input: { id: webview-js, text: "window.__dayMarker", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
-  - tap: { id: webview-js-run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - input: { id: webview_js, text: "window.__dayMarker", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - tap: { id: webview_js_run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
   - assert_text:
       {
-        id: webview-js-result,
+        id: webview_js_result,
         text: '"survived"',
         only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt],
       }
@@ -1492,45 +1492,45 @@ flow:
   - assert_route: { route: system }
   - assert_visible: { id: battery }
   - a11y_audit: { id: battery }
-  - set_value: { id: battery-level, value: 65 }
-  - toggle: { id: battery-charging, value: true }
+  - set_value: { id: battery_level, value: 65 }
+  - toggle: { id: battery_charging, value: true }
   # Sensors stream now (docs/sensors.md), so there is nothing to refresh: each row subscribes on
   # page build and updates itself. Assert the rows are present; their values are live and differ
   # per device, so they are never asserted.
-  - assert_visible: { id: sensor-accel }
-  - assert_visible: { id: sensor-gyro }
-  - assert_visible: { id: sensor-magnet }
+  - assert_visible: { id: sensor_accel }
+  - assert_visible: { id: sensor_gyro }
+  - assert_visible: { id: sensor_magnet }
   # Permission rows (docs/permissions.md) show status only. Their Request buttons are never
   # tapped here: an OS permission dialog is a system modal that dayscript cannot dismiss (it
   # is not on day's present() rail), so a tap would hang the run on the Simulator and the emulator.
   # apps/showcase/dayscript/permissions-request.yaml drives the real prompt, opt-in.
-  - assert_visible: { id: sensors-perm }
-  - assert_visible: { id: location-perm }
-  - assert_visible: { id: location-coords }
-  - assert_visible: { id: deviceinfo-model }
-  - tap: { id: deviceinfo-refresh }
-  - assert_visible: { id: deviceinfo-system }
+  - assert_visible: { id: sensors_perm }
+  - assert_visible: { id: location_perm }
+  - assert_visible: { id: location_coords }
+  - assert_visible: { id: deviceinfo_model }
+  - tap: { id: deviceinfo_refresh }
+  - assert_visible: { id: deviceinfo_system }
   - screenshot:
       name: system
       title: { en: "Device & sensors", fr: "Appareil et capteurs", ar: "الجهاز والمستشعرات", zh-CN: "设备与传感器" }
       source: src/pages/system.rs
-  - set_value: { id: battery-level, value: 12 }
-  - assert_text: { id: battery-level-value, text: "12%" }
-  - set_value: { id: battery-level, value: 65 }
+  - set_value: { id: battery_level, value: 12 }
+  - assert_text: { id: battery_level_value, text: "12%" }
+  - set_value: { id: battery_level, value: 65 }
 
   # One session through the selected provider; ordinary requests use a local HTTP server.
   - navigate: { route: network }
   - assert_route: { route: network }
-  - tap: { id: network-refresh }
-  - assert_visible: { id: network-reading }
-  - tap: { id: http-fetch }
-  - assert_text: { id: http-status, text: "200 day-http-ok" }
-  - select: { id: http-method, index: 2 }
-  - tap: { id: http-fetch }
-  - assert_text: { id: http-status, text: "200 day-http-ok:PATCH" }
-  - select: { id: http-method, index: 0 }
-  - assert_visible: { id: network-intercept }
-  - assert_visible: { id: network-chart }
+  - tap: { id: network_refresh }
+  - assert_visible: { id: network_reading }
+  - tap: { id: http_fetch }
+  - assert_text: { id: http_status, text: "200 day-http-ok" }
+  - select: { id: http_method, index: 2 }
+  - tap: { id: http_fetch }
+  - assert_text: { id: http_status, text: "200 day-http-ok:PATCH" }
+  - select: { id: http_method, index: 0 }
+  - assert_visible: { id: network_intercept }
+  - assert_visible: { id: network_chart }
   - screenshot:
       name: network
       title: { en: "Network & HTTP", fr: "Réseau et HTTP", ar: "الشبكة وHTTP", zh-CN: "网络与 HTTP" }
@@ -1543,14 +1543,14 @@ flow:
   # sensors. dayscript/notify-shot.yaml and badge-shot.yaml drive the real post and badge, opt-in.
   - navigate: { route: notify }
   - assert_route: { route: notify }
-  - wait_for: { id: notify-supported }
+  - wait_for: { id: notify_supported }
   # The permission block exists only where the OS prompts for notifications (Gate::Prompts);
   # HarmonyOS's is the per-app notification switch its system dialog sets.
-  - assert_visible: { id: notify-perm, only_on: [macos-appkit, ios-uikit, android-mdc, harmony-arkui] }
-  - assert_visible: { id: notify-post }
-  - assert_visible: { id: notify-status }
-  - assert_visible: { id: badge-supported }
-  - assert_visible: { id: badge-value }
+  - assert_visible: { id: notify_perm, only_on: [macos-appkit, ios-uikit, android-mdc, harmony-arkui] }
+  - assert_visible: { id: notify_post }
+  - assert_visible: { id: notify_status }
+  - assert_visible: { id: badge_supported }
+  - assert_visible: { id: badge_value }
   - screenshot:
       name: notify
       title: { en: "Notifications & badge", fr: "Notifications et badge", ar: "الإشعارات والشارة", zh-CN: "通知与角标" }
@@ -1562,38 +1562,38 @@ flow:
   # haptic buttons run everywhere; the readouts are what prove each call went through.
   - navigate: { route: speech }
   - assert_route: { route: speech }
-  - wait_for: { id: speech-support }
-  - assert_visible: { id: speech-text }
-  - assert_visible: { id: speech-speak }
-  - assert_visible: { id: haptics-supported }
+  - wait_for: { id: speech_support }
+  - assert_visible: { id: speech_text }
+  - assert_visible: { id: speech_speak }
+  - assert_visible: { id: haptics_supported }
   - screenshot:
       name: speech
       title: { en: "Speech, sound & haptics", fr: "Voix, sons et haptique", ar: "الكلام والصوت واللمس", zh-CN: "语音、音效与触觉" }
       source: src/pages/services.rs
   # `#sound-last-played` shows the part's own record of the play, which it keeps whether or not
   # this machine has speakers.
-  - scroll_to: { id: sound-click }
-  - tap: { id: sound-click }
-  - assert_text: { id: sound-last-played, key: sound_last_played, args: { clip: "sounds/click.wav" } }
-  - tap: { id: sound-right }
-  - assert_text: { id: sound-last-played, key: sound_last_played, args: { clip: "sounds/glass.wav" } }
+  - scroll_to: { id: sound_click }
+  - tap: { id: sound_click }
+  - assert_text: { id: sound_last_played, key: sound_last_played, args: { clip: "sounds/click.wav" } }
+  - tap: { id: sound_right }
+  - assert_text: { id: sound_last_played, key: sound_last_played, args: { clip: "sounds/glass.wav" } }
   # A loop sounds until its switch goes off. `#sound-looping` shows the part's own list of what
   # is looping, which it keeps, like the record of plays, with or without speakers.
-  - scroll_to: { id: sound-looping }
-  - assert_text: { id: sound-looping, key: sound_looping_none }
-  - toggle: { id: sound-loop, value: true }
-  - assert_text: { id: sound-looping, key: sound_looping_clip, args: { clip: "sounds/hum.wav" } }
-  - set_value: { id: sound-loop-volume, value: 0.25 }
-  - assert_text: { id: sound-looping, key: sound_looping_clip, args: { clip: "sounds/hum.wav" } }
-  - toggle: { id: sound-loop, value: false }
-  - assert_text: { id: sound-looping, key: sound_looping_none }
-  - scroll_to: { id: haptics-medium }
-  - tap: { id: haptics-medium }
+  - scroll_to: { id: sound_looping }
+  - assert_text: { id: sound_looping, key: sound_looping_none }
+  - toggle: { id: sound_loop, value: true }
+  - assert_text: { id: sound_looping, key: sound_looping_clip, args: { clip: "sounds/hum.wav" } }
+  - set_value: { id: sound_loop_volume, value: 0.25 }
+  - assert_text: { id: sound_looping, key: sound_looping_clip, args: { clip: "sounds/hum.wav" } }
+  - toggle: { id: sound_loop, value: false }
+  - assert_text: { id: sound_looping, key: sound_looping_none }
+  - scroll_to: { id: haptics_medium }
+  - tap: { id: haptics_medium }
   # `#haptics-last-played` is `tr("haptics-last-played")`, a localized string, so assert by
   # key + args so it resolves in the run's locale, not a hardcoded English literal.
-  - assert_text: { id: haptics-last-played, key: haptics_last_played, args: { style: "Medium" } }
-  - tap: { id: haptics-success }
-  - assert_text: { id: haptics-last-played, key: haptics_last_played, args: { style: "Success" } }
+  - assert_text: { id: haptics_last_played, key: haptics_last_played, args: { style: "Medium" } }
+  - tap: { id: haptics_success }
+  - assert_text: { id: haptics_last_played, key: haptics_last_played, args: { style: "Success" } }
 
   # Files & storage: the clipboard round-trip, persisted prefs, the native file pickers, and the
   # app-local file store, all in one form and one screenshot. The strict OS clipboard assertion
@@ -1602,52 +1602,52 @@ flow:
   - memory_usage: # Checkpoint after the preceding group of screens.
   - navigate: { route: files }
   - assert_route: { route: files }
-  - assert_visible: { id: clipboard-field }
+  - assert_visible: { id: clipboard_field }
   # Screenshot the pristine form before the clipboard copy: Android 13+ pops a system
   # clipboard-preview overlay on copy that lingers several seconds and would photobomb the shot.
   - screenshot:
       name: files
       title: { en: "Files & storage", fr: "Fichiers et stockage", ar: "الملفات والتخزين", zh-CN: "文件与存储" }
       source: src/pages/services.rs
-  - input: { id: clipboard-field, text: "day walkthrough clip" }
-  - tap: { id: clipboard-copy }
-  - tap: { id: clipboard-paste }
-  - input: { id: prefs-field, text: "day-remembers" }
-  - tap: { id: prefs-save }
-  - input: { id: prefs-field, text: "overwritten" }
-  - tap: { id: prefs-load }
-  - assert_text: { id: prefs-value, text: "day-remembers" }
+  - input: { id: clipboard_field, text: "day walkthrough clip" }
+  - tap: { id: clipboard_copy }
+  - tap: { id: clipboard_paste }
+  - input: { id: prefs_field, text: "day-remembers" }
+  - tap: { id: prefs_save }
+  - input: { id: prefs_field, text: "overwritten" }
+  - tap: { id: prefs_load }
+  - assert_text: { id: prefs_value, text: "day-remembers" }
   # Clear removes the key, so the run hands the prefs store back the way it found it, and
   # `prefs::remove` gets covered alongside the set and get above, which nothing else exercised.
   # Loading afterwards is what proves the removal reached storage: "cleared" is only what the
   # button wrote to the label, while "nothing stored yet" is the store itself answering.
-  - tap: { id: prefs-clear }
-  - assert_text: { id: prefs-status, key: prefs_cleared }
-  - tap: { id: prefs-load }
-  - assert_text: { id: prefs-status, key: prefs_missing }
-  - assert_text: { id: prefs-value, key: prefs_empty }
+  - tap: { id: prefs_clear }
+  - assert_text: { id: prefs_status, key: prefs_cleared }
+  - tap: { id: prefs_load }
+  - assert_text: { id: prefs_status, key: prefs_missing }
+  - assert_text: { id: prefs_value, key: prefs_empty }
   # skip_on web-dom: a browser sandbox has no native file pickers or filesystem (docs/web.md).
-  - tap: { id: btn-save-file, skip_on: [web-dom] }
+  - tap: { id: btn_save_file, skip_on: [web-dom] }
   - assert_presented: { skip_on: [web-dom] }
   - respond: { path: "day-walkthrough.txt", skip_on: [web-dom] }
-  - assert_text: { id: files-status, text: "saved:day-walkthrough.txt", skip_on: [web-dom] }
-  - tap: { id: btn-open-file, skip_on: [web-dom] }
+  - assert_text: { id: files_status, text: "saved:day-walkthrough.txt", skip_on: [web-dom] }
+  - tap: { id: btn_open_file, skip_on: [web-dom] }
   - assert_presented: { skip_on: [web-dom] }
   - respond: { path: "day-walkthrough.txt", skip_on: [web-dom] }
-  - assert_text: { id: files-status, text: "opened", skip_on: [web-dom] }
-  - assert_text: { id: files-opened-name, key: files_opened, args: { name: "day-walkthrough.txt" }, skip_on: [web-dom] }
+  - assert_text: { id: files_status, text: "opened", skip_on: [web-dom] }
+  - assert_text: { id: files_opened_name, key: files_opened, args: { name: "day-walkthrough.txt" }, skip_on: [web-dom] }
   - assert_not_presented:
   # App-local file storage (docs/fs.md): day-part-fs through the async futures, the same
   # steps on every target, including web-dom (OPFS). Statuses are raw, identical per locale.
-  - input: { id: fs-note, text: "day-fs-demo" }
-  - tap: { id: fs-save }
-  - assert_text: { id: fs-status, text: "saved" }
-  - assert_text: { id: fs-list, text: "showcase-note.txt" }
-  - tap: { id: fs-load }
-  - assert_text: { id: fs-status, text: "loaded:day-fs-demo" }
-  - tap: { id: fs-delete }
-  - assert_text: { id: fs-status, text: "deleted" }
-  - assert_text: { id: fs-list, text: "—" }
+  - input: { id: fs_note, text: "day-fs-demo" }
+  - tap: { id: fs_save }
+  - assert_text: { id: fs_status, text: "saved" }
+  - assert_text: { id: fs_list, text: "showcase-note.txt" }
+  - tap: { id: fs_load }
+  - assert_text: { id: fs_status, text: "loaded:day-fs-demo" }
+  - tap: { id: fs_delete }
+  - assert_text: { id: fs_status, text: "deleted" }
+  - assert_text: { id: fs_list, text: "—" }
 
   # ---------------------------------------------------------------------------------------------
   # App & tooling
@@ -1661,9 +1661,9 @@ flow:
   # device), and `running` on the Android emulator's virtual camera.
   - navigate: { route: camera, only_on: [ios-uikit, android-mdc, harmony-arkui] }
   - assert_route: { route: camera, only_on: [ios-uikit, android-mdc, harmony-arkui] }
-  - assert_visible: { id: camera-perm, only_on: [ios-uikit, android-mdc, harmony-arkui] }
-  - assert_visible: { id: camera-state, only_on: [ios-uikit, android-mdc, harmony-arkui] }
-  - assert_text: { id: camera-photo-size, key: camera_no_photo, only_on: [ios-uikit, android-mdc, harmony-arkui] }
+  - assert_visible: { id: camera_perm, only_on: [ios-uikit, android-mdc, harmony-arkui] }
+  - assert_visible: { id: camera_state, only_on: [ios-uikit, android-mdc, harmony-arkui] }
+  - assert_text: { id: camera_photo_size, key: camera_no_photo, only_on: [ios-uikit, android-mdc, harmony-arkui] }
   - screenshot:
       name: camera
       only_on: [ios-uikit, android-mdc, harmony-arkui]
@@ -1677,26 +1677,26 @@ flow:
   # grouping, zh CLDR date patterns).
   - navigate: { route: localization }
   - assert_route: { route: localization }
-  - assert_text: { id: fmt-number, key: fmt_number, args: { n: 1234567.891 } }
-  - assert_text: { id: fmt-fraction, key: fmt_fraction, args: { n: 1234.5 } }
-  - assert_text: { id: fmt-percent, key: fmt_percent, args: { p: 0.72 } }
-  - assert_text: { id: fmt-date, key: fmt_date, args: { d: "2026-07-18" } }
-  - assert_text: { id: fmt-time, key: fmt_time, args: { t: "14:45" } }
-  - assert_text: { id: fmt-datetime, key: fmt_datetime, args: { dt: "2026-07-18T14:45" } }
+  - assert_text: { id: fmt_number, key: fmt_number, args: { n: 1234567.891 } }
+  - assert_text: { id: fmt_fraction, key: fmt_fraction, args: { n: 1234.5 } }
+  - assert_text: { id: fmt_percent, key: fmt_percent, args: { p: 0.72 } }
+  - assert_text: { id: fmt_date, key: fmt_date, args: { d: "2026-07-18" } }
+  - assert_text: { id: fmt_time, key: fmt_time, args: { t: "14:45" } }
+  - assert_text: { id: fmt_datetime, key: fmt_datetime, args: { dt: "2026-07-18T14:45" } }
   # Plurals: drive the count through the CLDR categories (each locale renders its grammar).
-  - assert_text: { id: plural-label, key: plural_items, args: { count: 0 } }
-  - tap: { id: plural-add }
-  - assert_text: { id: plural-label, key: plural_items, args: { count: 1 } }
-  - tap: { id: plural-add, repeat: 2 }
-  - assert_text: { id: plural-label, key: plural_items, args: { count: 3 } }
+  - assert_text: { id: plural_label, key: plural_items, args: { count: 0 } }
+  - tap: { id: plural_add }
+  - assert_text: { id: plural_label, key: plural_items, args: { count: 1 } }
+  - tap: { id: plural_add, repeat: 2 }
+  - assert_text: { id: plural_label, key: plural_items, args: { count: 3 } }
   # Collation order is per-locale (zh = pinyin), pinned in day-l10n's unit tests; here we assert
   # presence and let the per-locale screenshot grid show the reorder.
-  - assert_visible: { id: fmt-sorted }
+  - assert_visible: { id: fmt_sorted }
   # Live locale switch: the signal readout is a raw tag (locale-independent), then restore the
   # run's launch locale so the remaining pages screenshot in the right language.
-  - tap: { id: locale-fr }
-  - assert_text: { id: loc-current, text: "fr" }
-  - tap: { id: locale-reset }
+  - tap: { id: locale_fr }
+  - assert_text: { id: loc_current, text: "fr" }
+  - tap: { id: locale_reset }
   - screenshot:
       name: localization
       title: { en: "Localization", fr: "Localisation", ar: "التوطين", zh-CN: "本地化" }
@@ -1709,10 +1709,10 @@ flow:
   # a replay here would re-dispatch taps onto a page that does not have them.
   - navigate: { route: scripting }
   - assert_route: { route: scripting }
-  - assert_visible: { id: scripting-buffer }
-  - assert_visible: { id: scripting-record }
-  - assert_visible: { id: scripting-play }
-  - assert_visible: { id: scripting-delay }
+  - assert_visible: { id: scripting_buffer }
+  - assert_visible: { id: scripting_record }
+  - assert_visible: { id: scripting_play }
+  - assert_visible: { id: scripting_delay }
   # No assertion on `scripting-status`: it is empty until something is recorded, and an empty
   # label has no frame to find on GTK and UIKit.
   - screenshot:
@@ -1725,22 +1725,22 @@ flow:
   # so the same script passes in every locale).
   - navigate: { route: tweaks }
   - assert_route: { route: tweaks }
-  - assert_visible: { id: tweak-bezel-toolbar }
-  - assert_visible: { id: tweak-tooltip-button }
-  - assert_visible: { id: tweak-ticks-slider }
-  - assert_text: { id: tweak-ref-status, key: tweaks_ref_live }
-  - toggle: { id: tweak-ref-toggle, value: false }
-  - assert_text: { id: tweak-ref-status, key: tweaks_ref_cleared }
-  - toggle: { id: tweak-ref-toggle, value: true }
-  - assert_text: { id: tweak-ref-status, key: tweaks_ref_live }
+  - assert_visible: { id: tweak_bezel_toolbar }
+  - assert_visible: { id: tweak_tooltip_button }
+  - assert_visible: { id: tweak_ticks_slider }
+  - assert_text: { id: tweak_ref_status, key: tweaks_ref_live }
+  - toggle: { id: tweak_ref_toggle, value: false }
+  - assert_text: { id: tweak_ref_status, key: tweaks_ref_cleared }
+  - toggle: { id: tweak_ref_toggle, value: true }
+  - assert_text: { id: tweak_ref_status, key: tweaks_ref_live }
   # The inline label tweak beside a conditional backing (docs/tweaks.md "Conditional
   # backings"): flipping Selectable rebuilds the sample label (on iOS as a read-only
   # UITextView), and the tweak must land on both arms, on every backend.
-  - assert_visible: { id: tweak-label-sample }
-  - toggle: { id: tweak-label-selectable, value: true }
-  - assert_visible: { id: tweak-label-sample }
-  - toggle: { id: tweak-label-selectable, value: false }
-  - assert_visible: { id: tweak-label-sample }
+  - assert_visible: { id: tweak_label_sample }
+  - toggle: { id: tweak_label_selectable, value: true }
+  - assert_visible: { id: tweak_label_sample }
+  - toggle: { id: tweak_label_selectable, value: false }
+  - assert_visible: { id: tweak_label_sample }
   - screenshot:
       name: tweaks
       title: { en: "Tweaks", fr: "Tweaks", ar: "التوليفات", zh-CN: "微调" }
@@ -1753,33 +1753,33 @@ flow:
   - memory_usage: # Checkpoint after the preceding group of screens.
   - navigate: { route: benchmark }
   - assert_route: { route: benchmark }
-  - wait_for: { id: bench-grid }
-  - assert_text: { id: bench-seed-value, text: "1" }
-  - assert_text: { id: bench-count-value, text: "48" }
-  - assert_text: { id: bench-rows, key: bench_rows, args: { rows: 10 } }
+  - wait_for: { id: bench_grid }
+  - assert_text: { id: bench_seed_value, text: "1" }
+  - assert_text: { id: bench_count_value, text: "48" }
+  - assert_text: { id: bench_rows, key: bench_rows, args: { rows: 10 } }
   - screenshot:
       name: benchmark
       title: { en: "Benchmark", fr: "Benchmark", ar: "قياس الأداء", zh-CN: "基准测试" }
       source: src/pages/benchmark.rs
   # Denser patchwork, then back to the defaults; reproducibility means the run must land on the
   # row count it opened with.
-  - set_value: { id: bench-count, value: 240 }
-  - assert_text: { id: bench-count-value, text: "240" }
-  - assert_text: { id: bench-rows, key: bench_rows, args: { rows: 45 } }
-  - set_value: { id: bench-count, value: 48 }
-  - assert_text: { id: bench-rows, key: bench_rows, args: { rows: 10 } }
+  - set_value: { id: bench_count, value: 240 }
+  - assert_text: { id: bench_count_value, text: "240" }
+  - assert_text: { id: bench_rows, key: bench_rows, args: { rows: 45 } }
+  - set_value: { id: bench_count, value: 48 }
+  - assert_text: { id: bench_rows, key: bench_rows, args: { rows: 10 } }
   # The SwiftUI twin (day-piece-swiftui, docs/swiftui.md): the segmented picker exists only where
   # support() is Native, so these steps are gated to the two Apple-native targets. The pane's own
   # sliders live inside the hosted SwiftUI view (no dayscript ids); the shot is the deliverable.
-  - select: { id: bench-impl, index: 1, only_on: [macos-appkit, ios-uikit] }
-  - wait_for: { id: bench-swiftui, only_on: [macos-appkit, ios-uikit] }
+  - select: { id: bench_impl, index: 1, only_on: [macos-appkit, ios-uikit] }
+  - wait_for: { id: bench_swiftui, only_on: [macos-appkit, ios-uikit] }
   - pause: { secs: 1.0, only_on: [macos-appkit, ios-uikit] }
   - screenshot:
       name: benchmark-swiftui
       only_on: [macos-appkit, ios-uikit]
       title: { en: "Benchmark · SwiftUI", fr: "Benchmark · SwiftUI", ar: "قياس الأداء · SwiftUI", zh-CN: "基准测试 · SwiftUI" }
       source: src/pages/benchmark.rs
-  - select: { id: bench-impl, index: 0, only_on: [macos-appkit, ios-uikit] }
+  - select: { id: bench_impl, index: 0, only_on: [macos-appkit, ios-uikit] }
 
   # Crash Reporting (day-piece-break, docs/break.md): the walkthrough only visits the page (empty state);
   # the actual crash + next-launch report are driven by crash.yaml / crash-report.yaml so the
@@ -1787,7 +1787,7 @@ flow:
   # browser sandbox, lib.rs `destinations`), so the section skips there.
   - navigate: { route: crash, skip_on: [web-dom] }
   - assert_route: { route: crash, skip_on: [web-dom] }
-  - assert_visible: { id: crash-abort, skip_on: [web-dom] }
+  - assert_visible: { id: crash_abort, skip_on: [web-dom] }
   - screenshot:
       name: crash
       skip_on: [web-dom]
@@ -1859,8 +1859,8 @@ flow:
 
   # Data-transfer policy/OS gestures are covered separately; this verifies the page mounts.
   - navigate: { route: drag-drop }
-  - wait_for: { id: dnd-slot-0 }
-  - assert_text: { id: dnd-value-0, text: image/png }
+  - wait_for: { id: dnd_slot:0 }
+  - assert_text: { id: dnd_value:0, text: image/png }
   - screenshot: drag-drop
 
   # Final current-process budget; 1G is 1,000,000,000 bytes.

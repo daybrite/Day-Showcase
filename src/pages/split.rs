@@ -12,7 +12,7 @@ pub(crate) fn split_page() -> AnyPiece {
     let st = Scene::new();
     page_wide(
         crate::res::str::nav_split(),
-        "split-title",
+        day::id!(split_title),
         column((support_section(), arrangement_section(st), demo(st))).spacing(Space::L),
     )
     .any()
@@ -60,7 +60,7 @@ fn support_section() -> impl Piece {
         label(crate::res::str::split_hint()).font(Font::Footnote),
         labeled(
             crate::res::str::split_support_label(),
-            label(text).id("split-support"),
+            label(text).id(day::id!(split_support)),
         ),
     ))
     .title(crate::res::str::split_support_title())
@@ -72,14 +72,14 @@ fn arrangement_section(st: Scene) -> impl Piece {
     section((
         labeled(
             crate::res::str::split_stacked(),
-            toggle(st.stacked).id("split-stacked"),
+            toggle(st.stacked).id(day::id!(split_stacked)),
         ),
         labeled(
             crate::res::str::split_share(),
             row((
-                slider(st.share).range(0.2..=0.8).id("split-share"),
+                slider(st.share).range(0.2..=0.8).id(day::id!(split_share)),
                 label(move || format!("{:.0}%", st.share.get() * 100.0))
-                    .id("split-share-value")
+                    .id(day::id!(split_share_value))
                     .font(Font::Callout),
             ))
             .spacing(Space::M),
@@ -101,7 +101,7 @@ fn demo(st: Scene) -> impl Piece {
         })
         .fraction(st.share)
         .min_pane(160.0)
-        .id("split-demo")
+        .id(day::id!(split_demo))
         .height(460.0)
 }
 
@@ -113,7 +113,7 @@ fn form_pane(st: Scene) -> impl Piece {
             crate::res::str::split_caption(),
             text_field(st.caption)
                 .placeholder(crate::res::str::split_caption_placeholder())
-                .id("split-caption"),
+                .id(day::id!(split_caption)),
         ),
         labeled(
             crate::res::str::split_count(),
@@ -121,19 +121,21 @@ fn form_pane(st: Scene) -> impl Piece {
                 .range(1.0..=12.0)
                 .step(1.0)
                 .decimals(0)
-                .id("split-count"),
+                .id(day::id!(split_count)),
         ),
         labeled(
             crate::res::str::split_radius(),
-            slider(st.radius).range(8.0..=80.0).id("split-radius"),
+            slider(st.radius)
+                .range(8.0..=80.0)
+                .id(day::id!(split_radius)),
         ),
         labeled(
             crate::res::str::split_hue(),
-            slider(st.hue).range(0.0..=360.0).id("split-hue"),
+            slider(st.hue).range(0.0..=360.0).id(day::id!(split_hue)),
         ),
         labeled(
             crate::res::str::split_filled(),
-            toggle(st.filled).id("split-filled"),
+            toggle(st.filled).id(day::id!(split_filled)),
         ),
         labeled(
             crate::res::str::split_shape(),
@@ -145,11 +147,11 @@ fn form_pane(st: Scene) -> impl Piece {
                     (2, crate::res::str::split_shape_diamond()),
                 ],
             )
-            .id("split-shape"),
+            .id(day::id!(split_shape)),
         ),
     ))
     .title(crate::res::str::split_form_title()),)))
-    .id("split-form")
+    .id(day::id!(split_form))
 }
 
 /// The derived side: a ring of the form's shapes, redrawn as any of its signals change, with
@@ -209,7 +211,7 @@ fn canvas_pane(st: Scene) -> impl Piece {
                 );
             }
         })
-        .id("split-canvas")
+        .id(day::id!(split_canvas))
         .grow(),
         label(move || {
             crate::res::str::split_readout(crate::res::str::SplitReadout {
@@ -218,7 +220,7 @@ fn canvas_pane(st: Scene) -> impl Piece {
             })
             .format()
         })
-        .id("split-readout")
+        .id(day::id!(split_readout))
         .font(Font::Footnote),
     ))
     .spacing(Space::S)

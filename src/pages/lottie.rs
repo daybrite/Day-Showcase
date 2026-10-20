@@ -35,7 +35,7 @@ pub(crate) fn lottie_page() -> AnyPiece {
     // Not `widgets::page`: that scrolls, and an animation sizes itself by growing into the room
     // it is given, which a scroll view never offers.
     column((
-        heading(crate::res::str::nav_lottie(), "lottie-title"),
+        heading(crate::res::str::nav_lottie(), day::id!(lottie_title)),
         // The gallery scrolls on its own, so it takes the height the heading leaves.
         gallery(open).grow(),
     ))

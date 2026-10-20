@@ -8,7 +8,7 @@ use crate::widgets::page;
 pub(crate) fn focus_page() -> AnyPiece {
     page(
         crate::res::str::nav_focus(),
-        "focus-title",
+        day::id!(focus_title),
         form((group_section(), bool_section(), probe_section())).any(),
     )
     .any()
@@ -66,26 +66,26 @@ fn group_section() -> impl Piece {
             crate::res::str::focus_name_label(),
             text_field(name)
                 .on_submit(move || focus.set(Some(Field::Email)))
-                .id("focus-name-field")
+                .id(day::id!(focus_name_field))
                 .focused((focus, Field::Name)),
         ),
         labeled(
             crate::res::str::focus_email_label(),
             text_field(email)
                 .on_submit(move || focus.set(Some(Field::City)))
-                .id("focus-email-field")
+                .id(day::id!(focus_email_field))
                 .focused((focus, Field::Email)),
         ),
         labeled(
             crate::res::str::focus_city_label(),
             text_field(city)
                 .on_submit(move || focus.set(None))
-                .id("focus-city-field")
+                .id(day::id!(focus_city_field))
                 .focused((focus, Field::City)),
         ),
         labeled(
             crate::res::str::focus_current_label(),
-            label(move || Field::display(focus.get())).id("focus-current"),
+            label(move || Field::display(focus.get())).id(day::id!(focus_current)),
         ),
         row((
             button(crate::res::str::focus_next())
@@ -97,13 +97,13 @@ fn group_section() -> impl Piece {
                     focus.set(Some(next));
                 })
                 .tint(crate::widgets::primary())
-                .id("focus-next-button"),
+                .id(day::id!(focus_next_button)),
             button(crate::res::str::focus_clear())
                 .action(move || {
                     focus.set(None);
                     last.set(None);
                 })
-                .id("focus-clear-button"),
+                .id(day::id!(focus_clear_button)),
         ))
         .spacing(12.0),
         label(crate::res::str::focus_group_caption()).font(Font::Footnote),
@@ -119,7 +119,7 @@ fn bool_section() -> impl Piece {
     section((
         text_field(text)
             .placeholder(crate::res::str::focus_bool_placeholder())
-            .id("focus-bool-field")
+            .id(day::id!(focus_bool_field))
             .focused(editing),
         labeled(
             crate::res::str::focus_state_label(),
@@ -130,15 +130,15 @@ fn bool_section() -> impl Piece {
                     crate::res::str::focus_state_off().format()
                 }
             })
-            .id("focus-bool-state"),
+            .id(day::id!(focus_bool_state)),
         ),
         row((
             button(crate::res::str::focus_focus_btn())
                 .action(move || editing.set(true))
-                .id("focus-bool-focus"),
+                .id(day::id!(focus_bool_focus)),
             button(crate::res::str::focus_blur_btn())
                 .action(move || editing.set(false))
-                .id("focus-bool-blur"),
+                .id(day::id!(focus_bool_blur)),
         ))
         .spacing(12.0),
         label(crate::res::str::focus_bool_caption()).font(Font::Footnote),
@@ -158,17 +158,19 @@ fn probe_section() -> impl Piece {
     section((
         labeled(
             crate::res::str::focus_probe_toggle(),
-            toggle(flag).id("focus-probe-toggle").focused(on_toggle),
+            toggle(flag)
+                .id(day::id!(focus_probe_toggle))
+                .focused(on_toggle),
         ),
         labeled(
             crate::res::str::focus_probe_slider(),
             slider(level)
                 .range(0.0..=100.0)
-                .id("focus-probe-slider")
+                .id(day::id!(focus_probe_slider))
                 .focused(on_slider),
         ),
         button(crate::res::str::focus_probe_button())
-            .id("focus-probe-button")
+            .id(day::id!(focus_probe_button))
             .focused(on_button),
         labeled(
             crate::res::str::focus_current_label(),
@@ -183,7 +185,7 @@ fn probe_section() -> impl Piece {
                     "—".into()
                 }
             })
-            .id("focus-probe-current"),
+            .id(day::id!(focus_probe_current)),
         ),
         label(crate::res::str::focus_probe_caption()).font(Font::Footnote),
     ))

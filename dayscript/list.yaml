@@ -2,23 +2,23 @@ name: showcase-list
 description: Recycled rows, jumps, source changes, selection, and declared row actions.
 flow:
   - navigate: { route: list }
-  - assert_text: { id: list-row:1, key: list_row, args: { n: 1 } }
-  - tap: { id: list-scroll-bottom }
-  - assert_text: { id: list-row:500, key: list_row, args: { n: 500 } }
-  - tap: { id: list-scroll-item }
-  - assert_text: { id: list-row:100, key: list_row, args: { n: 100 } }
-  - swipe_row: { id: demo-list, row: 99, edge: leading, action: 0 }
-  - assert_text: { id: list-activated, key: list_activated, args: { row: 100 } }
-  - tap: { id: list-scroll-top }
-  - assert_visible: { id: list-row:1 }
-  - reorder: { id: demo-list, from: 1, to: 4 }
-  - assert_text: { id: list-order, key: list_order, args: { rows: "1,3,4,5,2" } }
-  - delete_row: { id: demo-list, row: 1 }
-  - assert_text: { id: list-order, key: list_order, args: { rows: "1,4,5,2,6" } }
-  - tap: { id: list-add }
-  - tap: { id: list-scroll-bottom }
-  - assert_visible: { id: list-row:600 }
-  - tap: { id: list-reset }
-  - tap: { id: list-scroll-top }
-  - assert_visible: { id: list-row:1 }
-  - assert_text: { id: list-order, key: list_order, args: { rows: "1,2,3,4,5" } }
+  - assert_text: { id: list_row:1, key: list_row, args: { n: 1 } }
+  - tap: { id: list_scroll_bottom }
+  - assert_text: { id: list_row:500, key: list_row, args: { n: 500 } }
+  - tap: { id: list_scroll_item }
+  - assert_text: { id: list_row:100, key: list_row, args: { n: 100 } }
+  - swipe_row: { id: demo_list, row: 99, edge: leading, action: 0 }
+  - assert_text: { id: list_activated, key: list_activated, args: { row: 100 } }
+  - tap: { id: list_scroll_top }
+  - assert_visible: { id: list_row:1 }
+  - reorder: { id: demo_list, from: 1, to: 4 }
+  - assert_text: { id: list_order, key: list_order, args: { rows: "1,3,4,5,2" } }
+  - delete_row: { id: demo_list, row: 1 }
+  - assert_text: { id: list_order, key: list_order, args: { rows: "1,4,5,2,6" } }
+  - tap: { id: list_add }
+  - tap: { id: list_scroll_bottom }
+  - assert_visible: { id: list_row:600 }
+  - tap: { id: list_reset }
+  - tap: { id: list_scroll_top }
+  - assert_visible: { id: list_row:1 }
+  - assert_text: { id: list_order, key: list_order, args: { rows: "1,2,3,4,5" } }

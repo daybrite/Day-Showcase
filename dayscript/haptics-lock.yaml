@@ -3,15 +3,15 @@ description: Every haptic control greys out while a song plays, and comes back w
 flow:
   - wait_for: { id: nav }
   - navigate: { route: speech }
-  - wait_for: { id: haptics-supported }
-  - scroll_to: { id: haptics-song-cascade }
-  - tap: { id: haptics-song-celebration }
+  - wait_for: { id: haptics_supported }
+  - scroll_to: { id: haptics_song_cascade }
+  - tap: { id: haptics_song_celebration }
   - screenshot: haptics-locked
   # A tap on a disabled button must not register: the status must still name the song.
-  - tap: { id: haptics-heavy }
-  - assert_text: { id: haptics-last-played, text: "Played: Celebration" }
+  - tap: { id: haptics_heavy }
+  - assert_text: { id: haptics_last_played, text: "Played: Celebration" }
   # Celebration is 5.6 s; wait it out and confirm the controls return.
   - pause: 7
   - screenshot: haptics-unlocked
-  - tap: { id: haptics-heavy }
-  - assert_text: { id: haptics-last-played, text: "Played: Heavy" }
+  - tap: { id: haptics_heavy }
+  - assert_text: { id: haptics_last_played, text: "Played: Heavy" }

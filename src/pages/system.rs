@@ -9,7 +9,7 @@ use crate::widgets::{battery_line, page};
 pub(crate) fn system_page() -> AnyPiece {
     page(
         crate::res::str::nav_system(),
-        "system-title",
+        day::id!(system_title),
         form((
             battery_section(),
             sensors_section(),
@@ -17,21 +17,21 @@ pub(crate) fn system_page() -> AnyPiece {
                 day_part_sensors::SensorKind::Accelerometer,
                 crate::res::str::sensor_accelerometer(),
                 "m/s²",
-                "sensor-accel",
+                day::id!(sensor_accel),
                 false,
             ),
             sensor_section(
                 day_part_sensors::SensorKind::Gyroscope,
                 crate::res::str::sensor_gyroscope(),
                 "rad/s",
-                "sensor-gyro",
+                day::id!(sensor_gyro),
                 false,
             ),
             sensor_section(
                 day_part_sensors::SensorKind::Magnetometer,
                 crate::res::str::sensor_magnetometer(),
                 "µT",
-                "sensor-magnet",
+                day::id!(sensor_magnet),
                 true,
             ),
             location_section(),
@@ -64,16 +64,16 @@ fn battery_section() -> impl Piece {
         labeled(
             crate::res::str::battery_level(),
             row((
-                slider(level).range(0.0..=100.0).id("battery-level"),
+                slider(level).range(0.0..=100.0).id(day::id!(battery_level)),
                 label(move || format!("{:.0}%", level.get()))
                     .tabular()
-                    .id("battery-level-value"),
+                    .id(day::id!(battery_level_value)),
             ))
             .spacing(Space::S),
         ),
         labeled(
             crate::res::str::battery_charging(),
-            toggle(charging).id("battery-charging"),
+            toggle(charging).id(day::id!(battery_charging)),
         ),
         row((
             button(crate::res::str::battery_refresh())
@@ -87,8 +87,8 @@ fn battery_section() -> impl Piece {
                     }
                 })
                 .tint(crate::widgets::primary())
-                .id("battery-refresh"),
-            label(move || reading.get()).id("battery-reading"),
+                .id(day::id!(battery_refresh)),
+            label(move || reading.get()).id(day::id!(battery_reading)),
         ))
         .spacing(Space::S),
     ))
@@ -104,7 +104,7 @@ fn sensors_section() -> impl Piece {
         permission_row(
             crate::res::str::sensor_permission(),
             day_part_permissions::Permission::Motion,
-            "sensors-perm",
+            day::id!(sensors_perm),
         ),
     ))
     .title(crate::res::str::nav_sensors())
@@ -126,7 +126,7 @@ fn sensor_section(
     kind: day_part_sensors::SensorKind,
     title: day::LocalizedText,
     unit: &'static str,
-    id: &'static str,
+    id: day::ElementId,
     legend: bool,
 ) -> impl Piece {
     /// The readout: a reading, "waiting" while the sensor exists but has not reported yet, or
@@ -193,10 +193,14 @@ fn sensor_section(
     // Through the shared helper, which puts the id on the LABEL: `reserving` returns a wrapper
     // with no native handle, and an id on that wrapper reaches no element on web-dom.
     section((
-        crate::widgets::numeric_readout(move || line(reading.get(), kind, unit), widest, id),
+        crate::widgets::numeric_readout(
+            move || line(reading.get(), kind, unit),
+            widest,
+            id.clone(),
+        ),
         when(
             move || available,
-            move || strip_chart(series).id(format!("{id}-chart")),
+            move || strip_chart(series).id(day::id!(sensor_chart, id.as_str())),
         ),
         // The legend only means something next to a chart.
         when(
@@ -204,7 +208,7 @@ fn sensor_section(
             move || {
                 label(crate::res::str::chart_axes())
                     .font(Font::Footnote)
-                    .id("sensor-chart-legend")
+                    .id(day::id!(sensor_chart_legend))
             },
         ),
     ))
@@ -280,7 +284,7 @@ fn strip_chart(series: Signal<Vec<day_part_sensors::SensorReading>>) -> impl Pie
 fn permission_row(
     title: day::LocalizedText,
     perm: day_part_permissions::Permission,
-    id: &'static str,
+    id: day::ElementId,
 ) -> impl Piece + use<> {
     use day_part_permissions as perms;
     let status = Signal::new(format!(
@@ -312,7 +316,7 @@ fn permission_row(
         // button clipped at the panel's edge, so the pair stacks on a Compact window
         // (docs/size-classes.md).
         adaptive((
-            label(move || status.get()).id(id),
+            label(move || status.get()).id(id.clone()),
             when(
                 move || gated,
                 move || {
@@ -335,7 +339,7 @@ fn permission_row(
                                 refresh();
                             }
                         })
-                        .id(format!("{id}-action"))
+                        .id(day::id!(permission_action, id.as_str()))
                 },
             ),
         ))
@@ -371,25 +375,25 @@ fn location_section() -> impl Piece {
         permission_row(
             crate::res::str::location_permission(),
             day_part_permissions::Permission::Location,
-            "location-perm",
+            day::id!(location_perm),
         ),
         labeled(
             crate::res::str::nav_location(),
             label(move || coords.get())
                 .selectable()
-                .id("location-coords"),
+                .id(day::id!(location_coords)),
         ),
         labeled(
             crate::res::str::location_altitude(),
             label(move || altitude.get())
                 .selectable()
-                .id("location-altitude"),
+                .id(day::id!(location_altitude)),
         ),
         labeled(
             crate::res::str::location_accuracy(),
             label(move || accuracy.get())
                 .selectable()
-                .id("location-accuracy"),
+                .id(day::id!(location_accuracy)),
         ),
         button(move || {
             if running.get() {
@@ -434,7 +438,7 @@ fn location_section() -> impl Piece {
             *watch.borrow_mut() = Some(handle);
             running.set(true);
         })
-        .id("location-toggle"),
+        .id(day::id!(location_toggle)),
     ))
     .title(crate::res::str::nav_location())
 }
@@ -448,13 +452,13 @@ fn device_section() -> impl Piece {
     section((
         label(move || model.get())
             .selectable()
-            .id("deviceinfo-model"),
+            .id(day::id!(deviceinfo_model)),
         label(move || system.get())
             .selectable()
-            .id("deviceinfo-system"),
+            .id(day::id!(deviceinfo_system)),
         label(move || simulator.get())
             .selectable()
-            .id("deviceinfo-simulator"),
+            .id(day::id!(deviceinfo_simulator)),
         button(crate::res::str::deviceinfo_refresh())
             .bordered()
             .action(move || {
@@ -463,7 +467,7 @@ fn device_section() -> impl Piece {
                 system.set(s);
                 simulator.set(sim);
             })
-            .id("deviceinfo-refresh"),
+            .id(day::id!(deviceinfo_refresh)),
     ))
     .title(crate::res::str::nav_deviceinfo())
 }
@@ -577,7 +581,7 @@ fn battery_view(level: Signal<f64>, charging: Signal<bool>) -> impl Piece {
             .label(crate::res::str::nav_battery())
             .value(move || format!("{:.0}%", level.get()))
     })
-    .id("battery")
+    .id(day::id!(battery))
     .frame(260.0, 120.0)
 }
 

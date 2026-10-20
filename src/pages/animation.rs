@@ -115,21 +115,21 @@ pub(crate) fn animation_page() -> AnyPiece {
     // dimmed and inert while the queued targets already match the applied state.
     let actions = row((
         action_button(
-            "anim-randomize",
+            day::id!(anim_randomize),
             crate::res::str::anim_randomize().format(),
             VIOLET,
             || true,
             move || s.randomize(),
         ),
         action_button(
-            "anim-go",
+            day::id!(anim_go),
             crate::res::str::anim_go_label().format(),
             RUST,
             move || s.dirty(),
             move || s.commit(),
         ),
         action_button(
-            "anim-reset",
+            day::id!(anim_reset),
             crate::res::str::anim_reset_label().format(),
             SLATE,
             || true,
@@ -145,27 +145,29 @@ pub(crate) fn animation_page() -> AnyPiece {
         form((section((
             labeled(
                 crate::res::str::anim_scale(),
-                slider(s.p_scale).range(0.5..=1.5).id("anim-scale"),
+                slider(s.p_scale).range(0.5..=1.5).id(day::id!(anim_scale)),
             ),
             labeled(
                 crate::res::str::anim_rotation(),
-                slider(s.p_rot).range(0.0..=360.0).id("anim-rotation"),
+                slider(s.p_rot)
+                    .range(0.0..=360.0)
+                    .id(day::id!(anim_rotation)),
             ),
             labeled(
                 crate::res::str::anim_opacity(),
-                slider(s.p_op).range(0.15..=1.0).id("anim-opacity"),
+                slider(s.p_op).range(0.15..=1.0).id(day::id!(anim_opacity)),
             ),
             labeled(
                 crate::res::str::anim_offset_x(),
-                slider(s.p_offx).range(-72.0..=72.0).id("anim-offx"),
+                slider(s.p_offx).range(-72.0..=72.0).id(day::id!(anim_offx)),
             ),
             labeled(
                 crate::res::str::anim_offset_y(),
-                slider(s.p_offy).range(-60.0..=60.0).id("anim-offy"),
+                slider(s.p_offy).range(-60.0..=60.0).id(day::id!(anim_offy)),
             ),
             labeled(
                 crate::res::str::anim_hue(),
-                slider(s.p_hue).range(0.0..=360.0).id("anim-hue"),
+                slider(s.p_hue).range(0.0..=360.0).id(day::id!(anim_hue)),
             ),
             labeled(
                 crate::res::str::anim_curve(),
@@ -179,7 +181,7 @@ pub(crate) fn animation_page() -> AnyPiece {
                     ],
                 )
                 .segmented()
-                .id("anim-curve"),
+                .id(day::id!(anim_curve)),
             ),
             labeled(crate::res::str::anim_duration(), duration_stepper(s.dur)),
             // The user's reduce-motion setting (docs/accessibility.md), live: under it every
@@ -195,7 +197,7 @@ pub(crate) fn animation_page() -> AnyPiece {
                     }
                     .format()
                 })
-                .id("anim-reduced-motion"),
+                .id(day::id!(anim_reduced_motion)),
             ),
         )),)),
     ))
@@ -203,7 +205,7 @@ pub(crate) fn animation_page() -> AnyPiece {
 
     page(
         crate::res::str::nav_animation(),
-        "animation-title",
+        day::id!(animation_title),
         body.any(),
     )
     .any()
@@ -231,7 +233,7 @@ fn stage(s: Anim) -> impl Piece {
             anchor_x: 0.5,
             anchor_y: 0.5,
         })
-        .id("anim-box");
+        .id(day::id!(anim_box));
     // A zstack over the stage floor: a quiet rounded panel that sizes the stage, centers the box
     // (both axes), and is the box's only clipping parent, so the box travels freely within it.
     // The panel is a translucent neutral so it reads as a surface on both themes.
@@ -248,7 +250,7 @@ fn stage(s: Anim) -> impl Piece {
 /// A filled, tappable, equal-width action button (`.grow_w()` makes each take an equal share of the
 /// row), dimmed and inert while `enabled` reads false. Colored directly so each reads distinctly.
 fn action_button(
-    id: &'static str,
+    id: day::ElementId,
     text: String,
     color: Color,
     enabled: impl Fn() -> bool + Copy + 'static,
@@ -286,12 +288,12 @@ fn duration_stepper(dur: Signal<i64>) -> impl Piece {
         button("−")
             .bordered()
             .action(move || dur.update(|d| *d = (*d - 100).max(100)))
-            .id("anim-dur-dec"),
-        label(crate::res::str::anim_duration_ms(dur)).id("anim-dur-value"),
+            .id(day::id!(anim_dur_dec)),
+        label(crate::res::str::anim_duration_ms(dur)).id(day::id!(anim_dur_value)),
         button("+")
             .bordered()
             .action(move || dur.update(|d| *d = (*d + 100).min(3000)))
-            .id("anim-dur-inc"),
+            .id(day::id!(anim_dur_inc)),
     ))
     .spacing(Space::M)
 }

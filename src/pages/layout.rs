@@ -12,7 +12,7 @@ use crate::widgets::page;
 pub(crate) fn layout_page() -> AnyPiece {
     page(
         crate::res::str::nav_layout(),
-        "layout-title",
+        day::id!(layout_title),
         form((
             stacks_section(),
             fit_section(),
@@ -44,7 +44,7 @@ fn stacks_section() -> impl Piece {
         ))
         .align(align)
         .spacing(Space::M)
-        .id("layout-stack")
+        .id(day::id!(layout_stack))
     };
     section((
         labeled(
@@ -58,7 +58,7 @@ fn stacks_section() -> impl Piece {
                 ],
             )
             .segmented()
-            .id("layout-align"),
+            .id(day::id!(layout_align)),
         ),
         switch(move || align.get(), move |a| swatches(*a)),
         labeled(
@@ -69,7 +69,7 @@ fn stacks_section() -> impl Piece {
                     .frame(140.0, 80.0),
                 circle().fill(crate::palette::AMBER).frame(40.0, 40.0),
             ))
-            .id("layout-layers"),
+            .id(day::id!(layout_layers)),
         ),
     ))
     .title(crate::res::str::layout_stacks_section())
@@ -119,7 +119,7 @@ fn fit_section() -> impl Piece {
                 ],
             )
             .menu()
-            .id("layout-fit"),
+            .id(day::id!(layout_fit)),
         ),
         labeled(
             crate::res::str::layout_count_label(),
@@ -127,14 +127,14 @@ fn fit_section() -> impl Piece {
                 button("−")
                     .bordered()
                     .action(move || count.update(|c| *c = (*c - 1).max(MIN_ITEMS)))
-                    .id("layout-remove"),
+                    .id(day::id!(layout_remove)),
                 label(move || count.get().to_string())
                     .tabular()
-                    .id("layout-count"),
+                    .id(day::id!(layout_count)),
                 button("+")
                     .prominent()
                     .action(move || count.update(|c| *c = (*c + 1).min(MAX_ITEMS)))
-                    .id("layout-add"),
+                    .id(day::id!(layout_add)),
             ))
             .spacing(Space::S),
         ),
@@ -155,7 +155,7 @@ fn fit_section() -> impl Piece {
                     Fit::Column => adaptive_row(count).any(),
                     Fit::Scroll => demo_row(count, RowFit::Scroll).any(),
                 };
-                arm.id("layout-demo").any()
+                arm.id(day::id!(layout_demo)).any()
             },
         ),
     ))
@@ -212,13 +212,13 @@ fn cards_section() -> impl Piece {
         .spacing(Space::XS)
         .align(HAlign::Leading)
         .modifier(Card)
-        .id("layout-card"),
+        .id(day::id!(layout_card)),
         with_environment(Accent(crate::palette::TEAL), || {
             let tint = environment::<Accent>().map(|a| a.0).unwrap_or(Color::BLACK);
             label(crate::res::str::compose_env_value())
                 .font(Font::Headline)
                 .color(tint)
-                .id("compose-env-value")
+                .id(day::id!(compose_env_value))
                 .any()
         }),
     ))
@@ -235,11 +235,11 @@ fn scroll_section() -> impl Piece {
             button(crate::res::str::layout_scroll_top())
                 .bordered()
                 .action(move || target.set(Some(ScrollTarget::Top)))
-                .id("layout-scroll-top"),
+                .id(day::id!(layout_scroll_top)),
             button(crate::res::str::layout_scroll_end())
                 .bordered()
                 .action(move || target.set(Some(ScrollTarget::Bottom)))
-                .id("layout-scroll-end"),
+                .id(day::id!(layout_scroll_end)),
         ))
         .spacing(Space::S)
         .fit(RowFit::Wrap { run_spacing: 8.0 }),
@@ -249,13 +249,13 @@ fn scroll_section() -> impl Piece {
                 |slot: ItemSlot<i64, i64>| {
                     label(move || crate::res::str::layout_row(slot.get()).format())
                         .padding(Insets::symmetric(12.0, 8.0))
-                        .id_keyed("layout-row", slot.key())
+                        .id(day::id!(layout_row, slot.key()))
                 },
             ),))
             .align(HAlign::Leading),
         )
         .scroll_target(target)
-        .id("layout-scroll")
+        .id(day::id!(layout_scroll))
         .height(200.0),
     ))
     .title(crate::res::str::layout_scroll_section())
@@ -275,11 +275,11 @@ fn size_section() -> impl Piece {
     section((
         labeled(
             crate::res::str::layout_size_width(),
-            label(class(|c| format!("{:?}", c.width))).id("layout-size-width"),
+            label(class(|c| format!("{:?}", c.width))).id(day::id!(layout_size_width)),
         ),
         labeled(
             crate::res::str::layout_size_height(),
-            label(class(|c| format!("{:?}", c.height))).id("layout-size-height"),
+            label(class(|c| format!("{:?}", c.height))).id(day::id!(layout_size_height)),
         ),
     ))
     .title(crate::res::str::layout_size_section())

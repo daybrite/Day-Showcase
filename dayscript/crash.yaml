@@ -8,6 +8,6 @@ flow:
   - wait_for: { id: nav }
   - navigate: { route: crash }
   - assert_route: { route: crash }
-  - assert_visible: { id: crash-abort }
-  - tap: { id: crash-abort }
+  - assert_visible: { id: crash_abort }
+  - tap: { id: crash_abort }
   - expect_exit: { within: 20 }

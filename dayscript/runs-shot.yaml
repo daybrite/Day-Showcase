@@ -3,5 +3,5 @@ description: Capture styled runs.
 flow:
   - wait_for: { id: nav }
   - navigate: { route: text }
-  - scroll_to: { id: text-runs }
+  - scroll_to: { id: text_runs }
   - screenshot: text-runs

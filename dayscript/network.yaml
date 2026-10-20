@@ -3,49 +3,49 @@ name: network
 flow:
   - wait_for: { id: nav }
   - navigate: { route: network }
-  - tap: { id: http-fetch }
-  - assert_text: { id: http-status, text: "200 day-http-ok" }
-  - select: { id: network-provider, index: 1, skip_on: [web-dom, harmony-arkui] }
-  - select: { id: http-method, index: 2 }
-  - tap: { id: http-fetch }
-  - assert_text: { id: http-status, text: "200 day-http-ok:PATCH" }
-  - select: { id: network-operation, index: 1, skip_on: [web-dom, harmony-arkui] }
-  - tap: { id: ws-connect, skip_on: [web-dom, harmony-arkui] }
-  - assert_text: { id: ws-state, key: net_connected, skip_on: [web-dom, harmony-arkui] }
-  - input: { id: ws-text, text: "real echo", skip_on: [web-dom, harmony-arkui] }
-  - tap: { id: ws-send, skip_on: [web-dom, harmony-arkui] }
-  - assert_text: { id: ws-last, text: "real echo", skip_on: [web-dom, harmony-arkui] }
-  - tap: { id: ws-close, skip_on: [web-dom, harmony-arkui] }
-  - select: { id: network-operation, index: 0 }
-  - select: { id: network-provider, index: 0, skip_on: [web-dom, harmony-arkui] }
-  - toggle: { id: network-intercept, value: true }
-  - set_value: { id: network-speed, value: 512 }
-  - select: { id: http-method, index: 0 }
-  - tap: { id: http-fetch }
-  - assert_text: { id: http-status, text: "200 day-http-ok" }
-  - set_value: { id: network-failure, value: 100 }
-  - tap: { id: http-fetch }
-  - assert_text: { id: http-status, key: net_error, args: { error: "simulated connection failure" } }
-  - set_value: { id: network-failure, value: 0 }
-  - toggle: { id: network-pause, value: true }
-  - tap: { id: http-fetch }
-  - assert_text: { id: http-status, key: http_checking }
-  - tap: { id: http-cancel }
-  - assert_text: { id: http-status, key: net_cancelled }
-  - toggle: { id: network-pause, value: false }
-  - tap: { id: http-fetch }
-  - assert_text: { id: http-status, text: "200 day-http-ok" }
-  - select: { id: network-operation, index: 1 }
-  - tap: { id: ws-connect }
-  - assert_text: { id: ws-state, key: net_connected }
-  - input: { id: ws-text, text: "simulated echo" }
-  - tap: { id: ws-send }
-  - assert_text: { id: ws-last, text: "simulated echo" }
-  - tap: { id: ws-close }
-  - assert_text: { id: ws-state, key: net_closed }
-  - assert_visible: { id: network-chart }
+  - tap: { id: http_fetch }
+  - assert_text: { id: http_status, text: "200 day-http-ok" }
+  - select: { id: network_provider, index: 1, skip_on: [web-dom, harmony-arkui] }
+  - select: { id: http_method, index: 2 }
+  - tap: { id: http_fetch }
+  - assert_text: { id: http_status, text: "200 day-http-ok:PATCH" }
+  - select: { id: network_operation, index: 1, skip_on: [web-dom, harmony-arkui] }
+  - tap: { id: ws_connect, skip_on: [web-dom, harmony-arkui] }
+  - assert_text: { id: ws_state, key: net_connected, skip_on: [web-dom, harmony-arkui] }
+  - input: { id: ws_text, text: "real echo", skip_on: [web-dom, harmony-arkui] }
+  - tap: { id: ws_send, skip_on: [web-dom, harmony-arkui] }
+  - assert_text: { id: ws_last, text: "real echo", skip_on: [web-dom, harmony-arkui] }
+  - tap: { id: ws_close, skip_on: [web-dom, harmony-arkui] }
+  - select: { id: network_operation, index: 0 }
+  - select: { id: network_provider, index: 0, skip_on: [web-dom, harmony-arkui] }
+  - toggle: { id: network_intercept, value: true }
+  - set_value: { id: network_speed, value: 512 }
+  - select: { id: http_method, index: 0 }
+  - tap: { id: http_fetch }
+  - assert_text: { id: http_status, text: "200 day-http-ok" }
+  - set_value: { id: network_failure, value: 100 }
+  - tap: { id: http_fetch }
+  - assert_text: { id: http_status, key: net_error, args: { error: "simulated connection failure" } }
+  - set_value: { id: network_failure, value: 0 }
+  - toggle: { id: network_pause, value: true }
+  - tap: { id: http_fetch }
+  - assert_text: { id: http_status, key: http_checking }
+  - tap: { id: http_cancel }
+  - assert_text: { id: http_status, key: net_cancelled }
+  - toggle: { id: network_pause, value: false }
+  - tap: { id: http_fetch }
+  - assert_text: { id: http_status, text: "200 day-http-ok" }
+  - select: { id: network_operation, index: 1 }
+  - tap: { id: ws_connect }
+  - assert_text: { id: ws_state, key: net_connected }
+  - input: { id: ws_text, text: "simulated echo" }
+  - tap: { id: ws_send }
+  - assert_text: { id: ws_last, text: "simulated echo" }
+  - tap: { id: ws_close }
+  - assert_text: { id: ws_state, key: net_closed }
+  - assert_visible: { id: network_chart }
   - pause: { secs: 0.4 }
   - screenshot: network-simulation
-  - select: { id: network-operation, index: 0 }
-  - toggle: { id: network-intercept, value: false }
+  - select: { id: network_operation, index: 0 }
+  - toggle: { id: network_intercept, value: false }
   - memory_usage:

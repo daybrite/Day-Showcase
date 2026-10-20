@@ -4,6 +4,6 @@ flow:
   - wait_for: { id: nav }
   - navigate: { route: canvas }
   - assert_route: { route: canvas }
-  - assert_visible: { id: shape-rect }
-  - assert_visible: { id: shape-arc }
+  - assert_visible: { id: shape_rect }
+  - assert_visible: { id: shape_arc }
   - screenshot: shapes

@@ -9,21 +9,21 @@ flow:
   - wait_for: { id: nav }
   - navigate: { route: cursors }
   - assert_route: { route: cursors }
-  - wait_for: { id: cursors-support }
+  - wait_for: { id: cursors_support }
   # AppKit, GTK, the DOM, and Android draw the shared set from their own shapes; Qt, XAML, and
   # iPadOS map to a nearest shape or a pointer effect; ArkUI has no pointer API Day reaches.
-  - assert_text: { id: cursors-support, text: "Native", only_on: [appkit, gtk, dom, mdc] }
-  - assert_text: { id: cursors-support, text: "Emulated (nearest shapes)", only_on: [qt, xaml, uikit] }
-  - assert_text: { id: cursors-support, text: "Unsupported on this target", only_on: [arkui] }
-  - assert_visible: { id: cursor-shapes-pointer }
-  - assert_visible: { id: cursor-resize-ew-resize }
+  - assert_text: { id: cursors_support, text: "Native", only_on: [appkit, gtk, dom, mdc] }
+  - assert_text: { id: cursors_support, text: "Emulated (nearest shapes)", only_on: [qt, xaml, uikit] }
+  - assert_text: { id: cursors_support, text: "Unsupported on this target", only_on: [arkui] }
+  - assert_visible: { id: cursor_swatch:shapes%3Apointer }
+  - assert_visible: { id: cursor_swatch:resize%3Aew-resize }
   - screenshot:
       name: cursors
       title: { en: "Cursors", fr: "Curseurs", ar: "المؤشّرات", zh-CN: "光标" }
       source: src/pages/cursors.rs
   # The reactive box: the picker writes the signal, the closure re-runs, the label follows.
-  - select: { id: cursors-pick, index: 4 }
-  - assert_text: { id: cursors-reactive-box, text: "crosshair" }
-  - select: { id: cursors-pick, index: 6 }
-  - assert_text: { id: cursors-reactive-box, text: "grab" }
-  - assert_visible: { id: cursors-nested-inner }
+  - select: { id: cursors_pick, index: 4 }
+  - assert_text: { id: cursors_reactive_box, text: "crosshair" }
+  - select: { id: cursors_pick, index: 6 }
+  - assert_text: { id: cursors_reactive_box, text: "grab" }
+  - assert_visible: { id: cursors_nested_inner }

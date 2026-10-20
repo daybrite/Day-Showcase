@@ -5,13 +5,13 @@ description: The settings window's Appearance flip recoloring every window live
 flow:
   - wait_for: { id: nav }
   - menu: { key: day-preferences }
-  - wait_for: { id: theme-picker }
+  - wait_for: { id: theme_picker }
 
   # Dark applies app-wide, live: the prefs window and the primary recolor.
-  - select: { id: theme-picker, index: 1 }
+  - select: { id: theme_picker, index: 1 }
   - pause: 0.3
   - screenshot: { name: prefs-dark, window: day.preferences }
   - screenshot: primary-dark
   # Back to System (prefs hygiene).
-  - select: { id: theme-picker, index: 2 }
+  - select: { id: theme_picker, index: 2 }
   - close_window: { window: day.preferences }

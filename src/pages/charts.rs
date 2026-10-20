@@ -23,7 +23,7 @@ pub(crate) fn charts_page() -> AnyPiece {
     // Not `widgets::page`: that scrolls, and a chart sizes itself by growing into the room it is
     // given, which a scroll view never offers. Each gallery page scrolls or grows on its own.
     column((
-        heading(crate::res::str::nav_charts(), "charts-title"),
+        heading(crate::res::str::nav_charts(), day::id!(charts_title)),
         gallery(open),
     ))
     .spacing(8.0)

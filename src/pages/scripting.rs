@@ -35,7 +35,7 @@ fn try_buf() -> Option<Signal<String>> {
 
 pub(crate) fn record_into_buffer() {
     let Some(buf) = try_buf() else { return };
-    day::record::exclude_prefix("scripting-");
+    day::record::exclude_prefix("scripting_");
     day::record::start_into(buf);
 }
 
@@ -68,7 +68,7 @@ fn current_file_signal() -> Signal<Option<String>> {
 
 /// The Scripting page (DESIGN.md §14.6): record your own taps and navigation into a replayable
 /// dayscript, edit it, play it back, and save it to the app's `scripts/` folder for later. The
-/// controls carry ids under the `scripting-` prefix, which is what the recorder excludes, so a
+/// controls carry ids under the `scripting_` prefix, which is what the recorder excludes, so a
 /// Record/Stop/Play/Save tap never records itself.
 pub(crate) fn scripting_page() -> AnyPiece {
     let buf = buf_signal();
@@ -76,7 +76,7 @@ pub(crate) fn scripting_page() -> AnyPiece {
     let current_file = current_file_signal();
     // Returning to a rebuilt page mid-recording: keep the live stream flowing into the buffer.
     if day::record::is_recording() {
-        day::record::exclude_prefix("scripting-");
+        day::record::exclude_prefix("scripting_");
         day::record::start_into(buf);
     }
     let recording = day::record::recording_signal();
@@ -130,22 +130,22 @@ pub(crate) fn scripting_page() -> AnyPiece {
 
     page(
         crate::res::str::nav_scripting(),
-        "scripting-title",
+        day::id!(scripting_title),
         form((
             // The editable script: streamed into while recording, hand-editable any time.
             section((text_area(buf)
                 .min_lines(12)
                 .max_lines(24)
-                .id("scripting-buffer"),)),
+                .id(day::id!(scripting_buffer)),)),
             // Load a saved script from the app container.
             section((row((
                 label(crate::res::str::scripting_saved_label()).font(Font::Footnote),
                 picker(sel, options.into_iter().enumerate().collect::<Vec<_>>())
                     .menu()
-                    .id("scripting-menu"),
+                    .id(day::id!(scripting_menu)),
             ))
             .spacing(Space::S),)),
-            // The controls. Every id starts with `scripting-` so the recorder skips them.
+            // The controls. Every id starts with `scripting_` so the recorder skips them.
             section((
                 row((
                     // Record ↔ Stop: label and fill both track the recording flag reactively.
@@ -174,14 +174,14 @@ pub(crate) fn scripting_page() -> AnyPiece {
                             crate::palette::SLATE
                         }
                     })
-                    .id("scripting-record"),
+                    .id(day::id!(scripting_record)),
                     // Play ↔ Pause ↔ Resume, the same transport the toolbar carries: the title
                     // follows the run so one button covers all three, and it is disabled while
                     // recording and when the script is empty or does not parse.
                     crate::commands::play_pause_with_delay(delay_secs)
                         .button()
                         .bordered()
-                        .id("scripting-play"),
+                        .id(day::id!(scripting_play)),
                     // Save to the app's scripts folder. Enabled only when the buffer differs from
                     // the last saved/loaded content (dirty). A script already mapped to a file
                     // updates that file in place; an unsaved one prompts for a name.
@@ -220,7 +220,7 @@ pub(crate) fn scripting_page() -> AnyPiece {
                                 }
                             }
                         })
-                        .id("scripting-save"),
+                        .id(day::id!(scripting_save)),
                     // Copy the script to the clipboard (docs/clipboard.md), with a transient note.
                     button(crate::res::str::scripting_copy())
                         .bordered()
@@ -230,7 +230,7 @@ pub(crate) fn scripting_page() -> AnyPiece {
                                 status.set(crate::res::str::scripting_copied().format());
                             }
                         })
-                        .id("scripting-copy"),
+                        .id(day::id!(scripting_copy)),
                     // Export to a .yaml via the native save-file picker (docs/files.md).
                     button(crate::res::str::scripting_export())
                         .bordered()
@@ -244,7 +244,7 @@ pub(crate) fn scripting_page() -> AnyPiece {
                                     .await;
                             });
                         })
-                        .id("scripting-export"),
+                        .id(day::id!(scripting_export)),
                 ))
                 .spacing(Space::S),
                 // "Delay between steps": an editable field with - / + buttons, feeding the
@@ -254,20 +254,20 @@ pub(crate) fn scripting_page() -> AnyPiece {
                     button("\u{2212}")
                         .bordered()
                         .action(move || bump(-0.25))
-                        .id("scripting-delay-dec"),
+                        .id(day::id!(scripting_delay_dec)),
                     text_field(delay_text)
                         .placeholder(DEFAULT_DELAY)
-                        .id("scripting-delay"),
+                        .id(day::id!(scripting_delay)),
                     button("+")
                         .bordered()
                         .action(move || bump(0.25))
-                        .id("scripting-delay-inc"),
+                        .id(day::id!(scripting_delay_inc)),
                     label(crate::res::str::scripting_delay_unit()).font(Font::Footnote),
                 ))
                 .spacing(Space::S),
                 label(move || status.get())
                     .font(Font::Footnote)
-                    .id("scripting-status"),
+                    .id(day::id!(scripting_status)),
             )),
         ))
         .any(),

@@ -23,7 +23,7 @@ pub(crate) fn controls_page() -> AnyPiece {
     let st = Catalog::new();
     page(
         crate::res::str::nav_controls(),
-        "controls-title",
+        day::id!(controls_title),
         form((
             buttons_section(st),
             switches_section(st),
@@ -161,35 +161,37 @@ fn buttons_section(st: Catalog) -> impl Piece {
     section((
         labeled(
             crate::res::str::ctl_plain(),
-            button(press()).action(move || st.press()).id("btn-plain"),
+            button(press())
+                .action(move || st.press())
+                .id(day::id!(btn_plain)),
         ),
         labeled(
             crate::res::str::ctl_bordered(),
             button(press())
                 .bordered()
                 .action(move || st.press())
-                .id("btn-bordered"),
+                .id(day::id!(btn_bordered)),
         ),
         labeled(
             crate::res::str::ctl_prominent(),
             button(press())
                 .prominent()
                 .action(move || st.press())
-                .id("btn-prominent"),
+                .id(day::id!(btn_prominent)),
         ),
         labeled(
             crate::res::str::ctl_tinted(),
             button(press())
                 .tint(crate::widgets::primary())
                 .action(move || st.press())
-                .id("btn-tinted"),
+                .id(day::id!(btn_tinted)),
         ),
         labeled(
             crate::res::str::ctl_destructive(),
             button(press())
                 .tint(crate::widgets::danger())
                 .action(move || st.press())
-                .id("btn-destructive"),
+                .id(day::id!(btn_destructive)),
         ),
         labeled(
             crate::res::str::ctl_disabled(),
@@ -197,14 +199,14 @@ fn buttons_section(st: Catalog) -> impl Piece {
                 .icon(Symbol::Close)
                 .enabled(false)
                 .action(move || st.press())
-                .id("btn-disabled"),
+                .id(day::id!(btn_disabled)),
         ),
         labeled(
             crate::res::str::ctl_icon_label(),
             button(press())
                 .icon(Symbol::Add)
                 .action(move || st.press())
-                .id("btn-icon-label"),
+                .id(day::id!(btn_icon_label)),
         ),
         labeled(
             crate::res::str::ctl_icon_only(),
@@ -225,25 +227,25 @@ fn buttons_section(st: Catalog) -> impl Piece {
             })
             .icon_only()
             .action(move || playing.set(!playing.get()))
-            .id("btn-icon-only"),
+            .id(day::id!(btn_icon_only)),
         ),
         labeled(
             crate::res::str::ctl_image(),
             button(press())
                 .image(crate::res::vectors::nav_controls)
                 .action(move || st.press())
-                .id("btn-image"),
+                .id(day::id!(btn_image)),
         ),
         labeled(
             crate::res::str::ctl_link(),
-            link(crate::res::str::ctl_link_text(), "https://daybrite.dev").id("ctl-link"),
+            link(crate::res::str::ctl_link_text(), "https://daybrite.dev").id(day::id!(ctl_link)),
         ),
         labeled(
             crate::res::str::ctl_presses(),
             crate::widgets::numeric_readout(
                 move || st.presses.get().to_string(),
                 "888",
-                "btn-presses",
+                day::id!(btn_presses),
             ),
         ),
     ))
@@ -261,19 +263,21 @@ fn switches_section(st: Catalog) -> impl Piece {
     section((
         labeled(
             crate::res::str::ctl_toggle(),
-            toggle(st.on).id("subscribe-toggle"),
+            toggle(st.on).id(day::id!(subscribe_toggle)),
         ),
         column((
             labeled(
                 crate::res::str::ctl_slider(),
                 row((
-                    slider(st.level).range(0.0..=100.0).id("volume-slider"),
+                    slider(st.level)
+                        .range(0.0..=100.0)
+                        .id(day::id!(volume_slider)),
                     // Reserves the width of "100" so the row stops reflowing as the value
                     // changes under the slider being dragged.
                     crate::widgets::numeric_readout(
                         move || format!("{:.0}", st.level.get()),
                         "100",
-                        "volume-value",
+                        day::id!(volume_value),
                     ),
                 ))
                 .spacing(Space::S),
@@ -284,11 +288,11 @@ fn switches_section(st: Catalog) -> impl Piece {
                     slider(st.steps)
                         .range(0.0..=100.0)
                         .step(10.0)
-                        .id("stepped-slider"),
+                        .id(day::id!(stepped_slider)),
                     crate::widgets::numeric_readout(
                         move || format!("{:.0}", st.steps.get()),
                         "100",
-                        "stepped-value",
+                        day::id!(stepped_value),
                     ),
                 ))
                 .spacing(Space::S),
@@ -300,11 +304,11 @@ fn switches_section(st: Catalog) -> impl Piece {
                         .range(0.0..=10.0)
                         .step(1.0)
                         .decimals(0)
-                        .id("stepper-field"),
+                        .id(day::id!(stepper_field)),
                     crate::widgets::numeric_readout(
                         move || format!("{:.0}", st.count.get()),
                         "88",
-                        "stepper-value",
+                        day::id!(stepper_value),
                     ),
                 ))
                 .spacing(Space::S),
@@ -316,12 +320,12 @@ fn switches_section(st: Catalog) -> impl Piece {
                     .step(1.0)
                     .decimals(0)
                     .composed()
-                    .id("stepper-composed"),
+                    .id(day::id!(stepper_composed)),
             ),
             labeled(
                 crate::res::str::ctl_progress(),
                 progress(move || st.level.get() / 100.0)
-                    .id("volume-progress")
+                    .id(day::id!(volume_progress))
                     .a11y(|a| a.role(Role::Meter).label("Level")),
             ),
             labeled(
@@ -329,7 +333,7 @@ fn switches_section(st: Catalog) -> impl Piece {
                 row((
                     activity()
                         .animating(move || st.on.get() && st.level.get() > 0.0)
-                        .id("activity-spinner"),
+                        .id(day::id!(activity_spinner)),
                     label(move || {
                         if st.on.get() {
                             crate::res::str::activity_on()
@@ -338,12 +342,15 @@ fn switches_section(st: Catalog) -> impl Piece {
                         }
                         .format()
                     })
-                    .id("activity-status"),
+                    .id(day::id!(activity_status)),
                 ))
                 .spacing(Space::S)
                 .fit(RowFit::Wrap { run_spacing: 8.0 }),
             ),
-            labeled(crate::res::str::ctl_spinner(), spinner().id("ctl-spinner")),
+            labeled(
+                crate::res::str::ctl_spinner(),
+                spinner().id(day::id!(ctl_spinner)),
+            ),
         ))
         .spacing(Space::S)
         .opacity(dim),
@@ -365,7 +372,7 @@ fn text_section(st: Catalog) -> impl Piece {
             crate::res::str::ctl_text_field(),
             text_field(st.name)
                 .placeholder(crate::res::str::name_placeholder())
-                .id("name-field"),
+                .id(day::id!(name_field)),
         ),
         labeled(
             crate::res::str::ctl_search_field(),
@@ -373,17 +380,17 @@ fn text_section(st: Catalog) -> impl Piece {
                 row((
                     search_field(st.query)
                         .placeholder(crate::res::str::voice_search_placeholder())
-                        .id("search-input"),
+                        .id(day::id!(search_input)),
                     button(crate::res::str::search_clear())
                         .bordered()
                         .action(move || st.query.set(String::new()))
-                        .id("search-clear"),
+                        .id(day::id!(search_clear)),
                 ))
                 .spacing(Space::S),
                 // The first match in the same list the combo offers: a value, or an em-dash.
                 label(move || first_match(&st.query.get(), &voices.get()))
                     .font(Font::Footnote)
-                    .id("search-result"),
+                    .id(day::id!(search_result)),
             ))
             .spacing(Space::XS)
             .align(HAlign::Leading),
@@ -396,7 +403,7 @@ fn text_section(st: Catalog) -> impl Piece {
                 row((
                     combo_box(voices, st.voice)
                         .placeholder(crate::res::str::flavor_placeholder())
-                        .id("flavor-combo"),
+                        .id(day::id!(flavor_combo)),
                     button(crate::res::str::flavor_add())
                         .action(move || {
                             let typed = st.voice.get_untracked();
@@ -405,7 +412,7 @@ fn text_section(st: Catalog) -> impl Piece {
                             }
                         })
                         .tint(crate::widgets::primary())
-                        .id("flavor-add"),
+                        .id(day::id!(flavor_add)),
                 ))
                 .spacing(Space::S),
                 // No combo-box arm on iOS or the web (docs/combobox.md): day renders its
@@ -414,7 +421,7 @@ fn text_section(st: Catalog) -> impl Piece {
                     .then(|| label(crate::res::str::ctl_combo_note()).font(Font::Footnote)),
                 label(move || st.voice.get())
                     .font(Font::Footnote)
-                    .id("flavor-value"),
+                    .id(day::id!(flavor_value)),
             ))
             .spacing(Space::XS)
             .align(HAlign::Leading),
@@ -425,7 +432,7 @@ fn text_section(st: Catalog) -> impl Piece {
                 .placeholder(crate::res::str::ctl_notes_placeholder())
                 .min_lines(3)
                 .max_lines(3)
-                .id("notes-area"),
+                .id(day::id!(notes_area)),
         ),
     ))
     .title(crate::res::str::ctl_text_entry())
@@ -443,40 +450,40 @@ fn pickers_section(st: Catalog) -> impl Piece {
                 crate::res::str::picker_segmented(),
                 picker(st.preset, Catalog::preset_options())
                     .segmented()
-                    .id("picker-segmented"),
+                    .id(day::id!(picker_segmented)),
             ),
             labeled(
                 crate::res::str::picker_menu(),
                 picker(st.preset, Catalog::preset_options())
                     .menu()
-                    .id("picker-menu"),
+                    .id(day::id!(picker_menu)),
             ),
             labeled(
                 crate::res::str::picker_inline(),
                 picker(st.preset, Catalog::preset_options())
                     .inline()
-                    .id("picker-inline"),
+                    .id(day::id!(picker_inline)),
             ),
             labeled(
                 crate::res::str::picker_selected(),
-                label(preset_label).id("picker-value"),
+                label(preset_label).id(day::id!(picker_value)),
             ),
         ))
         .spacing(Space::S)
         .opacity(dim),
         labeled(
             crate::res::str::ctl_date(),
-            date_picker(st.date).compact().id("ctl-date"),
+            date_picker(st.date).compact().id(day::id!(ctl_date)),
         ),
         labeled(
             crate::res::str::ctl_time(),
-            time_picker(st.time).compact().id("ctl-time"),
+            time_picker(st.time).compact().id(day::id!(ctl_time)),
         ),
         // Native chooser or a composed one per toolkit (docs/colorpicker.md), never a banner:
         // there is no target where it does not work, only which picker differs.
         labeled(
             crate::res::str::ctl_color(),
-            color_picker(st.color).id("ctl-color"),
+            color_picker(st.color).id(day::id!(ctl_color)),
         ),
     ))
     .title(crate::res::str::ctl_pickers())
@@ -498,7 +505,7 @@ fn accessibility_section() -> impl Piece {
         label(crate::res::str::ctl_a11y_heading())
             .font(Font::Headline)
             .a11y(|a| a.role(Role::Heading(2)))
-            .id("ctl-a11y-heading"),
+            .id(day::id!(ctl_a11y_heading)),
         labeled(
             crate::res::str::ctl_announce(),
             row((
@@ -512,16 +519,16 @@ fn accessibility_section() -> impl Piece {
                                 .format(),
                         );
                     })
-                    .id("ctl-announce"),
+                    .id(day::id!(ctl_announce)),
                 label(move || crate::res::str::ctl_announced_times(announced.get()).format())
-                    .id("ctl-announce-count"),
+                    .id(day::id!(ctl_announce_count)),
             ))
             .spacing(Space::S)
             .fit(RowFit::Wrap { run_spacing: 8.0 }),
         ),
         labeled(
             crate::res::str::cursors_support_label(),
-            label(support).id("ctl-announce-support"),
+            label(support).id(day::id!(ctl_announce_support)),
         ),
     ))
     .title(crate::res::str::ctl_accessibility())
@@ -532,11 +539,13 @@ fn indicators_section(st: Catalog) -> impl Piece {
         labeled(
             crate::res::str::ctl_rating(),
             row((
-                rating(st.stars).id("compose-rating"),
+                rating(st.stars)
+                    .star_id(|n| day::id!(compose_rating_star, n))
+                    .id(day::id!(compose_rating)),
                 crate::widgets::numeric_readout(
                     move || st.stars.get().to_string(),
                     "5",
-                    "rating-value",
+                    day::id!(rating_value),
                 ),
             ))
             .spacing(Space::S),
@@ -550,13 +559,16 @@ fn indicators_section(st: Catalog) -> impl Piece {
                     .frame(48.0, 48.0)
                     .any(),
             )
-            .id("ctl-badge"),
+            .id(day::id!(ctl_badge)),
         ),
         labeled(
             crate::res::str::ctl_gauge(),
             gauge(st.level).frame(120.0, 120.0),
         ),
-        labeled(crate::res::str::ctl_divider(), divider().id("ctl-divider")),
+        labeled(
+            crate::res::str::ctl_divider(),
+            divider().id(day::id!(ctl_divider)),
+        ),
     ))
     .title(crate::res::str::ctl_indicators())
 }
@@ -565,7 +577,7 @@ fn indicators_section(st: Catalog) -> impl Piece {
 /// row values are what its assertions check after driving the controls above.
 fn state_section(st: Catalog) -> impl Piece {
     let readout =
-        |text: fn() -> LocalizedText, value: Box<dyn Fn() -> String>, id: &'static str| {
+        |text: fn() -> LocalizedText, value: Box<dyn Fn() -> String>, id: day::ElementId| {
             labeled(text(), label(value).tabular().id(id))
         };
     section((
@@ -579,47 +591,47 @@ fn state_section(st: Catalog) -> impl Piece {
                 }
                 .format()
             }),
-            "state-toggle",
+            day::id!(state_toggle),
         ),
         readout(
             crate::res::str::ctl_slider,
             Box::new(move || format!("{:.0}", st.level.get())),
-            "state-level",
+            day::id!(state_level),
         ),
         readout(
             crate::res::str::ctl_stepper,
             Box::new(move || format!("{:.0}", st.count.get())),
-            "state-count",
+            day::id!(state_count),
         ),
         readout(
             crate::res::str::ctl_text_field,
             Box::new(move || st.name.get()),
-            "state-name",
+            day::id!(state_name),
         ),
         readout(
             crate::res::str::ctl_date,
             Box::new(move || st.date.get().to_string()),
-            "state-date",
+            day::id!(state_date),
         ),
         readout(
             crate::res::str::ctl_time,
             Box::new(move || st.time.get().to_string()),
-            "state-time",
+            day::id!(state_time),
         ),
         readout(
             crate::res::str::ctl_color,
             Box::new(move || st.color.get().to_hex_string()),
-            "state-color",
+            day::id!(state_color),
         ),
         readout(
             crate::res::str::ctl_rating,
             Box::new(move || st.stars.get().to_string()),
-            "state-rating",
+            day::id!(state_rating),
         ),
         readout(
             crate::res::str::ctl_presses,
             Box::new(move || st.presses.get().to_string()),
-            "state-presses",
+            day::id!(state_presses),
         ),
         label(crate::res::str::ctl_crates_note()).font(Font::Footnote),
     ))

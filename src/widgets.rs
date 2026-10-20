@@ -83,7 +83,7 @@ pub(crate) fn gauge(value: Signal<f64>) -> impl Piece {
             .label(crate::res::str::gauge_value_label())
             .value(move || format!("{:.0}", value.get()))
     })
-    .id("gauge")
+    .id(day::id!(gauge))
 }
 
 /// Standard page scaffold (the showcase design pass): a title heading over a scrollable,
@@ -105,7 +105,7 @@ pub(crate) fn nothing() -> impl Piece {
 /// bar already reading "About", the same word twice, on every such page. The scripts assert the
 /// page's own content instead (`assert_route` proves the destination). Elsewhere (the desktops,
 /// where nothing else names the destination) it renders the `Font::Title` title.
-pub(crate) fn heading(title: LocalizedText, title_id: &'static str) -> impl Piece {
+pub(crate) fn heading(title: LocalizedText, title_id: ElementId) -> impl Piece {
     if capability(Cap::NavHeader) == Support::Native {
         nothing().any()
     } else {
@@ -127,7 +127,7 @@ pub(crate) fn heading(title: LocalizedText, title_id: &'static str) -> impl Piec
 /// unchanged; [`page_wide`] opts out for the pages whose content wants the whole canvas.
 pub(crate) const CONTENT_MAX_WIDTH: f64 = 680.0;
 
-pub(crate) fn page(title: LocalizedText, title_id: &'static str, body: impl Piece) -> impl Piece {
+pub(crate) fn page(title: LocalizedText, title_id: ElementId, body: impl Piece) -> impl Piece {
     page_inner(title, title_id, None, body, Some(CONTENT_MAX_WIDTH))
 }
 
@@ -136,7 +136,7 @@ pub(crate) fn page(title: LocalizedText, title_id: &'static str, body: impl Piec
 /// page's Selectable toggle.
 pub(crate) fn page_trailing(
     title: LocalizedText,
-    title_id: &'static str,
+    title_id: ElementId,
     trailing: impl Piece,
     body: impl Piece,
 ) -> impl Piece {
@@ -152,17 +152,13 @@ pub(crate) fn page_trailing(
 /// [`page`] without the width cap, for pages whose content is the canvas itself (a benchmark
 /// patchwork, a map, a web view, a wide grid), where narrowing it would throw away the thing the
 /// page exists to show.
-pub(crate) fn page_wide(
-    title: LocalizedText,
-    title_id: &'static str,
-    body: impl Piece,
-) -> impl Piece {
+pub(crate) fn page_wide(title: LocalizedText, title_id: ElementId, body: impl Piece) -> impl Piece {
     page_inner(title, title_id, None, body, None)
 }
 
 fn page_inner<P1: Piece>(
     title: LocalizedText,
-    title_id: &'static str,
+    title_id: ElementId,
     trailing: Option<AnyPiece>,
     body: P1,
     max_width: Option<f64>,
@@ -216,7 +212,7 @@ fn page_inner<P1: Piece>(
 pub(crate) fn numeric_readout(
     text: impl Fn() -> String + 'static,
     widest: impl Into<String>,
-    id: &'static str,
+    id: ElementId,
 ) -> impl Piece {
     // Both halves of the problem: `tabular` stops the digits shifting inside the box (`1` is
     // narrower than `8`), `reserving` stops the box itself resizing when the digit count changes.

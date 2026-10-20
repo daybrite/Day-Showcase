@@ -64,22 +64,22 @@ pub(crate) fn list_page() -> AnyPiece {
     );
     column((
         row((
-            heading(crate::res::str::nav_list(), "list-title"),
+            heading(crate::res::str::nav_list(), day::id!(list_title)),
             spacer(),
             button(crate::res::str::list_clear_selection())
                 .bordered()
                 .action(move || selected.set(BTreeSet::new()))
-                .id("list-clear"),
+                .id(day::id!(list_clear)),
             button(crate::res::str::list_add())
                 .prominent()
                 .action(move || total.update(|c| *c += 100))
                 .tint(crate::widgets::primary())
-                .id("list-add"),
+                .id(day::id!(list_add)),
         ))
         .spacing(Space::S),
         label(move || crate::res::str::list_caption(rows.get().len() as i64).format())
             .tabular()
-            .id("list-caption"),
+            .id(day::id!(list_caption)),
         // The tier this backend realizes for the pull (docs/pullrefresh.md): native on the
         // phones and HarmonyOS, an elastic overshoot on the desktops, visible in the CI captures.
         label(match day_piece_pullrefresh::support() {
@@ -87,7 +87,7 @@ pub(crate) fn list_page() -> AnyPiece {
             _ => crate::res::str::refresh_tier_emulated(),
         })
         .font(Font::Footnote)
-        .id("list-tier"),
+        .id(day::id!(list_tier)),
         // Programmatic scrolling + order controls, merged from the old Scrolling page: the
         // buttons drive the recycling list (scroll-to-row realizes virtualized rows), and
         // Shuffle/Reset permute the backing Vec, animated as native row moves where the
@@ -98,7 +98,7 @@ pub(crate) fn list_page() -> AnyPiece {
             button(crate::res::str::scroll_to_top())
                 .bordered()
                 .action(move || jump_row.set(Some(0)))
-                .id("list-scroll-top"),
+                .id(day::id!(list_scroll_top)),
             button(crate::res::str::scroll_to_item())
                 .bordered()
                 // Find the row by identity, not by position. The list's keys are the row
@@ -112,22 +112,22 @@ pub(crate) fn list_page() -> AnyPiece {
                         selected.set(BTreeSet::from([TARGET_ROW]));
                     }
                 })
-                .id("list-scroll-item"),
+                .id(day::id!(list_scroll_item)),
             button(crate::res::str::scroll_to_bottom())
                 .bordered()
                 .action(move || jump_end.notify())
-                .id("list-scroll-bottom"),
+                .id(day::id!(list_scroll_bottom)),
             button(crate::res::str::list_shuffle())
                 .action(move || rows.update(|v| shuffle(v)))
                 .tint(crate::widgets::secondary())
-                .id("list-shuffle"),
+                .id(day::id!(list_shuffle)),
             // Reset rebuilds the full set rather than sorting in place: rows can now be
             // swiped away, and a sort would faithfully restore the order of whatever survived
             // while leaving the deleted ones gone.
             button(crate::res::str::list_reset())
                 .bordered()
                 .action(move || rows.set((1..=total.get_untracked()).collect()))
-                .id("list-reset"),
+                .id(day::id!(list_reset)),
         ))
         .spacing(Space::S)
         .fit(RowFit::Wrap { run_spacing: 8.0 }),
@@ -135,13 +135,13 @@ pub(crate) fn list_page() -> AnyPiece {
         // readout makes the committed order assertable (dayscript `reorder` steps check it).
         label(crate::res::str::list_reorder_hint())
             .font(Font::Footnote)
-            .id("list-reorder-hint"),
+            .id(day::id!(list_reorder_hint)),
         label(move || {
             let first: Vec<String> = rows.get().iter().take(5).map(|n| n.to_string()).collect();
             crate::res::str::list_order(first.join(",")).format()
         })
         .font(Font::Footnote)
-        .id("list-order"),
+        .id(day::id!(list_order)),
         // The live selection summary: pluralized per locale, runs compressed ("4-10").
         label(move || {
             let sel = selected.get();
@@ -156,10 +156,10 @@ pub(crate) fn list_page() -> AnyPiece {
             }
         })
         .font(Font::Footnote)
-        .id("list-selection"),
+        .id(day::id!(list_selection)),
         label(move || crate::res::str::list_activated(activated.get()).format())
             .font(Font::Footnote)
-            .id("list-activated"),
+            .id(day::id!(list_activated)),
         pull_to_refresh(
             refreshing,
             list(
@@ -178,7 +178,7 @@ pub(crate) fn list_page() -> AnyPiece {
                         })
                         // A physical row keeps its subtree across recycling; its test/a11y
                         // identity must follow the slot just as its text and color do.
-                        .id_of(move || format!("list-row:{}", row.key()))
+                        .id_of(move || day::id!(list_row, row.key()))
                         .padding(Insets::symmetric(12.0, 8.0))
                 },
             )
@@ -241,9 +241,9 @@ pub(crate) fn list_page() -> AnyPiece {
                 .label(crate::res::str::list_delete())
                 .guard(|index| index != 0),
             )
-            .id("demo-list"),
+            .id(day::id!(demo_list)),
         )
-        .id("list-refresh"),
+        .id(day::id!(list_refresh)),
     ))
     .spacing(10.0)
     .align(HAlign::Leading)

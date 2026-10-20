@@ -5,13 +5,13 @@ flow:
   - screenshot: home
   - navigate: { route: resources }
   - assert_route: { route: resources }
-  - assert_visible: { id: resources-numbers }
-  - assert_visible: { id: resources-greeting }
+  - assert_visible: { id: resources_numbers }
+  - assert_visible: { id: resources_greeting }
   - screenshot: resources
   # Day's composed color picker (docs/colorpicker.md), which is the same panel on every target,
   # so this shot is comparable across the whole gallery in a way no native chooser's is.
-  - tap: { id: vector-tint-composed }
+  - tap: { id: vector_tint_composed }
   - wait_idle:
-  - assert_visible: { id: color-picker-panel }
+  - assert_visible: { id: color_picker_panel }
   - screenshot: color-picker
-  - tap: { id: color-picker-cancel }
+  - tap: { id: color_picker_cancel }

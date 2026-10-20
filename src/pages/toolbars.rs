@@ -37,7 +37,7 @@ pub(crate) struct ToolbarDemo {
 /// itself. The sun/auto/moon glyphs are the standard symbols, so each desktop draws its own.
 fn appearance_item(mode: Signal<usize>) -> ToolbarEntry {
     toolbar_segmented(
-        "tb-theme",
+        day::id!(tb_theme),
         vec![
             segment(crate::res::str::cmd_appearance_light()).icon(Symbol::Light),
             segment(crate::res::str::cmd_appearance_system()).icon(Symbol::Auto),
@@ -138,7 +138,7 @@ pub(crate) fn window_items() -> impl Fn() -> Vec<ToolbarEntry> + 'static {
         let mut items = vec![
             // A plain command: another window on the same app state (docs/windows.md), the same
             // thing File ▸ New Window does.
-            toolbar_button("tb-new", crate::res::str::toolbar_new())
+            toolbar_button(day::id!(tb_new), crate::res::str::toolbar_new())
                 .icon(Symbol::New)
                 .enabled(|| capability(Cap::MultiWindow) != Support::Unsupported)
                 .action(move || {
@@ -147,7 +147,7 @@ pub(crate) fn window_items() -> impl Fn() -> Vec<ToolbarEntry> + 'static {
                 }),
             // Every item has an id, a separator too: the id is what lets Day add and remove
             // one item at a time instead of rebuilding the bar.
-            toolbar_separator("tb-sep-new"),
+            toolbar_separator(day::id!(tb_sep_new)),
             // ── Appearance: one segmented control over one setting (commands.rs) ─────────
             appearance_item(s.theme),
         ];
@@ -157,7 +157,7 @@ pub(crate) fn window_items() -> impl Fn() -> Vec<ToolbarEntry> + 'static {
             // the running toolkit's name, the thing a bug report always wants and nothing else
             // in the app puts on the clipboard.
             items.push(
-                toolbar_button("tb-extra", crate::res::str::toolbar_extra())
+                toolbar_button(day::id!(tb_extra), crate::res::str::toolbar_extra())
                     .icon(Symbol::Copy)
                     .tooltip(crate::res::str::toolbar_extra_tooltip())
                     .action(move || {
@@ -192,7 +192,7 @@ pub(crate) fn page_commands(sec: crate::Section) -> Vec<ToolbarEntry> {
     vec![
         // "Show Source": open this page's source on GitHub. The standard symbol, which every
         // toolkit draws from its own set: SF Symbols on Apple, Day's Material glyphs on Android.
-        toolbar_button("tb-source", crate::res::str::show_source())
+        toolbar_button(day::id!(tb_source), crate::res::str::show_source())
             .icon(Symbol::Code)
             .tooltip(crate::res::str::show_source())
             .enabled(move || demo.source_enabled.get())
@@ -200,7 +200,9 @@ pub(crate) fn page_commands(sec: crate::Section) -> Vec<ToolbarEntry> {
         // The Star command (commands.rs), not a demo toggle. Its label comes from the one
         // `Command`, so this button, the App menu's item and the row's context menu can never
         // disagree.
-        crate::commands::star_page(sec).toolbar_item().id("tb-star"),
+        crate::commands::star_page(sec)
+            .toolbar_item()
+            .id(day::id!(tb_star)),
     ]
 }
 
@@ -213,7 +215,7 @@ fn note(s: ToolbarDemo, what: day::LocalizedText) {
 pub(crate) fn toolbars_page() -> AnyPiece {
     page(
         crate::res::str::nav_toolbars(),
-        "toolbars-title",
+        day::id!(toolbars_title),
         // These sections describe different things. A single shared label column lets the
         // long control captions squeeze readouts and explanatory text on a phone.
         column((
@@ -237,7 +239,7 @@ fn readout_section() -> impl Piece {
             || {
                 label(crate::res::str::toolbar_unsupported())
                     .color(crate::palette::SLATE)
-                    .id("toolbar-unsupported")
+                    .id(day::id!(toolbar_unsupported))
             },
         ),
         labeled(
@@ -250,7 +252,7 @@ fn readout_section() -> impl Piece {
                     q
                 }
             })
-            .id("toolbar-query"),
+            .id(day::id!(toolbar_query)),
         ),
         labeled(
             crate::res::str::toolbar_star_label(),
@@ -263,7 +265,7 @@ fn readout_section() -> impl Piece {
                     crate::res::str::toolbar_off().format()
                 }
             })
-            .id("toolbar-star-state"),
+            .id(day::id!(toolbar_star_state)),
         ),
         // The appearance group's setting, and whether this toolkit acts on it; the three buttons
         // lower disabled where it does not, and this says why.
@@ -278,7 +280,7 @@ fn readout_section() -> impl Piece {
                     crate::res::str::toolbar_appearance_ignored(mode).format()
                 }
             })
-            .id("toolbar-appearance"),
+            .id(day::id!(toolbar_appearance)),
         ),
         // The recorder's transport, in one word: what the bar's Record and Play items are doing.
         labeled(
@@ -297,13 +299,13 @@ fn readout_section() -> impl Piece {
                 };
                 s.format()
             })
-            .id("toolbar-transport"),
+            .id(day::id!(toolbar_transport)),
         ),
         labeled(
             crate::res::str::toolbar_presses_label(),
             label(move || crate::res::str::toolbar_presses(s.presses.get() as f64).format())
                 .tabular()
-                .id("toolbar-presses"),
+                .id(day::id!(toolbar_presses)),
         ),
         labeled(
             crate::res::str::toolbar_last_label(),
@@ -315,7 +317,7 @@ fn readout_section() -> impl Piece {
                     l
                 }
             })
-            .id("toolbar-last"),
+            .id(day::id!(toolbar_last)),
         ),
     ))
     .title(crate::res::str::toolbar_readout_title())
@@ -327,25 +329,25 @@ fn controls_section() -> impl Piece {
     section((
         labeled(
             crate::res::str::toolbar_extra_label(),
-            toggle(s.extra).id("toolbar-extra-switch"),
+            toggle(s.extra).id(day::id!(toolbar_extra_switch)),
         ),
         labeled(
             crate::res::str::toolbar_enabled_label(),
-            toggle(s.source_enabled).id("toolbar-enabled-switch"),
+            toggle(s.source_enabled).id(day::id!(toolbar_enabled_switch)),
         ),
         // Mirrors the command's own state, not a window-level copy: the star button belongs to
         // whichever page is showing now, and this switch drives the same command it does.
         labeled(
             crate::res::str::toolbar_star_label(),
-            toggle(s.star_switch).id("toolbar-star-switch"),
+            toggle(s.star_switch).id(day::id!(toolbar_star_switch)),
         ),
         row((
             button(crate::res::str::toolbar_clear_search())
                 .action(move || s.query.set(String::new()))
-                .id("toolbar-clear-search"),
+                .id(day::id!(toolbar_clear_search)),
             button(crate::res::str::toolbar_seed_search())
                 .action(move || s.query.set(crate::res::str::toolbar_seed_text().format()))
-                .id("toolbar-seed-search"),
+                .id(day::id!(toolbar_seed_search)),
         ))
         .spacing(Space::S),
     ))

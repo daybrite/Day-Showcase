@@ -6,12 +6,12 @@ flow:
   - assert_route: { route: files }
   - screenshot: files
   # Save the editor content to a temp file (relative path → app temp dir), then read it back.
-  - tap: { id: btn-save-file }
+  - tap: { id: btn_save_file }
   - assert_presented: {}
   - respond: { path: "day-files-demo.txt" }
-  - assert_text: { id: files-status, text: "saved:day-files-demo.txt" }
-  - tap: { id: btn-open-file }
+  - assert_text: { id: files_status, text: "saved:day-files-demo.txt" }
+  - tap: { id: btn_open_file }
   - assert_presented: {}
   - respond: { path: "day-files-demo.txt" }
-  - assert_text: { id: files-status, text: "opened" }
+  - assert_text: { id: files_status, text: "opened" }
   - screenshot: files-opened

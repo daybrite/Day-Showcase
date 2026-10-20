@@ -72,12 +72,16 @@ enum Doc {
 }
 
 pub(crate) fn text_areas_page() -> AnyPiece {
-    page(crate::res::str::nav_textareas(), "textareas-title", {
-        // The styled editor leads: it is what the page is now about, and the plain
-        // `text_area` below it is the simpler control it grew out of.
-        let (editor, seed, attrs) = plain_sections();
-        form((styled_sections(), editor, seed, attrs)).any()
-    })
+    page(
+        crate::res::str::nav_textareas(),
+        day::id!(textareas_title),
+        {
+            // The styled editor leads: it is what the page is now about, and the plain
+            // `text_area` below it is the simpler control it grew out of.
+            let (editor, seed, attrs) = plain_sections();
+            form((styled_sections(), editor, seed, attrs)).any()
+        },
+    )
     .any()
 }
 
@@ -121,20 +125,20 @@ fn plain_sections() -> (impl Piece, impl Piece, impl Piece) {
         .spellcheck(spellcheck)
         .min_lines(5)
         .max_lines(5)
-        .id("textareas-editor"),))
+        .id(day::id!(textareas_editor)),))
     .title(crate::res::str::textareas_editor_section());
 
     let seed = section((row((
         button(crate::res::str::textareas_seed_short())
             .action(move || content.set(crate::res::str::textareas_sample_short().format()))
-            .id("ta-seed-short"),
+            .id(day::id!(ta_seed_short)),
         button(crate::res::str::textareas_seed_long())
             .action(move || content.set(LONG.into()))
-            .id("ta-seed-long"),
+            .id(day::id!(ta_seed_long)),
         button(crate::res::str::textareas_seed_markdown())
             .action(move || content.set(MARKDOWN.into()))
             .tint(crate::widgets::primary())
-            .id("ta-seed-markdown"),
+            .id(day::id!(ta_seed_markdown)),
     ))
     .spacing(Space::S),))
     .title(crate::res::str::textareas_seed_section());
@@ -147,19 +151,19 @@ fn plain_sections() -> (impl Piece, impl Piece, impl Piece) {
             crate::res::str::textareas_editable(),
             toggle(editable)
                 .enabled(move || cap_editable && selectable.get())
-                .id("ta-editable"),
+                .id(day::id!(ta_editable)),
         ),
         labeled(
             crate::res::str::textareas_selectable(),
             toggle(selectable)
                 .enabled(cap_selectable)
-                .id("ta-selectable"),
+                .id(day::id!(ta_selectable)),
         ),
         labeled(
             crate::res::str::textareas_spellcheck(),
             toggle(spellcheck)
                 .enabled(cap_spellcheck)
-                .id("ta-spellcheck"),
+                .id(day::id!(ta_spellcheck)),
         ),
     ))
     .title(crate::res::str::textareas_attrs_section());
@@ -196,25 +200,25 @@ fn styled_sections() -> impl Piece {
 
     let toolbar = section((
         row((
-            style_button("B", "ed-bold", doc, sel, typing, |s| {
+            style_button("B", day::id!(ed_bold), doc, sel, typing, |s| {
                 s.set_bold(!s.bold());
             }),
-            style_button("I", "ed-italic", doc, sel, typing, |s| {
+            style_button("I", day::id!(ed_italic), doc, sel, typing, |s| {
                 s.set_italic(!s.italic());
             }),
-            style_button("U", "ed-underline", doc, sel, typing, |s| {
+            style_button("U", day::id!(ed_underline), doc, sel, typing, |s| {
                 s.underline = s.underline.toggled();
             }),
-            style_button("S", "ed-strike", doc, sel, typing, |s| {
+            style_button("S", day::id!(ed_strike), doc, sel, typing, |s| {
                 s.strikethrough = !s.strikethrough;
             }),
-            style_button("A+", "ed-bigger", doc, sel, typing, |s| {
+            style_button("A+", day::id!(ed_bigger), doc, sel, typing, |s| {
                 s.font.scale = (s.font.scale * 1.25).min(4.0);
             }),
-            style_button("A-", "ed-smaller", doc, sel, typing, |s| {
+            style_button("A-", day::id!(ed_smaller), doc, sel, typing, |s| {
                 s.font.scale = (s.font.scale / 1.25).max(0.5);
             }),
-            style_button("H", "ed-highlight", doc, sel, typing, |s| {
+            style_button("H", day::id!(ed_highlight), doc, sel, typing, |s| {
                 s.background = match s.background {
                     Some(_) => None,
                     None => Some(crate::palette::AMBER),
@@ -240,7 +244,7 @@ fn styled_sections() -> impl Piece {
             color_picker(pen)
                 .composed()
                 .title(crate::res::str::textareas_text_color())
-                .id("ed-color")
+                .id(day::id!(ed_color))
         }),
         labeled(
             crate::res::str::textareas_align(),
@@ -270,7 +274,7 @@ fn styled_sections() -> impl Piece {
                 ],
             )
             .segmented()
-            .id("ed-align"),
+            .id(day::id!(ed_align)),
         ),
     ))
     .title(crate::res::str::textareas_toolbar_section());
@@ -283,7 +287,7 @@ fn styled_sections() -> impl Piece {
             // Spell-check stays on, the default: prose wants the squiggles.
             .min_lines(8)
             .max_lines(14)
-            .id("styled-editor"),
+            .id(day::id!(styled_editor)),
         // The selection inspector: what the app knows about the caret, with no round trip into
         // the toolkit; `style_of` is a pure function over the document.
         label(move || {
@@ -318,7 +322,7 @@ fn styled_sections() -> impl Piece {
             .format()
         })
         .font(Font::Footnote)
-        .id("ed-inspector"),
+        .id(day::id!(ed_inspector)),
         // What the selection actually covers. Together with the button beside it this is the
         // regression guard for a class of bug the web arm had: a restyle that rebuilds the view
         // has to put the selection back on the same characters, and this line says which ones.
@@ -328,7 +332,7 @@ fn styled_sections() -> impl Piece {
                     let range = doc.with_untracked(|d| word_past_first_break(&d.text));
                     sel.set(range);
                 })
-                .id("ed-select-word"),
+                .id(day::id!(ed_select_word)),
             label(move || {
                 let range = sel.get();
                 doc.with(|d| {
@@ -340,7 +344,7 @@ fn styled_sections() -> impl Piece {
                 })
             })
             .font(Font::Footnote)
-            .id("ed-selection-text"),
+            .id(day::id!(ed_selection_text)),
         ))
         .spacing(Space::S)
         .align(VAlign::Center),
@@ -353,7 +357,7 @@ fn styled_sections() -> impl Piece {
             ],
         )
         .segmented()
-        .id("ed-document"),)),
+        .id(day::id!(ed_document)),)),
     ))
     .title(crate::res::str::textareas_styled_section());
 
@@ -373,13 +377,13 @@ fn styled_sections() -> impl Piece {
         row((
             button(crate::res::str::textareas_export_markdown())
                 .action(move || exported.set(doc.with_untracked(|d| d.to_markdown(Font::Body))))
-                .id("ed-export-md"),
+                .id(day::id!(ed_export_md)),
             button(crate::res::str::textareas_export_html())
                 .action(move || exported.set(doc.with_untracked(|d| d.to_html(Font::Body))))
-                .id("ed-export-html"),
+                .id(day::id!(ed_export_html)),
             button(crate::res::str::textareas_export_rtf())
                 .action(move || exported.set(doc.with_untracked(|d| d.to_rtf(Font::Body))))
-                .id("ed-export-rtf"),
+                .id(day::id!(ed_export_rtf)),
             // The round trip: read the exported text back in as the document. It is lossy; see
             // docs/texteditor.md for what each format cannot carry.
             button(crate::res::str::textareas_import())
@@ -398,7 +402,7 @@ fn styled_sections() -> impl Piece {
                     });
                 })
                 .tint(crate::widgets::primary())
-                .id("ed-import"),
+                .id(day::id!(ed_import)),
         ))
         .spacing(Space::S)
         .fit(RowFit::Wrap { run_spacing: 8.0 }),
@@ -406,7 +410,7 @@ fn styled_sections() -> impl Piece {
             .editable(false)
             .min_lines(4)
             .max_lines(8)
-            .id("ed-export-out"),
+            .id(day::id!(ed_export_out)),
     ))
     .title(crate::res::str::textareas_export_section());
 
@@ -441,7 +445,7 @@ fn word_past_first_break(text: &str) -> std::ops::Range<usize> {
 /// selection are Day's, `style_of` reads the state a button renders, and `apply` writes it back.
 fn style_button(
     title: &'static str,
-    id: &'static str,
+    id: day::ElementId,
     doc: Signal<StyledText>,
     sel: Signal<std::ops::Range<usize>>,
     typing: Signal<RunStyle>,

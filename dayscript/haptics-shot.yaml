@@ -3,6 +3,6 @@ description: The Haptics group — an equal-width grid of taps plus the colored 
 flow:
   - wait_for: { id: nav }
   - navigate: { route: speech }
-  - wait_for: { id: haptics-supported }
-  - scroll_to: { id: haptics-song-cascade }
+  - wait_for: { id: haptics_supported }
+  - scroll_to: { id: haptics_song_cascade }
   - screenshot: haptics-grid

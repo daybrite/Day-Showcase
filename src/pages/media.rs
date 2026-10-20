@@ -25,28 +25,28 @@ pub(crate) fn media_page() -> AnyPiece {
             .play(play)
             .pause(pause)
             .load(load)
-            .id("media")
+            .id(day::id!(media))
             .height(300.0),
         row((
             button(crate::res::str::media_play())
                 .prominent()
                 .action(move || play.notify())
-                .id("media-play"),
+                .id(day::id!(media_play)),
             button(crate::res::str::media_pause())
                 .bordered()
                 .action(move || pause.notify())
-                .id("media-pause"),
+                .id(day::id!(media_pause)),
             button(crate::res::str::media_load())
                 .bordered()
                 .action(move || load.notify())
-                .id("media-load"),
+                .id(day::id!(media_load)),
         ))
         .spacing(8.0),
     ))
     .title(crate::res::str::media_player_section());
     page_wide(
         crate::res::str::nav_media(),
-        "media-title",
+        day::id!(media_title),
         form((video,)).any(),
     )
     .any()

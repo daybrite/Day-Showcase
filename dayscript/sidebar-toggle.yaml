@@ -9,9 +9,9 @@ flow:
   - navigate: { route: toolbars }
   - assert_route: { route: toolbars }
   - screenshot: sidebar-expanded
-  - toolbar: { item: day.sidebar-toggle }
+  - toolbar: { item: day::sidebar_toggle }
   - pause: 0.6
   - screenshot: sidebar-collapsed
-  - toolbar: { item: day.sidebar-toggle }
+  - toolbar: { item: day::sidebar_toggle }
   - pause: 0.6
   - screenshot: sidebar-expanded-again

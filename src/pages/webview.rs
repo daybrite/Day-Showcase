@@ -56,7 +56,7 @@ pub(crate) fn webview_page() -> AnyPiece {
     let js_remote = JsHandle::new();
     let js_embedded = JsHandle::new();
     column((
-        heading(crate::res::str::nav_webview(), "webview-title"),
+        heading(crate::res::str::nav_webview(), day::id!(webview_title)),
         column((picker(
             tab,
             [
@@ -65,7 +65,7 @@ pub(crate) fn webview_page() -> AnyPiece {
             ],
         )
         .segmented()
-        .id("webview-tab"),))
+        .id(day::id!(webview_tab)),))
         .align(HAlign::Center)
         .grow_w(),
         switch(
@@ -99,7 +99,7 @@ fn js_console(tab: Signal<WebTab>, js_remote: JsHandle, js_embedded: JsHandle) -
             .max_lines(3)
             .spellcheck(false)
             .editable(move || can_eval)
-            .id("webview-js"),
+            .id(day::id!(webview_js)),
         button(crate::res::str::webview_js_run())
             .prominent()
             .enabled(move || can_eval)
@@ -122,13 +122,13 @@ fn js_console(tab: Signal<WebTab>, js_remote: JsHandle, js_embedded: JsHandle) -
                 });
             })
             .tint(crate::widgets::primary())
-            .id("webview-js-run"),
+            .id(day::id!(webview_js_run)),
         text_area(result)
             .placeholder(crate::res::str::webview_js_result_hint())
             .min_lines(3)
             .max_lines(3)
             .editable(false)
-            .id("webview-js-result"),
+            .id(day::id!(webview_js_result)),
     ))
     .spacing(Space::S)
 }
@@ -151,12 +151,12 @@ fn remote_pane(js: JsHandle) -> impl Piece {
         row((
             text_field(url)
                 .placeholder(crate::res::str::webview_url_hint())
-                .id("webview-url"),
+                .id(day::id!(webview_url)),
             button(crate::res::str::webview_go())
                 .prominent()
                 .action(move || go.notify())
                 .tint(crate::widgets::primary())
-                .id("webview-go"),
+                .id(day::id!(webview_go)),
         ))
         .spacing(Space::S),
         // Why the three buttons below are dead on this backend.
@@ -165,7 +165,7 @@ fn remote_pane(js: JsHandle) -> impl Piece {
             move || {
                 label(crate::res::str::webview_note_iframe())
                     .font(Font::Footnote)
-                    .id("webview-note")
+                    .id(day::id!(webview_note))
             },
         ),
         // History controls. "Stop" is the demo's cancel.
@@ -174,21 +174,21 @@ fn remote_pane(js: JsHandle) -> impl Piece {
                 .bordered()
                 .enabled(move || history)
                 .action(move || back.notify())
-                .id("webview-back"),
+                .id(day::id!(webview_back)),
             button(crate::res::str::webview_forward())
                 .bordered()
                 .enabled(move || history)
                 .action(move || forward.notify())
-                .id("webview-forward"),
+                .id(day::id!(webview_forward)),
             button(crate::res::str::webview_stop())
                 .bordered()
                 .enabled(move || history)
                 .action(move || stop.notify())
-                .id("webview-stop"),
+                .id(day::id!(webview_stop)),
             button(crate::res::str::webview_reload())
                 .bordered()
                 .action(move || reload.notify())
-                .id("webview-reload"),
+                .id(day::id!(webview_reload)),
         ))
         .spacing(Space::S),
         web_view(url)
@@ -201,7 +201,7 @@ fn remote_pane(js: JsHandle) -> impl Piece {
             .forward(forward)
             .stop(stop)
             .reload(reload)
-            .id("webview"),
+            .id(day::id!(webview)),
     ))
     .spacing(10.0)
     .align(HAlign::Leading)
@@ -223,7 +223,7 @@ fn embedded_pane(js: JsHandle) -> impl Piece {
         // blank frame.
         label(crate::res::str::webview_embedded_unsupported())
             .font(Font::Footnote)
-            .id("webview-embedded-unsupported")
+            .id(day::id!(webview_embedded_unsupported))
             .any()
     } else {
         web_view_inline(crate::res::assets::web::minisite)
@@ -242,7 +242,7 @@ fn embedded_pane(js: JsHandle) -> impl Piece {
                     LinkPolicy::OpenSystem
                 }
             })
-            .id("webview-embedded")
+            .id(day::id!(webview_embedded))
             .any()
     };
     column((
@@ -256,7 +256,7 @@ fn embedded_pane(js: JsHandle) -> impl Piece {
             }
         })
         .font(Font::Footnote)
-        .id("webview-embedded-status"),
+        .id(day::id!(webview_embedded_status)),
         body,
     ))
     .spacing(10.0)
