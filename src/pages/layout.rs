@@ -140,21 +140,22 @@ fn fit_section() -> impl Piece {
         ),
         // One subtree per arrangement: `fit` is a build-time property, so switching rebuilds
         // the row, and `switch` is the reactive one-of-N for exactly that. Only one arm is live
-        // at a time, so the shared "layout-demo" id stays unique. Wrap and WrapColumns sit next
-        // to each other: the same eight buttons ragged, then aligned into columns, is the
-        // comparison the page exists to make.
+        // at a time, so the "layout-demo" id, applied once to whichever arm is live, stays
+        // unique. Wrap and WrapColumns sit next to each other: the same eight buttons ragged,
+        // then aligned into columns, is the comparison the page exists to make.
         switch(
             move || fit.get(),
-            move |f| match f {
-                Fit::Clip => demo_row(count, RowFit::Clip).id("layout-demo").any(),
-                Fit::Wrap => demo_row(count, RowFit::Wrap { run_spacing: 8.0 })
-                    .id("layout-demo")
-                    .any(),
-                Fit::WrapColumns => demo_row(count, RowFit::WrapColumns { run_spacing: 8.0 })
-                    .id("layout-demo")
-                    .any(),
-                Fit::Column => adaptive_row(count).id("layout-demo").any(),
-                Fit::Scroll => demo_row(count, RowFit::Scroll).id("layout-demo").any(),
+            move |f| {
+                let arm = match f {
+                    Fit::Clip => demo_row(count, RowFit::Clip).any(),
+                    Fit::Wrap => demo_row(count, RowFit::Wrap { run_spacing: 8.0 }).any(),
+                    Fit::WrapColumns => {
+                        demo_row(count, RowFit::WrapColumns { run_spacing: 8.0 }).any()
+                    }
+                    Fit::Column => adaptive_row(count).any(),
+                    Fit::Scroll => demo_row(count, RowFit::Scroll).any(),
+                };
+                arm.id("layout-demo").any()
             },
         ),
     ))
