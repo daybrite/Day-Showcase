@@ -67,5 +67,5 @@ TARGETED_DEVICE_FAMILY = 1,2
 //
 //     DEVELOPMENT_TEAM = ABCDE12345
 //
-// https://daybrite.dev/docs/project-structure#xcode-build-settings
+// https://daybrite.dev/docs/reference/project-structure#xcode-build-settings
 #include? "DayApp.local.xcconfig"

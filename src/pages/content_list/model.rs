@@ -1,6 +1,6 @@
 //! The document and the small amount of state shared by the list and editor.
 //!
-//! Reactive fields and keyed identity: https://daybrite.dev/docs/internal/model/
+//! Reactive fields and keyed identity: https://daybrite.dev/docs/explanation/model
 
 use super::Section;
 use day::model::Op;
@@ -22,7 +22,7 @@ pub(crate) struct Item {
 const STORE_KEY: &str = "app.items";
 
 /// State shared within one window; `Copy` duplicates handles, not the document.
-/// `Ambient` supplies it to descendant pages: https://daybrite.dev/docs/internal/state/
+/// `Ambient` supplies it to descendant pages: https://daybrite.dev/docs/explanation/state
 #[derive(Clone, Copy)]
 pub(crate) struct Scene {
     /// Items in display order; structural edits go through `restructure`.
@@ -60,7 +60,7 @@ impl Ambient for Scene {
 
 impl Scene {
     /// Save on document changes; preferences suit this small example, not large documents.
-    /// Storage choices: https://daybrite.dev/docs/guide-storage/
+    /// Storage choices: https://daybrite.dev/docs/how-to/guide-storage
     pub(crate) fn persist(self) {
         // Track the document once, then read it untracked in the saving callback.
         watch(
@@ -70,7 +70,7 @@ impl Scene {
                 .with_untracked(|items| serde_json::to_string(items.items()))
             {
                 Ok(json) => {
-                    // Day routes logs to the platform console: https://daybrite.dev/docs/logging/
+                    // Day routes logs to the platform console: https://daybrite.dev/docs/how-to/logging
                     if day::prefs::set(STORE_KEY, &json) {
                         debug!("Saved items to preferences");
                     } else {

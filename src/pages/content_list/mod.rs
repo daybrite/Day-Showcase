@@ -1,5 +1,5 @@
 //! The Content List page: an item list and its editor sharing one observable model
-//! (https://daybrite.dev/docs/navigation "The content list").
+//! (https://daybrite.dev/docs/how-to/navigation "The content list").
 //!
 //! `model.rs`, `items.rs` and `detail.rs` began as the `day new` starter's list, editor and
 //! model, and are the showcase's own code now; Day-Rise is the app that tracks what `day new`
@@ -7,7 +7,7 @@
 //! defaults to, and the two builders `lib.rs` hands the navigation host. The list is the
 //! host's own content-list pane, shown only on this page (`content_list_for` in `lib.rs`), so
 //! its Add and the editor's Delete ride the pane and leave the bar with it
-//! (https://daybrite.dev/docs/toolbars).
+//! (https://daybrite.dev/docs/reference/toolbars).
 
 use day::prelude::*;
 

@@ -66,5 +66,5 @@ MACOSX_DEPLOYMENT_TARGET = 13.0
 //
 //     DEVELOPMENT_TEAM = ABCDE12345
 //
-// https://daybrite.dev/docs/project-structure#xcode-build-settings
+// https://daybrite.dev/docs/reference/project-structure#xcode-build-settings
 #include? "DayApp.local.xcconfig"

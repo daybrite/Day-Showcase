@@ -1,4 +1,4 @@
-//! A native list and adaptive editor: https://daybrite.dev/docs/internal/list/
+//! A native list and adaptive editor: https://daybrite.dev/docs/reference/list
 
 use super::detail::editor_pane;
 use super::model::{Item, ItemFields, Scene};

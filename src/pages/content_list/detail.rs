@@ -11,12 +11,12 @@ pub(crate) fn editor_pane(scene: Scene) -> impl Piece {
         ),
         // `keyed` holds zero or one editor: a new item key rebuilds its field bindings,
         // so edits cannot keep targeting the previous item.
-        // Keyed children: https://daybrite.dev/docs/api-tour/#conditionals-and-collections
+        // Keyed children: https://daybrite.dev/docs/reference/api-tour#conditionals-and-collections
         keyed(
             move || scene.selected.get(),
             move |&id| {
                 let item = scene.items.elem(id);
-                // Controls write back through field bindings: https://daybrite.dev/docs/reactivity/
+                // Controls write back through field bindings: https://daybrite.dev/docs/explanation/reactivity
                 form((section((
                     labeled(
                         res::str::field_name(),

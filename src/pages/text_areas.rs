@@ -29,7 +29,7 @@ A `text_area` is a native multi-line editor with three controllable attributes:
 - **selectable** — copyable even when read-only
 - **spell-check** — the red squiggles, where the toolkit has them
 
-See the [documentation](https://daybrite.dev/docs/textarea) for the per-toolkit support matrix.
+See the [documentation](https://daybrite.dev/docs/reference/textarea) for the per-toolkit support matrix.
 
     // a fenced code sample renders as plain text here
     text_area(content).editable(false).spellcheck(false)";
