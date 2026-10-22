@@ -1,10 +1,10 @@
-//! The Content List page: the `day new` scaffold's own item list and editor, exactly as a new
-//! app starts with them (https://daybrite.dev/docs/navigation "The content list").
+//! The Content List page: an item list and its editor sharing one observable model
+//! (https://daybrite.dev/docs/navigation "The content list").
 //!
-//! `model.rs`, `items.rs` and `detail.rs` are generated from the scaffold template by
-//! `scripts/template-sync.sh` and checked against it in CI; edit the template, not them. What
-//! is hand-written here is the glue a crate root normally supplies: the route enum the model's
-//! scene defaults to, and the two builders `lib.rs` hands the navigation host. The list is the
+//! `model.rs`, `items.rs` and `detail.rs` began as the `day new` starter's list, editor and
+//! model, and are the showcase's own code now; Day-Rise is the app that tracks what `day new`
+//! produces. This file is the glue a crate root would supply: the route enum the model's scene
+//! defaults to, and the two builders `lib.rs` hands the navigation host. The list is the
 //! host's own content-list pane, shown only on this page (`content_list_for` in `lib.rs`), so
 //! its Add and the editor's Delete ride the pane and leave the bar with it
 //! (https://daybrite.dev/docs/toolbars).
@@ -12,14 +12,13 @@
 use day::prelude::*;
 
 mod detail;
-// The scaffold titles its pushed editor after its own Items section when no item is open;
-// this app titles it after the Content List section instead (`detail_title` below), so the
-// generated `detail_title` is carried unread.
+// `items::detail_title` titles the pushed editor after the model's Items section when no item is
+// open; this app titles it after the Content List section instead (`detail_title` below), so
+// that one is unread.
 #[allow(dead_code)]
 mod items;
-// The scaffold's `lib.rs` is the one reader of `Scene::section` (its nav binds it); this app
-// routes with `crate::Section` and mounts only the page, so the field is written by the
-// generated `new_item` and read by nothing.
+// `Scene::section` is written by `new_item` and read by nothing: this app routes with
+// `crate::Section` and mounts only the page.
 #[allow(dead_code)]
 mod model;
 
@@ -28,9 +27,9 @@ use model::ItemFields;
 pub(crate) use model::Scene;
 
 day::routes! {
-    /// The scaffold's sections, as the copied model expects them: it opens a fresh scene on
-    /// `Welcome` and moves to `Items` when it adds one. The showcase's own routing is
-    /// `crate::Section`; this enum is only the type the copied `Scene::section` field wants.
+    /// The sections the model's `Scene::section` field names: a fresh scene opens on
+    /// `Welcome` and moves to `Items` when it adds one. The showcase routes with
+    /// `crate::Section`; this enum is only the type that field wants.
     pub(crate) enum Section {
         Welcome => "welcome",
         Items => "items",
