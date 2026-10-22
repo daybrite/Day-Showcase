@@ -1196,7 +1196,7 @@ fn files_section() -> impl Piece {
             when(
                 || cfg!(target_os = "macos"),
                 move || {
-                    button(tr("files_reopen"))
+                    button(crate::res::str::files_reopen())
                         .enabled(move || remembered.get())
                         .action(move || {
                             // Keep the access guard alive through reading and bookmark renewal.
@@ -1218,7 +1218,7 @@ fn files_section() -> impl Piece {
                             status.set(if restored.is_some() {
                                 "opened".into()
                             } else {
-                                tr("files_bookmark_failed").format()
+                                crate::res::str::files_bookmark_failed().format()
                             });
                         })
                         .id(day::id!(btn_reopen_file))

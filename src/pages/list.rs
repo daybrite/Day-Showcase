@@ -179,7 +179,6 @@ pub(crate) fn list_page() -> AnyPiece {
                         // A physical row keeps its subtree across recycling; its test/a11y
                         // identity must follow the slot just as its text and color do.
                         .id_of(move || day::id!(list_row, row.key()))
-                        .padding(Insets::symmetric(12.0, 8.0))
                 },
             )
             .row_height(RowHeight::Uniform(36.0))

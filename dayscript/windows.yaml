@@ -8,15 +8,15 @@ flow:
   - wait_for: { id: nav }
 
   # A second, independent showcase shell (the tab-bar "+" runs the same action).
-  - menu: { key: day-new-window }
+  - menu: { key: day_new_window }
   - wait_idle:
   - pause: 0.5
   - screenshot: two-windows
 
   # The settings singleton (docs/settings.md): reopening focuses instead of duplicating.
-  - menu: { key: day-preferences }
+  - menu: { key: day_preferences }
   - wait_for: { id: language_picker }
-  - menu: { key: day-preferences }
+  - menu: { key: day_preferences }
   - assert_visible: { id: language_picker }
   - screenshot: { name: prefs-window, window: day.preferences }
   - close_window: { window: day.preferences }

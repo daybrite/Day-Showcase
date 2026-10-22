@@ -54,29 +54,17 @@ pub(crate) fn item_list_pane() -> impl Piece {
             },
         ),
         // Native rows are recycled: read through `slot` so bindings follow the current item.
+        // A list item is the platform's own row: its fonts, check mark, margins and height.
         list(scene.items.rows(move || scene.items.keys()), move |slot| {
-            row((
-                label(move || {
-                    let name = slot.name().read();
-                    if name.is_empty() {
-                        res::str::item_untitled().format()
-                    } else {
-                        name
-                    }
-                })
-                .grow(),
-                when(
-                    move || slot.done().read(),
-                    || {
-                        vector(res::vectors::check)
-                            .template()
-                            .a11y(|a| a.label(res::str::field_done()))
-                            .frame(16.0, 16.0)
-                    },
-                ),
-            ))
-            .spacing(Space::S)
-            .padding(Space::M)
+            list_item(move || {
+                let name = slot.name().read();
+                if name.is_empty() {
+                    res::str::item_untitled().format()
+                } else {
+                    name
+                }
+            })
+            .checked(move || slot.done().read())
             .context_menu([
                 menu_item(res::str::cmd_delete()).action(move || scene.remove(slot.key()))
             ])

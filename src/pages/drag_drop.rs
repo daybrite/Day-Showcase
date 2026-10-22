@@ -145,10 +145,11 @@ pub(crate) fn drag_drop_page() -> AnyPiece {
                     .representations
                     .iter()
                     .map(|r| {
-                        tr("dnd_data")
-                            .arg("mime", r.mime.clone())
-                            .arg("count", r.bytes.len() as i64)
-                            .format()
+                        crate::res::str::dnd_data(crate::res::str::DndData {
+                            mime: r.mime.clone(),
+                            count: r.bytes.len() as i64,
+                        })
+                        .format()
                     })
                     .collect::<Vec<_>>()
                     .join(", ");

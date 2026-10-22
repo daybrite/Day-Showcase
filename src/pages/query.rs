@@ -298,15 +298,12 @@ pub(crate) fn query_page() -> AnyPiece {
     let count = move || ids().len();
 
     let row_view = |slot: ModelSlot<Track>| {
+        // A custom row: the list gives it the platform's side margins (docs/list.md).
         row((
-            label(move || slot.title().read())
-                .padding(Insets::symmetric(12.0, 6.0))
-                .grow(),
-            when(
-                move || slot.starred().read(),
-                || label("★").padding(Insets::symmetric(12.0, 6.0)),
-            ),
+            label(move || slot.title().read()).grow(),
+            when(move || slot.starred().read(), || label("★")),
         ))
+        .spacing(Space::S)
         .id_of(move || day::id!(query_row, slot.item().key()))
     };
     #[cfg(not(target_arch = "wasm32"))]

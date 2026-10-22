@@ -1199,6 +1199,18 @@ flow:
       name: charts
       title: { en: "Charts", fr: "Graphiques", ar: "المخططات", zh-CN: "图表" }
       source: src/pages/charts.rs
+  # Export (docs/canvas.md "Exporting"): the gallery's buttons render the open page's chart with
+  # the toolkit's own painter and save it; the scripted save dialog takes a temp-dir path, so the
+  # bytes are really written. PNG renders everywhere but WinUI; PDF only where the platform has a
+  # PDF writer, and the button is disabled elsewhere.
+  - tap: { id: charts_gallery_export_png, skip_on: [windows-winui] }
+  - assert_presented: { skip_on: [windows-winui] }
+  - respond: { path: "scatter.png", skip_on: [windows-winui] }
+  - assert_text: { id: charts_export_status, key: day_piece_charts_gallery::export_saved, args: { name: scatter.png }, skip_on: [windows-winui] }
+  - tap: { id: charts_gallery_export_pdf, skip_on: [harmony-arkui, web-dom, windows-winui] }
+  - assert_presented: { skip_on: [harmony-arkui, web-dom, windows-winui] }
+  - respond: { path: "scatter.pdf", skip_on: [harmony-arkui, web-dom, windows-winui] }
+  - assert_text: { id: charts_export_status, key: day_piece_charts_gallery::export_saved, args: { name: scatter.pdf }, skip_on: [harmony-arkui, web-dom, windows-winui] }
 
   # Physics: marbles under adjustable gravity, filling the page. A tap throws every marble toward
   # the tapped point; once they have come back down and settled, the capture is repeatable.

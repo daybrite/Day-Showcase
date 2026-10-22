@@ -396,7 +396,7 @@ fn install_settings() -> day_piece_settings::Prefs {
             About::from_manifest()
                 .icon(res::vectors::day_mark)
                 .tagline(res::str::about_text())
-                .link(day::tr("day-about-website"), "https://daybrite.dev"),
+                .link(crate::res::str::day_about_website(), "https://daybrite.dev"),
         )
         // Appearance (`theme-picker`, where the toolkit honors an override) and Language
         // (`language-picker`), from Day's catalog.

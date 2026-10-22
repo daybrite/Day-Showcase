@@ -240,15 +240,12 @@ pub(crate) fn model_page() -> AnyPiece {
         .font(Font::Footnote)
         .id(day::id!(model_selected)),
         list(store.rows(rows), |slot: ModelSlot<Task>| {
+            // A custom row: the list gives it the platform's side margins (docs/list.md).
             row((
-                label(move || slot.title().read())
-                    .padding(Insets::symmetric(12.0, 8.0))
-                    .grow(),
-                when(
-                    move || slot.done().read(),
-                    || label("✓").padding(Insets::symmetric(12.0, 8.0)),
-                ),
+                label(move || slot.title().read()).grow(),
+                when(move || slot.done().read(), || label("✓")),
             ))
+            .spacing(Space::S)
             .id_of(move || day::id!(model_row, slot.item().key()))
         })
         .row_height(RowHeight::Uniform(36.0))

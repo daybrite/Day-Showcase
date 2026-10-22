@@ -51,7 +51,7 @@ fn build_app_menu() -> Vec<MenuEntry> {
         // `.bar_role(...)` claims the platform's standard slot for this menu, which is what puts
         // File/Edit/View in the platform's own order and stops the backend adding its stock copy
         // beside them. The tag, not the title, identifies the slot: day's catalog and this app's
-        // may translate the same menu differently (day's `day-view` is "Présentation", this app's
+        // may translate the same menu differently (day's `day_view` is "Présentation", this app's
         // is "Affichage"), and a bar showing both is exactly the bug that taught us so.
         sub_menu(
             file.clone(),
