@@ -1640,7 +1640,8 @@ flow:
   # sign-in (prompt=none), a verified ID token on the status line, userinfo, a refresh with
   # rotation, revocation, sign-out. The browser and the system sheets need a person
   # (dayscript/signin.yaml). The web build has no loopback server to run the provider on, and
-  # the HarmonyOS HTTP arm has not been exercised against a cleartext loopback server.
+  # the HarmonyOS HTTP arm has not been exercised against a cleartext loopback server, so those
+  # two targets skip the whole lifecycle: without a session the sign-out button is not mounted.
   - navigate: { route: signin }
   - assert_route: { route: signin }
   - wait_for: { id: signin_provider }
@@ -1658,8 +1659,8 @@ flow:
   - assert_text: { id: signin_status, key: signin_refreshed, timeout_secs: 30, skip_on: [web-dom, harmony-arkui] }
   - tap: { id: signin_revoke, skip_on: [web-dom, harmony-arkui] }
   - assert_text: { id: signin_status, key: signin_revoked, timeout_secs: 30, skip_on: [web-dom, harmony-arkui] }
-  - tap: { id: signin_sign_out }
-  - assert_text: { id: signin_status, key: signin_signed_out }
+  - tap: { id: signin_sign_out, skip_on: [web-dom, harmony-arkui] }
+  - assert_text: { id: signin_status, key: signin_signed_out, skip_on: [web-dom, harmony-arkui] }
 
   # Files & storage: the clipboard round-trip, persisted prefs, the native file pickers, and the
   # app-local file store, all in one form and one screenshot. The strict OS clipboard assertion
