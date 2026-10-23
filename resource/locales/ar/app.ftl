@@ -1271,3 +1271,66 @@ net_options = خيارات الطلب
 net_headers = الترويسات (JSON)
 net_timeout = مهلة الخمول
 net_timeout_value = { $seconds } ثانية
+
+# SI units used by the motion-sensor readouts.
+sensor_unit_acceleration = m/s²
+sensor_unit_rotation = rad/s
+sensor_unit_magnetic = µT
+
+sensor_live = قراءات مباشرة
+sensor_compass = بوصلة مغناطيسية
+sensor_compass_hint = أمسك الهاتف بشكل مسطح وفي الاتجاه الرأسي. يشير الأحمر إلى الشمال المغناطيسي؛ قد تؤثر المعادن القريبة على القراءة. إذا كنت تنتظر قراءة، فدوّر الهاتف برفق لمعايرته.
+sensor_north = ش
+sensor_east = ق
+sensor_south = ج
+sensor_west = غ
+sensor_heading = الاتجاه المغناطيسي: { $degrees }°
+
+sensor_calibrated = معاير
+sensor_tilt = مستوى التسارع X/Y
+sensor_tilt_hint = تتبع الفقاعة التسارع X/Y؛ تسارع الجاذبية عند الحافة. ثبّت الجهاز لملاحظة الميل؛ تؤثر الحركة أيضاً عليها.
+sensor_rotation = مؤشرات سرعة الدوران
+sensor_rotation_hint = السرعة الزاوية حول X وY وZ؛ ±π راديان/ثانية عند طرفي كل مقياس. تُظهر سرعة الدوران، وليس الاتجاه.
+sensor_uncalibrated_hint = تتضمن القراءات غير المعايرة انحياز الجهاز. تُظهر الإبرة المجال المقاس وقد لا تشير إلى الشمال.
+sensor_axis_x = X
+sensor_axis_y = Y
+sensor_axis_z = Z
+
+# --- الأمان: سلسلة المفاتيح وطلب التحقق البيومتري (docs/keychain.md, docs/biometrics.md) ---
+nav_security = الأمان
+keychain_title = سلسلة المفاتيح
+keychain_caption = واجهة Rust واحدة فوق المخزن الآمن لكل منصة: سلسلة المفاتيح على iOS وmacOS، وAndroid Keystore، وDPAPI على Windows، وSecret Service على Linux، وUniversal Keystore على HarmonyOS.
+keychain_support_label = المخزن هنا
+keychain_backend_label = المحرّك
+keychain_key_label = المفتاح
+keychain_key_placeholder = showcase.session
+keychain_secret_label = السر
+keychain_secret_placeholder = شيء يستحق الحماية
+keychain_protection_label = الحماية
+keychain_level_unlocked = عند فتح القفل
+keychain_level_first_unlock = بعد أول فتح للقفل
+keychain_level_presence = حضور المستخدم
+keychain_save = حفظ
+keychain_read = قراءة
+keychain_read_presence = قراءة مع التحقق
+keychain_remove = إزالة
+keychain_idle = لم يُحفظ شيء بعد
+keychain_saved = تم حفظ { $key }
+keychain_read_value = تمت القراءة: { $value }
+keychain_removed = تمت إزالة { $key }
+keychain_entries_label = المفاتيح المحفوظة
+keychain_entries_none = لا شيء
+keychain_presence_reason = قراءة السر الذي حفظته صفحة الأمان.
+biometrics_title = القياسات البيومترية
+biometrics_caption = طلب المنصة نفسها: Touch ID أو Face ID، وطلب Android البيومتري، وWindows Hello، ومصادقة HarmonyOS. رمز الجهاز هو المخرج حين يكون الإصبع مبللًا.
+biometrics_support_label = الدعم هنا
+biometrics_availability_label = التوفر
+biometrics_biometry_label = المستشعر
+biometrics_reason_placeholder = أكّد هويتك للمتابعة.
+biometrics_credential_label = السماح برمز الجهاز
+biometrics_authenticate = مصادقة
+biometrics_cancel = إلغاء
+biometrics_idle = لم يُطلب بعد
+biometrics_prompting = في انتظار الطلب…
+biometrics_verified = تم التحقق ({ $method })
+permission_biometrics = أكّد هويتك في صفحة الأمان.

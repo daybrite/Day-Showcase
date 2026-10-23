@@ -171,7 +171,7 @@ Layout: rows, columns, and layers under each fit policy, a split with a draggabl
 Navigation & chrome: a push stack, tabs, menus and dialogs, the window toolbar, and a content list that opens each item in an editor.
 Data: a list and a tree over live models, and queries against a local store.
 Graphics & media: shapes, paths, gradients, and transforms on a canvas, animation, Lottie playback, bundled resources, media playback, a map, and a web view.
-Platform: battery and connectivity, accelerometer, gyroscope, and magnetometer traces, HTTP requests, notifications and the app badge, speech and haptics, and files.
+Platform: battery and connectivity, accelerometer, gyroscope, and magnetometer traces, HTTP requests, notifications and the app badge, speech and haptics, files, the keychain, and the biometric prompt.
 App & tooling: localization, scripting, tweaks, a benchmark against SwiftUI, and crash reporting.
 
 The toolbar on every page has a code button that opens that page's Rust source on GitHub, so you can read the code beside the result. The star button pins a page to the top of the list, and the theme button switches the appearance.

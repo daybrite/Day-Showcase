@@ -1337,35 +1337,35 @@ flow:
   # lottie-android draw the bundled JSON in a loop. This section is gated to iOS and Android. The preset buttons write the same speed signal the slider does, which gives
   # the run a deterministic value to assert; the readout follows, and `.speed()` pushes it to
   # the native view live.
-  - navigate: { route: lottie, only_on: [ios-uikit, android-mdc] }
-  - assert_route: { route: lottie, only_on: [ios-uikit, android-mdc] }
+  - navigate: { route: lottie, only_on: [ios-uikit] }
+  - assert_route: { route: lottie, only_on: [ios-uikit] }
   # The page is day-piece-lottie's playground (its `gallery()` became the playground alone on
   # 2026-09-28, dropping the picker between example pages), so the animation picker the steps
   # below drive is on screen from the start.
-  - wait_for: { id: lottie_view, only_on: [ios-uikit, android-mdc] }
-  - select: { id: lottie_animation, index: 7, only_on: [ios-uikit, android-mdc] }
-  - assert_visible: { id: lottie_view, only_on: [ios-uikit, android-mdc] }
-  - assert_visible: { id: lottie_speed_slider, only_on: [ios-uikit, android-mdc] }
-  - assert_text: { id: lottie_speed_value, text: "1.00×", only_on: [ios-uikit, android-mdc] }
-  - tap: { id: lottie_speed_double, only_on: [ios-uikit, android-mdc] }
-  - assert_text: { id: lottie_speed_value, text: "2.00×", only_on: [ios-uikit, android-mdc] }
+  - wait_for: { id: lottie_view, only_on: [ios-uikit] }
+  - select: { id: lottie_animation, index: 7, only_on: [ios-uikit] }
+  - assert_visible: { id: lottie_view, only_on: [ios-uikit] }
+  - assert_visible: { id: lottie_speed_slider, only_on: [ios-uikit] }
+  - assert_text: { id: lottie_speed_value, text: "1.00×", only_on: [ios-uikit] }
+  - tap: { id: lottie_speed_double, only_on: [ios-uikit] }
+  - assert_text: { id: lottie_speed_value, text: "2.00×", only_on: [ios-uikit] }
   # The one picker of the gallery's animations: a bound name swaps the file under the same native
   # view, and the facts rows follow. The playground was put on pin jump above; the capture shows
   # the heart, then the run puts pin jump back.
-  - assert_text: { id: lottie_model_frames, text: "93 @ 30 fps", only_on: [ios-uikit, android-mdc] }
-  - select: { id: lottie_animation, index: 8, only_on: [ios-uikit, android-mdc] }
-  - assert_text: { id: lottie_model_frames, text: "116 @ 60 fps", only_on: [ios-uikit, android-mdc] }
-  - pause: { secs: 1.0, only_on: [ios-uikit, android-mdc] }
+  - assert_text: { id: lottie_model_frames, text: "93 @ 30 fps", only_on: [ios-uikit] }
+  - select: { id: lottie_animation, index: 8, only_on: [ios-uikit] }
+  - assert_text: { id: lottie_model_frames, text: "116 @ 60 fps", only_on: [ios-uikit] }
+  - pause: { secs: 1.0, only_on: [ios-uikit] }
   - screenshot:
       name: lottie
-      only_on: [ios-uikit, android-mdc]
+      only_on: [ios-uikit]
       title: { en: "Lottie", fr: "Lottie", ar: "رسوم Lottie", zh-CN: "Lottie 动画" }
       source: src/pages/lottie.rs
   # Back to 1× and pin jump so the page reads pristine if a later variant revisits it.
-  - tap: { id: lottie_speed_one, only_on: [ios-uikit, android-mdc] }
-  - assert_text: { id: lottie_speed_value, text: "1.00×", only_on: [ios-uikit, android-mdc] }
-  - select: { id: lottie_animation, index: 7, only_on: [ios-uikit, android-mdc] }
-  - assert_text: { id: lottie_model_frames, text: "93 @ 30 fps", only_on: [ios-uikit, android-mdc] }
+  - tap: { id: lottie_speed_one, only_on: [ios-uikit] }
+  - assert_text: { id: lottie_speed_value, text: "1.00×", only_on: [ios-uikit] }
+  - select: { id: lottie_animation, index: 7, only_on: [ios-uikit] }
+  - assert_text: { id: lottie_model_frames, text: "93 @ 30 fps", only_on: [ios-uikit] }
 
   # Map (day-piece-map, docs/map.md): a native MKMapView, so the page exists only on the two
   # Apple targets (map.rs, lib.rs `destinations`) and the whole section is gated. A preset
@@ -1417,32 +1417,32 @@ flow:
   # assertions are engine-independent: JSON.stringify's output and a TypeError's name/message are
   # spec-defined, so WebKit and V8 agree. A SyntaxError's text is not, so it is not asserted here.
   - input:
-      { id: webview_js, text: "1+1", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc] }
-  - tap: { id: webview_js_run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc] }
+      { id: webview_js, text: "1+1", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - tap: { id: webview_js_run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
   - assert_text:
-      { id: webview_js_result, text: "2", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc] }
+      { id: webview_js_result, text: "2", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
   # Evaluated in the bundled site's own document, not a blank frame.
   - input:
-      { id: webview_js, text: "document.title", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc] }
-  - tap: { id: webview_js_run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc] }
+      { id: webview_js, text: "document.title", only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
+  - tap: { id: webview_js_run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
   - assert_text:
       {
         id: webview_js_result,
         text: '"Day mini site"',
-        only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc],
+        only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt],
       }
   - input:
       {
         id: webview_js,
         text: "throw new TypeError('boom')",
-        only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc],
+        only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt],
       }
-  - tap: { id: webview_js_run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc] }
+  - tap: { id: webview_js_run, only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt] }
   - assert_text:
       {
         id: webview_js_result,
         text: "TypeError: boom",
-        only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt, android-mdc],
+        only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt],
       }
   - screenshot:
       name: webview
@@ -1499,8 +1499,8 @@ flow:
 
   # Device & sensors: the headless device-state parts in one form. The battery preview slider +
   # charging toggle drive a deterministic state (65% + bolt) for the screenshot, then a low
-  # level checks the readout; sensors need a second poll after the first read arms the listener
-  # (push-model platforms); device identity varies, so presence only.
+  # level checks the readout. Sensors subscribe to native events; device identity varies,
+  # so presence only. The battery preview follows the sensor and device sections.
   - memory_usage: # Checkpoint after the preceding group of screens.
   - navigate: { route: system }
   - assert_route: { route: system }
@@ -1514,6 +1514,9 @@ flow:
   - assert_visible: { id: sensor_accel }
   - assert_visible: { id: sensor_gyro }
   - assert_visible: { id: sensor_magnet }
+  - assert_visible: { id: "sensor_running:sensor_accel" }
+  - assert_visible: { id: "sensor_running:sensor_gyro" }
+  - assert_visible: { id: "sensor_running:sensor_magnet" }
   # Permission rows (docs/permissions.md) show status only. Their Request buttons are never
   # tapped here: an OS permission dialog is a system modal that dayscript cannot dismiss (it
   # is not on day's present() rail), so a tap would hang the run on the Simulator and the emulator.
@@ -1608,6 +1611,29 @@ flow:
   - assert_text: { id: haptics_last_played, key: haptics_last_played, args: { style: "Medium" } }
   - tap: { id: haptics_success }
   - assert_text: { id: haptics_last_played, key: haptics_last_played, args: { style: "Success" } }
+
+  # Security (docs/keychain.md, docs/biometrics.md): the keychain round trip through this
+  # target's own store, and the biometric part's probes. The prompt itself is an OS dialog no
+  # script can answer, so it stays out of the walkthrough (dayscript/biometrics.yaml drives it, by
+  # hand). The round trip is skipped where the runner has no store: headless Linux has no Secret
+  # Service, and the web has no keychain.
+  - navigate: { route: security }
+  - assert_route: { route: security }
+  - wait_for: { id: keychain_support }
+  - assert_visible: { id: keychain_key }
+  - assert_visible: { id: biometrics_availability }
+  - screenshot:
+      name: security
+      title: { en: "Security", fr: "Sécurité", ar: "الأمان", zh-CN: "安全" }
+      source: src/pages/security.rs
+  - input: { id: keychain_key, text: "showcase.walkthrough", skip_on: [linux-gtk, linux-qt, web-dom] }
+  - input: { id: keychain_secret, text: "day-keychain-ok", skip_on: [linux-gtk, linux-qt, web-dom] }
+  - tap: { id: keychain_save, skip_on: [linux-gtk, linux-qt, web-dom] }
+  - assert_text: { id: keychain_result, key: keychain_saved, args: { key: "showcase.walkthrough" }, skip_on: [linux-gtk, linux-qt, web-dom] }
+  - tap: { id: keychain_read, skip_on: [linux-gtk, linux-qt, web-dom] }
+  - assert_text: { id: keychain_result, key: keychain_read_value, args: { value: "day-keychain-ok" }, skip_on: [linux-gtk, linux-qt, web-dom] }
+  - tap: { id: keychain_remove, skip_on: [linux-gtk, linux-qt, web-dom] }
+  - assert_text: { id: keychain_result, key: keychain_removed, args: { key: "showcase.walkthrough" }, skip_on: [linux-gtk, linux-qt, web-dom] }
 
   # Files & storage: the clipboard round-trip, persisted prefs, the native file pickers, and the
   # app-local file store, all in one form and one screenshot. The strict OS clipboard assertion

@@ -109,6 +109,10 @@ day-part-http = { git = "https://github.com/daybrite/day.git", features = ["reqw
 # The download manager (docs/downloads.md): the Networking page's pausable, resumable download.
 day-part-downloads = { git = "https://github.com/daybrite/day.git" }
 day-part-fs = { git = "https://github.com/daybrite/day.git" }
+# The keychain and the biometric prompt (docs/keychain.md, docs/biometrics.md): the Security page
+# stores an item at each protection level and shows the platform's own verification dialog.
+day-part-keychain = { git = "https://github.com/daybrite/day.git" }
+day-part-biometrics = { git = "https://github.com/daybrite/day.git" }
 day-piece-activity = { git = "https://github.com/daybrite/day.git" }
 day-piece-searchfield = { git = "https://github.com/daybrite/day.git" }
 day-piece-map = { git = "https://github.com/daybrite/day.git" }

@@ -1254,3 +1254,66 @@ net_options = Options de requête
 net_headers = En-têtes (JSON)
 net_timeout = Délai d’inactivité
 net_timeout_value = { $seconds } secondes
+
+# SI units used by the motion-sensor readouts.
+sensor_unit_acceleration = m/s²
+sensor_unit_rotation = rad/s
+sensor_unit_magnetic = µT
+
+sensor_live = Mesures en direct
+sensor_compass = Boussole magnétique
+sensor_compass_hint = Tenez le téléphone à plat en orientation portrait. Le rouge indique le nord magnétique ; les métaux à proximité peuvent fausser la mesure. En attente de mesure, faites tourner doucement le téléphone pour le calibrer.
+sensor_north = N
+sensor_east = E
+sensor_south = S
+sensor_west = O
+sensor_heading = Cap magnétique : { $degrees }°
+
+sensor_calibrated = Calibré
+sensor_tilt = Niveau d’accélération X/Y
+sensor_tilt_hint = La bulle suit l’accélération X/Y : un g au bord. Restez immobile pour observer l’inclinaison ; les mouvements influencent aussi la bulle.
+sensor_rotation = Indicateurs de vitesse de rotation
+sensor_rotation_hint = Vitesse angulaire X, Y et Z ; ±π rad/s aux extrémités de chaque échelle. Ces indicateurs montrent la vitesse de rotation, pas l’orientation.
+sensor_uncalibrated_hint = Les mesures non calibrées incluent le biais de l’appareil. L’aiguille montre le champ mesuré et peut ne pas indiquer le nord.
+sensor_axis_x = X
+sensor_axis_y = Y
+sensor_axis_z = Z
+
+# --- Sécurité : le trousseau et l'invite biométrique (docs/keychain.md, docs/biometrics.md) ---
+nav_security = Sécurité
+keychain_title = Trousseau
+keychain_caption = Une API Rust au-dessus du coffre sécurisé de chaque plateforme : le trousseau sur iOS et macOS, le Keystore Android, DPAPI sur Windows, le Secret Service sur Linux, l'Universal Keystore sur HarmonyOS.
+keychain_support_label = Coffre ici
+keychain_backend_label = Moteur
+keychain_key_label = Clé
+keychain_key_placeholder = showcase.session
+keychain_secret_label = Secret
+keychain_secret_placeholder = Quelque chose à protéger
+keychain_protection_label = Protection
+keychain_level_unlocked = Appareil déverrouillé
+keychain_level_first_unlock = Après le premier déverrouillage
+keychain_level_presence = Présence de l'utilisateur
+keychain_save = Enregistrer
+keychain_read = Lire
+keychain_read_presence = Lire avec vérification
+keychain_remove = Supprimer
+keychain_idle = Rien d'enregistré pour l'instant
+keychain_saved = { $key } enregistré
+keychain_read_value = Relu : { $value }
+keychain_removed = { $key } supprimé
+keychain_entries_label = Clés enregistrées
+keychain_entries_none = Aucune
+keychain_presence_reason = Lire le secret enregistré par la page Sécurité.
+biometrics_title = Biométrie
+biometrics_caption = L'invite de la plateforme elle-même : Touch ID ou Face ID, l'invite biométrique d'Android, Windows Hello, l'authentification HarmonyOS. Le code de l'appareil reste une issue quand un doigt est mouillé.
+biometrics_support_label = Prise en charge ici
+biometrics_availability_label = Disponibilité
+biometrics_biometry_label = Capteur
+biometrics_reason_placeholder = Confirmez votre identité pour continuer.
+biometrics_credential_label = Autoriser le code de l'appareil
+biometrics_authenticate = S'authentifier
+biometrics_cancel = Annuler
+biometrics_idle = Pas encore demandé
+biometrics_prompting = En attente de l'invite…
+biometrics_verified = Vérifié ({ $method })
+permission_biometrics = Confirmez votre identité sur la page Sécurité.

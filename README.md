@@ -41,11 +41,12 @@ SBOM beside every package. The web build runs at
 
 ## What is in it
 
-Thirty-three screens in eight groups, each a working demo of the pieces it names: an overview;
+Thirty-four screens in eight groups, each a working demo of the pieces it names: an overview;
 the controls (a catalogue of every control Day ships, text, text editing, date and time, focus);
 layout and grid; navigation and window chrome; data (list, tree, model, query); graphics and
 media (canvas, charts, animation, resources, video, Lottie, map, web view); the platform (device and
-sensors, network and HTTP, notifications and badge, speech, sound and haptics, files and storage); and
+sensors, network and HTTP, notifications and badge, speech, sound and haptics, files and storage,
+security); and
 the app's own tooling (localization, scripting, tweaks, benchmark, crash reporting). A page whose
 central feature a platform cannot run is left out of that platform's sidebar; a section a
 platform cannot run stays, with a note.
@@ -73,9 +74,10 @@ platform cannot run stays, with a note.
   Diagnostics group that names the toolkit, OS, device, app id, locale and lifecycle phase.
 - **Model, Query, Localization, Resources, Date & time.** Observable models over SQLite, live
   queries, four languages switched at runtime, typed resources, and native date pickers.
-- **Device & sensors, Platform services, Media, Web view, Tweaks, Crash reporting.** Battery,
-  connectivity, live accelerometer traces, notifications and permissions, a media player, the
-  system web view, per-platform widget tweaks, and a crash report you can trigger on purpose.
+- **Device & sensors, Platform services, Security, Media, Web view, Tweaks, Crash reporting.**
+  Battery, connectivity, live accelerometer traces, notifications and permissions, the keychain
+  and the biometric prompt, a media player, the system web view, per-platform widget tweaks, and a
+  crash report you can trigger on purpose.
 
 Every screen is translated into English, French, Arabic, and Simplified Chinese. Switching the
 language at runtime lays every screen out again, mirrored for Arabic.

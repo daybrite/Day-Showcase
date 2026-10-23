@@ -1,0 +1,33 @@
+name: biometrics
+description: >
+  The biometric prompt (docs/biometrics.md) and the keychain's user-presence level
+  (docs/keychain.md), by hand: the dialog is the OS's own, and no script can answer it, so this
+  run is for a person at the device. It stores an item that needs the person present, reads it
+  with the synchronous call (which must refuse without a dialog), then reads it with
+  verification, which shows the device's dialog; pass it, and the result line shows the secret.
+  Then it shows the prompt on its own. Not in CI: the runners have no one to pass a dialog, and
+  no biometric to pass it with.
+flow:
+  - wait_for: { id: nav }
+  - navigate: { route: security }
+  - assert_route: { route: security }
+  - wait_for: { id: keychain_support }
+  - input: { id: keychain_key, text: "showcase.vault" }
+  - input: { id: keychain_secret, text: "open-sesame" }
+  - select: { id: keychain_protection, index: 2 }
+  - tap: { id: keychain_save }
+  # Writing a protected item never prompts; a device with no passcode fails here instead.
+  - assert_text: { id: keychain_result, key: keychain_saved, args: { key: "showcase.vault" } }
+  # The synchronous read refuses a protected item rather than showing anything.
+  - tap: { id: keychain_read }
+  - assert_text: { id: keychain_result, text: "the item needs the person present; read it with get_async" }
+  # The read with verification shows the device's dialog. Pass it.
+  - tap: { id: keychain_read_presence }
+  - assert_text: { id: keychain_result, key: keychain_read_value, args: { value: "open-sesame" }, timeout_secs: 60 }
+  - tap: { id: keychain_remove }
+  - assert_text: { id: keychain_result, key: keychain_removed, args: { key: "showcase.vault" } }
+  # The prompt on its own, biometric only, so a pass names the method (Windows Hello decides its
+  # own credential and reports Unknown; expect that there).
+  - toggle: { id: biometrics_credential, value: false }
+  - tap: { id: biometrics_authenticate }
+  - assert_text: { id: biometrics_result, key: biometrics_verified, args: { method: "Biometric" }, timeout_secs: 60 }

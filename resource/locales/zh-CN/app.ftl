@@ -1244,3 +1244,66 @@ net_options = 请求选项
 net_headers = 标头 (JSON)
 net_timeout = 空闲超时
 net_timeout_value = { $seconds } 秒
+
+# SI units used by the motion-sensor readouts.
+sensor_unit_acceleration = m/s²
+sensor_unit_rotation = rad/s
+sensor_unit_magnetic = µT
+
+sensor_live = 实时读数
+sensor_compass = 磁罗盘
+sensor_compass_hint = 请将手机以竖屏方向平放。红色指向磁北；附近的金属可能影响读数。若读数尚未出现，请轻轻转动手机进行校准。
+sensor_north = 北
+sensor_east = 东
+sensor_south = 南
+sensor_west = 西
+sensor_heading = 磁航向：{ $degrees }°
+
+sensor_calibrated = 已校准
+sensor_tilt = X/Y 加速度水平仪
+sensor_tilt_hint = 气泡随 X/Y 加速度移动：边缘为一个重力加速度。保持静止可观察倾斜；移动也会影响气泡。
+sensor_rotation = 转速表
+sensor_rotation_hint = X、Y 和 Z 轴角速度；各刻度两端为 ±π rad/s。显示的是旋转速度，而非朝向。
+sensor_uncalibrated_hint = 未校准读数包含设备偏差。指针显示测得的磁场，可能不指向北方。
+sensor_axis_x = X
+sensor_axis_y = Y
+sensor_axis_z = Z
+
+# --- 安全：钥匙串与生物识别提示（docs/keychain.md、docs/biometrics.md）---
+nav_security = 安全
+keychain_title = 钥匙串
+keychain_caption = 一套 Rust API，底层是各平台自己的安全存储：iOS 与 macOS 的钥匙串、Android Keystore、Windows 的 DPAPI、Linux 的 Secret Service、HarmonyOS 的通用密钥库。
+keychain_support_label = 此处的存储
+keychain_backend_label = 后端
+keychain_key_label = 键
+keychain_key_placeholder = showcase.session
+keychain_secret_label = 密文
+keychain_secret_placeholder = 值得保护的内容
+keychain_protection_label = 保护级别
+keychain_level_unlocked = 解锁时
+keychain_level_first_unlock = 首次解锁后
+keychain_level_presence = 用户在场
+keychain_save = 保存
+keychain_read = 读取
+keychain_read_presence = 验证后读取
+keychain_remove = 移除
+keychain_idle = 尚未保存任何内容
+keychain_saved = 已保存 { $key }
+keychain_read_value = 读回：{ $value }
+keychain_removed = 已移除 { $key }
+keychain_entries_label = 已保存的键
+keychain_entries_none = 无
+keychain_presence_reason = 读取“安全”页面保存的密文。
+biometrics_title = 生物识别
+biometrics_caption = 平台自己的提示：Touch ID 或 Face ID、Android 生物识别提示、Windows Hello、HarmonyOS 用户认证。手指湿了时，设备密码仍是入口。
+biometrics_support_label = 此处的支持
+biometrics_availability_label = 可用性
+biometrics_biometry_label = 传感器
+biometrics_reason_placeholder = 请确认是您本人以继续。
+biometrics_credential_label = 允许使用设备密码
+biometrics_authenticate = 认证
+biometrics_cancel = 取消
+biometrics_idle = 尚未请求
+biometrics_prompting = 等待提示…
+biometrics_verified = 已验证（{ $method }）
+permission_biometrics = 在“安全”页面确认是您本人。

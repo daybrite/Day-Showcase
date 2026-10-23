@@ -11,31 +11,28 @@ pub(crate) fn system_page() -> AnyPiece {
         crate::res::str::nav_system(),
         day::id!(system_title),
         form((
-            battery_section(),
             sensors_section(),
+            sensor_section(
+                day_part_sensors::SensorKind::Magnetometer,
+                crate::res::str::sensor_magnetometer(),
+                crate::res::str::sensor_unit_magnetic,
+                day::id!(sensor_magnet),
+            ),
             sensor_section(
                 day_part_sensors::SensorKind::Accelerometer,
                 crate::res::str::sensor_accelerometer(),
-                "m/s²",
+                crate::res::str::sensor_unit_acceleration,
                 day::id!(sensor_accel),
-                false,
             ),
             sensor_section(
                 day_part_sensors::SensorKind::Gyroscope,
                 crate::res::str::sensor_gyroscope(),
-                "rad/s",
+                crate::res::str::sensor_unit_rotation,
                 day::id!(sensor_gyro),
-                false,
-            ),
-            sensor_section(
-                day_part_sensors::SensorKind::Magnetometer,
-                crate::res::str::sensor_magnetometer(),
-                "µT",
-                day::id!(sensor_magnet),
-                true,
             ),
             location_section(),
             device_section(),
+            battery_section(),
         ))
         .any(),
     )
@@ -110,112 +107,432 @@ fn sensors_section() -> impl Piece {
     .title(crate::res::str::nav_sensors())
 }
 
-/// One live sensor (docs/sensors.md): its readout on a line of its own, then its strip chart.
-///
-/// Each section subscribes with `day_part_sensors::watch`, whose samples arrive on a background
-/// thread, so the value crosses to the UI through a `Setter`, the standard idiom (DESIGN §4.5).
-/// The subscription is tied to this page's scope: leaving the page drops the `Watch` handles and
-/// the platform stops sampling.
-///
-/// The readout is a number that changes twenty times a second, so it gets both halves of the
-/// steady-readout treatment: `reserving` sizes its box to the widest reading the sensor can
-/// show, so the line never reflows as a value gains a digit, and `tabular` asks the platform
-/// for figures of equal advance, so the digits stop shifting inside it. `legend` adds the axis
-/// key under the chart, once, on the last section.
+/// Each sensor owns a subscription: pausing drops it, resuming starts a new generation.
+/// Only current-generation samples reach the displayed state, so an already queued callback
+/// cannot change a paused readout or leak an old reading into a resumed stream.
 fn sensor_section(
     kind: day_part_sensors::SensorKind,
     title: day::LocalizedText,
-    unit: &'static str,
+    unit: fn() -> day::LocalizedText,
     id: day::ElementId,
-    legend: bool,
 ) -> impl Piece {
-    /// The readout: a reading, "waiting" while the sensor exists but has not reported yet, or
-    /// "unavailable" (each branch a full `tr(...)` so `day lint` sees the key).
-    fn line(
-        reading: Option<day_part_sensors::SensorReading>,
-        kind: day_part_sensors::SensorKind,
-        unit: &str,
-    ) -> String {
-        match reading {
-            Some(r) => crate::res::str::sensor_reading(crate::res::str::SensorReading {
-                x: format!("{:+.2}", r.x),
-                y: format!("{:+.2}", r.y),
-                z: format!("{:+.2}", r.z),
-                unit,
-            })
-            .format(),
-            None if day_part_sensors::is_available(kind) => {
-                crate::res::str::sensor_waiting().format()
-            }
-            None => crate::res::str::sensor_unavailable().format(),
-        }
-    }
+    use std::{cell::RefCell, rc::Rc};
 
     let available = day_part_sensors::is_available(kind);
-    // The latest reading for the readout, and a rolling history for the chart: one stream, two
-    // views. The callbacks cross the raw reading and nothing else: they run on the platform's
-    // sampling thread, where day-l10n's thread-local bundles are empty; formatting there
-    // resolved every reading to the ⟨sensor_reading⟩ miss marker. The label formats on the UI
-    // side instead, which also re-renders readings in the new language on a live locale switch.
+    use day_part_sensors::Calibration;
+    let can_calibrate = available
+        && day_part_sensors::is_available(kind.with_calibration(Calibration::Uncalibrated));
+    let calibrated = Signal::new(true);
+    let running = Signal::new(available);
     let reading = Signal::new(None::<day_part_sensors::SensorReading>);
     let series = Signal::new(Vec::<day_part_sensors::SensorReading>::new());
-    let mut watches = Vec::new();
-    if available {
-        let set = reading.setter();
-        watches.push(day_part_sensors::watch(kind, move |r| set.set(Some(r))));
-        let set = series.setter();
-        let buf = std::sync::Arc::new(std::sync::Mutex::new(Vec::new()));
-        watches.push(day_part_sensors::watch(kind, move |r| {
-            let snapshot = {
-                let Ok(mut b) = buf.lock() else { return };
-                b.push(r);
-                if b.len() > CHART_SAMPLES {
-                    b.remove(0);
-                }
-                b.clone()
-            };
-            set.set(snapshot);
-        }));
-    }
-    // Holding the handles until the page goes away is what keeps the streams alive, and dropping
-    // them here is what stops the platform sampling when it doesn't.
-    Scope::current().on_cleanup(move || drop(watches));
+    let incoming = Signal::new(None::<(u64, day_part_sensors::SensorReading)>);
+    let generation = Rc::new(std::cell::Cell::new(0_u64));
+    let subscription = Rc::new(RefCell::new(None));
+    // A mode change starts a fresh history, including when paused. Pause/resume itself
+    // retains the last reading; no graph ever joins calibrated and uncalibrated samples.
+    watch(
+        move || calibrated.get(),
+        move |_, _| {
+            reading.set(None);
+            series.set(Vec::new());
+        },
+    );
+    day::reactive::bind(move || (running.get(), calibrated.get()), {
+        let generation = generation.clone();
+        let subscription = subscription.clone();
+        move |(active, corrected)| {
+            let epoch = generation.get().wrapping_add(1);
+            generation.set(epoch);
+            subscription.borrow_mut().take();
+            if *active {
+                let setter = incoming.setter();
+                *subscription.borrow_mut() = Some(day_part_sensors::watch(
+                    kind.with_calibration(if *corrected {
+                        Calibration::Calibrated
+                    } else {
+                        Calibration::Uncalibrated
+                    }),
+                    move |sample| {
+                        setter.set(Some((epoch, sample)));
+                    },
+                ));
+            }
+        }
+    });
+    Scope::current().on_cleanup(move || drop(subscription.borrow_mut().take()));
+    watch(
+        move || incoming.get(),
+        move |sample, _| {
+            if let Some((epoch, sample)) = sample
+                && running.get()
+                && *epoch == generation.get()
+            {
+                reading.set(Some(*sample));
+                series.update(|history| {
+                    if history.len() == CHART_SAMPLES {
+                        history.remove(0);
+                    }
+                    history.push(*sample);
+                });
+            }
+        },
+    );
 
-    // The widest reading this line can show, in the run's locale: three signed values of up to
-    // three integer digits (a magnetometer reads past ±100 µT), so the box is sized once.
+    // Fixed character slots align signs, decimal points, and all three axes. Monospacing
+    // includes the padding spaces (tabular figures alone do not); reserving fixes the box.
+    // Formatting stays on the UI thread, where the localization bundles are installed.
     let widest = crate::res::str::sensor_reading(crate::res::str::SensorReading {
         x: "-000.00",
         y: "-000.00",
         z: "-000.00",
-        unit,
+        unit: unit().format(),
     })
     .format();
-    // Through the shared helper, which puts the id on the LABEL: `reserving` returns a wrapper
-    // with no native handle, and an id on that wrapper reaches no element on web-dom.
+    let toggle_id = day::id!(sensor_running, id.as_str());
+    let calibration_id = day::id!(sensor_calibrated, id.as_str());
+    let chart_id = day::id!(sensor_chart, id.as_str());
     section((
-        crate::widgets::numeric_readout(
-            move || line(reading.get(), kind, unit),
-            widest,
-            id.clone(),
+        labeled(
+            crate::res::str::sensor_live(),
+            toggle(running).enabled(available).id(toggle_id),
+        ),
+        when(
+            move || can_calibrate,
+            move || {
+                labeled(
+                    crate::res::str::sensor_calibrated(),
+                    toggle(calibrated).id(calibration_id.clone()),
+                )
+            },
         ),
         when(
             move || available,
-            move || strip_chart(series).id(day::id!(sensor_chart, id.as_str())),
-        ),
-        // The legend only means something next to a chart.
-        when(
-            move || legend && available,
             move || {
-                label(crate::res::str::chart_axes())
-                    .font(Font::Footnote)
-                    .id(day::id!(sensor_chart_legend))
+                let (visual, hint) = match kind {
+                    day_part_sensors::SensorKind::Magnetometer => (
+                        column((compass_view(reading, calibrated),))
+                            .align(HAlign::Center)
+                            .grow_w()
+                            .any(),
+                        label(move || {
+                            if calibrated.get() {
+                                crate::res::str::sensor_compass_hint().format()
+                            } else {
+                                crate::res::str::sensor_uncalibrated_hint().format()
+                            }
+                        })
+                        .font(Font::Footnote)
+                        .secondary()
+                        .any(),
+                    ),
+                    day_part_sensors::SensorKind::Accelerometer => (
+                        column((acceleration_view(reading),))
+                            .align(HAlign::Center)
+                            .grow_w()
+                            .any(),
+                        label(crate::res::str::sensor_tilt_hint())
+                            .font(Font::Footnote)
+                            .secondary()
+                            .any(),
+                    ),
+                    day_part_sensors::SensorKind::Gyroscope => (
+                        rotation_view(reading).any(),
+                        label(crate::res::str::sensor_rotation_hint())
+                            .font(Font::Footnote)
+                            .secondary()
+                            .any(),
+                    ),
+                };
+                column((
+                    visual,
+                    hint,
+                    strip_chart(series, chart_id.clone()),
+                    label(crate::res::str::chart_axes())
+                        .font(Font::Caption)
+                        .secondary(),
+                ))
+                .any()
             },
         ),
+        label(move || match reading.get() {
+            Some(r) => crate::res::str::sensor_reading(crate::res::str::SensorReading {
+                x: format!("{:+7.2}", r.x),
+                y: format!("{:+7.2}", r.y),
+                z: format!("{:+7.2}", r.z),
+                unit: unit().format(),
+            })
+            .format(),
+            None if available => crate::res::str::sensor_waiting().format(),
+            None => crate::res::str::sensor_unavailable().format(),
+        })
+        .monospace()
+        .tabular()
+        .font(Font::Footnote)
+        .id(id.clone())
+        .reserving(widest),
     ))
     .title(title)
 }
 
-/// How many samples a strip chart keeps: at day-part-sensors' ~20 Hz, about six seconds.
+/// Angle of magnetic north relative to the device's portrait top edge. The raw x/y
+/// projection is meaningful with the phone flat; z is still exposed in the readout.
+fn magnetic_direction(reading: day_part_sensors::SensorReading) -> Option<f64> {
+    (reading.x.hypot(reading.y) > 0.001).then(|| reading.x.atan2(reading.y))
+}
+
+fn compass_view(
+    reading: Signal<Option<day_part_sensors::SensorReading>>,
+    calibrated: Signal<bool>,
+) -> impl Piece {
+    canvas(move |d, size| {
+        // Canvas records once before layout, when its size is still zero.
+        if size.width < 60.0 || size.height < 60.0 {
+            return;
+        }
+
+        let c = Point::new(size.width / 2.0, size.height / 2.0);
+        let radius = size.width.min(size.height) / 2.0 - 14.0;
+        let angle = reading.get().and_then(magnetic_direction);
+        let ink = Color::rgba(0.5, 0.5, 0.55, 1.0);
+        let point = |a: f64, r: f64| Point::new(c.x + a.sin() * r, c.y - a.cos() * r);
+        d.stroke(
+            Shape::Ellipse(Rect::new(
+                c.x - radius,
+                c.y - radius,
+                radius * 2.0,
+                radius * 2.0,
+            )),
+            ink,
+            1.0,
+        );
+        // The fixed marker is the phone's top; the rose rotates with the magnetic field.
+        d.fill(
+            Shape::Polygon(vec![
+                Point::new(c.x, c.y - radius - 2.0),
+                Point::new(c.x - 4.0, c.y - radius - 10.0),
+                Point::new(c.x + 4.0, c.y - radius - 10.0),
+            ]),
+            ink,
+        );
+        let Some(angle) = angle else { return };
+        for i in 0..24 {
+            let a = angle + f64::from(i) * std::f64::consts::TAU / 24.0;
+            d.stroke(
+                Shape::Line(point(a, radius - 2.0), point(a, radius - 6.0)),
+                ink,
+                1.0,
+            );
+        }
+        for (i, name) in [
+            crate::res::str::sensor_north(),
+            crate::res::str::sensor_east(),
+            crate::res::str::sensor_south(),
+            crate::res::str::sensor_west(),
+        ]
+        .into_iter()
+        .enumerate()
+        {
+            d.text(
+                &name.format(),
+                point(
+                    angle + i as f64 * std::f64::consts::FRAC_PI_2,
+                    radius - 18.0,
+                ),
+                TextStyle {
+                    size: 13.0,
+                    color: if i == 0 { crate::palette::CORAL } else { ink },
+                    anchor: TextAnchor::CENTERED,
+                    ..Default::default()
+                },
+            );
+        }
+        let side = angle + std::f64::consts::FRAC_PI_2;
+        for (direction, color) in [
+            (angle, crate::palette::CORAL),
+            (angle + std::f64::consts::PI, ink),
+        ] {
+            d.fill(
+                Shape::Polygon(vec![
+                    point(direction, radius - 32.0),
+                    point(side, 5.0),
+                    point(side + std::f64::consts::PI, 5.0),
+                ]),
+                color,
+            );
+        }
+        d.fill(
+            Shape::Ellipse(Rect::new(c.x - 3.0, c.y - 3.0, 6.0, 6.0)),
+            crate::palette::TEAL,
+        );
+    })
+    .a11y(move |a| {
+        a.role(Role::Meter)
+            .label(crate::res::str::sensor_compass())
+            .value(move || {
+                if !calibrated.get() {
+                    return crate::res::str::sensor_uncalibrated_hint().format();
+                }
+                reading.get().and_then(magnetic_direction).map_or_else(
+                    || crate::res::str::sensor_waiting().format(),
+                    |angle| {
+                        crate::res::str::sensor_heading(format!(
+                            "{:.0}",
+                            (-angle.to_degrees()).round().rem_euclid(360.0)
+                        ))
+                        .format()
+                    },
+                )
+            })
+    })
+    .id(day::id!(sensor_compass))
+    .frame(176.0, 176.0)
+}
+
+/// A bubble level driven by the measured x/y acceleration, with one g at the rim.
+/// Translational acceleration also moves the bubble: this is not fused device attitude.
+fn acceleration_view(reading: Signal<Option<day_part_sensors::SensorReading>>) -> impl Piece {
+    canvas(move |d, size| {
+        // Canvas records once before layout, when its size is still zero.
+        if size.width < 60.0 || size.height < 60.0 {
+            return;
+        }
+
+        let c = Point::new(size.width / 2.0, size.height / 2.0);
+        let radius = size.width.min(size.height) / 2.0 - 12.0;
+        let ink = Color::rgba(0.5, 0.5, 0.55, 0.8);
+        for r in [radius, radius * 0.5, 5.0] {
+            d.stroke(
+                Shape::Ellipse(Rect::new(c.x - r, c.y - r, 2.0 * r, 2.0 * r)),
+                ink,
+                1.0,
+            );
+        }
+        d.stroke(
+            Shape::Line(Point::new(c.x - radius, c.y), Point::new(c.x + radius, c.y)),
+            ink,
+            1.0,
+        );
+        d.stroke(
+            Shape::Line(Point::new(c.x, c.y - radius), Point::new(c.x, c.y + radius)),
+            ink,
+            1.0,
+        );
+        if let Some(r) = reading.get() {
+            let p = acceleration_position(r);
+            let x = c.x + p.x * (radius - 9.0);
+            let y = c.y + p.y * (radius - 9.0);
+            d.fill(
+                Shape::Ellipse(Rect::new(x - 9.0, y - 9.0, 18.0, 18.0)),
+                crate::palette::TEAL,
+            );
+            d.stroke(
+                Shape::Ellipse(Rect::new(x - 9.0, y - 9.0, 18.0, 18.0)),
+                ink,
+                1.0,
+            );
+        }
+    })
+    .a11y(|a| {
+        a.role(Role::Image)
+            .label(crate::res::str::sensor_tilt())
+            .hint(crate::res::str::sensor_tilt_hint())
+    })
+    .id(day::id!(sensor_accel_live))
+    .frame(152.0, 152.0)
+}
+
+fn acceleration_position(reading: day_part_sensors::SensorReading) -> Point {
+    let scale = reading.x.hypot(reading.y).max(9.80665);
+    Point::new(reading.x / scale, -reading.y / scale)
+}
+
+/// Signed turn-rate gauges: zero at twelve o'clock, ±π rad/s at ±135 degrees.
+/// A stationary phone returns to zero; we deliberately do not integrate a drifting attitude.
+fn rotation_view(reading: Signal<Option<day_part_sensors::SensorReading>>) -> impl Piece {
+    canvas(move |d, size| {
+        // Canvas records once before layout, when its size is still zero.
+        if size.width < 60.0 || size.height < 60.0 {
+            return;
+        }
+
+        let names = [
+            crate::res::str::sensor_axis_x(),
+            crate::res::str::sensor_axis_y(),
+            crate::res::str::sensor_axis_z(),
+        ];
+        let colors = [
+            crate::palette::CORAL,
+            crate::palette::TEAL,
+            crate::palette::VIOLET,
+        ];
+        let ink = Color::rgba(0.5, 0.5, 0.55, 0.8);
+        let radius = (size.width / 6.0 - 8.0).min(42.0);
+        let values = reading.get().map(|r| [r.x, r.y, r.z]);
+        for i in 0..3 {
+            let c = Point::new(size.width * (i as f64 + 0.5) / 3.0, size.height / 2.0);
+            let point =
+                |angle: f64, r: f64| Point::new(c.x + angle.sin() * r, c.y - angle.cos() * r);
+            d.stroke(
+                Shape::Ellipse(Rect::new(
+                    c.x - radius,
+                    c.y - radius,
+                    radius * 2.0,
+                    radius * 2.0,
+                )),
+                ink,
+                1.0,
+            );
+            for tick in -3..=3 {
+                let angle = f64::from(tick) * std::f64::consts::FRAC_PI_4;
+                d.stroke(
+                    Shape::Line(point(angle, radius - 2.0), point(angle, radius - 7.0)),
+                    ink,
+                    1.0,
+                );
+            }
+            d.text(
+                &names[i].format(),
+                Point::new(c.x, c.y + radius * 0.52),
+                TextStyle {
+                    size: 12.0,
+                    color: colors[i],
+                    anchor: TextAnchor::CENTERED,
+                    ..Default::default()
+                },
+            );
+            if let Some(values) = values {
+                let angle = rotation_angle(values[i]);
+                let side = angle + std::f64::consts::FRAC_PI_2;
+                d.fill(
+                    Shape::Polygon(vec![
+                        point(angle, radius - 9.0),
+                        point(side, 3.0),
+                        point(side + std::f64::consts::PI, 3.0),
+                    ]),
+                    colors[i],
+                );
+                d.fill(
+                    Shape::Ellipse(Rect::new(c.x - 3.0, c.y - 3.0, 6.0, 6.0)),
+                    colors[i],
+                );
+            }
+        }
+    })
+    .a11y(|a| {
+        a.role(Role::Image)
+            .label(crate::res::str::sensor_rotation())
+            .hint(crate::res::str::sensor_rotation_hint())
+    })
+    .id(day::id!(sensor_gyro_live))
+    .height(106.0)
+}
+
+fn rotation_angle(rate: f64) -> f64 {
+    (rate / std::f64::consts::PI).clamp(-1.0, 1.0) * std::f64::consts::PI * 0.75
+}
+
+/// The chart holds the latest 120 delivered events; the time span depends on the device's rate.
 const CHART_SAMPLES: usize = 120;
 
 /// A live x/y/z strip chart: three polylines over a rolling window, newest on the right.
@@ -224,7 +541,10 @@ const CHART_SAMPLES: usize = 120;
 /// A battery is a picture of an object and mirrors with the layout; a time series is a chart whose
 /// x axis is time, and time reads left-to-right in a chart regardless of the reading direction of
 /// the surrounding text.
-fn strip_chart(series: Signal<Vec<day_part_sensors::SensorReading>>) -> impl Piece {
+fn strip_chart(
+    series: Signal<Vec<day_part_sensors::SensorReading>>,
+    id: day::ElementId,
+) -> impl Piece {
     canvas(move |d, size| {
         if size.width <= 2.0 || size.height <= 2.0 {
             return;
@@ -273,6 +593,7 @@ fn strip_chart(series: Signal<Vec<day_part_sensors::SensorReading>>) -> impl Pie
             }
         }
     })
+    .id(id)
     .height(56.0)
 }
 
@@ -603,4 +924,50 @@ fn deviceinfo_lines() -> (String, String, String) {
     };
     let simulator = crate::res::str::deviceinfo_simulator(sim_value).format();
     (model, system, simulator)
+}
+
+#[cfg(test)]
+mod sensor_tests {
+    use super::{acceleration_position, magnetic_direction, rotation_angle};
+    use day_part_sensors::SensorReading;
+
+    #[test]
+    fn live_gauges_center_at_rest_and_clamp_without_changing_direction() {
+        let center = acceleration_position(SensorReading {
+            x: 0.0,
+            y: 0.0,
+            z: 9.80665,
+        });
+        assert_eq!((center.x, center.y), (0.0, 0.0));
+        let edge = acceleration_position(SensorReading {
+            x: 30.0,
+            y: -40.0,
+            z: 0.0,
+        });
+        assert!((edge.x - 0.6).abs() < 1e-9 && (edge.y - 0.8).abs() < 1e-9);
+        assert_eq!(rotation_angle(0.0), 0.0);
+        assert_eq!(rotation_angle(20.0), std::f64::consts::PI * 0.75);
+        assert_eq!(rotation_angle(-20.0), -rotation_angle(20.0));
+    }
+
+    #[test]
+    fn compass_uses_portrait_xy_axes_and_rejects_a_vertical_field() {
+        for (x, y, expected) in [
+            (0.0, 40.0, 0.0),
+            (40.0, 0.0, 90.0),
+            (0.0, -40.0, 180.0),
+            (-40.0, 0.0, -90.0),
+        ] {
+            let angle = magnetic_direction(SensorReading { x, y, z: 25.0 }).unwrap();
+            assert!((angle.to_degrees() - expected).abs() < 1e-9);
+        }
+        assert!(
+            magnetic_direction(SensorReading {
+                x: 0.0,
+                y: 0.0,
+                z: 40.0
+            })
+            .is_none()
+        );
+    }
 }

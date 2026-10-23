@@ -59,6 +59,35 @@
         }
       }
     },
+    "NSFaceIDUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أكّد هويتك في صفحة الأمان."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirm it is you on the Security page."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirmez votre identité sur la page Sécurité."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在“安全”页面确认是您本人。"
+          }
+        }
+      }
+    },
     "NSLocationWhenInUseUsageDescription": {
       "extractionState": "manual",
       "localizations": {

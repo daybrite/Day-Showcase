@@ -38,6 +38,10 @@ camera = true
 location-when-in-use = true
 notifications = true
 motion = true
+# The Security page's biometric prompt and its keychain item that needs the person present
+# (docs/biometrics.md, docs/keychain.md). Face ID shows the reason the first time it is used;
+# Android and HarmonyOS grant theirs at install.
+biometrics = true
 
 # Bluetooth is not in Day's portable permission set (docs/permissions.md), so it goes through the
 # raw escape hatch: the key is written into the iOS Info.plist verbatim. iOS 13+ reads

@@ -30,6 +30,17 @@ pub(crate) fn haptics() -> Support {
     from_bool(day_part_haptics::is_supported())
 }
 
+/// The keychain: the part knows which store this binary reaches, and whether it is the
+/// platform's own or a stand-in (docs/keychain.md).
+pub(crate) fn keychain() -> Support {
+    day_part_keychain::support()
+}
+
+/// The biometric prompt: the part knows whether this platform has one (docs/biometrics.md).
+pub(crate) fn biometrics() -> Support {
+    day_part_biometrics::support()
+}
+
 /// Sound effects: likewise.
 pub(crate) fn sound() -> Support {
     from_bool(day_part_sound::is_supported())
@@ -63,7 +74,14 @@ pub(crate) fn battery() -> Support {
 /// Declared: the part streams readings and reports absence as an empty stream, which is also what
 /// a device with no gyroscope looks like.
 pub(crate) fn sensors() -> Support {
-    unsupported_on(&["XAML", "WinUI"])
+    if cfg!(any(
+        target_os = "macos",
+        all(target_os = "linux", not(target_env = "ohos"))
+    )) {
+        Support::Unsupported
+    } else {
+        Support::Native
+    }
 }
 
 fn from_bool(supported: bool) -> Support {

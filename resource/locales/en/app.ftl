@@ -1261,3 +1261,66 @@ net_options = Request options
 net_headers = Headers (JSON)
 net_timeout = Idle timeout
 net_timeout_value = { $seconds } seconds
+
+# SI units used by the motion-sensor readouts.
+sensor_unit_acceleration = m/s²
+sensor_unit_rotation = rad/s
+sensor_unit_magnetic = µT
+
+sensor_live = Live readings
+sensor_compass = Magnetic compass
+sensor_compass_hint = Hold the phone flat in portrait orientation. Red points toward magnetic north; nearby metal can affect the reading. If waiting, rotate gently to calibrate.
+sensor_north = N
+sensor_east = E
+sensor_south = S
+sensor_west = W
+sensor_heading = Magnetic heading: { $degrees }°
+
+sensor_calibrated = Calibrated
+sensor_tilt = X/Y acceleration level
+sensor_tilt_hint = The bubble follows X/Y acceleration: one g at the rim. Hold still to observe tilt; movement also affects it.
+sensor_rotation = Rotation-rate gauges
+sensor_rotation_hint = X, Y and Z angular velocity; ±π rad/s at the ends of each scale. These show rotation speed, not orientation.
+sensor_uncalibrated_hint = Uncalibrated readings include device bias. The needle shows the measured field and may not point north.
+sensor_axis_x = X
+sensor_axis_y = Y
+sensor_axis_z = Z
+
+# --- Security: the keychain and the biometric prompt (docs/keychain.md, docs/biometrics.md) ---
+nav_security = Security
+keychain_title = Keychain
+keychain_caption = One Rust API over the platform's own secure store: the keychain on iOS and macOS, the Android Keystore, DPAPI on Windows, the Secret Service on Linux, the Universal Keystore on HarmonyOS.
+keychain_support_label = Store here
+keychain_backend_label = Backend
+keychain_key_label = Key
+keychain_key_placeholder = showcase.session
+keychain_secret_label = Secret
+keychain_secret_placeholder = Something worth protecting
+keychain_protection_label = Protection
+keychain_level_unlocked = When unlocked
+keychain_level_first_unlock = After first unlock
+keychain_level_presence = User presence
+keychain_save = Save
+keychain_read = Read
+keychain_read_presence = Read with verification
+keychain_remove = Remove
+keychain_idle = Nothing stored yet
+keychain_saved = Saved { $key }
+keychain_read_value = Read back: { $value }
+keychain_removed = Removed { $key }
+keychain_entries_label = Stored keys
+keychain_entries_none = None
+keychain_presence_reason = Read the secret the Security page stored.
+biometrics_title = Biometrics
+biometrics_caption = The platform's own prompt: Touch ID or Face ID, Android's biometric prompt, Windows Hello, HarmonyOS user authentication. The device passcode is the way in when a finger is wet.
+biometrics_support_label = Support here
+biometrics_availability_label = Availability
+biometrics_biometry_label = Sensor
+biometrics_reason_placeholder = Confirm it is you to continue.
+biometrics_credential_label = Allow the device passcode
+biometrics_authenticate = Authenticate
+biometrics_cancel = Cancel
+biometrics_idle = Not asked yet
+biometrics_prompting = Waiting for the prompt…
+biometrics_verified = Verified ({ $method })
+permission_biometrics = Confirm it is you on the Security page.
