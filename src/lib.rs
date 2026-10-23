@@ -151,7 +151,7 @@ pub fn install_lifecycle_handlers() {
     let note = |phase: day::Lifecycle| {
         move || {
             // `info!`, because a lifecycle phase is normal operation (docs/logging.md). This was
-            // a `println!` for a reason worth recording: day-android maps fd 1 to logcat INFO and
+            // a `println!` for a reason worth recording: day-mdc maps fd 1 to logcat INFO and
             // fd 2 to `ERROR`, so `eprintln!` made every phase surface as `E Day` and drowned
             // the level out as a filter. Choosing stdout to mean "info" is exactly the
             // workaround a logging level replaces, and the line now reaches the browser console

@@ -678,7 +678,7 @@ flow:
   # the two you forget, which is exactly how linux-qt and then windows-qt each failed CI in turn.
   # `skip_on`/`only_on` accept either form (day-cli script.rs), so prefer the toolkit.
   # Skipped on Android too: an app-level appearance change there recreates the Activity, and
-  # day-android does not yet survive a second nativeStart in one process (DayActivity.java): the
+  # day-mdc does not yet survive a second nativeStart in one process (DayActivity.java): the
   # sidebar mounts twice and every navigation after it is ambiguous. The CI variants cover dark
   # mode on Android by launching with DAY_THEME set instead.
   - toolbar: { item: tb_theme, index: 2, skip_on: [mdc, dom, qt] }
