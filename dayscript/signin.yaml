@@ -9,7 +9,7 @@ flow:
   - wait_for: { id: nav }
   - navigate: { route: signin }
   - assert_route: { route: signin }
-  - wait_for: { id: signin_browser_support }
+  - wait_for: { id: signin_provider }
   - tap: { id: signin_sign_in }
   # Pick an account on the consent page. Grace is the second one.
   - assert_text: { id: signin_status, key: signin_signed_in, args: { name: "Grace Hopper", email: "grace@example.com", sub: "grace" }, timeout_secs: 120 }

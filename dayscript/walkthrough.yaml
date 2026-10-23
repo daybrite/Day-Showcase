@@ -1643,8 +1643,8 @@ flow:
   # the HarmonyOS HTTP arm has not been exercised against a cleartext loopback server.
   - navigate: { route: signin }
   - assert_route: { route: signin }
-  - wait_for: { id: signin_browser_support }
-  - assert_visible: { id: signin_provider }
+  - wait_for: { id: signin_provider }
+  - assert_visible: { id: signin_sign_in }
   - assert_visible: { id: passkeys_available }
   - screenshot:
       name: signin
