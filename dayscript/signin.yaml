@@ -1,0 +1,21 @@
+name: signin
+description: >
+  The Sign-in page by hand: the browser sign-in to the demo provider (docs: day-part-auth). The
+  system's auth browser opens on the provider's consent page, which no script can answer, so this
+  run is for a person at the device: choose Ada or Grace, and the status line shows the verified
+  claims. Then the token lifecycle. Not in CI: the runners have no one to pick an account; the
+  walkthrough drives the silent sign-in there instead.
+flow:
+  - wait_for: { id: nav }
+  - navigate: { route: signin }
+  - assert_route: { route: signin }
+  - wait_for: { id: signin_browser_support }
+  - tap: { id: signin_sign_in }
+  # Pick an account on the consent page. Grace is the second one.
+  - assert_text: { id: signin_status, key: signin_signed_in, args: { name: "Grace Hopper", email: "grace@example.com", sub: "grace" }, timeout_secs: 120 }
+  - tap: { id: signin_userinfo }
+  - assert_text: { id: signin_status, key: signin_userinfo_ok, args: { sub: "grace" }, timeout_secs: 30 }
+  - tap: { id: signin_refresh }
+  - assert_text: { id: signin_status, key: signin_refreshed, timeout_secs: 30 }
+  - tap: { id: signin_sign_out }
+  - assert_text: { id: signin_status, key: signin_signed_out }

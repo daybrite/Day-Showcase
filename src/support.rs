@@ -41,6 +41,22 @@ pub(crate) fn biometrics() -> Support {
     day_part_biometrics::support()
 }
 
+/// Passkeys: the platform authenticator API, where the part has an arm for it.
+pub(crate) fn passkeys() -> Support {
+    day_part_auth::passkeys::support()
+}
+
+/// Sign in with Apple: the system sheet on iOS and macOS, nowhere else.
+pub(crate) fn apple_sign_in() -> Support {
+    day_part_auth::apple::support()
+}
+
+/// Google through Credential Manager: Android only; Google is an OpenID Connect provider
+/// everywhere else.
+pub(crate) fn google_sign_in() -> Support {
+    day_part_auth::google::support()
+}
+
 /// Sound effects: likewise.
 pub(crate) fn sound() -> Support {
     from_bool(day_part_sound::is_supported())

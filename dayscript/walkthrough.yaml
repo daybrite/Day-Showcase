@@ -1635,6 +1635,32 @@ flow:
   - tap: { id: keychain_remove, skip_on: [linux-gtk, linux-qt, web-dom] }
   - assert_text: { id: keychain_result, key: keychain_removed, args: { key: "showcase.walkthrough" }, skip_on: [linux-gtk, linux-qt, web-dom] }
 
+  # Sign-in: the auth browser's support for this target, the provider picker, and the whole OpenID
+  # Connect lifecycle against the demo provider inside the app, with no browser: the silent
+  # sign-in (prompt=none), a verified ID token on the status line, userinfo, a refresh with
+  # rotation, revocation, sign-out. The browser and the system sheets need a person
+  # (dayscript/signin.yaml). The web build has no loopback server to run the provider on, and
+  # the HarmonyOS HTTP arm has not been exercised against a cleartext loopback server.
+  - navigate: { route: signin }
+  - assert_route: { route: signin }
+  - wait_for: { id: signin_browser_support }
+  - assert_visible: { id: signin_provider }
+  - assert_visible: { id: passkeys_available }
+  - screenshot:
+      name: signin
+      title: { en: "Sign-in", fr: "Connexion", ar: "تسجيل الدخول", zh-CN: "登录" }
+      source: src/pages/signin.rs
+  - tap: { id: signin_sign_in_silent, skip_on: [web-dom, harmony-arkui] }
+  - assert_text: { id: signin_status, key: signin_signed_in, args: { name: "Ada Lovelace", email: "ada@example.com", sub: "ada" }, timeout_secs: 30, skip_on: [web-dom, harmony-arkui] }
+  - tap: { id: signin_userinfo, skip_on: [web-dom, harmony-arkui] }
+  - assert_text: { id: signin_status, key: signin_userinfo_ok, args: { sub: "ada" }, timeout_secs: 30, skip_on: [web-dom, harmony-arkui] }
+  - tap: { id: signin_refresh, skip_on: [web-dom, harmony-arkui] }
+  - assert_text: { id: signin_status, key: signin_refreshed, timeout_secs: 30, skip_on: [web-dom, harmony-arkui] }
+  - tap: { id: signin_revoke, skip_on: [web-dom, harmony-arkui] }
+  - assert_text: { id: signin_status, key: signin_revoked, timeout_secs: 30, skip_on: [web-dom, harmony-arkui] }
+  - tap: { id: signin_sign_out }
+  - assert_text: { id: signin_status, key: signin_signed_out }
+
   # Files & storage: the clipboard round-trip, persisted prefs, the native file pickers, and the
   # app-local file store, all in one form and one screenshot. The strict OS clipboard assertion
   # lives in dayscript/clipboard-roundtrip.yaml (macOS + Android only; headless Linux has no

@@ -113,6 +113,12 @@ day-part-fs = { git = "https://github.com/daybrite/day.git" }
 # stores an item at each protection level and shows the platform's own verification dialog.
 day-part-keychain = { git = "https://github.com/daybrite/day.git" }
 day-part-biometrics = { git = "https://github.com/daybrite/day.git" }
+# Sign-in (day-part-auth): the Sign-in page's auth browser, OpenID Connect client, passkeys, Sign
+# in with Apple and Google. Its own repository, like speech. A path line until the repository is
+# pushed: a git dependency cannot resolve before the remote exists, even with a [patch] table.
+# Flip to `{ git = "https://github.com/daybrite/day-part-auth.git" }` after the push, and
+# `day patch --local ../day-part-auth` builds against the checkout again.
+day-part-auth = { path = "../day-part-auth" }
 day-piece-activity = { git = "https://github.com/daybrite/day.git" }
 day-piece-searchfield = { git = "https://github.com/daybrite/day.git" }
 day-piece-map = { git = "https://github.com/daybrite/day.git" }
@@ -172,6 +178,9 @@ platform = "13.0"
 # stays in memory (rusqlite has no place in the wasm binary), so the engine is target-gated.
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 day-persistence = { git = "https://github.com/daybrite/day-persistence.git", version = "0.1" }
+# The Sign-in page's demo provider is a loopback HTTP server inside the app, which a browser page
+# cannot run; the web build signs in to a provider you name instead.
+day-part-auth = { path = "../day-part-auth", features = ["demo-provider"] }
 
 [workspace.package]
 version = "0.5.0"

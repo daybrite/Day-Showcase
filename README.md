@@ -74,10 +74,11 @@ platform cannot run stays, with a note.
   Diagnostics group that names the toolkit, OS, device, app id, locale and lifecycle phase.
 - **Model, Query, Localization, Resources, Date & time.** Observable models over SQLite, live
   queries, four languages switched at runtime, typed resources, and native date pickers.
-- **Device & sensors, Platform services, Security, Media, Web view, Tweaks, Crash reporting.**
-  Battery, connectivity, live accelerometer traces, notifications and permissions, the keychain
-  and the biometric prompt, a media player, the system web view, per-platform widget tweaks, and a
-  crash report you can trigger on purpose.
+- **Device & sensors, Platform services, Security, Sign-in, Media, Web view, Tweaks, Crash
+  reporting.** Battery, connectivity, live accelerometer traces, notifications and permissions,
+  the keychain and the biometric prompt, OpenID Connect sign-in through the system's auth browser
+  with passkeys, Sign in with Apple and Google, a media player, the system web view, per-platform
+  widget tweaks, and a crash report you can trigger on purpose.
 
 Every screen is translated into English, French, Arabic, and Simplified Chinese. Switching the
 language at runtime lays every screen out again, mirrored for Arabic.
