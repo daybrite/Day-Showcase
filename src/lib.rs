@@ -8,6 +8,7 @@
 use day::prelude::*;
 
 mod commands;
+mod composition;
 mod pages;
 mod palette;
 pub(crate) mod support;
@@ -228,7 +229,6 @@ day::routes! {
         Resources => "resources",
         Tweaks => "tweaks",
         CrashReporting => "crash",
-        Map => "map",
         About => "about",
         Settings => "settings",
     }
@@ -265,7 +265,6 @@ impl Section {
             Section::List => "src/pages/list.rs",
             Section::Model => "src/pages/model.rs",
             Section::Localization => "src/pages/localization.rs",
-            Section::Map => "src/pages/map.rs",
             Section::Media => "src/pages/media.rs",
             Section::Lottie => "src/pages/lottie.rs",
             Section::Menus => "src/pages/menus.rs",
@@ -380,8 +379,8 @@ pub(crate) fn prefs() -> day_piece_settings::Prefs {
 /// `prefs-group-<id>`.
 fn install_settings() -> day_piece_settings::Prefs {
     use day_piece_settings::{About, Group, Preferences, general_group, rows};
-    // The platform identity, read once (day-part-deviceinfo; values vary per host).
-    let d = day_part_deviceinfo::get();
+    // The platform identity, read once (day-part-device; values vary per host).
+    let d = day_part_device::info::get();
     // XAML's 240-point navigation pane needs room beside the settings cards.
     let window_width = if cfg!(any(feature = "xaml", feature = "winui")) {
         760.0
@@ -574,7 +573,7 @@ struct Row {
 /// A page whose central feature this target cannot run is not listed at all (a target with
 /// no toolbar has nothing to show on a Toolbars page), while a section inside a page that the
 /// target cannot run keeps its banner (support.rs). Two of the four such pages are decided at
-/// compile time because their crates carry no runtime probe (Map, Lottie), three at runtime.
+/// compile time because their crates carry no runtime probe (Lottie), three at runtime.
 fn destinations() -> Vec<Dest> {
     use crate::res::vectors;
     use Group::*;
@@ -786,14 +785,6 @@ fn destinations() -> Vec<Dest> {
             crate::res::str::nav_lottie,
             vectors::nav_lottie,
             lottie_page,
-        ),
-        #[cfg(any(target_os = "macos", target_os = "ios"))]
-        d(
-            Graphics,
-            Section::Map,
-            crate::res::str::nav_map,
-            vectors::nav_map,
-            map_page,
         ),
         d(
             Graphics,

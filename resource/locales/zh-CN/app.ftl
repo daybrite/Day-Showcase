@@ -44,14 +44,13 @@ ctl_date = 日期
 ctl_time = 时间
 ctl_color = 颜色
 ctl_indicators = 指示器与组合
-ctl_rating = 评分
 ctl_badge = 角标
 ctl_gauge = 仪表
 ctl_divider = 分隔线
 ctl_state = 状态
 ctl_on = 开
 ctl_off = 关
-ctl_crates_note = 步进器、组合框、搜索框、日期与时间选择器、颜色选择器、评分与活动指示来自各自的 piece crate；其余全部来自 day-pieces。
+ctl_crates_note = 这些控件由 Day 核心提供；徽章在 Showcase 中本地组合。
 nav_menus = 菜单与对话框
 nav_text = 文字
 nav_battery = 电池
@@ -104,7 +103,7 @@ picker_segmented = 分段
 picker_menu = 菜单
 picker_inline = 内联
 
-# --- day-piece-datetime ---
+# --- day::datetime ---
 nav_dates = 日期与时间
 dates_date_section = 日期
 dates_time_section = 时间
@@ -368,7 +367,7 @@ vectors_sizes = 尺寸
 resources_numbers = numbers.bin：{ $len } 字节，byte[100] = { $byte }
 resources_greeting = greeting.txt：{ $text }
 
-# --- day-part-deviceinfo ---
+# --- day-part-device ---
 nav_deviceinfo = 设备信息
 deviceinfo_model = 型号：{$value}
 deviceinfo_system = 系统：{$name} {$version}
@@ -377,18 +376,13 @@ deviceinfo_yes = 是
 deviceinfo_no = 否
 deviceinfo_refresh = 刷新
 
-# --- day-piece-activity ---
+# --- Day core spinner ---
 activity_on = 旋转中
 activity_off = 已停止
 
-# --- day-piece-searchfield ---
+# --- day::searchfield ---
 search_clear = 清除
 
-# --- day-piece-map ---
-nav_map = 地图
-map_caption = 原生 MKMapView——仅限 Apple 平台。点按预设可实时重新定位地图。
-map_boston = 波士顿
-map_paris = 巴黎
 
 # --- tweaks page (docs/tweaks.md) ---
 nav_tweaks = 微调
@@ -1362,3 +1356,6 @@ google_caption = Android 上的 Credential Manager 列出设备上的 Google 账
 google_client_placeholder = 服务器客户端 ID
 google_sign_in = 通过 Google 登录
 google_signed_in = Google 账户 { $id }
+
+# Numeric notification count.
+badge_count = { $count }

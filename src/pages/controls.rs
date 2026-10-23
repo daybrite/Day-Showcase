@@ -1,20 +1,18 @@
+use crate::composition::badge;
+use day::colorpicker::color_picker;
+use day::combobox::combo_box;
+use day::datetime::{DayDate, DayTime, date_picker, time_picker};
+use day::prelude::spinner;
 use day::prelude::*;
-use day_piece_activity::activity;
-use day_piece_colorpicker::color_picker;
-use day_piece_combobox::combo_box;
-use day_piece_datetime::{DayDate, DayTime, date_picker, time_picker};
-use day_piece_rating::{badge, rating};
-use day_piece_searchfield::search_field;
-use day_piece_stepper::stepper;
+use day::searchfield::search_field;
+use day::stepper::stepper;
 
 use crate::widgets::{gauge, page};
 
 /// Every control Day ships, on one page, family by family: the reference a reader scrolls
 /// when they ask "does Day have a…". One `labeled` row per control, named after the control,
 /// and every control bound to live state; the State section at the foot reads it all back,
-/// which is what proves the bindings. The composition-tier pieces and the external control
-/// crates (stepper, combo box, search field, date and time pickers, color picker, rating,
-/// activity) sit beside the built-ins and are named at the foot of the page.
+/// which proves the bindings. Core controls sit beside the app-local badge composition.
 ///
 /// Where one value can feed several controls it does: the slider, the stepped slider, the
 /// progress bar and the gauge share `level`, and a preset snaps it, so moving one moves the
@@ -66,7 +64,6 @@ struct Catalog {
     date: Signal<DayDate>,
     time: Signal<DayTime>,
     color: Signal<Color>,
-    stars: Signal<usize>,
 }
 
 /// The level each preset snaps to. Presets reuse the existing size_* strings, so the three picker
@@ -90,7 +87,6 @@ impl Catalog {
             date: Signal::new(DayDate::new(2026, 9, 1).unwrap_or_else(DayDate::today)),
             time: Signal::new(DayTime::new(9, 30, 0).unwrap_or_else(DayTime::now)),
             color: Signal::new(crate::palette::SKY),
-            stars: Signal::new(3usize),
         };
         // preset → level. `watch` rather than a binding: the arrow runs one way, so dragging the
         // slider off a preset leaves the preset alone (the readout then says "Custom") instead of
@@ -255,7 +251,7 @@ fn buttons_section(st: Catalog) -> impl Piece {
 /// The value controls, most of them over one number: the slider writes `level`, the progress
 /// bar reports it, and the switch above gates the lot; the stepped slider keeps a value of its
 /// own (see `Catalog::steps`).
-/// The stepper (day-piece-stepper: an NSStepper field, a GtkSpinButton, a QDoubleSpinBox, and
+/// The stepper (day::stepper: an NSStepper field, a GtkSpinButton, a QDoubleSpinBox, and
 /// a composed field elsewhere) keeps its own count, shown twice (once native where the
 /// toolkit has one, once composed) so the two idioms sit side by side.
 fn switches_section(st: Catalog) -> impl Piece {
@@ -331,7 +327,7 @@ fn switches_section(st: Catalog) -> impl Piece {
             labeled(
                 crate::res::str::ctl_activity(),
                 row((
-                    activity()
+                    spinner()
                         .animating(move || st.on.get() && st.level.get() > 0.0)
                         .id(day::id!(activity_spinner)),
                     label(move || {
@@ -359,7 +355,7 @@ fn switches_section(st: Catalog) -> impl Piece {
 }
 
 /// Text entry: the field, the search field over the combo box's list, the combo box itself
-/// (day-piece-combobox; a placeholder where the toolkit has no such control), and the plain
+/// (day::combobox; a placeholder where the toolkit has no such control), and the plain
 /// text area.
 fn text_section(st: Catalog) -> impl Piece {
     let voices = Signal::new(vec![
@@ -489,7 +485,7 @@ fn pickers_section(st: Catalog) -> impl Piece {
     .title(crate::res::str::ctl_pickers())
 }
 
-/// Indicators and the composition tier: the star rating (canvas polygons), a badge overlay, the
+/// Indicators and app-local composition: a badge overlay, the
 /// arc gauge over the shared level, and the divider.
 /// Accessibility (docs/accessibility.md): what a screen reader is told beyond what the native
 /// controls say on their own. A heading role on a label, a hint on a button, and an announcement
@@ -536,20 +532,6 @@ fn accessibility_section() -> impl Piece {
 
 fn indicators_section(st: Catalog) -> impl Piece {
     section((
-        labeled(
-            crate::res::str::ctl_rating(),
-            row((
-                rating(st.stars)
-                    .star_id(|n| day::id!(compose_rating_star, n))
-                    .id(day::id!(compose_rating)),
-                crate::widgets::numeric_readout(
-                    move || st.stars.get().to_string(),
-                    "5",
-                    day::id!(rating_value),
-                ),
-            ))
-            .spacing(Space::S),
-        ),
         labeled(
             crate::res::str::ctl_badge(),
             badge(
@@ -622,11 +604,6 @@ fn state_section(st: Catalog) -> impl Piece {
             crate::res::str::ctl_color,
             Box::new(move || st.color.get().to_hex_string()),
             day::id!(state_color),
-        ),
-        readout(
-            crate::res::str::ctl_rating,
-            Box::new(move || st.stars.get().to_string()),
-            day::id!(state_rating),
         ),
         readout(
             crate::res::str::ctl_presses,

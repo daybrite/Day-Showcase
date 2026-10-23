@@ -1,5 +1,5 @@
+use crate::composition::Card;
 use day::prelude::*;
-use day_piece_rating::Card;
 
 use crate::widgets::page;
 

@@ -1,5 +1,5 @@
+use day::colorpicker::color_picker;
 use day::prelude::*;
-use day_piece_colorpicker::color_picker;
 
 use crate::widgets::page;
 
@@ -268,7 +268,7 @@ fn vectors_section() -> impl Piece {
         // placeholder and this banner says why. The second well works there exactly as it does
         // here, which is the argument for having built it. (Same shape as the Controls page's
         // note beside the combo box on iOS.)
-        crate::widgets::support_note(day_piece_colorpicker::support()),
+        crate::widgets::support_note(day::colorpicker::support()),
         // Full-color art, not a tintable glyph: everything above is a monochrome symbol that
         // takes a `.tint`, so the pipeline's other half (many-path, authored-color art) had
         // no example here. The tiger is 240 paths, and it stays a real vector on every backend

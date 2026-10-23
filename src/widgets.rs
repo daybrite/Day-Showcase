@@ -5,7 +5,7 @@ use day::prelude::*;
 /// The current battery reading as a localized line (Fluent; the state name stays the API's
 /// enum debug form, since it is a value, not prose). Shared by the Battery and About pages.
 pub(crate) fn battery_line() -> LocalizedText {
-    match day_part_battery::status() {
+    match day_part_device::battery::status() {
         Some(b) => crate::res::str::battery_reading(crate::res::str::BatteryReading {
             percent: b
                 .percent()

@@ -1,5 +1,5 @@
+use day::colorpicker::color_picker;
 use day::prelude::*;
-use day_piece_colorpicker::color_picker;
 use day_piece_texteditor::highlight::{Language, Palette, highlight};
 use day_piece_texteditor::text_editor;
 

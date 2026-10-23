@@ -4,9 +4,9 @@
 
 use day::model::Op;
 use day::prelude::*;
+use day::searchfield::search_field;
 #[cfg(not(target_arch = "wasm32"))]
 use day_persistence::prelude::*;
-use day_piece_searchfield::search_field;
 
 use crate::widgets::heading;
 

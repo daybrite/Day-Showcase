@@ -17,8 +17,6 @@ pub(crate) mod layout;
 pub(crate) mod list;
 pub(crate) mod localization;
 pub(crate) mod lottie;
-#[cfg(any(target_os = "macos", target_os = "ios"))]
-pub(crate) mod map;
 pub(crate) mod media;
 pub(crate) mod menus;
 pub(crate) mod model;
@@ -60,8 +58,6 @@ pub(crate) use list::list_page;
 pub(crate) use localization::localization_page;
 #[cfg(not(all(feature = "gtk", any(target_os = "macos", target_os = "windows"))))]
 pub(crate) use lottie::lottie_page;
-#[cfg(any(target_os = "macos", target_os = "ios"))]
-pub(crate) use map::map_page;
 pub(crate) use media::media_page;
 pub(crate) use menus::{install_app_menu, menus_page};
 pub(crate) use model::model_page;

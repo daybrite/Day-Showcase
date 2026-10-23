@@ -1,5 +1,5 @@
+use crate::composition::Card;
 use day::prelude::*;
-use day_piece_rating::Card;
 
 day::routes! {
     /// The tab keys, typed (docs/tabs.md): the `item(..)` declarations are compile-checked,

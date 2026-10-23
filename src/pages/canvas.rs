@@ -5,7 +5,7 @@ use crate::widgets::{gauge, page_wide};
 
 /// Drawing & composition (docs/shapes.md, docs/canvas.md, DESIGN.md §8/§11): the unified
 /// `shape` piece in every kind, live canvas transforms and gestures, the slider-driven gauge, and
-/// the composition-tier widgets (rating, card, badge, button styles, ambient environment), each
+/// the composition-tier widgets (card, badge, button styles, ambient environment), each
 /// group in its own themed section.
 pub(crate) fn canvas_page() -> AnyPiece {
     page_wide(

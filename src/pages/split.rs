@@ -1,5 +1,5 @@
 use day::prelude::*;
-use day_piece_stepper::stepper;
+use day::stepper::stepper;
 
 use crate::widgets::page_wide;
 

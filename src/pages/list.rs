@@ -1,13 +1,13 @@
 use std::collections::BTreeSet;
 
 use day::prelude::*;
-use day_piece_pullrefresh::pull_to_refresh;
+use day::pullrefresh::pull_to_refresh;
 
 use crate::widgets::heading;
 
 /// A native recycling list (docs/list.md): 500 rows, but only the visible cells are ever built;
 /// the platform's NSTableView / RecyclerView / GtkListView / QListView / ItemsRepeater owns reuse.
-/// The list is wrapped in `pull_to_refresh` (day-piece-pullrefresh), the recycling-list example:
+/// The list is wrapped in `pull_to_refresh` (day::pullrefresh), the recycling-list example:
 /// a pull (or dayscript `toggle: {id: list-refresh}`) adds 100 rows, same as the button.
 ///
 /// Selection (docs/list.md): the rows are multi-selectable where the toolkit supports it, the
@@ -82,7 +82,7 @@ pub(crate) fn list_page() -> AnyPiece {
             .id(day::id!(list_caption)),
         // The tier this backend realizes for the pull (docs/pullrefresh.md): native on the
         // phones and HarmonyOS, an elastic overshoot on the desktops, visible in the CI captures.
-        label(match day_piece_pullrefresh::support() {
+        label(match day::pullrefresh::support() {
             Support::Native => crate::res::str::refresh_tier_native(),
             _ => crate::res::str::refresh_tier_emulated(),
         })

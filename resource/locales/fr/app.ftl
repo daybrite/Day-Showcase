@@ -47,14 +47,13 @@ ctl_date = Date
 ctl_time = Heure
 ctl_color = Couleur
 ctl_indicators = Indicateurs et composition
-ctl_rating = Note
 ctl_badge = Badge
 ctl_gauge = Jauge
 ctl_divider = Séparateur
 ctl_state = État
 ctl_on = Activé
 ctl_off = Désactivé
-ctl_crates_note = L'incrémenteur, la liste déroulante, le champ de recherche, les sélecteurs de date, d'heure et de couleur, la note et l'activité viennent de leurs propres crates ; tout le reste est day-pieces.
+ctl_crates_note = Ces contrôles sont fournis par le cœur de Day ; le badge est composé localement dans Showcase.
 nav_menus = Menus et dialogues
 nav_text = Texte
 nav_battery = Batterie
@@ -107,7 +106,7 @@ picker_segmented = Segmenté
 picker_menu = Menu
 picker_inline = Aligné
 
-# --- day-piece-datetime ---
+# --- day::datetime ---
 nav_dates = Date et heure
 dates_date_section = Date
 dates_time_section = Heure
@@ -373,7 +372,7 @@ vectors_sizes = Tailles
 resources_numbers = numbers.bin : { $len } octets, byte[100] = { $byte }
 resources_greeting = greeting.txt : { $text }
 
-# --- day-part-deviceinfo ---
+# --- day-part-device ---
 nav_deviceinfo = Appareil
 deviceinfo_model = Modèle : {$value}
 deviceinfo_system = Système : {$name} {$version}
@@ -382,18 +381,13 @@ deviceinfo_yes = oui
 deviceinfo_no = non
 deviceinfo_refresh = Actualiser
 
-# --- day-piece-activity ---
+# --- Day core spinner ---
 activity_on = En rotation
 activity_off = Arrêté
 
-# --- day-piece-searchfield ---
+# --- day::searchfield ---
 search_clear = Effacer
 
-# --- day-piece-map ---
-nav_map = Carte
-map_caption = Une MKMapView native — plateformes Apple uniquement. Touchez un préréglage pour recentrer la carte en direct.
-map_boston = Boston
-map_paris = Paris
 
 # --- page tweaks (docs/tweaks.md) ---
 nav_tweaks = Tweaks
@@ -1372,3 +1366,6 @@ google_caption = Sur Android, Credential Manager liste les comptes Google de l'a
 google_client_placeholder = Identifiant client du serveur
 google_sign_in = Se connecter avec Google
 google_signed_in = Compte Google { $id }
+
+# Numeric notification count.
+badge_count = { $count }

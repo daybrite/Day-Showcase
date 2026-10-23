@@ -50,14 +50,13 @@ ctl_date = التاريخ
 ctl_time = الوقت
 ctl_color = اللون
 ctl_indicators = المؤشّرات والتركيب
-ctl_rating = التقييم
 ctl_badge = الشارة
 ctl_gauge = المقياس
 ctl_divider = الفاصل
 ctl_state = الحالة
 ctl_on = مفعّل
 ctl_off = معطّل
-ctl_crates_note = العدّاد والصندوق المركّب وحقل البحث ومنتقيات التاريخ والوقت واللون والتقييم والنشاط تأتي من حزمها الخاصة؛ وكل ما عداها من day-pieces.
+ctl_crates_note = يوفر قلب Day هذه العناصر؛ وتُركَّب الشارة محليًا في Showcase.
 nav_menus = القوائم والحوارات
 nav_text = النص
 nav_battery = البطارية
@@ -110,7 +109,7 @@ picker_segmented = مقسّم
 picker_menu = قائمة
 picker_inline = مضمّن
 
-# --- day-piece-datetime ---
+# --- day::datetime ---
 nav_dates = التاريخ والوقت
 dates_date_section = التاريخ
 dates_time_section = الوقت
@@ -380,7 +379,7 @@ vectors_sizes = الأحجام
 resources_numbers = ‏numbers.bin: { $len } بايت، byte[100] = { $byte }
 resources_greeting = ‏greeting.txt: { $text }
 
-# --- day-part-deviceinfo ---
+# --- day-part-device ---
 nav_deviceinfo = معلومات الجهاز
 deviceinfo_model = الطراز: {$value}
 deviceinfo_system = النظام: {$name} {$version}
@@ -389,18 +388,13 @@ deviceinfo_yes = نعم
 deviceinfo_no = لا
 deviceinfo_refresh = تحديث
 
-# --- day-piece-activity ---
+# --- Day core spinner ---
 activity_on = يدور
 activity_off = متوقف
 
-# --- day-piece-searchfield ---
+# --- day::searchfield ---
 search_clear = مسح
 
-# --- day-piece-map ---
-nav_map = الخريطة
-map_caption = ‏MKMapView أصلي — منصات Apple فقط. انقر إعدادًا مسبقًا لإعادة تمركز الخريطة مباشرة.
-map_boston = بوسطن
-map_paris = باريس
 
 # --- tweaks page (docs/tweaks.md) ---
 nav_tweaks = التوليفات
@@ -1389,3 +1383,6 @@ google_caption = على Android يعرض Credential Manager حسابات Google 
 google_client_placeholder = معرّف عميل الخادم
 google_sign_in = تسجيل الدخول باستخدام Google
 google_signed_in = حساب Google { $id }
+
+# Numeric notification count.
+badge_count = { $count }

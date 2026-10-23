@@ -57,9 +57,9 @@ serde_json = "1"
 # previous run's report. Optional in general; here it demonstrates the whole flow. Its consent UI
 # (`ui` feature, on by default) is built from ordinary pieces, so no per-backend wiring is needed.
 day-piece-break = { git = "https://github.com/daybrite/day-piece-break" }
-# A headless capability crate (no UI Piece): app Rust code calls day_part_battery::status()
+# A headless capability crate (no UI Piece): app Rust code calls day_part_device::battery::status()
 # directly.
-day-part-battery = { git = "https://github.com/daybrite/day.git" }
+day-part-device = { git = "https://github.com/daybrite/day.git" }
 # daybridge's reference part (docs/bridge.md): one API, a different language per platform. The
 # first part in its own repository, on the same terms as the day-piece-lottie gallery below: a bare git line,
 # so Cargo.lock picks one day revision for the whole graph. `day patch --local ../day-part-speech`
@@ -69,18 +69,12 @@ day-part-sensors = { git = "https://github.com/daybrite/day.git" }
 day-part-permissions = { git = "https://github.com/daybrite/day.git" }
 day-part-location = { git = "https://github.com/daybrite/day.git" }
 day-part-clipboard = { git = "https://github.com/daybrite/day.git" }
-day-part-network = { git = "https://github.com/daybrite/day.git" }
-day-piece-combobox = { git = "https://github.com/daybrite/day.git" }
-day-piece-stepper = { git = "https://github.com/daybrite/day.git" }
+day-part-connectivity = { git = "https://github.com/daybrite/day.git" }
 # A compose piece (pure composition, without native code or cargo features): a plain dep,
 # available on every backend with no extra work. It needs no per-backend feature wiring above,
 # which is the composition-first payoff.
-day-piece-rating = { git = "https://github.com/daybrite/day.git" }
-day-piece-pullrefresh = { git = "https://github.com/daybrite/day.git" }
-day-piece-datetime = { git = "https://github.com/daybrite/day.git" }
 # The color picker (docs/colorpicker.md): the Resources page opens it in both idioms, the
 # platform's chooser and Day's composed panel, which is the same picker on every target.
-day-piece-colorpicker = { git = "https://github.com/daybrite/day.git" }
 # The styled-text editor (docs/texteditor.md): the Text areas page edits a formatted note and a
 # live-highlighted code sample in each platform's rich-text view.
 day-piece-texteditor = { git = "https://github.com/daybrite/day.git" }
@@ -104,7 +98,6 @@ day-part-local-notify = { git = "https://github.com/daybrite/day.git" }
 # day-part-prefs is no longer a direct dependency: it arrives through the day facade as
 # `day::prefs` (docs/prefs.md).
 day-piece-settings = { git = "https://github.com/daybrite/day.git" }
-day-part-deviceinfo = { git = "https://github.com/daybrite/day.git" }
 day-part-http = { git = "https://github.com/daybrite/day.git", features = ["reqwest"] }
 # The download manager (docs/downloads.md): the Networking page's pausable, resumable download.
 day-part-downloads = { git = "https://github.com/daybrite/day.git" }
@@ -116,9 +109,6 @@ day-part-biometrics = { git = "https://github.com/daybrite/day.git" }
 # Sign-in (day-part-auth): the Sign-in page's auth browser, OpenID Connect client, passkeys, Sign
 # in with Apple and Google. Its own repository, like speech.
 day-part-auth = { git = "https://github.com/daybrite/day-part-auth.git" }
-day-piece-activity = { git = "https://github.com/daybrite/day.git" }
-day-piece-searchfield = { git = "https://github.com/daybrite/day.git" }
-day-piece-map = { git = "https://github.com/daybrite/day.git" }
 # The Lottie page mounts day-piece-lottie's own example pages and animations (its Lottie Demo app
 # is a sidebar of the same ones), so the two apps show one copy of the code and one set of files.
 # The gallery's animations arrive in this bundle as its data assets, and it forwards the player's
@@ -142,7 +132,6 @@ day-piece-charts-gallery = { git = "https://github.com/daybrite/day-piece-charts
 # against a checkout.
 day-piece-camera = { git = "https://github.com/daybrite/day-piece-camera.git" }
 # The last photo the Camera page took is shown through the bytes-backed image piece.
-day-piece-remote-image = { git = "https://github.com/daybrite/day.git" }
 # SwiftUI embedding (docs/swiftui.md): hosts the swiftui/ package's views on the Benchmark page.
 # Apple-native only, but a plain dep with no cfg anywhere: the front-end compiles on every
 # backend and `day_piece_swiftui::support()` gates the UI, so no placeholder can ever realize.

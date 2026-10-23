@@ -1330,7 +1330,7 @@ pub(super) fn network_section() -> impl Piece {
 /// The current connectivity snapshot as a localized line (Fluent; kind stays the API's enum
 /// debug form; it is a value, not prose).
 fn network_line() -> LocalizedText {
-    match day_part_network::status() {
+    match day_part_connectivity::status() {
         Some(n) => {
             if n.online {
                 crate::res::str::network_reading_online(crate::res::str::NetworkReadingOnline {

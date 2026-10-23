@@ -354,10 +354,10 @@ pub(crate) fn clear_recording() -> Command {
 }
 
 /// `Day-Showcase-YYYY-MM-DD-HH-MM-SS.png`, a sortable name the user can still change in the
-/// save sheet. UTC, because that is the clock day-piece-datetime offers (see `DayTime::now`).
+/// save sheet. UTC, because that is the clock day::datetime offers (see `DayTime::now`).
 fn default_shot_name() -> String {
-    let d = day_piece_datetime::DayDate::today();
-    let t = day_piece_datetime::DayTime::now();
+    let d = day::datetime::DayDate::today();
+    let t = day::datetime::DayTime::now();
     format!(
         "Day-Showcase-{:04}-{:02}-{:02}-{:02}-{:02}-{:02}.png",
         d.year, d.month, d.day, t.hour, t.minute, t.second

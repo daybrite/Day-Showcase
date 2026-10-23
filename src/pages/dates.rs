@@ -1,9 +1,9 @@
+use day::datetime::{DayDate, DayTime, date_picker, time_picker};
 use day::prelude::*;
-use day_piece_datetime::{DayDate, DayTime, date_picker, time_picker};
 
 use crate::widgets::page;
 
-/// Native date & time pickers (day-piece-datetime, an external standalone piece, the first with
+/// Native date & time pickers (day::datetime, core controls with
 /// renderers on all seven toolkits; docs/datepicker.md), with stable ids for the walkthrough
 /// (§14): a full-width embedded calendar above a form of the compact/bounded date stylings, the
 /// time stylings (compact + seconds), and combined date+time as composition.

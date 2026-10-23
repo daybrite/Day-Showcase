@@ -1,5 +1,5 @@
+use crate::composition::Card;
 use day::prelude::*;
-use day_piece_rating::Card;
 use day_tweak_button_bezel::{Bezel, ButtonBezelTweak};
 use day_tweak_slider_tickmarks::{SliderTickmarksTweak, TickPosition, Tickmarks};
 use day_tweak_tooltip::TooltipTweak;

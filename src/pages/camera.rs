@@ -1,9 +1,9 @@
 use std::sync::Arc;
 
+use day::async_image::async_image;
 use day::prelude::*;
 use day_part_permissions::{self as perms, Permission, Status};
 use day_piece_camera::{CameraState, Facing, Photo, camera};
-use day_piece_remote_image::remote_image;
 
 use crate::widgets::page;
 
@@ -74,7 +74,7 @@ pub(crate) fn camera_page() -> AnyPiece {
                 when(
                     move || bytes.get().is_some(),
                     move || {
-                        column((remote_image(bytes)
+                        column((async_image(bytes)
                             .frame(240.0, 180.0)
                             .id(day::id!(camera_photo)),))
                         .align(HAlign::Center)

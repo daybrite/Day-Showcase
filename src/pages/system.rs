@@ -41,7 +41,7 @@ pub(crate) fn system_page() -> AnyPiece {
 
 fn battery_section() -> impl Piece {
     // Seed the preview signals from the device's real reading (a demo value when there's none).
-    let status = day_part_battery::status();
+    let status = day_part_device::battery::status();
     let level = Signal::new(
         status
             .and_then(|b| b.percent())
@@ -76,7 +76,7 @@ fn battery_section() -> impl Piece {
             button(crate::res::str::battery_refresh())
                 .action(move || {
                     reading.set(battery_line().format());
-                    if let Some(b) = day_part_battery::status() {
+                    if let Some(b) = day_part_device::battery::status() {
                         if let Some(p) = b.percent() {
                             level.set(f64::from(p));
                         }
@@ -765,7 +765,7 @@ fn location_section() -> impl Piece {
 }
 
 fn device_section() -> impl Piece {
-    // Read the device identity once now (headless day-part-deviceinfo); Refresh re-polls it.
+    // Read the device identity once now (headless day-part-device); Refresh re-polls it.
     let (m, s, sim) = deviceinfo_lines();
     let model = Signal::new(m);
     let system = Signal::new(s);
@@ -909,7 +909,7 @@ fn battery_view(level: Signal<f64>, charging: Signal<bool>) -> impl Piece {
 /// Read the native device identity and format each field as a localized line:
 /// `(model, "name version", simulator)`. Values vary by host, so nothing is asserted exactly.
 fn deviceinfo_lines() -> (String, String, String) {
-    let d = day_part_deviceinfo::get();
+    let d = day_part_device::info::get();
     let model = crate::res::str::deviceinfo_model(d.model).format();
     let system = crate::res::str::deviceinfo_system(crate::res::str::DeviceinfoSystem {
         name: d.system_name,

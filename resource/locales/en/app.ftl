@@ -47,14 +47,13 @@ ctl_date = Date
 ctl_time = Time
 ctl_color = Color
 ctl_indicators = Indicators & composition
-ctl_rating = Rating
 ctl_badge = Badge
 ctl_gauge = Gauge
 ctl_divider = Divider
 ctl_state = State
 ctl_on = On
 ctl_off = Off
-ctl_crates_note = The stepper, combo box, search field, date and time pickers, color picker, rating and activity come from their own piece crates; everything else is day-pieces.
+ctl_crates_note = These controls are provided by Day core; the badge is composed locally in Showcase.
 nav_menus = Menus & dialogs
 nav_text = Text
 nav_battery = Battery
@@ -107,7 +106,7 @@ picker_segmented = Segmented
 picker_menu = Menu
 picker_inline = Inline
 
-# --- day-piece-datetime ---
+# --- day::datetime ---
 nav_dates = Date & time
 dates_date_section = Date
 dates_time_section = Time
@@ -374,7 +373,7 @@ vectors_sizes = Sizes
 resources_numbers = numbers.bin: { $len } bytes, byte[100] = { $byte }
 resources_greeting = greeting.txt: { $text }
 
-# --- day-part-deviceinfo ---
+# --- day-part-device ---
 nav_deviceinfo = Device Info
 deviceinfo_model = Model: {$value}
 deviceinfo_system = System: {$name} {$version}
@@ -383,18 +382,13 @@ deviceinfo_yes = yes
 deviceinfo_no = no
 deviceinfo_refresh = Refresh
 
-# --- day-piece-activity ---
+# --- Day core spinner ---
 activity_on = Spinning
 activity_off = Stopped
 
-# --- day-piece-searchfield ---
+# --- day::searchfield ---
 search_clear = Clear
 
-# --- day-piece-map ---
-nav_map = Map
-map_caption = A native MKMapView — Apple platforms only. Tap a preset to recenter the map live.
-map_boston = Boston
-map_paris = Paris
 
 # --- tweaks page (docs/tweaks.md) ---
 nav_tweaks = Tweaks
@@ -1379,3 +1373,6 @@ google_caption = Credential Manager on Android lists the device's Google account
 google_client_placeholder = Server client id
 google_sign_in = Sign in with Google
 google_signed_in = Google account { $id }
+
+# Numeric notification count.
+badge_count = { $count }

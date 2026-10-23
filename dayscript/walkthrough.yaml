@@ -78,8 +78,7 @@ flow:
   - assert_text: { id: stepper_value, text: "3" }
   - assert_text: { id: state_count, text: "3" }
   - assert_visible: { id: stepped_slider }
-  # No activity arm on web-dom: the placeholder leaf has no frame to be visible.
-  - assert_visible: { id: activity_spinner, skip_on: [web-dom] }
+  - assert_visible: { id: activity_spinner }
   - assert_visible: { id: ctl_spinner }
   # Accessibility (docs/accessibility.md): the heading role and the hint are what a screen
   # reader is told; the announcement reaches it without moving focus, so the count is the only
@@ -113,7 +112,7 @@ flow:
   - toggle: { id: subscribe_toggle, value: true }
   - assert_text: { id: activity_status, key: activity_on }
   - assert_text: { id: state_toggle, key: ctl_on }
-  # Combo box (day-piece-combobox, docs/combobox.md): menu selection and free-form entry over the
+  # Combo box (core combo box, docs/combobox.md): menu selection and free-form entry over the
   # same list. `select` is the menu path (options are localized, so assert by key); `input` is the
   # free-form path (a literal, since user input is not localized); Add grows the list for both.
   - select: { id: flavor_combo, index: 2 }
@@ -137,28 +136,7 @@ flow:
   - assert_text: { id: state_time, text: "14:45" }
   - assert_visible: { id: ctl_color }
   - assert_visible: { id: state_color }
-  # Indicators: tap the 4th star (each star is `compose-rating:N`) and assert both bound readouts
-  # re-rendered with the count. The gauge is a canvas over the shared level; the badge and the
-  # divider are presence-only.
-  - tap: { id: "compose_rating_star:4" }
-  - assert_text: { id: rating_value, text: "4" }
-  - assert_text: { id: state_rating, text: "4" }
-  - assert_visible: { id: ctl_badge }
-  - assert_visible: { id: gauge }
-  - assert_visible: { id: ctl_divider }
-  # Two shots: the top of the page, then the pickers scrolled into view. Where the nav chrome
-  # names the page there is no in-content title to scroll to, so the first button stands in.
-  - scroll_to: { id: controls_title, skip_on: [ios-uikit, android-mdc, harmony-arkui, windows-winui] }
-  - scroll_to: { id: btn_plain, only_on: [ios-uikit, android-mdc, harmony-arkui, windows-winui] }
-  - screenshot:
-      name: controls
-      title: { en: "Controls", fr: "Contrôles", ar: "عناصر التحكّم", zh-CN: "控件" }
-      source: src/pages/controls.rs
-  - scroll_to: { id: ctl_date }
-  - screenshot:
-      name: controls-pickers
-      title: { en: "Controls · pickers", fr: "Contrôles · sélecteurs", ar: "عناصر التحكّم · المنتقيات", zh-CN: "控件 · 选择器" }
-      source: src/pages/controls.rs
+
 
   # Text playground: semantic styles, weights, and the bundled custom fonts (docs/resources.md).
   # The three Font::Custom families ship in fonts/ and must have been registered by the backend
@@ -896,7 +874,7 @@ flow:
 
   # Native recycling list (docs/list.md): 500 virtualized rows, visited after the delicate
   # stack/tabs route assertions so they stay undisturbed. The list is wrapped in pull-to-refresh
-  # (day-piece-pullrefresh): a synthetic toggle begins a reload that adds 100 rows and ends itself.
+  # (core pull-to-refresh): a synthetic toggle begins a reload that adds 100 rows and ends itself.
   - navigate: { route: list }
   - assert_route: { route: list }
   # The tier line (docs/pullrefresh.md) says whether the pull is native or emulated here; it
@@ -1366,24 +1344,6 @@ flow:
   - assert_text: { id: lottie_speed_value, text: "1.00×", only_on: [ios-uikit] }
   - select: { id: lottie_animation, index: 7, only_on: [ios-uikit] }
   - assert_text: { id: lottie_model_frames, text: "93 @ 30 fps", only_on: [ios-uikit] }
-
-  # Map (day-piece-map, docs/map.md): a native MKMapView, so the page exists only on the two
-  # Apple targets (map.rs, lib.rs `destinations`) and the whole section is gated. A preset
-  # recenters the map through the bound coordinate signal; the readout echoes the coordinates,
-  # and the pause lets the Paris tiles land before the shot.
-  - navigate: { route: map, only_on: [macos-appkit, ios-uikit] }
-  - assert_route: { route: map, only_on: [macos-appkit, ios-uikit] }
-  - assert_visible: { id: map, only_on: [macos-appkit, ios-uikit] }
-  - tap: { id: map_paris, only_on: [macos-appkit, ios-uikit] }
-  - assert_text: { id: map_coords, text: "48.8566, 2.3522", only_on: [macos-appkit, ios-uikit] }
-  - pause: { secs: 1, only_on: [macos-appkit, ios-uikit] }
-  - screenshot:
-      name: map
-      only_on: [macos-appkit, ios-uikit]
-      title: { en: "Map", fr: "Carte", ar: "الخريطة", zh-CN: "地图" }
-      source: src/pages/map.rs
-  - tap: { id: map_boston, only_on: [macos-appkit, ios-uikit] }
-  - assert_text: { id: map_coords, text: "42.3601, -71.0589", only_on: [macos-appkit, ios-uikit] }
 
   # Native web view (docs/webview.md): each toolkit's native browser, on the page's default
   # Embedded tab: a whole site bundled under resource/assets/web/minisite/, served through
@@ -1907,22 +1867,21 @@ flow:
   # above. webview is additionally absent on windows-gtk (no WebKitGTK 6 for MinGW).
   - assert_no_placeholders:
       only_on: [windows-qt]
-      allow: [day.piece.activity, day.piece.colorpicker, day.piece.combobox, day.piece.datepicker,
+      allow: [day.piece.colorpicker, day.piece.combobox, day.piece.datepicker,
               day.piece.media, day.piece.searchfield, day.piece.stepper, day.piece.timepicker,
               day.piece.webview]
   - assert_no_placeholders:
       only_on: [windows-gtk]
-      allow: [day.piece.activity, day.piece.datepicker, day.piece.media, day.piece.timepicker,
+      allow: [day.piece.datepicker, day.piece.media, day.piece.timepicker,
               day.piece.webview]
   - assert_no_placeholders:
       only_on: [harmony-arkui]
-      allow: [day.piece.activity, day.piece.colorpicker, day.piece.combobox, day.piece.media,
+      allow: [day.piece.colorpicker, day.piece.combobox, day.piece.media,
               day.piece.searchfield]
   # (measured on web-dom; media() landed as a <video>, so it is not listed here.)
   - assert_no_placeholders:
       only_on: [web-dom]
-      allow: [day.piece.activity, day.piece.combobox, day.piece.datepicker, day.piece.searchfield,
-              day.piece.timepicker]
+      allow: []
 
   # Data-transfer policy/OS gestures are covered separately; this verifies the page mounts.
   - navigate: { route: drag-drop }
