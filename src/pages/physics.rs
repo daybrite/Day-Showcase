@@ -1327,12 +1327,19 @@ fn control(
     }
 }
 
+/// On a phone the page scrolls and the marbles' box is this tall, so that some of it is always
+/// on screen however large the text: without a floor, the four controls and their readouts at a
+/// zoomed text size take every point an iPhone mini has, and the box is squeezed to nothing.
+/// Full screen is the way to the whole screen there.
+const COMPACT_CANVAS_HEIGHT: f64 = 300.0;
+
 /// The marbles' canvas: paints the simulation and throws the marbles at a tap. `owns_size` is
 /// whether this canvas's size is the simulation's box (the page's canvas gives that up while
-/// the full-screen cover is showing, and paints nothing under it).
-fn marbles(ui: Rc<Demo>, owns_size: bool, id: day::ElementId) -> AnyPiece {
+/// the full-screen cover is showing, and paints nothing under it). With `height`, the canvas is
+/// that tall and fills the width; without, it takes every point its container has left.
+fn marbles(ui: Rc<Demo>, owns_size: bool, height: Option<f64>, id: day::ElementId) -> AnyPiece {
     let (draw, tap, drag) = (ui.clone(), ui.clone(), ui);
-    canvas(move |d, size| {
+    let canvas = canvas(move |d, size| {
         draw.repaint.track();
         let fullscreen = draw.fullscreen.get();
         if fullscreen != owns_size {
@@ -1347,9 +1354,11 @@ fn marbles(ui: Rc<Demo>, owns_size: bool, id: day::ElementId) -> AnyPiece {
     .on_tap_at(move |at| tap.tap(at))
     .on_drag(move |d| drag.drag(d))
     .a11y(|a| a.role(Role::Button).label(crate::res::str::frame_hint()))
-    .id(id)
-    .grow()
-    .any()
+    .id(id);
+    match height {
+        Some(h) => canvas.height(h).grow_w().any(),
+        None => canvas.grow().any(),
+    }
 }
 
 pub(crate) fn physics_page() -> AnyPiece {
@@ -1502,12 +1511,23 @@ pub(crate) fn physics_page() -> AnyPiece {
     .unwrap_or_default();
     let (status, fps) = (ui.status, ui.fps);
     let cover_ui = ui.clone();
-    // Not `widgets::page`: that scrolls, and the marbles' box takes every point the page has
-    // left, which a scroll view never offers.
-    column((
+    // Two layouts (docs/size-classes.md; `size_class()` is a tracked read, as in `control`). At
+    // Regular width the marbles' box takes every point the page has left, which a scroll view
+    // never offers, so this is not `widgets::page`. At Compact width (a phone) the controls can
+    // take the whole height at a large text size and leave the box nothing, so the page scrolls
+    // and the box has a fixed height instead: some of it is always on screen.
+    let compact = day::size_class()
+        .map(|c| c.width == WidthClass::Compact)
+        .unwrap_or(false);
+    let body = column((
         crate::widgets::heading(crate::res::str::nav_physics(), day::id!(physics_title)),
         label(crate::res::str::frame_hint()).font(Font::Callout),
-        marbles(ui.clone(), false, day::id!(frame_ball)),
+        marbles(
+            ui.clone(),
+            false,
+            compact.then_some(COMPACT_CANVAS_HEIGHT),
+            day::id!(frame_ball),
+        ),
         // The four controls as one form under the marbles, each slider with its value beside it.
         section((column((
             control(
@@ -1611,25 +1631,33 @@ pub(crate) fn physics_page() -> AnyPiece {
         label(crate::res::str::frame_explanation()).font(Font::Caption),
         // Full screen: the same marbles over the whole window, with one way out in the corner.
         cover(fullscreen_open, move |_| {
-            marbles(cover_ui.clone(), true, day::id!(physics_fullscreen_canvas))
-                .overlay_aligned(
-                    Alignment::TopTrailing,
-                    button(crate::res::str::physics_exit_fullscreen())
-                        .prominent()
-                        .action(move || fullscreen_open.set(None))
-                        .id(day::id!(physics_exit_fullscreen))
-                        .padding(Space::L),
-                )
-                .any()
+            marbles(
+                cover_ui.clone(),
+                true,
+                None,
+                day::id!(physics_fullscreen_canvas),
+            )
+            .overlay_aligned(
+                Alignment::TopTrailing,
+                button(crate::res::str::physics_exit_fullscreen())
+                    .prominent()
+                    .action(move || fullscreen_open.set(None))
+                    .id(day::id!(physics_exit_fullscreen))
+                    .padding(Space::L),
+            )
+            .any()
         })
         .unrouted()
         .background(|_| Color::hex(0x111820)),
     ))
     .spacing(10.0)
     .padding(20.0)
-    .grow()
-    .id(day::id!(frame_demo))
-    .any()
+    .id(day::id!(frame_demo));
+    if compact {
+        scroll(body.grow_w()).any()
+    } else {
+        body.grow().any()
+    }
 }
 
 fn paint(d: &mut Draw, size: Size, sim: &Simulation) {
