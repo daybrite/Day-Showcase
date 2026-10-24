@@ -1189,7 +1189,7 @@ files_bookmark_failed = تعذرت استعادة الوصول إلى الملف
 dnd_disallowed = إضافة مناطق محظورة
 
 # Native display frame demo
-frame_hint = المس أي مكان لقذف كل الكرات نحو تلك النقطة. زِد العدد لاختبار الأداء.
+frame_hint = المس أي مكان لقذف كل الكرات نحو تلك النقطة. اسحب كرة لتحريكها وقذفها، أو انقر عليها لنقرها. زِد العدد لاختبار الأداء.
 frame_bounce = ارتداد
 frame_shuffle = خلط
 frame_pause = إيقاف / استئناف
@@ -1213,6 +1213,10 @@ physics_gravity = { $value } م/ث²
 physics_gravity_named = { $value } م/ث² ({ $body })
 physics_mass_label = كتلة الكرة
 physics_mass = { $value } ميغاطن
+physics_elasticity_label = المرونة
+physics_elasticity = { $value }٪
+physics_fullscreen = ملء الشاشة
+physics_exit_fullscreen = الخروج من ملء الشاشة
 physics_zero_g = انعدام الجاذبية
 physics_moon = القمر
 physics_mars = المريخ

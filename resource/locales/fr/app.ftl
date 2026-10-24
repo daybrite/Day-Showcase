@@ -1172,7 +1172,7 @@ files_bookmark_failed = Impossible de rétablir l’accès au fichier enregistr�
 dnd_disallowed = Ajouter des zones interdites
 
 # Native display frame demo
-frame_hint = Touchez n’importe où pour lancer toutes les billes vers ce point. Augmentez leur nombre pour tester les performances.
+frame_hint = Touchez n’importe où pour lancer toutes les billes vers ce point. Faites glisser une bille pour la déplacer et la projeter ; touchez-en une pour lui donner une pichenette. Augmentez leur nombre pour tester les performances.
 frame_bounce = Rebondir
 frame_shuffle = Mélanger
 frame_pause = Pause / reprendre
@@ -1196,6 +1196,10 @@ physics_gravity = { $value } m/s²
 physics_gravity_named = { $value } m/s² ({ $body })
 physics_mass_label = Masse des billes
 physics_mass = { $value } Mt
+physics_elasticity_label = Élasticité
+physics_elasticity = { $value } %
+physics_fullscreen = Plein écran
+physics_exit_fullscreen = Quitter le plein écran
 physics_zero_g = apesanteur
 physics_moon = Lune
 physics_mars = Mars

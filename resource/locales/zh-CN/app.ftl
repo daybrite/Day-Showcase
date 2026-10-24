@@ -1162,7 +1162,7 @@ files_bookmark_failed = 无法恢复对已保存文件的访问权限。请使�
 dnd_disallowed = 添加禁止放置区域
 
 # Native display frame demo
-frame_hint = 轻点任意位置，把所有小球抛向该点。增加数量以测试性能。
+frame_hint = 轻点任意位置，把所有小球抛向该点。拖动一个小球可以带着它移动并甩出去；轻点一个小球可以弹它一下。增加数量以测试性能。
 frame_bounce = 弹跳
 frame_shuffle = 随机
 frame_pause = 暂停 / 继续
@@ -1186,6 +1186,10 @@ physics_gravity = { $value } m/s²
 physics_gravity_named = { $value } m/s²（{ $body }）
 physics_mass_label = 小球质量
 physics_mass = { $value } 百万吨
+physics_elasticity_label = 弹性
+physics_elasticity = { $value }%
+physics_fullscreen = 全屏
+physics_exit_fullscreen = 退出全屏
 physics_zero_g = 零重力
 physics_moon = 月球
 physics_mars = 火星

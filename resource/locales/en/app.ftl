@@ -1179,7 +1179,7 @@ files_bookmark_failed = Access to the saved file could not be restored. Choose i
 dnd_disallowed = Add disallowed regions
 
 # Native display frame demo
-frame_hint = Tap anywhere to throw every ball toward that point. Raise the count to test performance.
+frame_hint = Tap anywhere to throw every ball toward that point. Drag a ball to carry it and fling it; tap one to flick it. Raise the count to test performance.
 frame_bounce = Bounce
 frame_shuffle = Shuffle
 frame_pause = Pause / resume
@@ -1203,6 +1203,10 @@ physics_gravity = { $value } m/s²
 physics_gravity_named = { $value } m/s² ({ $body })
 physics_mass_label = Ball mass
 physics_mass = { $value } Mt
+physics_elasticity_label = Elasticity
+physics_elasticity = { $value }%
+physics_fullscreen = Full screen
+physics_exit_fullscreen = Exit full screen
 physics_zero_g = zero-G
 physics_moon = Moon
 physics_mars = Mars

@@ -45,6 +45,19 @@ flow:
   - assert_text: { id: physics_mass_value, text: "0.250 Mt" }
   - set_value: { id: physics_mass_slider, value: 0 }
   - assert_text: { id: physics_mass_value, text: "0.000 Mt" }
+  # Elasticity: restitution and squish in one, read out as a percentage.
+  - assert_text: { id: physics_elasticity_value, text: "50%" }
+  - set_value: { id: physics_elasticity_slider, value: 1 }
+  - assert_text: { id: physics_elasticity_value, text: "100%" }
+  - set_value: { id: physics_elasticity_slider, value: 0 }
+  - assert_text: { id: physics_elasticity_value, text: "0%" }
+  - set_value: { id: physics_elasticity_slider, value: 0.5 }
+  - assert_text: { id: physics_elasticity_value, text: "50%" }
+  # Full screen presents the marbles as a cover with one way out.
+  - tap: { id: physics_fullscreen }
+  - assert_visible: { id: physics_fullscreen_canvas }
+  - tap: { id: physics_exit_fullscreen }
+  - assert_visible: { id: physics_fullscreen }
   # Shuffle sets every slider at random and throws the marbles toward a random point.
   - tap: { id: frame_reset }
   - assert_text: { id: frame_status, text: Resting }
