@@ -985,9 +985,11 @@ fn window_body(primary: bool) -> impl Piece {
                     None => crate::res::str::app_title().format(),
                 }),
         )
-        // Search belongs to the surface it filters (docs/search.md). Mobile lists keep the
-        // field out of the way until a pull reveals it; Android keeps navigation actions
-        // available. Desktop placement stays in the window toolbar.
+        // Search belongs to the surface it filters (docs/search.md). On a phone it is the
+        // platform's own search bar at the top of the list, out of the way until a pull brings
+        // it down and gone again as the list scrolls: a `UISearchController` under the large
+        // title on iOS, a Material search bar in the collapsing app bar on Android. Desktop
+        // placement stays in the window toolbar.
         .searchable(
             Search::new(query)
                 .reveal(SearchReveal::OnPull)
