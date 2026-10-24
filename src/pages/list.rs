@@ -459,8 +459,10 @@ fn demo_row(row: ItemSlot<i64, i64>, o: ListOptions, selected: Signal<BTreeSet<i
     }
     let id = move || day::id!(list_row, row.key());
     column((
-        when(target, move || label(title).color(crate::palette::CORAL).id_of(id))
-            .otherwise(move || label(title).id_of(id)),
+        when(target, move || {
+            label(title).color(crate::palette::CORAL).id_of(id)
+        })
+        .otherwise(move || label(title).id_of(id)),
         when(
             move || !note().is_empty(),
             move || label(note).font(Font::Footnote).secondary(),
