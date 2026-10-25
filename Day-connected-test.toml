@@ -1,6 +1,6 @@
 # Local USB deployment test; Android coexists with its Google Play installation.
 [app]
-targets = ["android-mdc", "ios-uikit"]
+targets = ["android-material", "ios-uikit"]
 [app.android]
 id = "dev.daybrite.showcase.connected"
 title = "Day Showcase Dev"

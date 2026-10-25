@@ -12,7 +12,7 @@ flow:
   - wait_for: { id: cursors_support }
   # AppKit, GTK, the DOM, and Android draw the shared set from their own shapes; Qt, XAML, and
   # iPadOS map to a nearest shape or a pointer effect; ArkUI has no pointer API Day reaches.
-  - assert_text: { id: cursors_support, text: "Native", only_on: [appkit, gtk, dom, mdc] }
+  - assert_text: { id: cursors_support, text: "Native", only_on: [appkit, gtk, dom, material] }
   - assert_text: { id: cursors_support, text: "Emulated (nearest shapes)", only_on: [qt, xaml, uikit] }
   - assert_text: { id: cursors_support, text: "Unsupported on this target", only_on: [arkui] }
   - assert_visible: { id: cursor_swatch:shapes%3Apointer }

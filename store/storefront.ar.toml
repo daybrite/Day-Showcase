@@ -31,5 +31,5 @@ release-notes = "الإصدار الأول على App Store. 35 صفحة في ث
 subtitle = "‏UIKit أصلي، مكتوب بلغة Rust"
 promo = "خمسة وثلاثون عرضًا حيًا لإطار Day، من عناصر التحكّم والتخطيط إلى المستشعرات والإبلاغ عن الأعطال، كلها مرسومة بواسطة UIKit."
 
-[storefront.android-mdc.google-play-store.metadata]
+[storefront.android-material.google-play-store.metadata]
 short = "عروض حية لإطار Day: عناصر واجهة Material من كود Rust واحد."

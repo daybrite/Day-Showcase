@@ -65,40 +65,40 @@ promo = "Day 框架的三十五个现场演示，从控件、布局到传感器�
 default = ["home", "canvas", "map", "resources", { name = "lottie", theme = "dark" }]
 
 # --- Android --------------------------------------------------------------------------------
-[storefront.android-mdc.screenshots]
+[storefront.android-material.screenshots]
 default = ["canvas", "controls", "text", "resources", "tree", "dates", "animation", "lottie"]
 tablet = ["canvas", "layout", "text", "grid", "resources", "tree", "menus", "lottie"]
 
-[storefront.android-mdc.screenshots.fr]
+[storefront.android-material.screenshots.fr]
 default = ["localization", "canvas", "controls", "text", "dates", "resources", "tree", "lottie"]
 
-[storefront.android-mdc.google-play-store.submission-info]
+[storefront.android-material.google-play-store.submission-info]
 review-notes = """
 Built with the Day framework. Every screen is reachable from the navigation list on the first
 launch; the Device & sensors page asks for camera, location and motion permissions to show how
 the prompts look, and declining them leaves the rest of the app usable.
 """
 
-[storefront.android-mdc.google-play-store.screenshots]
+[storefront.android-material.google-play-store.screenshots]
 default = ["canvas", "controls", "text", "textareas-code", "dates", "animation", "tree", "localization"]
 tablet = ["canvas", "layout", "grid", "text", { name = "controls", theme = "dark" }, "dates", "list", "localization"]
 
-[storefront.android-mdc.google-play-store.screenshots.zh-CN]
+[storefront.android-material.google-play-store.screenshots.zh-CN]
 default = ["localization", "text", "canvas", "controls", "dates", "animation", "tree", "textareas-code"]
 
-[storefront.android-mdc.google-play-store.metadata]
+[storefront.android-material.google-play-store.metadata]
 short = "Live demos of the Day framework: Material widgets from one Rust codebase."
 release-notes = "First Google Play release. 35 pages in eight groups, from controls and layout to sensors and crash reporting, in English, French, Arabic, and Simplified Chinese."
 
-[storefront.android-mdc.google-play-store.metadata.fr]
+[storefront.android-material.google-play-store.metadata.fr]
 short = "Démos en direct du framework Day : des widgets Material, une seule base Rust."
 release-notes = "Première version sur Google Play. 35 pages en huit groupes, des contrôles et de la mise en page jusqu'aux capteurs et aux rapports de plantage, en anglais, français, arabe et chinois simplifié."
 
-[storefront.android-mdc.google-play-store.metadata.zh-CN]
+[storefront.android-material.google-play-store.metadata.zh-CN]
 short = "Day 框架的现场演示：Material 控件，出自同一份 Rust 代码。"
 release-notes = "首次登陆 Google Play。35 个页面，分为八组，从控件、布局到传感器和崩溃报告，提供英语、法语、阿拉伯语和简体中文。"
 
-[storefront.android-mdc.f-droid.screenshots]
+[storefront.android-material.f-droid.screenshots]
 default = ["home", "canvas", "resources", "list"]
 
 # --- Desktop and web ------------------------------------------------------------------------

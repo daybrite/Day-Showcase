@@ -13,8 +13,8 @@ flow:
   # Repeating a desired state must not invoke the toggle command a second time.
   - toolbar: { item: tb_star, on: true, skip_on: [harmony-arkui] }
   - assert_text: { id: toolbar_star_state, key: toolbar_on, skip_on: [harmony-arkui] }
-  - menu: { key: cmd_unstar, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
-  - assert_text: { id: toolbar_star_state, key: toolbar_off, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - menu: { key: cmd_unstar, skip_on: [ios-uikit, android-material, harmony-arkui, web-dom] }
+  - assert_text: { id: toolbar_star_state, key: toolbar_off, skip_on: [ios-uikit, android-material, harmony-arkui, web-dom] }
   - toolbar: { item: tb_star, on: false, skip_on: [harmony-arkui] }
   - assert_text: { id: toolbar_star_state, key: toolbar_off, skip_on: [harmony-arkui] }
   - navigate: { route: menus }
@@ -26,7 +26,7 @@ flow:
   - assert_text: { id: commands_count, text: '3', skip_on: [harmony-arkui] }
   - screenshot: reusable-commands
   - toolbar: { item: command_reset_toolbar, skip_on: [harmony-arkui] }
-  - tap: { id: command_reset, skip_on: [macos-appkit, macos-gtk, macos-qt, ios-uikit, android-mdc, web-dom] }
+  - tap: { id: command_reset, skip_on: [macos-appkit, macos-gtk, macos-qt, ios-uikit, android-material, web-dom] }
   - assert_text: { id: commands_count, text: '0' }
   - tap: { id: command_add }
   - tap: { id: command_reset }

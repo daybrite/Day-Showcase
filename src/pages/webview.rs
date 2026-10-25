@@ -87,7 +87,7 @@ pub(crate) fn webview_page() -> AnyPiece {
 /// the selected tab shows: each view binds its own [`JsHandle`], and Run picks by the tab
 /// signal. `eval` returns a future, so the click spawns a task and the result lands in the
 /// bound signal whenever the engine answers. Sized in lines, not points, so the editors track
-/// the platform accessibility text scale (day-dom used to ignore the hints; it measures them
+/// the platform accessibility text scale (day-toolkit-dom used to ignore the hints; it measures them
 /// now, docs/textarea.md).
 fn js_console(tab: Signal<WebTab>, js_remote: JsHandle, js_embedded: JsHandle) -> impl Piece {
     let (_, script, result) = state();

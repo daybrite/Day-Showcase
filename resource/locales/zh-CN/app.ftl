@@ -367,9 +367,9 @@ sound_looping = 正在循环
 sound_looping_none = 没有循环
 sound_looping_clip = 正在循环：{ $clip }
 
-# --- day-part-prefs ---
+# --- day-part-preferences ---
 nav_prefs = 偏好设置
-prefs_caption = 使用 day-part-prefs 在多次启动间持久化一个字符串。
+prefs_caption = 使用 day-part-preferences 在多次启动间持久化一个字符串。
 prefs_placeholder = 要记住的值
 prefs_save = 保存
 prefs_load = 读取
@@ -426,7 +426,7 @@ tweaks_tooltip_caption = day-tweak-tooltip——AppKit、GTK、Android：原生�
 tweaks_tooltip_label = 自动保存
 tweaks_tooltip_hint = 你的工作会自动保存。悬停（Android 上长按）查看详情。
 tweaks_ticks_title = 滑块刻度
-tweaks_ticks_caption = day-tweak-slider-tickmarks——AppKit、GTK、Android、Qt、XAML、ArkUI：原生刻度，平台支持时可吸附。微调后的滑块会吸附；原样的滑块平滑滑动。
+tweaks_ticks_caption = day-tweak-slider-tick-marks——AppKit、GTK、Android、Qt、XAML、ArkUI：原生刻度，平台支持时可吸附。微调后的滑块会吸附；原样的滑块平滑滑动。
 tweaks_ref_title = NativeRef 存活性
 tweaks_ref_caption = NativeRef 在挂载后能访问微调过的滑块；卸载它后引用会被清空而不是悬空。
 tweaks_ref_live = 引用：存活
@@ -738,7 +738,7 @@ files_initial_content =
     来自 Day 的问候！
     编辑我，然后保存。
 
-# 崩溃报告页面（day-piece-break，docs/break.md）
+# 崩溃报告页面（day-piece-crash-reporter，docs/break.md）
 nav_crash = 崩溃报告
 crash_trigger_section = 触发崩溃
 crash_report_section = 最近的崩溃报告
@@ -853,7 +853,7 @@ tab_dynamic_remove = 移除标签页
 
 # 本地文件存储（服务页，docs/fs.md）。
 storage_title = 本地文件
-storage_caption = day-part-fs 在每个平台上存储应用私有文件——原生端为真实文件，浏览器中为 OPFS。
+storage_caption = day-part-filesystem 在每个平台上存储应用私有文件——原生端为真实文件，浏览器中为 OPFS。
 storage_placeholder = 要存储的文本
 storage_save = 保存文件
 storage_load = 加载

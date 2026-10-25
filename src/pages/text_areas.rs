@@ -1,7 +1,7 @@
 use day::colorpicker::color_picker;
 use day::prelude::*;
-use day_piece_texteditor::highlight::{Language, Palette, highlight};
-use day_piece_texteditor::text_editor;
+use day_piece_text_editor::highlight::{Language, Palette, highlight};
+use day_piece_text_editor::text_editor;
 
 use crate::widgets::page;
 

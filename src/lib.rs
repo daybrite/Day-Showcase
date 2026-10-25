@@ -151,7 +151,7 @@ pub fn install_lifecycle_handlers() {
     let note = |phase: day::Lifecycle| {
         move || {
             // `info!`, because a lifecycle phase is normal operation (docs/logging.md). This was
-            // a `println!` for a reason worth recording: day-mdc maps fd 1 to logcat INFO and
+            // a `println!` for a reason worth recording: day-toolkit-material maps fd 1 to logcat INFO and
             // fd 2 to `ERROR`, so `eprintln!` made every phase surface as `E Day` and drowned
             // the level out as a filter. Choosing stdout to mean "info" is exactly the
             // workaround a logging level replaces, and the line now reaches the browser console
@@ -307,11 +307,11 @@ pub(crate) fn open_source_of(section: Section) {
 }
 
 /// Arm crash reporting (docs/break.md); the Crash Reporting page demonstrates it. Idempotent
-/// (day-piece-break's `init` is single-shot); safe to call from every entry point.
+/// (day-piece-crash-reporter's `init` is single-shot); safe to call from every entry point.
 pub fn install_crash_reporting() {
-    let _ = day_piece_break::Config::new()
+    let _ = day_piece_crash_reporter::Config::new()
         // "Send report" opens a prefilled email to the developer (no server needed).
-        .reporter(day_piece_break::EmailReporter::new(
+        .reporter(day_piece_crash_reporter::EmailReporter::new(
             "crashdemo@daybrite.dev",
         ))
         .init();

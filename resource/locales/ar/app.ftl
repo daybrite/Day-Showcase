@@ -379,9 +379,9 @@ sound_looping = قيد التكرار
 sound_looping_none = لا شيء يتكرر
 sound_looping_clip = يتكرر: { $clip }
 
-# --- day-part-prefs ---
+# --- day-part-preferences ---
 nav_prefs = التفضيلات
-prefs_caption = احفظ سلسلة نصية عبر عمليات التشغيل باستخدام day-part-prefs.
+prefs_caption = احفظ سلسلة نصية عبر عمليات التشغيل باستخدام day-part-preferences.
 prefs_placeholder = القيمة المراد تذكّرها
 prefs_save = حفظ
 prefs_load = قراءة
@@ -438,7 +438,7 @@ tweaks_tooltip_caption = ‏day-tweak-tooltip — ‏AppKit وGTK وAndroid: ت�
 tweaks_tooltip_label = حفظ تلقائي
 tweaks_tooltip_hint = يُحفظ عملك تلقائيًا. مرّر المؤشر (أو اضغط مطولًا على Android) للتفاصيل.
 tweaks_ticks_title = علامات تدرّج المنزلق
-tweaks_ticks_caption = ‏day-tweak-slider-tickmarks — ‏AppKit وGTK وAndroid وQt وXAML وArkUI: علامات أصلية، مع الالتصاق حيث تدعمه المنصة. المنزلق المولَّف يلتصق؛ والقياسي ينزلق بسلاسة.
+tweaks_ticks_caption = ‏day-tweak-slider-tick-marks — ‏AppKit وGTK وAndroid وQt وXAML وArkUI: علامات أصلية، مع الالتصاق حيث تدعمه المنصة. المنزلق المولَّف يلتصق؛ والقياسي ينزلق بسلاسة.
 tweaks_ref_title = حيوية NativeRef
 tweaks_ref_caption = يصل NativeRef إلى المنزلق المولَّف بعد التركيب؛ وعند إزالته يُمسح المرجع بدلًا من أن يبقى معلّقًا.
 tweaks_ref_live = المرجع: حي
@@ -755,7 +755,7 @@ files_initial_content =
     مرحبًا من Day!
     حرِّرني ثم احفظ.
 
-# صفحة الإبلاغ عن الأعطال (day-piece-break, docs/break.md)
+# صفحة الإبلاغ عن الأعطال (day-piece-crash-reporter, docs/break.md)
 nav_crash = الإبلاغ عن الأعطال
 crash_trigger_section = إحداث عطل
 crash_report_section = آخر تقرير عطل
@@ -870,7 +870,7 @@ tab_dynamic_remove = إزالة علامة تبويب
 
 # تخزين الملفات المحلي (صفحة الخدمات، docs/fs.md).
 storage_title = الملفات المحلية
-storage_caption = يخزّن day-part-fs ملفات خاصة بالتطبيق على كل منصة — ملفات حقيقية محليًا وOPFS في المتصفح.
+storage_caption = يخزّن day-part-filesystem ملفات خاصة بالتطبيق على كل منصة — ملفات حقيقية محليًا وOPFS في المتصفح.
 storage_placeholder = نص للتخزين
 storage_save = حفظ الملف
 storage_load = تحميل

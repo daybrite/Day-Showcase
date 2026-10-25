@@ -1244,7 +1244,7 @@ fn storage_section() -> impl Piece {
     // Re-list the demo directory after every operation ("\u{2014}" = nothing stored).
     let refresh = move || {
         day::task(async move {
-            match day_part_fs::list_future("demo").await {
+            match day_part_filesystem::list_future("demo").await {
                 Ok(names) if names.is_empty() => files.set("\u{2014}".into()),
                 Ok(names) => files.set(names.join(", ")),
                 Err(e) => files.set(format!("error: {e}")),
@@ -1263,7 +1263,7 @@ fn storage_section() -> impl Piece {
                 .action(move || {
                     let data = note.get_untracked().into_bytes();
                     day::task(async move {
-                        let text = match day_part_fs::write_future(FILE, data).await {
+                        let text = match day_part_filesystem::write_future(FILE, data).await {
                             Ok(()) => "saved".to_string(),
                             Err(e) => format!("error: {e}"),
                         };
@@ -1277,7 +1277,7 @@ fn storage_section() -> impl Piece {
                 .bordered()
                 .action(move || {
                     day::task(async move {
-                        let text = match day_part_fs::read_future(FILE).await {
+                        let text = match day_part_filesystem::read_future(FILE).await {
                             Ok(bytes) => {
                                 format!("loaded:{}", String::from_utf8_lossy(&bytes))
                             }
@@ -1290,7 +1290,7 @@ fn storage_section() -> impl Piece {
             button(crate::res::str::storage_delete())
                 .action(move || {
                     day::task(async move {
-                        let text = match day_part_fs::remove_future(FILE).await {
+                        let text = match day_part_filesystem::remove_future(FILE).await {
                             Ok(()) => "deleted".to_string(),
                             Err(e) => format!("error: {e}"),
                         };

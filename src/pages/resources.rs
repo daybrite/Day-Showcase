@@ -151,7 +151,7 @@ fn vectors_section() -> impl Piece {
                 // per-weight art. Every glyph after it is a plain SVG, so moving the Weight
                 // picker off Regular exercises the aliasing path on all 23 at once: a weight a
                 // source has no art for must resolve back to its base glyph rather than draw
-                // nothing (docs/vectors.md). Doing it in bulk is what caught android-mdc
+                // nothing (docs/vectors.md). Doing it in bulk is what caught android-material
                 // resolving the image piece's name without that fallback: every aliased glyph was
                 // blank there, and `assert_visible` could not see it because the ImageView had a
                 // frame either way.
@@ -244,7 +244,7 @@ fn vectors_section() -> impl Piece {
                     })
                     .id(day::id!(vector_cycle_tint)),
                 // The platform's chooser. `.native()` is literal: on a toolkit with no
-                // color picker (android-mdc, harmony-arkui) this draws Day's placeholder rather
+                // color picker (android-material, harmony-arkui) this draws Day's placeholder rather
                 // than quietly substituting the composed panel, which is what the page is here
                 // to show. The banner below says so in words.
                 color_picker(tint)
@@ -263,7 +263,7 @@ fn vectors_section() -> impl Piece {
             .align(VAlign::Center),
         ),
         label(crate::res::str::vectors_tint_idioms()).font(Font::Footnote),
-        // On android-mdc and harmony-arkui the first well has nothing to open (neither platform
+        // On android-material and harmony-arkui the first well has nothing to open (neither platform
         // ships a color chooser anywhere), so it draws Day's `⟨day.piece.colorpicker⟩`
         // placeholder and this banner says why. The second well works there exactly as it does
         // here, which is the argument for having built it. (Same shape as the Controls page's
@@ -272,7 +272,7 @@ fn vectors_section() -> impl Piece {
         // Full-color art, not a tintable glyph: everything above is a monochrome symbol that
         // takes a `.tint`, so the pipeline's other half (many-path, authored-color art) had
         // no example here. The tiger is 240 paths, and it stays a real vector on every backend
-        // (on android-mdc a VectorDrawable, not a raster; docs/vectors.md).
+        // (on android-material a VectorDrawable, not a raster; docs/vectors.md).
         //
         // The glyph is rebuilt at each zoom step, not transform-scaled. A `.scale()` would
         // magnify whatever the backend last rasterized, the very thing this demo exists to

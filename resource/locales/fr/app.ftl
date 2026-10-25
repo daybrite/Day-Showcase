@@ -372,9 +372,9 @@ sound_looping = En boucle
 sound_looping_none = Rien en boucle
 sound_looping_clip = En boucle : { $clip }
 
-# --- day-part-prefs ---
+# --- day-part-preferences ---
 nav_prefs = Préférences
-prefs_caption = Conserver une chaîne entre les lancements avec day-part-prefs.
+prefs_caption = Conserver une chaîne entre les lancements avec day-part-preferences.
 prefs_placeholder = Valeur à mémoriser
 prefs_save = Enregistrer
 prefs_load = Charger
@@ -431,7 +431,7 @@ tweaks_tooltip_caption = day-tweak-tooltip — AppKit, GTK, Android : une info-b
 tweaks_tooltip_label = Enregistrement auto
 tweaks_tooltip_hint = Votre travail est enregistré automatiquement. Survolez (ou appui long sur Android) pour les détails.
 tweaks_ticks_title = Graduations du curseur
-tweaks_ticks_caption = day-tweak-slider-tickmarks — AppKit, GTK, Android, Qt, XAML, ArkUI : graduations natives, avec aimantation là où la plateforme la propose. Le curseur ajusté s'aimante ; celui d'origine glisse.
+tweaks_ticks_caption = day-tweak-slider-tick-marks — AppKit, GTK, Android, Qt, XAML, ArkUI : graduations natives, avec aimantation là où la plateforme la propose. Le curseur ajusté s'aimante ; celui d'origine glisse.
 tweaks_ref_title = Vivacité du NativeRef
 tweaks_ref_caption = Un NativeRef atteint le curseur ajusté après montage ; démontez-le et la référence se vide au lieu de pendre.
 tweaks_ref_live = réf : vivante
@@ -745,7 +745,7 @@ files_initial_content =
     Bonjour de Day !
     Modifiez-moi, puis Enregistrer.
 
-# Page Rapports de plantage (day-piece-break, docs/break.md)
+# Page Rapports de plantage (day-piece-crash-reporter, docs/break.md)
 nav_crash = Rapports de plantage
 crash_trigger_section = Déclencher un plantage
 crash_report_section = Dernier rapport de plantage
@@ -860,7 +860,7 @@ tab_dynamic_remove = Retirer un onglet
 
 # Stockage de fichiers local (page services, docs/fs.md).
 storage_title = Fichiers locaux
-storage_caption = Le module day-part-fs stocke des fichiers privés de l'app sur chaque cible — de vrais fichiers en natif, OPFS dans le navigateur.
+storage_caption = Le module day-part-filesystem stocke des fichiers privés de l'app sur chaque cible — de vrais fichiers en natif, OPFS dans le navigateur.
 storage_placeholder = Texte à stocker
 storage_save = Enregistrer le fichier
 storage_load = Charger

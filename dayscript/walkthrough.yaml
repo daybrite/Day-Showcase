@@ -410,7 +410,7 @@ flow:
   - assert_route: { route: split }
   - assert_visible: { id: split_demo }
   - assert_text: { id: split_support, key: split_native, only_on: [appkit, gtk, qt] }
-  - assert_text: { id: split_support, key: split_composed, only_on: [uikit, mdc, arkui, dom, xaml] }
+  - assert_text: { id: split_support, key: split_composed, only_on: [uikit, material, arkui, dom, xaml] }
   - set_value: { id: split_count, value: 7 }
   - set_value: { id: split_radius, value: 36 }
   - assert_text: { id: split_readout, key: split_readout, args: { count: 7, radius: 36 } }
@@ -485,8 +485,8 @@ flow:
   # Day's rail: it runs the backend's user-back path (shouldPop, the pop, the report to Day),
   # which a bare `nav_back` never reaches and which is where both 2026-09 back bugs lived.
   # Mobile only: a desktop has no native back to press for a nested stack.
-  - nav_back: { native: true, only_on: [uikit, mdc] }
-  - assert_route: { route: stack/1, only_on: [uikit, mdc] }
+  - nav_back: { native: true, only_on: [uikit, material] }
+  - assert_route: { route: stack/1, only_on: [uikit, material] }
   - nav_back: { only_on: [appkit, gtk, qt, xaml, arkui, dom] }
   - assert_route: { route: stack/1 }
   - nav_back:
@@ -516,13 +516,13 @@ flow:
   # The same guard through the platform's back: on iOS the bar's shouldPop vetoes the pop and
   # hands it to Day, on Android the dispatcher's guard callback does; both must raise the
   # confirm, and "discard" must then pop through Day's rail.
-  - tap: { id: stack_push, only_on: [uikit, mdc] }
-  - assert_route: { route: stack/1, only_on: [uikit, mdc] }
-  - toggle: { id: stack_dirty, value: true, only_on: [uikit, mdc] }
-  - nav_back: { native: true, only_on: [uikit, mdc] }
-  - assert_presented: { only_on: [uikit, mdc] }
-  - respond: { button: 1, only_on: [uikit, mdc] }
-  - assert_route: { route: stack, only_on: [uikit, mdc] }
+  - tap: { id: stack_push, only_on: [uikit, material] }
+  - assert_route: { route: stack/1, only_on: [uikit, material] }
+  - toggle: { id: stack_dirty, value: true, only_on: [uikit, material] }
+  - nav_back: { native: true, only_on: [uikit, material] }
+  - assert_presented: { only_on: [uikit, material] }
+  - respond: { button: 1, only_on: [uikit, material] }
+  - assert_route: { route: stack, only_on: [uikit, material] }
   # Fullscreen cover (docs/cover.md): native modal on iOS/Android, topmost child elsewhere.
   # Every backend presents it now, so these steps run everywhere.
   - tap: { id: cover_present }
@@ -623,18 +623,18 @@ flow:
   # Cap::Appearance-gated and asserted in the desktop windows script instead.
   - navigate: { route: settings }
   # Exercise the settings root's declared IDs and row activation as well as the page.
-  - assert_visible: { id: settings_about, only_on: [uikit, mdc, arkui, dom] }
-  - tap: { id: "prefs_group:general", only_on: [uikit, mdc, arkui, dom] }
+  - assert_visible: { id: settings_about, only_on: [uikit, material, arkui, dom] }
+  - tap: { id: "prefs_group:general", only_on: [uikit, material, arkui, dom] }
   - wait_for: { id: language_picker }
   - screenshot:
       name: preferences
       window: day.preferences
-      skip_on: [uikit, mdc, arkui, dom]
+      skip_on: [uikit, material, arkui, dom]
       title: { en: "Menus & dialogs · settings window", fr: "Menus et dialogues · fenêtre des réglages", ar: "القوائم والحوارات · نافذة الإعدادات", zh-CN: "菜单与对话框 · 设置窗口" }
       source: src/lib.rs
   - screenshot:
       name: preferences
-      only_on: [uikit, mdc, arkui, dom]
+      only_on: [uikit, material, arkui, dom]
       title: { en: "Menus & dialogs · settings", fr: "Menus et dialogues · réglages", ar: "القوائم والحوارات · الإعدادات", zh-CN: "菜单与对话框 · 设置" }
       source: src/lib.rs
   # Diagnostics: the toolkit compiled into the binary, the OS and device, the app id, the live
@@ -644,16 +644,16 @@ flow:
   - navigate: { route: settings/diagnostics }
   - wait_for: { id: about_toolkit }
   - assert_visible: { id: about_lifecycle }
-  - screenshot: { name: diagnostics, window: day.preferences, skip_on: [uikit, mdc, arkui, dom] }
-  - screenshot: { name: diagnostics, only_on: [uikit, mdc, arkui, dom] }
+  - screenshot: { name: diagnostics, window: day.preferences, skip_on: [uikit, material, arkui, dom] }
+  - screenshot: { name: diagnostics, only_on: [uikit, material, arkui, dom] }
   # web-dom presents the settings surface as a cover window (docs/settings.md, the emulated
   # app menu reaches it), so it closes like the desktop window: a cover left up would keep
   # the focus, and the toolbar commands below would resolve their per-window state in it.
-  - close_window: { window: day.preferences, skip_on: [uikit, mdc, arkui] }
+  - close_window: { window: day.preferences, skip_on: [uikit, material, arkui] }
   # Pop the group page where it was pushed, so the settings stack sits at its root and the
   # next section's route reads clean.
-  - nav_back: { only_on: [uikit, mdc, arkui] }
-  - wait_idle: { only_on: [uikit, mdc, arkui] }
+  - nav_back: { only_on: [uikit, material, arkui] }
+  - wait_idle: { only_on: [uikit, material, arkui] }
 
   # Toolbars (docs/toolbars.md): the main window's toolbar, so the assertions read the
   # page's live bindings rather than any on-page widget. `toolbar:` drives an item through the
@@ -678,15 +678,15 @@ flow:
   # the two you forget, which is exactly how linux-qt and then windows-qt each failed CI in turn.
   # `skip_on`/`only_on` accept either form (day-cli script.rs), so prefer the toolkit.
   # Skipped on Android too: an app-level appearance change there recreates the Activity, and
-  # day-mdc does not yet survive a second nativeStart in one process (DayActivity.java): the
+  # day-toolkit-material does not yet survive a second nativeStart in one process (DayActivity.java): the
   # sidebar mounts twice and every navigation after it is ambiguous. The CI variants cover dark
   # mode on Android by launching with DAY_THEME set instead.
-  - toolbar: { item: tb_theme, index: 2, skip_on: [mdc, dom, qt] }
+  - toolbar: { item: tb_theme, index: 2, skip_on: [material, dom, qt] }
   - wait_idle:
-  - assert_text: { id: toolbar_appearance, key: cmd_appearance_dark, skip_on: [mdc, dom, qt] }
-  - toolbar: { item: tb_theme, index: 1, skip_on: [mdc, dom, qt] }
+  - assert_text: { id: toolbar_appearance, key: cmd_appearance_dark, skip_on: [material, dom, qt] }
+  - toolbar: { item: tb_theme, index: 1, skip_on: [material, dom, qt] }
   - wait_idle:
-  - assert_text: { id: toolbar_appearance, key: cmd_appearance_system, skip_on: [mdc, dom, qt] }
+  - assert_text: { id: toolbar_appearance, key: cmd_appearance_system, skip_on: [material, dom, qt] }
   # The recorder's transport (docs/agent.md), driven from the Script menu it lives in: it acts on
   # the app's recording rather than on any page, so it earns no room on a page's bar. Record two
   # taps that stay on this page (a replay that navigated away would take the readout with it),
@@ -705,7 +705,7 @@ flow:
   # jump is not itself recorded; `record::stop()` unhooks the nav observer before it runs.
   - assert_route: { route: scripting, skip_on: [harmony-arkui, web-dom] }
   # Two taps have only ONE inter-step delay. At the default 0.25 s, playback can finish
-  # between the Playing assertion and Pause on a loaded runner (android-mdc, light-en).
+  # between the Playing assertion and Pause on a loaded runner (android-material, light-en).
   # Give the transport commands headroom through the real setting, then restore it below.
   - input: { id: scripting_delay, text: "5", skip_on: [harmony-arkui, web-dom] }
   - wait_idle:
@@ -740,31 +740,31 @@ flow:
   # `key:`, not a literal: the search field filters the sidebar on localized titles, so an English
   # query drops every row under `--locale fr` (and with them this very page). Typing a title matches
   # itself: a query is compared against each word start, and the start at 0 is the whole title.
-  - toolbar: { item: day::search, key: nav_toolbars, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - toolbar: { item: day::search, key: nav_toolbars, skip_on: [ios-uikit, android-material, harmony-arkui, web-dom] }
   # The star is the shared Star command (src/commands.rs), not a demo toggle: it stars whichever
   # page is showing (here, Toolbars), and the page's readout mirrors its state.
   - toolbar: { item: tb_star, on: true }
   - wait_idle:
-  - assert_text: { id: toolbar_query, key: nav_toolbars, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - assert_text: { id: toolbar_query, key: nav_toolbars, skip_on: [ios-uikit, android-material, harmony-arkui, web-dom] }
   - assert_text: { id: toolbar_star_state, key: toolbar_on }
   # One command, four surfaces (docs/menus.md, docs/toolbars.md): the App menu's item carries the
   # state in its title, so with this page starred it must now read "Unstar". Invoking it unstars,
   # and the toolbar's readout follows without the two knowing about each other. `key:` rather
   # than a literal so the step survives the localized runs.
-  - menu: { key: cmd_unstar, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - menu: { key: cmd_unstar, skip_on: [ios-uikit, android-material, harmony-arkui, web-dom] }
   - wait_idle:
-  - assert_text: { id: toolbar_star_state, key: toolbar_off, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - assert_text: { id: toolbar_star_state, key: toolbar_off, skip_on: [ios-uikit, android-material, harmony-arkui, web-dom] }
   # …and back, from the menu this time, leaving the page starred for the screenshot below.
-  - menu: { key: cmd_star, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - menu: { key: cmd_star, skip_on: [ios-uikit, android-material, harmony-arkui, web-dom] }
   - wait_idle:
-  - assert_text: { id: toolbar_star_state, key: toolbar_on, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - assert_text: { id: toolbar_star_state, key: toolbar_on, skip_on: [ios-uikit, android-material, harmony-arkui, web-dom] }
   # Screenshot (docs/window-image.md), from the View menu: the command captures the window
   # in-process first and only opens the save picker once it has bytes, so the picker appearing at
   # all is what proves the capture worked; a failed capture returns early and presents nothing.
   # Dismissed rather than saved: where the shot lands is the user's business, not a walkthrough's.
-  - menu: { id: cmd_screenshot, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
-  - assert_presented: { skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
-  - respond: { dismiss: true, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - menu: { id: cmd_screenshot, skip_on: [ios-uikit, android-material, harmony-arkui, web-dom] }
+  - assert_presented: { skip_on: [ios-uikit, android-material, harmony-arkui, web-dom] }
+  - respond: { dismiss: true, skip_on: [ios-uikit, android-material, harmony-arkui, web-dom] }
   # Adding an item is just a different list: tick the switch, then the new item is drivable,
   # which the `toolbar:` step itself proves, since it fails on an absent or disabled item.
   #
@@ -775,31 +775,31 @@ flow:
   # ("headless Linux has no system clipboard"), which is why the strict assertion lives in
   # dayscript/clipboard-roundtrip.yaml, gated to macOS + Android. Asserting it here made linux-gtk
   # and linux-qt fail on a capability the step is not about.
-  - toggle: { id: toolbar_extra_switch, value: true, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - toggle: { id: toolbar_extra_switch, value: true, skip_on: [ios-uikit, android-material, harmony-arkui, web-dom] }
   - wait_idle:
-  - toolbar: { item: tb_extra, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - toolbar: { item: tb_extra, skip_on: [ios-uikit, android-material, harmony-arkui, web-dom] }
   # Disabling one item patches only that item; `toolbar:` refuses a disabled command.
-  - toggle: { id: toolbar_enabled_switch, value: false, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - toggle: { id: toolbar_enabled_switch, value: false, skip_on: [ios-uikit, android-material, harmony-arkui, web-dom] }
   - wait_idle:
-  - tap: { id: toolbar_clear_search, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - tap: { id: toolbar_clear_search, skip_on: [ios-uikit, android-material, harmony-arkui, web-dom] }
   - wait_idle:
-  - assert_text: { id: toolbar_query, key: toolbar_query_empty, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - assert_text: { id: toolbar_query, key: toolbar_query_empty, skip_on: [ios-uikit, android-material, harmony-arkui, web-dom] }
   # The search field also filters the sidebar by localized word-prefix (docs/localization.md
   # "Searching"). Navigating while filtered proves the row set and the selection can change
   # together without stranding the detail pane, the bug the nav derive effect now closes. The
   # query is the Stack destination's own localized title, so the row it navigates to is in the
-  # filtered set in every locale; the word-prefix behaviour itself is pinned by day-l10n's tests.
-  - toolbar: { item: day::search, key: nav_stack, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  # filtered set in every locale; the word-prefix behaviour itself is pinned by day-localization's tests.
+  - toolbar: { item: day::search, key: nav_stack, skip_on: [ios-uikit, android-material, harmony-arkui, web-dom] }
   - wait_idle:
-  - navigate: { route: stack, skip_on: [ios-uikit, android-mdc, harmony-arkui] }
-  - assert_route: { route: stack, skip_on: [ios-uikit, android-mdc, harmony-arkui] }
-  - assert_visible: { id: stack_root, skip_on: [ios-uikit, android-mdc, harmony-arkui] }
+  - navigate: { route: stack, skip_on: [ios-uikit, android-material, harmony-arkui] }
+  - assert_route: { route: stack, skip_on: [ios-uikit, android-material, harmony-arkui] }
+  - assert_visible: { id: stack_root, skip_on: [ios-uikit, android-material, harmony-arkui] }
   # A visual record only (untitled): the page's gallery row is the `toolbars` shot below.
   # Clearing the query restores every row, and the page opened while filtered is still there.
-  - toolbar: { item: day::search, text: "", skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - toolbar: { item: day::search, text: "", skip_on: [ios-uikit, android-material, harmony-arkui, web-dom] }
   - wait_idle:
-  - assert_route: { route: stack, skip_on: [ios-uikit, android-mdc, harmony-arkui] }
-  - navigate: { route: toolbars, skip_on: [ios-uikit, android-mdc, harmony-arkui] }
+  - assert_route: { route: stack, skip_on: [ios-uikit, android-material, harmony-arkui] }
+  - navigate: { route: toolbars, skip_on: [ios-uikit, android-material, harmony-arkui] }
   - wait_idle:
   - screenshot:
       name: toolbars
@@ -817,15 +817,15 @@ flow:
   # run stays in the run's locale. It runs after the sidebar search above is cleared: the filter
   # is a word-prefix match against the rows' live titles, and a query typed in the run's locale
   # matches nothing once every title is accented, and the filtered-out page would unmount.
-  - menu: { id: cmd_pseudo_locale, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - menu: { id: cmd_pseudo_locale, skip_on: [ios-uikit, android-material, harmony-arkui, web-dom] }
   - wait_idle:
   # The key resolves in the locale now in force (the pseudo one), so the label must have
   # re-rendered under it to match.
-  - assert_text: { id: toolbar_star_state, key: toolbar_on, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
-  - screenshot: { name: toolbars-pseudo-locale, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
-  - menu: { id: cmd_pseudo_locale, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - assert_text: { id: toolbar_star_state, key: toolbar_on, skip_on: [ios-uikit, android-material, harmony-arkui, web-dom] }
+  - screenshot: { name: toolbars-pseudo-locale, skip_on: [ios-uikit, android-material, harmony-arkui, web-dom] }
+  - menu: { id: cmd_pseudo_locale, skip_on: [ios-uikit, android-material, harmony-arkui, web-dom] }
   - wait_idle:
-  - assert_text: { id: toolbar_star_state, key: toolbar_on, skip_on: [ios-uikit, android-mdc, harmony-arkui, web-dom] }
+  - assert_text: { id: toolbar_star_state, key: toolbar_on, skip_on: [ios-uikit, android-material, harmony-arkui, web-dom] }
   # Unstar now that the shot has it. The starred set is written through to prefs
   # (`showcase.starred`, src/commands.rs), so a run that ends starred is a run that changed the
   # machine: the next launch opens with Toolbars sorted to the top of the sidebar, and every
@@ -1245,14 +1245,14 @@ flow:
   - assert_visible: { id: resources_numbers }
   - assert_visible: { id: resources_greeting }
   # Full-color vector art (docs/vectors.md): every other glyph here is a monochrome symbol that
-  # takes a tint, so this is the only step covering many-path authored-color art. On android-mdc
+  # takes a tint, so this is the only step covering many-path authored-color art. On android-material
   # it is a VectorDrawable rather than a raster. Driving the zoom rebuilds the glyph at the new
   # size (see resources.rs), so this also covers that the art survives a resize on every backend.
   - assert_visible: { id: vector_tiger }
   # The glyph row wraps itself now (`RowFit::Wrap`), and the two segmented pickers govern every
   # glyph in it: a weight change re-resolves each source name, a size change re-frames each cell,
   # and both go through the same keyed rebuild. Driving them covers that the row survives both,
-  # and the weight sweep is what caught android-mdc drawing nothing for an aliased weight, which
+  # and the weight sweep is what caught android-material drawing nothing for an aliased weight, which
   # `assert_visible` alone cannot see (the view has a frame either way; docs/vectors.md).
   - assert_visible: { id: resources_vectors_row }
   - select: { id: vector_weight, index: 0 }
@@ -1523,7 +1523,7 @@ flow:
   - wait_for: { id: notify_supported }
   # The permission block exists only where the OS prompts for notifications (Gate::Prompts);
   # HarmonyOS's is the per-app notification switch its system dialog sets.
-  - assert_visible: { id: notify_perm, only_on: [macos-appkit, ios-uikit, android-mdc, harmony-arkui] }
+  - assert_visible: { id: notify_perm, only_on: [macos-appkit, ios-uikit, android-material, harmony-arkui] }
   - assert_visible: { id: notify_post }
   - assert_visible: { id: notify_status }
   - assert_visible: { id: badge_supported }
@@ -1664,7 +1664,7 @@ flow:
   - assert_text: { id: files_status, text: "opened", skip_on: [web-dom] }
   - assert_text: { id: files_opened_name, key: files_opened, args: { name: "day-walkthrough.txt" }, skip_on: [web-dom] }
   - assert_not_presented:
-  # App-local file storage (docs/fs.md): day-part-fs through the async futures, the same
+  # App-local file storage (docs/fs.md): day-part-filesystem through the async futures, the same
   # steps on every target, including web-dom (OPFS). Statuses are raw, identical per locale.
   - input: { id: fs_note, text: "day-fs-demo" }
   - tap: { id: fs_save }
@@ -1686,14 +1686,14 @@ flow:
   # capture after the permission is granted out of band). The state reads `idle` while the
   # permission is undecided, `unavailable` on the iOS Simulator once it is held (no capture
   # device), and `running` on the Android emulator's virtual camera.
-  - navigate: { route: camera, only_on: [ios-uikit, android-mdc, harmony-arkui] }
-  - assert_route: { route: camera, only_on: [ios-uikit, android-mdc, harmony-arkui] }
-  - assert_visible: { id: camera_perm, only_on: [ios-uikit, android-mdc, harmony-arkui] }
-  - assert_visible: { id: camera_state, only_on: [ios-uikit, android-mdc, harmony-arkui] }
-  - assert_text: { id: camera_photo_size, key: camera_no_photo, only_on: [ios-uikit, android-mdc, harmony-arkui] }
+  - navigate: { route: camera, only_on: [ios-uikit, android-material, harmony-arkui] }
+  - assert_route: { route: camera, only_on: [ios-uikit, android-material, harmony-arkui] }
+  - assert_visible: { id: camera_perm, only_on: [ios-uikit, android-material, harmony-arkui] }
+  - assert_visible: { id: camera_state, only_on: [ios-uikit, android-material, harmony-arkui] }
+  - assert_text: { id: camera_photo_size, key: camera_no_photo, only_on: [ios-uikit, android-material, harmony-arkui] }
   - screenshot:
       name: camera
-      only_on: [ios-uikit, android-mdc, harmony-arkui]
+      only_on: [ios-uikit, android-material, harmony-arkui]
       title: { en: "Camera", fr: "Appareil photo", ar: "الكاميرا", zh-CN: "相机" }
       source: src/pages/camera.rs
 
@@ -1716,7 +1716,7 @@ flow:
   - assert_text: { id: plural_label, key: plural_items, args: { count: 1 } }
   - tap: { id: plural_add, repeat: 2 }
   - assert_text: { id: plural_label, key: plural_items, args: { count: 3 } }
-  # Collation order is per-locale (zh = pinyin), pinned in day-l10n's unit tests; here we assert
+  # Collation order is per-locale (zh = pinyin), pinned in day-localization's unit tests; here we assert
   # presence and let the per-locale screenshot grid show the reorder.
   - assert_visible: { id: fmt_sorted }
   # Live locale switch: the signal readout is a raw tag (locale-independent), then restore the
@@ -1808,7 +1808,7 @@ flow:
       source: src/pages/benchmark.rs
   - select: { id: bench_impl, index: 0, only_on: [macos-appkit, ios-uikit] }
 
-  # Crash Reporting (day-piece-break, docs/break.md): the walkthrough only visits the page (empty state);
+  # Crash Reporting (day-piece-crash-reporter, docs/break.md): the walkthrough only visits the page (empty state);
   # the actual crash + next-launch report are driven by crash.yaml / crash-report.yaml so the
   # walkthrough itself never dies mid-run. The page is hidden on web-dom (no crash reporting in a
   # browser sandbox, lib.rs `destinations`), so the section skips there.
@@ -1843,7 +1843,7 @@ flow:
   # it saying so, and Day's composed panel next to it working normally (docs/colorpicker.md).
   # Same story on harmony-arkui below.
   - assert_no_placeholders:
-      only_on: [android-mdc]
+      only_on: [android-material]
       allow: [day.piece.colorpicker]
   # iOS has no native combo-box control, so the piece ships no uikit arm; the showcase renders an
   # explanatory note beside the placeholder (apps/showcase/src/pages/controls.rs).

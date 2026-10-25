@@ -20,7 +20,7 @@ targets = [
   "linux-gtk",
   "linux-qt",
   "ios-uikit",
-  "android-mdc",
+  "android-material",
   "harmony-arkui",
   "web-dom",
 ]

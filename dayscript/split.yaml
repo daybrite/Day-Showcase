@@ -9,7 +9,7 @@ flow:
   - assert_route: { route: split }
   - assert_visible: { id: split_demo }
   - assert_text: { id: split_support, key: split_native, only_on: [appkit, gtk, qt] }
-  - assert_text: { id: split_support, key: split_composed, only_on: [uikit, mdc, arkui, dom, xaml] }
+  - assert_text: { id: split_support, key: split_composed, only_on: [uikit, material, arkui, dom, xaml] }
   - set_value: { id: split_count, value: 7 }
   - set_value: { id: split_radius, value: 36 }
   - assert_text: { id: split_readout, key: split_readout, args: { count: 7, radius: 36 } }

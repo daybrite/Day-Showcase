@@ -232,7 +232,7 @@ fn native_extras() -> Vec<(&'static str, Cursor)> {
         ("APP_STARTING", c::APP_STARTING),
     ]
 }
-#[cfg(feature = "mdc")]
+#[cfg(feature = "material")]
 fn native_extras() -> Vec<(&'static str, Cursor)> {
     use day::cursor::android as c;
     vec![
@@ -247,7 +247,7 @@ fn native_extras() -> Vec<(&'static str, Cursor)> {
     feature = "qt",
     feature = "xaml",
     feature = "winui",
-    feature = "mdc"
+    feature = "material"
 )))]
 fn native_extras() -> Vec<(&'static str, Cursor)> {
     Vec::new()

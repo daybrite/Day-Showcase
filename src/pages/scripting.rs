@@ -116,7 +116,7 @@ pub(crate) fn scripting_page() -> AnyPiece {
                 let Some(name) = names.get(*i - 1) else {
                     return;
                 };
-                if let Ok(bytes) = day_part_fs::read(&script_path(name))
+                if let Ok(bytes) = day_part_filesystem::read(&script_path(name))
                     && let Ok(text) = String::from_utf8(bytes)
                 {
                     // Loaded from a file: the buffer IS the file, so it is clean (Save disabled).
@@ -193,7 +193,7 @@ pub(crate) fn scripting_page() -> AnyPiece {
                             match current_file.get_untracked() {
                                 Some(name) => {
                                     let _ =
-                                        day_part_fs::write(&script_path(&name), content.as_bytes());
+                                        day_part_filesystem::write(&script_path(&name), content.as_bytes());
                                     baseline.set(content); // now clean
                                     status.set(crate::res::str::scripting_saved().format());
                                 }
@@ -209,7 +209,7 @@ pub(crate) fn scripting_page() -> AnyPiece {
                                         if name.is_empty() {
                                             return;
                                         }
-                                        let _ = day_part_fs::write(
+                                        let _ = day_part_filesystem::write(
                                             &script_path(&name),
                                             content.as_bytes(),
                                         );
@@ -276,7 +276,7 @@ pub(crate) fn scripting_page() -> AnyPiece {
 }
 
 // ---------------------------------------------------------------------------
-// Saved scripts: the app-container `scripts/` folder (day-part-fs), the dropdown's source, and
+// Saved scripts: the app-container `scripts/` folder (day-part-filesystem), the dropdown's source, and
 // three bundled samples the app writes on launch as a live demo of the scripting feature.
 // ---------------------------------------------------------------------------
 
@@ -325,11 +325,11 @@ fn script_path(name: &str) -> String {
 pub(crate) fn seed_sample_scripts() {
     for (name, yaml) in SAMPLES {
         let path = script_path(name);
-        if day_part_fs::read(&path).is_err() {
+        if day_part_filesystem::read(&path).is_err() {
             let normalized = day::record::steps_from_yaml(yaml)
                 .map(|steps| day::record::steps_to_yaml(&steps))
                 .unwrap_or_else(|_| (*yaml).to_string());
-            let _ = day_part_fs::write(&path, normalized.as_bytes());
+            let _ = day_part_filesystem::write(&path, normalized.as_bytes());
         }
     }
 }
@@ -337,7 +337,7 @@ pub(crate) fn seed_sample_scripts() {
 /// The saved script names (file stems), sorted: the dropdown's items. Best-effort: an unreadable
 /// folder yields an empty list, and the page still records/plays.
 fn saved_script_names() -> Vec<String> {
-    let mut names: Vec<String> = day_part_fs::list(SCRIPTS_DIR)
+    let mut names: Vec<String> = day_part_filesystem::list(SCRIPTS_DIR)
         .unwrap_or_default()
         .into_iter()
         .filter_map(|f| f.strip_suffix(".yaml").map(str::to_string))

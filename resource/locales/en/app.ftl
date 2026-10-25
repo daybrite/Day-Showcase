@@ -373,9 +373,9 @@ sound_looping = Looping
 sound_looping_none = Nothing looping
 sound_looping_clip = Looping: { $clip }
 
-# --- day-part-prefs ---
+# --- day-part-preferences ---
 nav_prefs = Preferences
-prefs_caption = Persist a string across launches with day-part-prefs.
+prefs_caption = Persist a string across launches with day-part-preferences.
 prefs_placeholder = Value to remember
 prefs_save = Save
 prefs_load = Load
@@ -432,7 +432,7 @@ tweaks_tooltip_caption = day-tweak-tooltip — AppKit, GTK, Android: a native he
 tweaks_tooltip_label = Auto-save
 tweaks_tooltip_hint = Your work is saved automatically. Hover (or long-press on Android) for details.
 tweaks_ticks_title = Slider tick marks
-tweaks_ticks_caption = day-tweak-slider-tickmarks — AppKit, GTK, Android, Qt, XAML, ArkUI: native ticks, snapping where the platform supports it. The tweaked slider snaps; the stock one glides.
+tweaks_ticks_caption = day-tweak-slider-tick-marks — AppKit, GTK, Android, Qt, XAML, ArkUI: native ticks, snapping where the platform supports it. The tweaked slider snaps; the stock one glides.
 tweaks_ref_title = NativeRef liveness
 tweaks_ref_caption = A NativeRef reaches the tweaked slider after mount; unmount it and the ref clears instead of dangling.
 tweaks_ref_live = ref: live
@@ -747,7 +747,7 @@ files_initial_content =
     Hello from Day!
     Edit me, then Save.
 
-# Crash Reporting page (day-piece-break, docs/break.md)
+# Crash Reporting page (day-piece-crash-reporter, docs/break.md)
 nav_crash = Crash Reporting
 crash_trigger_section = Trigger a crash
 crash_report_section = Last crash report
@@ -862,7 +862,7 @@ tab_dynamic_remove = Remove tab
 
 # App-local file storage (services page, docs/fs.md).
 storage_title = Local files
-storage_caption = The day-part-fs part stores app-private files on every target — real files natively, OPFS in the browser.
+storage_caption = The day-part-filesystem part stores app-private files on every target — real files natively, OPFS in the browser.
 storage_placeholder = Text to store
 storage_save = Save file
 storage_load = Load

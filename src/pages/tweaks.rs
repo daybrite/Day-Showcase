@@ -1,7 +1,7 @@
 use crate::composition::Card;
 use day::prelude::*;
 use day_tweak_button_bezel::{Bezel, ButtonBezelTweak};
-use day_tweak_slider_tickmarks::{SliderTickmarksTweak, TickPosition, Tickmarks};
+use day_tweak_slider_tick_marks::{SliderTickmarksTweak, TickPosition, Tickmarks};
 use day_tweak_tooltip::TooltipTweak;
 
 use crate::widgets::heading;
@@ -47,7 +47,7 @@ pub(crate) fn tweaks_page() -> AnyPiece {
     .align(HAlign::Leading)
     .modifier(Card);
 
-    // day-tweak-slider-tickmarks: the full-range tweak: six toolkits, incl. its own Qt/XAML/
+    // day-tweak-slider-tick-marks: the full-range tweak: six toolkits, incl. its own Qt/XAML/
     // ArkUI native code. The tweaked slider snaps to its marks where the platform supports it.
     let ticks_card = column((
         label(crate::res::str::tweaks_ticks_title()).font(Font::Headline),
@@ -176,7 +176,7 @@ fn tweaked_label(selectable: bool, seen: Signal<String>) -> impl Piece {
     let l = if selectable { l.selectable() } else { l };
     #[cfg(feature = "appkit")]
     let l = {
-        use day_appkit::AppKitExt;
+        use day_toolkit_appkit::AppKitExt;
         l.appkit(move |view, class, _mtm| {
             seen.set(class.to_string());
             // View-level surface, because alpha lands identically on any backing class.
@@ -185,7 +185,7 @@ fn tweaked_label(selectable: bool, seen: Signal<String>) -> impl Piece {
     };
     #[cfg(feature = "uikit")]
     let l = {
-        use day_uikit::UiKitExt;
+        use day_toolkit_uikit::UiKitExt;
         l.uikit(move |view, class, _mtm| {
             seen.set(class.to_string());
             view.setAlpha(0.55);

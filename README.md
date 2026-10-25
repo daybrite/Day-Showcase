@@ -100,7 +100,7 @@ every target, in both themes and all four locales, and the captures it takes are
 
 | Web · DOM | Android · Material | HarmonyOS · ArkUI |
 |:---:|:---:|:---:|
-| <kbd><img src="https://showcase.daybrite.dev/gallery/web-dom/light/menus.png" width="300" alt="Menus and dialogs in the browser"></kbd> | <kbd><img src="https://showcase.daybrite.dev/gallery/android-mdc/phone/light/menus.png" width="150" alt="Menus and dialogs on Android"></kbd> | <kbd><img src="https://showcase.daybrite.dev/gallery/harmony-arkui/phone/light/menus.png" width="150" alt="Menus and dialogs on HarmonyOS"></kbd> |
+| <kbd><img src="https://showcase.daybrite.dev/gallery/web-dom/light/menus.png" width="300" alt="Menus and dialogs in the browser"></kbd> | <kbd><img src="https://showcase.daybrite.dev/gallery/android-material/phone/light/menus.png" width="150" alt="Menus and dialogs on Android"></kbd> | <kbd><img src="https://showcase.daybrite.dev/gallery/harmony-arkui/phone/light/menus.png" width="150" alt="Menus and dialogs on HarmonyOS"></kbd> |
 
 ## Build from a clone
 
@@ -111,7 +111,7 @@ target the app ships is listed in `Day.toml`.
 day doctor                       # toolchains present and missing, with fixes
 day launch -t macos-appkit       # build + run
 day launch -t ios-uikit          # needs a booted Simulator
-day launch -t android-mdc        # needs a JDK and a running emulator or device
+day launch -t android-material        # needs a JDK and a running emulator or device
 day launch -t web-dom            # serves the WebAssembly build locally
 ```
 

@@ -37,7 +37,7 @@ CURRENT_PROJECT_VERSION = 1
 // ===========================================================================
 // Platform
 // ===========================================================================
-// The minimum iOS version: day-uikit's own floor. `day build` raises it per-invocation when a
+// The minimum iOS version: day-toolkit-uikit's own floor. `day build` raises it per-invocation when a
 // Day piece requires a newer floor, so raise it here only when your own code needs it.
 IPHONEOS_DEPLOYMENT_TARGET = 15.0
 // 1 = iPhone, 2 = iPad. Drop the 2 for an iPhone-only app.

@@ -17,16 +17,16 @@ build = "build.rs"
 # through `day build`, which passes `--no-default-features --features <backend>` (see day-cli), so the
 # mock default is stripped and never unifies with the selected backend.
 default = ["mock"]
-appkit = ["day/appkit", "dep:day-appkit", "day-tweak-button-bezel/appkit", "day-tweak-tooltip/appkit", "day-tweak-slider-tickmarks/appkit", "day-tweak-tree-style/appkit"]
-gtk = ["day/gtk", "day-tweak-tooltip/gtk", "day-tweak-slider-tickmarks/gtk", "day-tweak-tree-style/gtk"]
-qt = ["day/qt", "day-tweak-slider-tickmarks/qt"]
-uikit = ["day/uikit", "dep:day-uikit"]
-mdc = ["day/mdc", "day-tweak-tooltip/mdc", "day-tweak-slider-tickmarks/mdc"]
-xaml = ["day/xaml", "day-tweak-slider-tickmarks/xaml"]
+appkit = ["day/appkit", "dep:day-toolkit-appkit", "day-tweak-button-bezel/appkit", "day-tweak-tooltip/appkit", "day-tweak-slider-tick-marks/appkit", "day-tweak-tree-style/appkit"]
+gtk = ["day/gtk", "day-tweak-tooltip/gtk", "day-tweak-slider-tick-marks/gtk", "day-tweak-tree-style/gtk"]
+qt = ["day/qt", "day-tweak-slider-tick-marks/qt"]
+uikit = ["day/uikit", "dep:day-toolkit-uikit"]
+material = ["day/material", "day-tweak-tooltip/material", "day-tweak-slider-tick-marks/material"]
+xaml = ["day/xaml", "day-tweak-slider-tick-marks/xaml"]
 # WinUI 3 (windows-winui): the xaml backend built against the Windows App SDK. The tweak crates
 # with a WinUI half are enabled as on xaml.
-winui = ["day/winui", "day-tweak-slider-tickmarks/winui"]
-arkui = ["day/arkui", "day-tweak-slider-tickmarks/arkui"]
+winui = ["day/winui", "day-tweak-slider-tick-marks/winui"]
+arkui = ["day/arkui", "day-tweak-slider-tick-marks/arkui"]
 # The web backend (day/DESIGN.md §9). No tweak crate has a dom renderer yet, so the line is bare.
 dom = ["day/dom"]
 mock = ["day/mock"]
@@ -56,7 +56,7 @@ serde_json = "1"
 # Consent-first crash reporting (docs/break.md): the Crash Reporting page arms it and shows the
 # previous run's report. Optional in general; here it demonstrates the whole flow. Its consent UI
 # (`ui` feature, on by default) is built from ordinary pieces, so no per-backend wiring is needed.
-day-piece-break = { git = "https://github.com/daybrite/day-piece-break" }
+day-piece-crash-reporter = { git = "https://github.com/daybrite/day-piece-break" }
 # A headless capability crate (no UI Piece): app Rust code calls day_part_device::battery::status()
 # directly.
 day-part-device = { git = "https://github.com/daybrite/day.git" }
@@ -77,15 +77,15 @@ day-part-connectivity = { git = "https://github.com/daybrite/day.git" }
 # platform's chooser and Day's composed panel, which is the same picker on every target.
 # The styled-text editor (docs/texteditor.md): the Text areas page edits a formatted note and a
 # live-highlighted code sample in each platform's rich-text view.
-day-piece-texteditor = { git = "https://github.com/daybrite/day.git" }
+day-piece-text-editor = { git = "https://github.com/daybrite/day.git" }
 # Tweaks (docs/tweaks.md): packaged per-toolkit configuration of built-in pieces.
 day-tweak-button-bezel = { git = "https://github.com/daybrite/day.git" }
 # The Apple toolkit crates directly, for the Tweaks page's inline `.appkit(…)`/`.uikit(…)`
 # label card (docs/tweaks.md "Per-toolkit access"); each rides only its backend's feature.
-day-appkit = { git = "https://github.com/daybrite/day.git", optional = true }
-day-uikit = { git = "https://github.com/daybrite/day.git", optional = true }
+day-toolkit-appkit = { git = "https://github.com/daybrite/day.git", optional = true }
+day-toolkit-uikit = { git = "https://github.com/daybrite/day.git", optional = true }
 day-tweak-tooltip = { git = "https://github.com/daybrite/day.git" }
-day-tweak-slider-tickmarks = { git = "https://github.com/daybrite/day.git" }
+day-tweak-slider-tick-marks = { git = "https://github.com/daybrite/day.git" }
 # The Tree page's sidebar styling (docs/tweaks.md): native no-ops outside appkit/gtk.
 day-tweak-tree-style = { git = "https://github.com/daybrite/day.git" }
 day-piece-webview = { git = "https://github.com/daybrite/day-piece-webview.git" }
@@ -95,13 +95,13 @@ day-part-haptics = { git = "https://github.com/daybrite/day.git" }
 day-part-sound = { git = "https://github.com/daybrite/day.git" }
 # Local notifications (docs/notify.md): the Platform Services page posts and schedules them.
 day-part-local-notify = { git = "https://github.com/daybrite/day.git" }
-# day-part-prefs is no longer a direct dependency: it arrives through the day facade as
+# day-part-preferences is no longer a direct dependency: it arrives through the day facade as
 # `day::prefs` (docs/prefs.md).
 day-piece-settings = { git = "https://github.com/daybrite/day.git" }
 day-part-http = { git = "https://github.com/daybrite/day.git", features = ["reqwest"] }
 # The download manager (docs/downloads.md): the Networking page's pausable, resumable download.
 day-part-downloads = { git = "https://github.com/daybrite/day.git" }
-day-part-fs = { git = "https://github.com/daybrite/day.git" }
+day-part-filesystem = { git = "https://github.com/daybrite/day.git" }
 # The keychain and the biometric prompt (docs/keychain.md, docs/biometrics.md): the Security page
 # stores an item at each protection level and shows the platform's own verification dialog.
 day-part-keychain = { git = "https://github.com/daybrite/day.git" }
