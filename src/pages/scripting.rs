@@ -192,8 +192,10 @@ pub(crate) fn scripting_page() -> AnyPiece {
                             let content = buf.get_untracked();
                             match current_file.get_untracked() {
                                 Some(name) => {
-                                    let _ =
-                                        day_part_filesystem::write(&script_path(&name), content.as_bytes());
+                                    let _ = day_part_filesystem::write(
+                                        &script_path(&name),
+                                        content.as_bytes(),
+                                    );
                                     baseline.set(content); // now clean
                                     status.set(crate::res::str::scripting_saved().format());
                                 }
