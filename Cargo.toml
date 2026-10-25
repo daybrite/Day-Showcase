@@ -48,7 +48,7 @@ crate-type = ["rlib"]
 day-build = { git = "https://github.com/daybrite/day.git" }
 
 [dependencies]
-day = { git = "https://github.com/daybrite/day.git", features = ["model"] }
+day = { package = "day-app", git = "https://github.com/daybrite/day.git", features = ["model"] }
 # The Content List page persists its items as one JSON blob in `day::prefs`, exactly as the
 # scaffold it copies does (src/pages/content_list/model.rs).
 serde = { version = "1", features = ["derive"] }
