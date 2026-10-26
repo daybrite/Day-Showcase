@@ -42,15 +42,22 @@ default = ["localization", "text", "canvas", "controls", "dates", "tree"]
 apple-category = "DEVELOPER_TOOLS"
 
 [storefront.ios-uikit.apple-app-store.screenshots]
-iphone = ["canvas", { name = "controls", theme = "dark" }, "text", "textareas-code", "dates", "animation", "tree", "localization"]
-ipad = ["canvas", "layout", "grid", "text", { name = "dates", theme = "dark" }, "toolbars", "localization"]
+iphone = [{ name = "home", theme = "light" }, "charts", { name = "canvas", theme = "dark" }, "webview", { name = "lottie", theme = "dark" }, "animation", { name = "textareas-code", theme = "dark" }, "localization", { name = "home-bottom", theme = "dark" }]
+ipad = [{ name = "home", theme = "light" }, "charts", { name = "canvas", theme = "dark" }, "webview", { name = "lottie", theme = "dark" }, "physics", { name = "textareas-code", theme = "dark" }, "localization", { name = "home-bottom", theme = "dark" }]
 
-[storefront.ios-uikit.apple-app-store.screenshots.zh-CN]
-iphone = ["localization", "text", "canvas", { name = "controls", theme = "dark" }, "dates", "animation", "tree", "textareas-code"]
+# Keep the approved store selection ahead of the website's locale-specific lists.
+[storefront.ios-uikit.apple-app-store.screenshots.fr]
+iphone = [{ name = "home", theme = "light" }, "charts", { name = "canvas", theme = "dark" }, "webview", { name = "lottie", theme = "dark" }, "animation", { name = "textareas-code", theme = "dark" }, "localization", { name = "home-bottom", theme = "dark" }]
+ipad = [{ name = "home", theme = "light" }, "charts", { name = "canvas", theme = "dark" }, "webview", { name = "lottie", theme = "dark" }, "physics", { name = "textareas-code", theme = "dark" }, "localization", { name = "home-bottom", theme = "dark" }]
+
+[storefront.ios-uikit.apple-app-store.screenshots.ar]
+iphone = [{ name = "home", theme = "light" }, "charts", { name = "canvas", theme = "dark" }, "webview", { name = "lottie", theme = "dark" }, "animation", { name = "textareas-code", theme = "dark" }, "localization", { name = "home-bottom", theme = "dark" }]
+ipad = [{ name = "home", theme = "light" }, "charts", { name = "canvas", theme = "dark" }, "webview", { name = "lottie", theme = "dark" }, "physics", { name = "textareas-code", theme = "dark" }, "localization", { name = "home-bottom", theme = "dark" }]
 
 [storefront.ios-uikit.apple-app-store.metadata]
-subtitle = "Native UIKit, written in Rust"
-promo = "Thirty-five live demos of the Day framework, from controls and layout to sensors and crash reporting, all drawn by UIKit."
+subtitle = "Explore native apps with Day"
+promo = "Build native mobile and desktop apps from one Rust codebase. Explore Day's capabilities on your own device, with working examples and source code."
+release-notes = "Adds support for iPhone Duo."
 keywords = ["rust", "native", "uikit", "swiftui", "widgets", "framework", "cross-platform", "demo", "developer", "toolkit"]
 
 [storefront.ios-uikit.apple-app-store.metadata.fr]
@@ -80,15 +87,17 @@ the prompts look, and declining them leaves the rest of the app usable.
 """
 
 [storefront.android-material.google-play-store.screenshots]
-default = ["canvas", "controls", "text", "textareas-code", "dates", "animation", "tree", "localization"]
-tablet = ["canvas", "layout", "grid", "text", { name = "controls", theme = "dark" }, "dates", "list", "localization"]
+default = [{ name = "home", theme = "light" }, "charts", { name = "canvas", theme = "dark" }, "webview", "animation", { name = "textareas-code", theme = "dark" }, "localization", { name = "home-bottom", theme = "dark" }]
+tablet = [{ name = "home", theme = "light" }, "charts", { name = "canvas", theme = "dark" }, "webview", "animation", { name = "textareas-code", theme = "dark" }, "localization", { name = "home-bottom", theme = "dark" }]
 
-[storefront.android-material.google-play-store.screenshots.zh-CN]
-default = ["localization", "text", "canvas", "controls", "dates", "animation", "tree", "textareas-code"]
+# Keep the approved store selection ahead of the website's locale-specific lists.
+[storefront.android-material.google-play-store.screenshots.fr]
+default = [{ name = "home", theme = "light" }, "charts", { name = "canvas", theme = "dark" }, "webview", "animation", { name = "textareas-code", theme = "dark" }, "localization", { name = "home-bottom", theme = "dark" }]
+tablet = [{ name = "home", theme = "light" }, "charts", { name = "canvas", theme = "dark" }, "webview", "animation", { name = "textareas-code", theme = "dark" }, "localization", { name = "home-bottom", theme = "dark" }]
 
 [storefront.android-material.google-play-store.metadata]
-short = "Live demos of the Day framework: Material widgets from one Rust codebase."
-release-notes = "First Google Play release. 35 pages in eight groups, from controls and layout to sensors and crash reporting, in English, French, Arabic, and Simplified Chinese."
+short = "Explore Day, the framework for native mobile and desktop apps built in Rust."
+release-notes = "Adds support for foldable devices."
 
 [storefront.android-material.google-play-store.metadata.fr]
 short = "Démos en direct du framework Day : des widgets Material, une seule base Rust."
@@ -112,10 +121,14 @@ default = ["localization", "text", "canvas", "menus", "toolbars", "tree"]
 apple-category = "DEVELOPER_TOOLS"
 
 [storefront.macos-appkit.mac-app-store.screenshots]
-default = ["canvas", "controls", "text", "textareas-code", "menus", "toolbars", "tree", { name = "dates", theme = "dark" }, "localization"]
+default = ["charts", { name = "canvas", theme = "dark" }, "webview", "physics", "animation", { name = "textareas-code", theme = "dark" }, "localization"]
+
+# Keep the approved store selection ahead of the website's locale-specific lists.
+[storefront.macos-appkit.mac-app-store.screenshots.ar]
+default = ["charts", { name = "canvas", theme = "dark" }, "webview", "physics", "animation", { name = "textareas-code", theme = "dark" }, "localization"]
 
 [storefront.macos-appkit.mac-app-store.metadata]
-subtitle = "Native AppKit, written in Rust"
+subtitle = "Explore native apps with Day"
 
 [storefront.linux-gtk.screenshots]
 default = ["canvas", "text", "resources", "list", "menus", "tree"]
@@ -159,27 +172,29 @@ default = ["canvas", "controls", "text", "layout", { name = "list", theme = "dar
 # `metadata` table below specializes the wording for that storefront alone.
 [storefront.metadata]
 name = "Day Showcase"
-subtitle = "Day App Dev Framework Demo"
-short = "Live demos of the Day framework: native widgets from one Rust codebase."
+subtitle = "Explore native apps with Day"
+short = "Explore Day, the framework for native mobile and desktop apps built in Rust."
 description = """
-Day Showcase is the demo app for Day (daybrite.dev), a framework for creating mobile and desktop apps in Rust.
+Day is an application development framework for creating native mobile and desktop apps from one Rust codebase. Build for handsets, tablets, foldables, and desktops using each platform's native controls and system features.
 
-Each screen in the app is a demonstration of one part of the framework:
+Day Showcase lets you try the framework's capabilities on your own device. Each page is a working example you can interact with, change, and learn from.
 
-Controls: buttons, switches, sliders, steppers, pickers, text fields, a multi-line editor, date and time pickers, keyboard focus, and pointer cursors.
-Layout: rows, columns, and layers under each fit policy, a split with a draggable divider, and a grid with spanning cells.
-Navigation & chrome: a push stack, tabs, menus and dialogs, the window toolbar, and a content list that opens each item in an editor.
-Data: a list and a tree over live models, and queries against a local store.
-Graphics & media: shapes, paths, gradients, and transforms on a canvas, animation, Lottie playback, bundled resources, media playback, a map, and a web view.
-Platform: battery and connectivity, accelerometer, gyroscope, and magnetometer traces, HTTP requests, notifications and the app badge, speech and haptics, files, the keychain, and the biometric prompt.
-App & tooling: localization, scripting, tweaks, a benchmark against SwiftUI, and crash reporting.
+Explore what you can build with Day:
 
-The toolbar on every page has a code button that opens that page's Rust source on GitHub, so you can read the code beside the result. The star button pins a page to the top of the list, and the theme button switches the appearance.
+• Native interfaces: try navigation, menus, and layouts that adapt to phones, tablets, and desktop windows.
+• Animation and physics: change timing curves, animate shapes, and send glass marbles bouncing across the screen.
+• Interactive charts: explore line, bar, area, scatter, and heatmap charts, with live data changes and selection.
+• Lottie animations: play vector animations, switch between examples, and adjust playback speed.
+• Embedded web views: use a website inside the app and follow links between web content and native screens.
+• Custom graphics: experiment with gradients, paths, gauges, and drawing that responds to touch.
+• Rich text and code: preview Markdown, format text, and edit code with syntax highlighting.
+• Live data: search and filter a local database, and watch lists update as their data changes.
+• Media and device features: play video, try speech and haptics, and watch live sensor readings.
+• Languages and layouts: switch between English, French, Arabic, and Simplified Chinese, including right-to-left layouts, and compare light and dark themes.
 
-The app is translated into English, French, Arabic, and Simplified Chinese. Switching the language on the Localization page updates every page in place, and Arabic mirrors the layout.
+Tap the code button on any page to see how it was built. Star your favorites to keep them at the top of the navigation list.
 
-Day and this app are open source. The framework is at github.com/daybrite/day and the app's source is at github.com/daybrite/Day-Showcase. Each page in the app contains a link to the underlying source code.
-
+Day and Day Showcase are open source. Learn about the framework at daybrite.dev, or browse the app's code at github.com/daybrite/Day-Showcase.
 """
 keywords = ["rust", "native", "ui", "widgets", "framework", "cross-platform", "uikit", "demo", "sample", "developer", "toolkit"]
 release-notes = "First App Store release. 35 pages in eight groups, from controls and layout to sensors and crash reporting, in English, French, Arabic, and Simplified Chinese."

@@ -10,11 +10,19 @@ description: Navigate every destination, exercise every control, take localized 
 flow:
   - wait_for: { id: nav }
   - memory_usage: # Startup baseline.
+  - navigate: { route: "" }
+  - scroll_to: { id: nav_menu, edge: top, only_on: [ios-uikit, android-material] }
   - screenshot:
       name: home
       title: { en: "Home", fr: "Accueil", ar: "الرئيسية", zh-CN: "主页" }
       caption: { en: "The app's sidebar of demo pages.", fr: "La barre latérale des pages de démonstration.", ar: "الشريط الجانبي لصفحات العرض التوضيحي.", zh-CN: "演示页面的侧边栏。" }
       source: src/lib.rs
+
+  # Store listings bookend the feature pages with the navigation list in light and dark.
+  - scroll_to: { id: nav_menu, edge: bottom, only_on: [ios-uikit, android-material] }
+  - assert_route: { route: "", only_on: [ios-uikit, android-material] }
+  - screenshot: { name: home-bottom, only_on: [ios-uikit, android-material] }
+  - scroll_to: { id: nav_menu, edge: top, only_on: [ios-uikit, android-material] }
 
   # ---------------------------------------------------------------------------------------------
   # Overview
@@ -1172,11 +1180,16 @@ flow:
   - select: { id: charts_gallery_picker, index: 10 }
   - wait_for: { id: scatter }
   - assert_text: { id: charts_example_title, key: day_piece_charts_gallery::ex_scatter }
-  - pause: { secs: 1.0, animation: true } # normal runs exercise the entrance
+  # Show Stacked areas in the store capture; keep the scatter plot for the export checks.
+  - select: { id: charts_gallery_picker, index: 4 }
+  - wait_for: { id: area_stacked }
+  - pause: { secs: 1.0, animation: true }
   - screenshot:
       name: charts
       title: { en: "Charts", fr: "Graphiques", ar: "المخططات", zh-CN: "图表" }
       source: src/pages/charts.rs
+  - select: { id: charts_gallery_picker, index: 10 }
+  - wait_for: { id: scatter }
   # Export (docs/canvas.md "Exporting"): the gallery's buttons render the open page's chart with
   # the toolkit's own painter and save it; the scripted save dialog takes a temp-dir path, so the
   # bytes are really written. PNG renders everywhere but WinUI; PDF only where the platform has a
@@ -1331,12 +1344,14 @@ flow:
   - tap: { id: lottie_speed_double, only_on: [ios-uikit] }
   - assert_text: { id: lottie_speed_value, text: "2.00×", only_on: [ios-uikit] }
   # The one picker of the gallery's animations: a bound name swaps the file under the same native
-  # view, and the facts rows follow. The playground was put on pin jump above; the capture shows
-  # the heart, then the run puts pin jump back.
+  # view, and the facts rows follow. Check Heart's metadata, then capture the landing map pin.
   - assert_text: { id: lottie_model_frames, text: "93 @ 30 fps", only_on: [ios-uikit] }
   - select: { id: lottie_animation, index: 8, only_on: [ios-uikit] }
   - assert_text: { id: lottie_model_frames, text: "116 @ 60 fps", only_on: [ios-uikit] }
-  - pause: { secs: 1.0, only_on: [ios-uikit] }
+  - tap: { id: lottie_speed_one, only_on: [ios-uikit] }
+  - select: { id: lottie_animation, index: 7, only_on: [ios-uikit] }
+  - assert_text: { id: lottie_model_frames, text: "93 @ 30 fps", only_on: [ios-uikit] }
+  - pause: { secs: 1.5, only_on: [ios-uikit] }
   - screenshot:
       name: lottie
       only_on: [ios-uikit]
@@ -1394,6 +1409,10 @@ flow:
         text: '"Day mini site"',
         only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt],
       }
+  - screenshot:
+      name: webview
+      title: { en: "Web view", fr: "Vue Web", ar: "عرض الويب", zh-CN: "网页视图" }
+      source: src/pages/webview.rs
   - input:
       {
         id: webview_js,
@@ -1407,10 +1426,6 @@ flow:
         text: "TypeError: boom",
         only_on: [macos-appkit, ios-uikit, macos-qt, linux-qt],
       }
-  - screenshot:
-      name: webview
-      title: { en: "Web view", fr: "Vue Web", ar: "عرض الويب", zh-CN: "网页视图" }
-      source: src/pages/webview.rs
   # Session retention (docs/webview.md): plant a marker in the live JS context, leave the page
   # entirely, come back, and read it. It only survives if the native engine was retained rather
   # than rebuilt; a reloaded page would have a fresh, empty `window`. The bundled site finished
