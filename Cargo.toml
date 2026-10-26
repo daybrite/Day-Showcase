@@ -60,10 +60,9 @@ day-piece-crash-reporter = "0.1"
 # directly.
 day-part-device = "0.6"
 # daybridge's reference part (docs/bridge.md): one API, a different language per platform. The
-# first part in its own repository, on the same terms as the day-piece-lottie gallery below: a bare git line,
-# so Cargo.lock picks one day revision for the whole graph. `day patch --local ../day-part-speech`
-# builds against a checkout of it.
-day-part-speech = "0.1"
+# first part in its own repository, published on crates.io like the day-piece-lottie gallery
+# below. `day patch --local ../day-part-speech` builds against a checkout of it.
+day-part-speech = "0.4"
 day-part-sensors = "0.6"
 day-part-permissions = "0.6"
 day-part-location = "0.6"
@@ -114,9 +113,8 @@ day-part-auth = "0.1"
 # backend features itself: no per-backend feature line here, no animation under resource/. The
 # player renders on every backend that has an engine to draw with (Airbnb's own players on iOS
 # and Android, lottie-web in a day-piece-webview elsewhere); the page is `#[cfg]`-gated away only
-# on `macos-gtk`, which ships no WebKitGTK to host it. A bare git line like day's, so
-# Cargo.lock picks one day revision for the whole graph; `day patch --local ../day-piece-lottie`
-# builds against a checkout.
+# on `macos-gtk`, which ships no WebKitGTK to host it. From crates.io like the other pieces;
+# `day patch --local ../day-piece-lottie` builds against a checkout.
 day-piece-lottie-gallery = "0.1"
 # The Charts page mounts day-piece-charts' own example pages (its Charts Demo app is a sidebar of
 # the same ones), so the two apps show one copy of the code. A library of pages with a private
