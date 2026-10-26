@@ -29,11 +29,11 @@ usable — the page shows the denied state instead of the sensor values.
 # own. A locale table (`fr`, `zh-CN`, `ar`) specializes the lists for captures of that locale;
 # a list is a device kind, a table is a locale.
 [storefront.ios-uikit.screenshots]
-default = ["canvas", "controls", "text", "resources", "tree", "dates", "animation", "map"]
-ipad = ["canvas", "layout", "text", "grid", "resources", "tree", "map", "toolbars"]
+default = ["canvas", "controls", "text", "resources", "tree", "dates", "animation"]
+ipad = ["canvas", "layout", "text", "grid", "resources", "tree", "toolbars"]
 
 [storefront.ios-uikit.screenshots.fr]
-default = ["localization", "canvas", "controls", "text", "dates", "resources", "tree", "map"]
+default = ["localization", "canvas", "controls", "text", "dates", "resources", "tree"]
 
 [storefront.ios-uikit.screenshots.ar]
 default = ["localization", "text", "canvas", "controls", "dates", "tree"]
@@ -43,7 +43,7 @@ apple-category = "DEVELOPER_TOOLS"
 
 [storefront.ios-uikit.apple-app-store.screenshots]
 iphone = ["canvas", { name = "controls", theme = "dark" }, "text", "textareas-code", "dates", "animation", "tree", "localization"]
-ipad = ["canvas", "layout", "grid", "map", "text", { name = "dates", theme = "dark" }, "toolbars", "localization"]
+ipad = ["canvas", "layout", "grid", "text", { name = "dates", theme = "dark" }, "toolbars", "localization"]
 
 [storefront.ios-uikit.apple-app-store.screenshots.zh-CN]
 iphone = ["localization", "text", "canvas", { name = "controls", theme = "dark" }, "dates", "animation", "tree", "textareas-code"]
@@ -62,7 +62,7 @@ subtitle = "原生 UIKit，用 Rust 编写"
 promo = "Day 框架的三十五个现场演示，从控件、布局到传感器和崩溃报告，全部由 UIKit 绘制。"
 
 [storefront.ios-uikit.altstore.screenshots]
-default = ["home", "canvas", "map", "resources", { name = "lottie", theme = "dark" }]
+default = ["home", "canvas", "resources", { name = "lottie", theme = "dark" }]
 
 # --- Android --------------------------------------------------------------------------------
 [storefront.android-material.screenshots]
