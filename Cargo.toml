@@ -33,8 +33,7 @@ mock = ["day/mock"]
 
 # rlib for the desktop bin; the iOS staticlib and Android cdylib are requested explicitly by
 # the mobile pipeline via `cargo rustc --crate-type` (day-cli mobile.rs). Keeping cdylib here
-# would make every desktop build emit it too, and a Rust cdylib blows past the PE export cap
-# on the windows-gnu ABI (windows-gtk / windows-qt): "too many exported symbols, max 65535".
+# would make every desktop build emit it too.
 [lib]
 # A constant name, not the package's. Every artifact Day stages is named after the lib target
 # (`libdayapp.a` for the iOS/macOS staticlib, `libdayapp.so` for the Android cdylib, and the
@@ -115,7 +114,7 @@ day-part-auth = "0.1"
 # backend features itself: no per-backend feature line here, no animation under resource/. The
 # player renders on every backend that has an engine to draw with (Airbnb's own players on iOS
 # and Android, lottie-web in a day-piece-webview elsewhere); the page is `#[cfg]`-gated away only
-# on `macos-gtk`/`windows-gtk`, which ship no WebKitGTK to host it. A bare git line like day's, so
+# on `macos-gtk`, which ships no WebKitGTK to host it. A bare git line like day's, so
 # Cargo.lock picks one day revision for the whole graph; `day patch --local ../day-piece-lottie`
 # builds against a checkout.
 day-piece-lottie-gallery = "0.1"

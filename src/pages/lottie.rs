@@ -11,8 +11,8 @@
 //!
 //! The page exists only where the piece has an arm: the crate carries no `support()` and
 //! `Cap::Lottie` goes unanswered on every backend, so the target cfg is the gate, here and in
-//! lib.rs `destinations`. The one gap is `macos-gtk` and `windows-gtk`, which ship no WebKitGTK
-//! to host the player, so the piece would realize Day's placeholder there.
+//! lib.rs `destinations`. The one gap is `macos-gtk`, which ships no WebKitGTK to host the
+//! player, so the piece would realize Day's placeholder there.
 
 use day::prelude::*;
 use day_piece_lottie_gallery::LottiePage;
@@ -23,7 +23,7 @@ thread_local! {
     static OPEN: Signal<LottiePage> = Signal::global(LottiePage::PinJump);
 }
 
-#[cfg(not(all(feature = "gtk", any(target_os = "macos", target_os = "windows"))))]
+#[cfg(not(all(feature = "gtk", target_os = "macos")))]
 pub(crate) fn lottie_page() -> AnyPiece {
     // Imported here rather than at the top of the file: this function is the only user of
     // either, and it is compiled out on the two gtk combos below, where a file-level `use`

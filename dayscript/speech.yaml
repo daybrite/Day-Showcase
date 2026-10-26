@@ -25,9 +25,9 @@ flow:
   # dayapp workflow documents the same limitation for media); SAPI can create a voice there,
   # but Speak fails. Headless Chromium likewise reports `synthesis-failed`. Keep exercising
   # Speak/Stop and the editor on both targets, without requiring successful playback states.
-  - assert_text: { id: speech_state, key: speech_state_speaking, skip_on: [linux-gtk, linux-qt, macos-gtk, macos-qt, windows-gtk, windows-qt, windows-winui, harmony-arkui, web-dom] }
+  - assert_text: { id: speech_state, key: speech_state_speaking, skip_on: [linux-gtk, linux-qt, macos-gtk, macos-qt, windows-winui, harmony-arkui, web-dom] }
   - tap: { id: speech_stop }
   # The engine's cancellation arrives through the completion and lands as "Stopped". Targets whose
   # arm reports no end (speech-dispatcher), or that have no arm, settle on their own answer.
-  - assert_text: { id: speech_state, key: speech_state_stopped, skip_on: [linux-gtk, linux-qt, macos-gtk, macos-qt, windows-gtk, windows-qt, windows-winui, harmony-arkui, web-dom] }
+  - assert_text: { id: speech_state, key: speech_state_stopped, skip_on: [linux-gtk, linux-qt, macos-gtk, macos-qt, windows-winui, harmony-arkui, web-dom] }
   - assert_text: { id: speech_text, text: "Day speaks through the bridge." }

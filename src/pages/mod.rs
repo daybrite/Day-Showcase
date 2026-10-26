@@ -56,7 +56,7 @@ pub(crate) use grid::grid_page;
 pub(crate) use layout::layout_page;
 pub(crate) use list::list_page;
 pub(crate) use localization::localization_page;
-#[cfg(not(all(feature = "gtk", any(target_os = "macos", target_os = "windows"))))]
+#[cfg(not(all(feature = "gtk", target_os = "macos")))]
 pub(crate) use lottie::lottie_page;
 pub(crate) use media::media_page;
 pub(crate) use menus::{install_app_menu, menus_page};
