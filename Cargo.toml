@@ -45,10 +45,10 @@ crate-type = ["rlib"]
 
 [build-dependencies]
 # Resource-constant codegen (§18.5): the same crate a scaffolded app's build.rs uses.
-day-build = { git = "https://github.com/daybrite/day.git" }
+day-build = "0.6"
 
 [dependencies]
-day = { package = "day-app", git = "https://github.com/daybrite/day.git", features = ["model"] }
+day = { package = "day-app", version = "0.6", features = ["model"] }
 # The Content List page persists its items as one JSON blob in `day::prefs`, exactly as the
 # scaffold it copies does (src/pages/content_list/model.rs).
 serde = { version = "1", features = ["derive"] }
@@ -56,20 +56,20 @@ serde_json = "1"
 # Consent-first crash reporting (docs/break.md): the Crash Reporting page arms it and shows the
 # previous run's report. Optional in general; here it demonstrates the whole flow. Its consent UI
 # (`ui` feature, on by default) is built from ordinary pieces, so no per-backend wiring is needed.
-day-piece-crash-reporter = { git = "https://github.com/daybrite/day-piece-break" }
+day-piece-crash-reporter = "0.1"
 # A headless capability crate (no UI Piece): app Rust code calls day_part_device::battery::status()
 # directly.
-day-part-device = { git = "https://github.com/daybrite/day.git" }
+day-part-device = "0.6"
 # daybridge's reference part (docs/bridge.md): one API, a different language per platform. The
 # first part in its own repository, on the same terms as the day-piece-lottie gallery below: a bare git line,
 # so Cargo.lock picks one day revision for the whole graph. `day patch --local ../day-part-speech`
 # builds against a checkout of it.
-day-part-speech = { git = "https://github.com/daybrite/day-part-speech.git" }
-day-part-sensors = { git = "https://github.com/daybrite/day.git" }
-day-part-permissions = { git = "https://github.com/daybrite/day.git" }
-day-part-location = { git = "https://github.com/daybrite/day.git" }
-day-part-clipboard = { git = "https://github.com/daybrite/day.git" }
-day-part-connectivity = { git = "https://github.com/daybrite/day.git" }
+day-part-speech = "0.1"
+day-part-sensors = "0.6"
+day-part-permissions = "0.6"
+day-part-location = "0.6"
+day-part-clipboard = "0.6"
+day-part-connectivity = "0.6"
 # A compose piece (pure composition, without native code or cargo features): a plain dep,
 # available on every backend with no extra work. It needs no per-backend feature wiring above,
 # which is the composition-first payoff.
@@ -77,38 +77,38 @@ day-part-connectivity = { git = "https://github.com/daybrite/day.git" }
 # platform's chooser and Day's composed panel, which is the same picker on every target.
 # The styled-text editor (docs/texteditor.md): the Text areas page edits a formatted note and a
 # live-highlighted code sample in each platform's rich-text view.
-day-piece-text-editor = { git = "https://github.com/daybrite/day.git" }
+day-piece-text-editor = "0.6"
 # Tweaks (docs/tweaks.md): packaged per-toolkit configuration of built-in pieces.
-day-tweak-button-bezel = { git = "https://github.com/daybrite/day.git" }
+day-tweak-button-bezel = "0.6"
 # The Apple toolkit crates directly, for the Tweaks page's inline `.appkit(…)`/`.uikit(…)`
 # label card (docs/tweaks.md "Per-toolkit access"); each rides only its backend's feature.
-day-toolkit-appkit = { git = "https://github.com/daybrite/day.git", optional = true }
-day-toolkit-uikit = { git = "https://github.com/daybrite/day.git", optional = true }
-day-tweak-tooltip = { git = "https://github.com/daybrite/day.git" }
-day-tweak-slider-tick-marks = { git = "https://github.com/daybrite/day.git" }
+day-toolkit-appkit = { version = "0.6", optional = true }
+day-toolkit-uikit = { version = "0.6", optional = true }
+day-tweak-tooltip = "0.6"
+day-tweak-slider-tick-marks = "0.6"
 # The Tree page's sidebar styling (docs/tweaks.md): native no-ops outside appkit/gtk.
-day-tweak-tree-style = { git = "https://github.com/daybrite/day.git" }
-day-piece-webview = { git = "https://github.com/daybrite/day-piece-webview.git" }
-day-piece-media = { git = "https://github.com/daybrite/day-piece-media.git" }
-day-part-haptics = { git = "https://github.com/daybrite/day.git" }
+day-tweak-tree-style = "0.6"
+day-piece-webview = "0.4"
+day-piece-media = "0.4"
+day-part-haptics = "0.6"
 # Sound effects (docs/sound.md): the Speech, sound & haptics page plays bundled clips.
-day-part-sound = { git = "https://github.com/daybrite/day.git" }
+day-part-sound = "0.6"
 # Local notifications (docs/notify.md): the Platform Services page posts and schedules them.
-day-part-local-notify = { git = "https://github.com/daybrite/day.git" }
+day-part-local-notify = "0.6"
 # day-part-preferences is no longer a direct dependency: it arrives through the day facade as
 # `day::prefs` (docs/prefs.md).
-day-piece-settings = { git = "https://github.com/daybrite/day.git" }
-day-part-http = { git = "https://github.com/daybrite/day.git", features = ["reqwest"] }
+day-piece-settings = "0.6"
+day-part-http = { version = "0.6", features = ["reqwest"] }
 # The download manager (docs/downloads.md): the Networking page's pausable, resumable download.
-day-part-downloads = { git = "https://github.com/daybrite/day.git" }
-day-part-filesystem = { git = "https://github.com/daybrite/day.git" }
+day-part-downloads = "0.6"
+day-part-filesystem = "0.6"
 # The keychain and the biometric prompt (docs/keychain.md, docs/biometrics.md): the Security page
 # stores an item at each protection level and shows the platform's own verification dialog.
-day-part-keychain = { git = "https://github.com/daybrite/day.git" }
-day-part-biometrics = { git = "https://github.com/daybrite/day.git" }
+day-part-keychain = "0.6"
+day-part-biometrics = "0.6"
 # Sign-in (day-part-auth): the Sign-in page's auth browser, OpenID Connect client, passkeys, Sign
 # in with Apple and Google. Its own repository, like speech.
-day-part-auth = { git = "https://github.com/daybrite/day-part-auth.git" }
+day-part-auth = "0.1"
 # The Lottie page mounts day-piece-lottie's own example pages and animations (its Lottie Demo app
 # is a sidebar of the same ones), so the two apps show one copy of the code and one set of files.
 # The gallery's animations arrive in this bundle as its data assets, and it forwards the player's
@@ -118,24 +118,24 @@ day-part-auth = { git = "https://github.com/daybrite/day-part-auth.git" }
 # on `macos-gtk`/`windows-gtk`, which ship no WebKitGTK to host it. A bare git line like day's, so
 # Cargo.lock picks one day revision for the whole graph; `day patch --local ../day-piece-lottie`
 # builds against a checkout.
-day-piece-lottie-gallery = { git = "https://github.com/daybrite/day-piece-lottie.git" }
+day-piece-lottie-gallery = "0.1"
 # The Charts page mounts day-piece-charts' own example pages (its Charts Demo app is a sidebar of
 # the same ones), so the two apps show one copy of the code. A library of pages with a private
 # string catalog: nothing to wire per backend, and its strings resolve here without being
 # installed. A bare git line, like lottie's; `day patch --local ../day-piece-charts` builds
 # against a checkout.
-day-piece-charts = { git = "https://github.com/daybrite/day-piece-charts.git" }
-day-piece-charts-gallery = { git = "https://github.com/daybrite/day-piece-charts.git" }
+day-piece-charts = "0.4"
+day-piece-charts-gallery = "0.1"
 # day-piece-camera renders on iOS, Android and HarmonyOS; the front-end compiles everywhere and
 # `day_piece_camera::support()` decides at run time whether the Camera page is listed. Its own
 # repository, like lottie: a bare git line, and `day patch --local ../day-piece-camera` builds
 # against a checkout.
-day-piece-camera = { git = "https://github.com/daybrite/day-piece-camera.git" }
+day-piece-camera = "0.1"
 # The last photo the Camera page took is shown through the bytes-backed image piece.
 # SwiftUI embedding (docs/swiftui.md): hosts the swiftui/ package's views on the Benchmark page.
 # Apple-native only, but a plain dep with no cfg anywhere: the front-end compiles on every
 # backend and `day_piece_swiftui::support()` gates the UI, so no placeholder can ever realize.
-day-piece-swiftui = { git = "https://github.com/daybrite/day.git" }
+day-piece-swiftui = "0.6"
 
 
 # Its own workspace root, which is what `day new app` generates too. Without this, cloning the app
@@ -163,10 +163,10 @@ platform = "13.0"
 # The Model page persists through a real SQLite container on every native target; the web build
 # stays in memory (rusqlite has no place in the wasm binary), so the engine is target-gated.
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-day-persistence = { git = "https://github.com/daybrite/day-persistence.git", version = "0.1" }
+day-persistence = "0.1"
 # The Sign-in page's demo provider is a loopback HTTP server inside the app, which a browser page
 # cannot run; the web build signs in to a provider you name instead.
-day-part-auth = { git = "https://github.com/daybrite/day-part-auth.git", features = ["demo-provider"] }
+day-part-auth = { version = "0.1", features = ["demo-provider"] }
 
 [workspace.package]
 version = "0.5.0"

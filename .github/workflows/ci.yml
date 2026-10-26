@@ -12,6 +12,11 @@ on:
   release:
     types: [released]
   workflow_dispatch:
+    inputs:
+      day-main:
+        description: Build against day's main branch instead of the newest release
+        type: boolean
+        default: false
   schedule:
     - cron: "30 6,18 * * *"
 
@@ -38,7 +43,7 @@ jobs:
       # (`cargo update -p day`) when a new framework API lands, so a local build matches.
       # Publish framework fixes before starting this workflow. To pick up a newer Day revision
       # afterward, start a fresh run or re-run ALL jobs; failed-jobs-only reuses preflight's SHA.
-      update-day-deps: true
+      day-deps: ${{ inputs.day-main && 'main' || 'auto' }}
       target-packages: |
         windows-winui: webview2-runtime
       scripts: dayscript/walkthrough.yaml dayscript/list.yaml dayscript/speech.yaml dayscript/tree.yaml dayscript/network.yaml dayscript/sidebar-sections.yaml
