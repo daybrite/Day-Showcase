@@ -166,4 +166,4 @@ day-persistence = "0.1"
 day-part-auth = { version = "0.1", features = ["demo-provider"] }
 
 [workspace.package]
-version = "0.5.0"
+version = "0.5.1"
