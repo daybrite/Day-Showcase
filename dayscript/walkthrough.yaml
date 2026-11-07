@@ -1205,19 +1205,20 @@ flow:
 
   # Physics: marbles under adjustable gravity, filling the page. A tap throws every marble toward
   # the tapped point; once they have come back down and settled, the capture is repeatable.
-  # Temporarily skip this section on Android: the tablet emulator stops answering after gravity
-  # is enabled. Restore coverage after fixing the hang (day CI run 40183843993, job 121144770019).
-  - navigate: { route: physics, skip_on: [android] }
-  - assert_route: { route: physics, skip_on: [android] }
-  - set_value: { id: frame_ball_slider, value: 40, skip_on: [android] }
+  # SHOWCASE_SKIP_PHYSICS=1 (`--env` or the environment) skips the section: the Android tablet
+  # emulator stops answering once 40 marbles are on the page (day CI run 40183843993, job
+  # 121144770019), while the phone emulator runs it.
+  - navigate: { route: physics, skip_on: [env:SHOWCASE_SKIP_PHYSICS] }
+  - assert_route: { route: physics, skip_on: [env:SHOWCASE_SKIP_PHYSICS] }
+  - set_value: { id: frame_ball_slider, value: 40, skip_on: [env:SHOWCASE_SKIP_PHYSICS] }
   # The page opens at zero-G, where the marbles would still be drifting at capture time.
-  - set_value: { id: physics_gravity_slider, value: 9.81, skip_on: [android] }
-  - tap: { id: frame_ball, at: [160, 80], skip_on: [android] }
-  - pause: { secs: 5.0, skip_on: [android] }
-  - assert_visible: { id: physics_gravity_slider, skip_on: [android] }
+  - set_value: { id: physics_gravity_slider, value: 9.81, skip_on: [env:SHOWCASE_SKIP_PHYSICS] }
+  - tap: { id: frame_ball, at: [160, 80], skip_on: [env:SHOWCASE_SKIP_PHYSICS] }
+  - pause: { secs: 5.0, skip_on: [env:SHOWCASE_SKIP_PHYSICS] }
+  - assert_visible: { id: physics_gravity_slider, skip_on: [env:SHOWCASE_SKIP_PHYSICS] }
   - screenshot:
       name: physics
-      skip_on: [android]
+      skip_on: [env:SHOWCASE_SKIP_PHYSICS]
       title: { en: "Physics", fr: "Physique", ar: "الفيزياء", zh-CN: "物理" }
       source: src/pages/physics.rs
 
