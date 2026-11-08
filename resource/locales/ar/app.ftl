@@ -1438,6 +1438,7 @@ map_sight = { $sight ->
         [center] وسط الجزيرة
         [coast] الساحل الشرقي
         [trafalgar] ميدان ترافالغار
+        [here] موقعك
        *[bridge] جسر البرج
     }
 map_readout = { $status ->
@@ -1453,11 +1454,21 @@ map_tap_marker = علامة: { $sight ->
         [center] وسط الجزيرة
         [coast] الساحل الشرقي
         [trafalgar] ميدان ترافالغار
+        [here] موقعك
        *[bridge] جسر البرج
     }
 map_tap_feature = { $layer }: { $name }
 map_tap_layer = { $layer }
 map_tap_nothing = لا شيء هنا
+map_locate = الموقع الحالي
+map_locating = …جارٍ تحديد موقعك
+map_locate_failed = { $why ->
+        [denied] الوصول إلى الموقع متوقف لهذا التطبيق. فعّله من الإعدادات.
+        [off] خدمات الموقع متوقفة.
+        [timeout] لم يُحدَّد الموقع بعد. حاول مرة أخرى.
+        [unavailable] الموقع غير متاح على هذا الجهاز.
+       *[other] تعذّر العثور على موقعك.
+    }
 
 # Interactive layout sizing and translation.
 layout_reactive_title = تحجيم تفاعلي

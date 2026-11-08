@@ -12,11 +12,17 @@
 //! without a key, which go out to the network: the interception is not strict, so only the
 //! sample's own URLs are answered in-process.
 //!
+//! The Current Location button beside the picker asks for location access the first time, then
+//! for one fix, and flies there and marks it. The style stays as chosen, so on the island the
+//! flight lands on open sea.
+//!
 //! Nothing here is map code: the piece draws, pans, pinches, turns and places labels on every
 //! backend, and the page only shares a [`MapView`] with it.
 
 use day::prelude::*;
 use day_part_http::{Session, simulation::Simulation};
+use day_part_location::{Accuracy, LocationError};
+use day_part_permissions::{self as perms, Permission};
 use day_piece_map::{LngLat, MapStatus, MapView, Marker, MarkerId, map, sample};
 
 use crate::res::str as tr;
@@ -30,6 +36,8 @@ const TOWER_BRIDGE: LngLat = LngLat::new(-0.0754, 51.5055);
 const FLY_ZOOM: f64 = 16.0;
 /// Points kept clear around the two sights when Fit frames them.
 const FIT_PADDING: f64 = 60.0;
+/// The tag on the marker at the user's own position, which a tap on it is told apart by.
+const HERE: &str = "here";
 
 /// Where the map's style comes from.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -134,6 +142,26 @@ fn coord(v: f64) -> String {
     }
 }
 
+/// What the Current Location button is doing, while it is doing something other than nothing.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum Locating {
+    /// Waiting on the permission prompt or the fix.
+    Busy,
+    /// Why there is no fix: a `map_locate_failed` selector.
+    Failed(&'static str),
+}
+
+/// The `map_locate_failed` selector for a location error.
+fn failure(error: &LocationError) -> &'static str {
+    match error {
+        LocationError::PermissionDenied => "denied",
+        LocationError::Disabled => "off",
+        LocationError::Timeout => "timeout",
+        LocationError::Unavailable => "unavailable",
+        _ => "other",
+    }
+}
+
 /// The bearing in whole degrees, `0..360`.
 fn degrees(bearing: f64) -> i64 {
     (bearing.rem_euclid(360.0).round() as i64) % 360
@@ -148,6 +176,9 @@ pub(crate) fn map_page() -> AnyPiece {
     // Which sight each marker on the map stands for, so the tap readout names it.
     let marks: Signal<Vec<(MarkerId, Sight)>> = Signal::new(Vec::new());
     let flights = Signal::new(0usize);
+    // The user's position once the button has found it, marked with the source's sights.
+    let here: Signal<Option<LngLat>> = Signal::new(None);
+    let locating: Signal<Option<Locating>> = Signal::new(None);
 
     // Choosing a source goes to its home, north up, and forgets the last tap.
     Effect::new(move || {
@@ -163,10 +194,18 @@ pub(crate) fn map_page() -> AnyPiece {
         let language = locale.split(['-', '_']).next().unwrap_or_default();
         view.set_language((!language.is_empty()).then_some(language));
     });
-    // The source's two markers, titled in the current language: this effect follows the
-    // language too, so a switch at runtime renames them without moving the map.
+    // The source's two markers and the user's own, titled in the current language: this effect
+    // follows the language too, so a switch at runtime renames them without moving the map.
     Effect::new(move || {
         view.clear_markers();
+        if let Some(at) = here.get() {
+            view.add_marker(
+                Marker::new(at)
+                    .title(tr::map_sight(HERE).format())
+                    .tag(HERE)
+                    .color(Color::rgb(0.0, 0.48, 1.0)),
+            );
+        }
         let placed = source
             .get()
             .sights()
@@ -194,6 +233,36 @@ pub(crate) fn map_page() -> AnyPiece {
     )
     .menu()
     .id(day::id!(map_source));
+
+    // Permission first: the request answers at once when access is already settled and prompts
+    // only when nobody has decided yet, so one call covers the first tap and every later one.
+    // Both awaits resume on the main thread, where CoreLocation wants its manager made.
+    let locate = button(tr::map_locate())
+        .icon(Symbol::Location)
+        .icon_only()
+        .enabled(move || locating.get() != Some(Locating::Busy))
+        .action(move || {
+            locating.set(Some(Locating::Busy));
+            day::task(async move {
+                if !perms::request_future(Permission::Location)
+                    .await
+                    .is_granted()
+                {
+                    locating.set(Some(Locating::Failed("denied")));
+                    return;
+                }
+                match day_part_location::current_future(Accuracy::Balanced).await {
+                    Ok(fix) => {
+                        let at = LngLat::new(fix.longitude, fix.latitude);
+                        here.set(Some(at));
+                        view.fly_to(at, FLY_ZOOM);
+                        locating.set(None);
+                    }
+                    Err(error) => locating.set(Some(Locating::Failed(failure(&error)))),
+                }
+            });
+        })
+        .id(day::id!(map_locate));
 
     // The camera calls: fly between the two sights, frame both, turn by 45°, back to north up.
     let buttons = row((
@@ -260,6 +329,13 @@ pub(crate) fn map_page() -> AnyPiece {
         if let Some(sight) = sight {
             return tr::map_tap_marker(sight.key()).format();
         }
+        if tap
+            .marker
+            .and_then(|id| view.marker(id))
+            .is_some_and(|m| m.tag == HERE)
+        {
+            return tr::map_tap_marker(HERE).format();
+        }
         match tap.features.first() {
             None => tr::map_tap_nothing().format(),
             Some(hit) => match hit.properties.get("name").and_then(|v| v.as_str()) {
@@ -275,17 +351,31 @@ pub(crate) fn map_page() -> AnyPiece {
     .font(Font::Footnote)
     .id(day::id!(map_tap));
 
+    // Only while the button is busy or has something to say: an empty line otherwise.
+    let note = when(
+        move || locating.get().is_some(),
+        move || {
+            label(move || match locating.get() {
+                Some(Locating::Failed(why)) => tr::map_locate_failed(why).format(),
+                _ => tr::map_locating().format(),
+            })
+            .font(Font::Footnote)
+            .id(day::id!(map_locate_note))
+        },
+    );
+
     // Not `widgets::page`: that scrolls, and the map sizes itself by growing into the room it
     // is given, which a scroll view never offers.
     column((
         heading(tr::nav_map(), day::id!(map_title)),
-        picker_row,
+        row((picker_row, spacer(), locate)).spacing(Space::S),
         map(move || source.get().style_url().to_string(), view)
             .id(day::id!(map_canvas))
             .grow(Dimension::Both),
         buttons,
         readout,
         tap,
+        note,
     ))
     .spacing(8.0)
     .padding(20.0)

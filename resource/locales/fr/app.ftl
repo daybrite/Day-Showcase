@@ -1421,6 +1421,7 @@ map_sight = { $sight ->
         [center] Centre de l'île
         [coast] Côte est
         [trafalgar] Trafalgar Square
+        [here] Votre position
        *[bridge] Tower Bridge
     }
 map_readout = { $status ->
@@ -1436,11 +1437,21 @@ map_tap_marker = Repère : { $sight ->
         [center] Centre de l'île
         [coast] Côte est
         [trafalgar] Trafalgar Square
+        [here] Votre position
        *[bridge] Tower Bridge
     }
 map_tap_feature = { $layer } : { $name }
 map_tap_layer = { $layer }
 map_tap_nothing = Rien ici
+map_locate = Ma position
+map_locating = Recherche de votre position…
+map_locate_failed = { $why ->
+        [denied] L’accès à la position est désactivé pour cette app. Activez-le dans les réglages.
+        [off] Les services de localisation sont désactivés.
+        [timeout] Pas encore de position. Réessayez.
+        [unavailable] La localisation n’est pas disponible sur cet appareil.
+       *[other] Impossible de trouver votre position.
+    }
 
 # Interactive layout sizing and translation.
 layout_reactive_title = Dimensions réactives

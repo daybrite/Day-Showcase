@@ -1429,6 +1429,7 @@ map_sight = { $sight ->
         [center] Island center
         [coast] East coast
         [trafalgar] Trafalgar Square
+        [here] Your location
        *[bridge] Tower Bridge
     }
 # Status · latitude, longitude · zoom · bearing.
@@ -1446,11 +1447,21 @@ map_tap_marker = Marker: { $sight ->
         [center] Island center
         [coast] East coast
         [trafalgar] Trafalgar Square
+        [here] Your location
        *[bridge] Tower Bridge
     }
 map_tap_feature = { $layer }: { $name }
 map_tap_layer = { $layer }
 map_tap_nothing = Nothing there
+map_locate = Current Location
+map_locating = Finding your location…
+map_locate_failed = { $why ->
+        [denied] Location access is off for this app. Turn it on in Settings.
+        [off] Location services are off.
+        [timeout] No location fix yet. Try again.
+        [unavailable] Location isn’t available on this device.
+       *[other] Couldn’t find your location.
+    }
 
 # Interactive layout sizing and translation.
 layout_reactive_title = Reactive sizing

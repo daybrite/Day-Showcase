@@ -207,16 +207,14 @@ fn page_inner<P1: Piece>(
 ///
 /// Pass the widest string the field can ever show: `"100"` for a percentage, `"8888"` for a
 /// count.
-/// The `id` goes on the label, not on the wrapper `reserving` returns: a script asserting the
-/// readout's text has to resolve to the piece that has text, and the reservation wrapper has none.
-pub(crate) fn numeric_readout(
+/// The identifier continues to address the visible label when a reservation is applied.
+pub(crate) fn numeric_readout<M>(
     text: impl Fn() -> String + 'static,
-    widest: impl Into<String>,
+    widest: impl IntoText<M>,
     id: ElementId,
 ) -> impl Piece {
     // Both halves of the problem: `tabular` stops the digits shifting inside the box (`1` is
     // narrower than `8`), `reserving` stops the box itself resizing when the digit count changes.
-    // `.tabular()` is a Label builder method, so it comes before the Decorate modifiers.
     label(text).tabular().id(id).reserving(widest)
 }
 

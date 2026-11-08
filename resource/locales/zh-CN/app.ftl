@@ -1411,6 +1411,7 @@ map_sight = { $sight ->
         [center] 岛屿中心
         [coast] 东海岸
         [trafalgar] 特拉法加广场
+        [here] 你的位置
        *[bridge] 塔桥
     }
 map_readout = { $status ->
@@ -1426,11 +1427,21 @@ map_tap_marker = 标记：{ $sight ->
         [center] 岛屿中心
         [coast] 东海岸
         [trafalgar] 特拉法加广场
+        [here] 你的位置
        *[bridge] 塔桥
     }
 map_tap_feature = { $layer }：{ $name }
 map_tap_layer = { $layer }
 map_tap_nothing = 此处无内容
+map_locate = 当前位置
+map_locating = 正在查找你的位置…
+map_locate_failed = { $why ->
+        [denied] 此应用的位置访问已关闭。请在设置中开启。
+        [off] 定位服务已关闭。
+        [timeout] 尚未获得定位，请重试。
+        [unavailable] 此设备无法使用定位。
+       *[other] 无法找到你的位置。
+    }
 
 # Interactive layout sizing and translation.
 layout_reactive_title = 响应式尺寸

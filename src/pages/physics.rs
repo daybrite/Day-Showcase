@@ -1618,14 +1618,11 @@ pub(crate) fn physics_page() -> AnyPiece {
                 .tabular()
                 .align(TextAlign::Trailing)
                 .id(day::id!(frame_fps))
-                .reserving(
-                    crate::res::str::frame_fps(crate::res::str::FrameFps {
-                        min: "999.9",
-                        max: "999.9",
-                        avg: "999.9",
-                    })
-                    .format(),
-                )
+                .reserving(crate::res::str::frame_fps(crate::res::str::FrameFps {
+                    min: "999.9",
+                    max: "999.9",
+                    avg: "999.9",
+                }))
                 .font(Font::Caption),
         )),
         label(crate::res::str::frame_explanation()).font(Font::Caption),

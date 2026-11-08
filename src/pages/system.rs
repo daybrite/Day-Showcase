@@ -182,13 +182,14 @@ fn sensor_section(
     // Fixed character slots align signs, decimal points, and all three axes. Monospacing
     // includes the padding spaces (tabular figures alone do not); reserving fixes the box.
     // Formatting stays on the UI thread, where the localization bundles are installed.
-    let widest = crate::res::str::sensor_reading(crate::res::str::SensorReading {
-        x: "-000.00",
-        y: "-000.00",
-        z: "-000.00",
-        unit: unit().format(),
-    })
-    .format();
+    let widest = move || {
+        crate::res::str::sensor_reading(crate::res::str::SensorReading {
+            x: "-000.00",
+            y: "-000.00",
+            z: "-000.00",
+            unit: unit().format(),
+        })
+    };
     let toggle_id = day::id!(sensor_running, id.as_str());
     let calibration_id = day::id!(sensor_calibrated, id.as_str());
     let chart_id = day::id!(sensor_chart, id.as_str());

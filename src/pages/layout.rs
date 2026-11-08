@@ -111,7 +111,7 @@ fn sizing_control(
             slider(value).range(range).step(1.0).id(id),
             label(crate::res::str::layout_reactive_points(value))
                 .tabular()
-                .min_width(56.0),
+                .reserving(crate::res::str::layout_reactive_points(160.0)),
         ))
         .spacing(Space::M),
     )
