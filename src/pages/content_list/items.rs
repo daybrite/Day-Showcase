@@ -22,7 +22,7 @@ pub(crate) fn detail_title(scene: Scene) -> String {
 /// Build the detail destination and attach the selected-item Delete command to its toolbar.
 pub(crate) fn items_page() -> impl Piece {
     let scene = Scene::ambient();
-    editor_pane(scene).grow().toolbar(
+    editor_pane(scene).grow(Dimension::Both).toolbar(
         toolbar_button(day::id!(tb_delete), res::str::cmd_delete())
             .icon(Symbol::Delete)
             .tooltip(res::str::cmd_delete())
@@ -95,9 +95,9 @@ pub(crate) fn item_list_pane() -> impl Piece {
             .label(res::str::cmd_delete()),
         )
         .id(day::id!(item_list))
-        .grow(),
+        .grow(Dimension::Both),
     ))
-    .grow()
+    .grow(Dimension::Both)
     .toolbar(
         toolbar_button(day::id!(tb_add), res::str::cmd_add())
             .icon(Symbol::Add)

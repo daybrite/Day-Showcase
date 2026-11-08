@@ -300,7 +300,7 @@ pub(crate) fn query_page() -> AnyPiece {
     let row_view = |slot: ModelSlot<Track>| {
         // A custom row: the list gives it the platform's side margins (docs/list.md).
         row((
-            label(move || slot.title().read()).grow(),
+            label(move || slot.title().read()).grow(Dimension::Both),
             when(move || slot.starred().read(), || label("★")),
         ))
         .spacing(Space::S)

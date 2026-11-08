@@ -57,7 +57,7 @@ fn battery_section() -> impl Piece {
         // takes the full width (`grow_w`) and centers its one child inside it.
         column((battery_view(level, charging),))
             .align(HAlign::Center)
-            .grow_w(),
+            .grow(Dimension::Width),
         labeled(
             crate::res::str::battery_level(),
             row((
@@ -213,7 +213,7 @@ fn sensor_section(
                     day_part_sensors::SensorKind::Magnetometer => (
                         column((compass_view(reading, calibrated),))
                             .align(HAlign::Center)
-                            .grow_w()
+                            .grow(Dimension::Width)
                             .any(),
                         label(move || {
                             if calibrated.get() {
@@ -229,7 +229,7 @@ fn sensor_section(
                     day_part_sensors::SensorKind::Accelerometer => (
                         column((acceleration_view(reading),))
                             .align(HAlign::Center)
-                            .grow_w()
+                            .grow(Dimension::Width)
                             .any(),
                         label(crate::res::str::sensor_tilt_hint())
                             .font(Font::Footnote)

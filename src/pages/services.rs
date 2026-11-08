@@ -250,7 +250,7 @@ fn sound_button(
             }
         })
         .id(id)
-        .grow_w()
+        .grow(Dimension::Width)
 }
 
 /// Sound effects: six bundled clips, one clip panned across the stereo field, the master volume
@@ -399,11 +399,11 @@ fn haptic_button(
             last.set(crate::res::str::haptics_last_played(format!("{h:?}")).format());
         })
         .id(id)
-        // `.grow_w()` is what makes the grid column flexible. With every cell flexible the layout
+        // `.grow(Dimension::Width)` is what makes the grid column flexible. With every cell flexible the layout
         // splits the leftover width evenly between the columns (docs/grid.md §3), so the buttons
         // come out identical whatever the label length or screen width. That is the reason a
         // `row` was wrong here: it sized each button to its own text and ran off the edge.
-        .grow_w()
+        .grow(Dimension::Width)
 }
 
 /// One step of a haptic "song": wait `delay_ms`, then fire `haptic`.
@@ -781,7 +781,7 @@ fn song_button(
         .action(move || play_song(name, beats, playing, last))
         .tint(tint)
         .id(id)
-        .grow_w()
+        .grow(Dimension::Width)
 }
 
 fn notify_section() -> impl Piece {

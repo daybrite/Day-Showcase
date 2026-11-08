@@ -28,6 +28,6 @@ pub(crate) fn charts_page() -> AnyPiece {
     ))
     .spacing(8.0)
     .padding(20.0)
-    .grow()
+    .grow(Dimension::Both)
     .any()
 }

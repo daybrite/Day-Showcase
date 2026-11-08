@@ -85,7 +85,7 @@ pub(crate) fn tabs_page() -> AnyPiece {
         ))
         .id(day::id!(demo_tabs))
         .any();
-    column((main,)).grow().any()
+    column((main,)).grow(Dimension::Both).any()
 }
 
 /// Data-driven tabs (docs/navigation.md): the tab set comes from a signal, so the Add/Remove

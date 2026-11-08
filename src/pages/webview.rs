@@ -67,7 +67,7 @@ pub(crate) fn webview_page() -> AnyPiece {
         .segmented()
         .id(day::id!(webview_tab)),))
         .align(HAlign::Center)
-        .grow_w(),
+        .grow(Dimension::Width),
         switch(
             move || tab.get(),
             move |t| match t {
@@ -205,7 +205,7 @@ fn remote_pane(js: JsHandle) -> impl Piece {
     ))
     .spacing(10.0)
     .align(HAlign::Leading)
-    .grow()
+    .grow(Dimension::Both)
 }
 
 /// The bundled mini site (docs/webview.md): `resource/assets/web/minisite/**` ships with the app,
@@ -261,5 +261,5 @@ fn embedded_pane(js: JsHandle) -> impl Piece {
     ))
     .spacing(10.0)
     .align(HAlign::Leading)
-    .grow()
+    .grow(Dimension::Both)
 }

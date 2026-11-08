@@ -7,9 +7,10 @@
 //!
 //! The default source is the piece's built-in sample, a small island whose style and tiles are
 //! answered inside the app through `day-part-http`'s interception, so the page draws the same
-//! map on every target without a network (the CI captures have none). The other two entries are
-//! OpenFreeMap's Liberty and Positron styles over London, which go out to the network: the
-//! interception is not strict, so only the sample's own URLs are answered in-process.
+//! map on every target without a network (the CI captures have none). The other entries are
+//! OpenFreeMap's five styles and VersaTiles' two over London, all OpenStreetMap data served
+//! without a key, which go out to the network: the interception is not strict, so only the
+//! sample's own URLs are answered in-process.
 //!
 //! Nothing here is map code: the piece draws, pans, pinches, turns and places labels on every
 //! backend, and the page only shares a [`MapView`] with it.
@@ -36,7 +37,13 @@ enum Source {
     /// The hand-drawn island, served in-process.
     Sample,
     Liberty,
+    Bright,
     Positron,
+    Fiord,
+    Dark,
+    /// VersaTiles Colorful: the Shortbread schema, so a different set of layers and sources.
+    Colorful,
+    ColorfulDark,
 }
 
 impl Source {
@@ -44,7 +51,14 @@ impl Source {
         match self {
             Source::Sample => sample::STYLE_URL,
             Source::Liberty => "https://tiles.openfreemap.org/styles/liberty",
+            Source::Bright => "https://tiles.openfreemap.org/styles/bright",
             Source::Positron => "https://tiles.openfreemap.org/styles/positron",
+            Source::Fiord => "https://tiles.openfreemap.org/styles/fiord",
+            Source::Dark => "https://tiles.openfreemap.org/styles/dark",
+            Source::Colorful => "https://tiles.versatiles.org/assets/styles/colorful/style.json",
+            Source::ColorfulDark => {
+                "https://tiles.versatiles.org/assets/styles/colorful-dark/style.json"
+            }
         }
     }
 
@@ -52,7 +66,7 @@ impl Source {
     fn home(self) -> (LngLat, f64) {
         match self {
             Source::Sample => (sample::HOME, 9.0),
-            Source::Liberty | Source::Positron => (TRAFALGAR, 14.0),
+            _ => (TRAFALGAR, 14.0),
         }
     }
 
@@ -60,7 +74,7 @@ impl Source {
     fn sights(self) -> [Sight; 2] {
         match self {
             Source::Sample => [Sight::Center, Sight::Coast],
-            Source::Liberty | Source::Positron => [Sight::Trafalgar, Sight::Bridge],
+            _ => [Sight::Trafalgar, Sight::Bridge],
         }
     }
 }
@@ -169,7 +183,12 @@ pub(crate) fn map_page() -> AnyPiece {
         source,
         [
             (Source::Liberty, tr::map_source_liberty()),
+            (Source::Bright, tr::map_source_bright()),
             (Source::Positron, tr::map_source_positron()),
+            (Source::Fiord, tr::map_source_fiord()),
+            (Source::Dark, tr::map_source_dark()),
+            (Source::Colorful, tr::map_source_colorful()),
+            (Source::ColorfulDark, tr::map_source_colorful_dark()),
             (Source::Sample, tr::map_source_sample()),
         ],
     )
@@ -263,13 +282,13 @@ pub(crate) fn map_page() -> AnyPiece {
         picker_row,
         map(move || source.get().style_url().to_string(), view)
             .id(day::id!(map_canvas))
-            .grow(),
+            .grow(Dimension::Both),
         buttons,
         readout,
         tap,
     ))
     .spacing(8.0)
     .padding(20.0)
-    .grow()
+    .grow(Dimension::Both)
     .any()
 }

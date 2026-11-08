@@ -36,5 +36,5 @@ pub(crate) fn editor_pane(scene: Scene) -> impl Piece {
             },
         ),
     ))
-    .grow()
+    .grow(Dimension::Both)
 }

@@ -212,7 +212,7 @@ fn canvas_pane(st: Scene) -> impl Piece {
             }
         })
         .id(day::id!(split_canvas))
-        .grow(),
+        .grow(Dimension::Both),
         label(move || {
             crate::res::str::split_readout(crate::res::str::SplitReadout {
                 count: st.count.get().round() as i64,

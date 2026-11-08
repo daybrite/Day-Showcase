@@ -21,11 +21,11 @@ use crate::widgets::page;
 fn crash_action(explanation: String, action: impl Piece + 'static) -> impl Piece {
     column((
         label(explanation).font(Font::Footnote),
-        AnyPiece::new(action).grow_w(),
+        AnyPiece::new(action).grow(Dimension::Width),
     ))
     .spacing(6.0)
     .align(HAlign::Leading)
-    .grow_w()
+    .grow(Dimension::Width)
 }
 
 pub(crate) fn crash_page() -> AnyPiece {

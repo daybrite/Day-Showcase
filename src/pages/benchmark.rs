@@ -192,7 +192,7 @@ pub(crate) fn benchmark_page() -> AnyPiece {
         .segmented()
         .id(day::id!(bench_impl)),))
         .align(HAlign::Center)
-        .grow_w()
+        .grow(Dimension::Width)
         .any();
         column((
             picker_row,
@@ -206,7 +206,7 @@ pub(crate) fn benchmark_page() -> AnyPiece {
         ))
         .spacing(10.0)
         .align(HAlign::Leading)
-        .grow()
+        .grow(Dimension::Both)
         .any()
     } else {
         day_native(seed, count).any()
@@ -221,7 +221,7 @@ pub(crate) fn benchmark_page() -> AnyPiece {
     .spacing(10.0)
     .align(HAlign::Leading)
     .padding(Space::L)
-    .grow()
+    .grow(Dimension::Both)
     .any()
 }
 
@@ -291,7 +291,7 @@ fn day_native(seed: Signal<f64>, count: Signal<f64>) -> impl Piece {
                     .map(|t| {
                         rounded_rectangle(3.0)
                             .fill(cell_color(t.index))
-                            .grow()
+                            .grow(Dimension::Both)
                             .grid_span(t.span as usize)
                     })
                     .collect::<Vec<_>>(),
@@ -299,12 +299,12 @@ fn day_native(seed: Signal<f64>, count: Signal<f64>) -> impl Piece {
             .any()
         }),))
         .spacing(2.0)
-        .grow()
+        .grow(Dimension::Both)
         .id(day::id!(bench_grid)),
     ))
     .spacing(10.0)
     .align(HAlign::Leading)
-    .grow()
+    .grow(Dimension::Both)
 }
 
 /// The SwiftUI twin, hosted natively (docs/swiftui.md). Its sliders and row readout live in
@@ -322,7 +322,7 @@ fn swiftui_pane() -> impl Piece {
         PARAMS_HEIGHT,
     )
     .state_key("bench-grids")
-    .grow()
+    .grow(Dimension::Both)
     .id(day::id!(bench_swiftui))
 }
 

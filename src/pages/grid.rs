@@ -145,7 +145,7 @@ fn basics_demo() -> impl Piece {
 /// and a flexible column (`.grow_w`) that takes whatever width is left.
 fn sizing_demo() -> impl Piece {
     fn bar(color: Color) -> impl Piece {
-        capsule().fill(color).height(10.0).grow_w()
+        capsule().fill(color).height(10.0).grow(Dimension::Width)
     }
     pane(
         crate::res::str::grid_tab_sizing(),
@@ -303,7 +303,7 @@ fn range_bar(low: f64, high: f64, wmin: f64, wmax: f64) -> impl Piece {
         ]
     })
     .height(20.0)
-    .grow_w()
+    .grow(Dimension::Width)
 }
 
 /// Shapes and grid together, in the Day Skies forecast shape: content-sized day and temperature
@@ -376,7 +376,7 @@ fn stress_demo() -> impl Piece {
                         capsule()
                             .fill(if r % 2 == 0 { SKY } else { TEAL })
                             .height(8.0)
-                            .grow_w()
+                            .grow(Dimension::Width)
                             .any(),
                     );
                 } else {

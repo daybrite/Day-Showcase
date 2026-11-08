@@ -324,7 +324,7 @@ fn demo_list(o: ListOptions, st: ListState) -> AnyPiece {
                 .secondary()
                 .padding(Insets::symmetric(12.0, 6.0))
                 .id_of(move || day::id!(list_section, first()))
-                .grow_w()
+                .grow(Dimension::Width)
             },
         )
     } else {
@@ -406,13 +406,13 @@ fn demo_list(o: ListOptions, st: ListState) -> AnyPiece {
     } else {
         list
     };
-    let list = list.id(day::id!(demo_list)).grow();
+    let list = list.id(day::id!(demo_list)).grow(Dimension::Both);
     // The list is wrapped in `pull_to_refresh` (day::pullrefresh), the recycling-list example: a
     // pull (or dayscript `toggle: {id: list-refresh}`) adds 100 rows, same as the button.
     if o.pull_refresh {
         pull_to_refresh(refreshing, list)
             .id(day::id!(list_refresh))
-            .grow()
+            .grow(Dimension::Both)
             .any()
     } else {
         list.any()
@@ -475,7 +475,7 @@ fn demo_row(row: ItemSlot<i64, i64>, o: ListOptions, selected: Signal<BTreeSet<i
     } else {
         Insets::symmetric(12.0, 0.0)
     })
-    .grow_w()
+    .grow(Dimension::Width)
     .any()
 }
 

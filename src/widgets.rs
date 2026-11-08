@@ -170,12 +170,12 @@ fn page_inner<P1: Piece>(
         // nothing) the control rides its own trailing-aligned row instead.
         Some(t) => {
             if capability(Cap::NavHeader) == Support::Native {
-                column((row((spacer(), t)).grow_w(), head))
+                column((t.aligned(Alignment::Trailing).grow(Dimension::Width), head))
                     .spacing(Space::S)
-                    .grow_w()
+                    .grow(Dimension::Width)
                     .any()
             } else {
-                row((head, spacer(), t)).grow_w().any()
+                row((head, spacer(), t)).grow(Dimension::Width).any()
             }
         }
         None => head.any(),
@@ -192,7 +192,7 @@ fn page_inner<P1: Piece>(
     scroll(
         column((content,))
             .align(HAlign::Center)
-            .grow_w()
+            .grow(Dimension::Width)
             .padding(20.0),
     )
 }
@@ -286,7 +286,10 @@ pub(crate) fn support_banner(support: Support) -> Option<AnyPiece> {
             vector(crate::res::vectors::support_warning.clone()).frame(18.0, 18.0),
             // `grow_w`, not `grow`: the label takes the width but keeps the height of its text,
             // so the row is exactly as tall as the wrapped sentence.
-            label(text).font(Font::Footnote).color(color).grow_w(),
+            label(text)
+                .font(Font::Footnote)
+                .color(color)
+                .grow(Dimension::Width),
         ))
         .spacing(Space::S)
         // Top, not center. This sentence wraps to two or three lines on a narrow window, and a

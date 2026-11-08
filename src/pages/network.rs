@@ -261,7 +261,7 @@ pub(crate) fn network_page() -> AnyPiece {
                 simulation_section(st),
                 super::services::network_section(),
             ))
-            .grow_w(),
+            .grow(Dimension::Width),
             form((
                 picker(
                     operation,
@@ -281,7 +281,7 @@ pub(crate) fn network_page() -> AnyPiece {
                 ),
                 statistics_section(st),
             ))
-            .grow_w(),
+            .grow(Dimension::Width),
         ))
         .spacing(Space::L)
         .stack_at(WidthClass::Medium)

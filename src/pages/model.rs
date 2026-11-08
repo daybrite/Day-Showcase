@@ -242,7 +242,7 @@ pub(crate) fn model_page() -> AnyPiece {
         list(store.rows(rows), |slot: ModelSlot<Task>| {
             // A custom row: the list gives it the platform's side margins (docs/list.md).
             row((
-                label(move || slot.title().read()).grow(),
+                label(move || slot.title().read()).grow(Dimension::Both),
                 when(move || slot.done().read(), || label("✓")),
             ))
             .spacing(Space::S)

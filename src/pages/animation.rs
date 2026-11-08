@@ -247,7 +247,7 @@ fn stage(s: Anim) -> impl Piece {
     zstack((floor, box_view))
 }
 
-/// A filled, tappable, equal-width action button (`.grow_w()` makes each take an equal share of the
+/// A filled, tappable, equal-width action button (`.grow(Dimension::Width)` makes each take an equal share of the
 /// row), dimmed and inert while `enabled` reads false. Colored directly so each reads distinctly.
 fn action_button(
     id: day::ElementId,
@@ -267,7 +267,7 @@ fn action_button(
             }
         })
         .id(id)
-        .grow_w()
+        .grow(Dimension::Width)
 }
 
 /// Curve index (from the segmented picker) + duration → an [`Animation`]. The stepper's duration

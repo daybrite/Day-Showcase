@@ -455,7 +455,11 @@ fn commands_section() -> impl Piece {
         label(move || count.get().to_string())
             .tabular()
             .id(day::id!(commands_count)),
-        row((add.button().grow_w(), reset.button().grow_w())).spacing(10.0),
+        row((
+            add.button().grow(Dimension::Width),
+            reset.button().grow(Dimension::Width),
+        ))
+        .spacing(10.0),
         label(crate::res::str::menus_target())
             .padding(Space::L)
             .id(day::id!(commands_context))

@@ -16,7 +16,7 @@ flow:
   - navigate: { route: map }
   - assert_route: { route: map }
   - wait_for: { id: map_canvas }
-  - select: { id: map_source, index: 2 } # the island: the third entry, after Liberty and Positron
+  - select: { id: map_source, index: 7 } # the island: the last entry, after the seven live styles
   - pause: { secs: 2.0 } # the style loads, its tiles arrive, the frame re-records
   - assert_text: { id: map_readout, key: map_readout, args: { status: ready, lat: "0.0000", lng: "0.0000", zoom: "9.00", bearing: 0 } }
   - screenshot: map-island

@@ -194,7 +194,7 @@ fn vectors_section() -> impl Piece {
                 row(cells)
                     .spacing(Space::M)
                     .fit(RowFit::Wrap { run_spacing: 12.0 })
-                    .grow_w()
+                    .grow(Dimension::Width)
                     .id(day::id!(resources_vectors_row))
             },
         ),
@@ -300,9 +300,9 @@ fn vectors_section() -> impl Piece {
                 // Two different piece types, one branch each: `Either` keeps both concrete
                 // instead of boxing whichever arm this row takes.
                 if px <= room as f64 {
-                    Either::Left(column((art,)).align(HAlign::Center).grow_w())
+                    Either::Left(column((art,)).align(HAlign::Center).grow(Dimension::Width))
                 } else {
-                    Either::Right(scroll(art).horizontal().grow_w())
+                    Either::Right(scroll(art).horizontal().grow(Dimension::Width))
                 }
             },
         ),

@@ -1306,19 +1306,19 @@ fn control(
         .reserving(widest);
     if compact {
         column((
-            row((label(title).grow_w(), readout))
+            row((label(title).grow(Dimension::Width), readout))
                 .spacing(Space::M)
                 .align(VAlign::Center)
-                .grow_w(),
-            column((slider,)).grow_w(),
+                .grow(Dimension::Width),
+            column((slider,)).grow(Dimension::Width),
         ))
         .spacing(Space::XS)
-        .grow_w()
+        .grow(Dimension::Width)
         .any()
     } else {
         row((
             label(title).reserving(widest_title),
-            column((slider,)).grow_w(),
+            column((slider,)).grow(Dimension::Width),
             readout,
         ))
         .spacing(Space::M)
@@ -1356,8 +1356,8 @@ fn marbles(ui: Rc<Demo>, owns_size: bool, height: Option<f64>, id: day::ElementI
     .a11y(|a| a.role(Role::Button).label(crate::res::str::frame_hint()))
     .id(id);
     match height {
-        Some(h) => canvas.height(h).grow_w().any(),
-        None => canvas.grow().any(),
+        Some(h) => canvas.height(h).grow(Dimension::Width).any(),
+        None => canvas.grow(Dimension::Both).any(),
     }
 }
 
@@ -1654,9 +1654,9 @@ pub(crate) fn physics_page() -> AnyPiece {
     .padding(20.0)
     .id(day::id!(frame_demo));
     if compact {
-        scroll(body.grow_w()).any()
+        scroll(body.grow(Dimension::Width)).any()
     } else {
-        body.grow().any()
+        body.grow(Dimension::Both).any()
     }
 }
 

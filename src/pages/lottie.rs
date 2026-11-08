@@ -37,10 +37,10 @@ pub(crate) fn lottie_page() -> AnyPiece {
     column((
         heading(crate::res::str::nav_lottie(), day::id!(lottie_title)),
         // The gallery scrolls on its own, so it takes the height the heading leaves.
-        gallery(open).grow(),
+        gallery(open).grow(Dimension::Both),
     ))
     .spacing(8.0)
     .padding(20.0)
-    .grow()
+    .grow(Dimension::Both)
     .any()
 }

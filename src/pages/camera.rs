@@ -49,7 +49,7 @@ pub(crate) fn camera_page() -> AnyPiece {
                     .frame(320.0, 240.0)
                     .id(day::id!(camera_view)),))
                 .align(HAlign::Center)
-                .grow_w(),
+                .grow(Dimension::Width),
                 row((
                     button(crate::res::str::camera_take_photo())
                         .prominent()
@@ -78,7 +78,7 @@ pub(crate) fn camera_page() -> AnyPiece {
                             .frame(240.0, 180.0)
                             .id(day::id!(camera_photo)),))
                         .align(HAlign::Center)
-                        .grow_w()
+                        .grow(Dimension::Width)
                     },
                 ),
                 labeled(
