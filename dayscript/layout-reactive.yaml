@@ -1,0 +1,30 @@
+name: layout-reactive
+description: Resize and translate a mounted shape through reactive layout bindings.
+flow:
+  - wait_for: { id: nav }
+  - navigate: { route: layout }
+  - assert_route: { route: layout }
+  - assert_frame: { id: layout_reactive_shape, width: 120, height: 80 }
+  - set_value: { id: layout_reactive_width, value: 160 }
+  - set_value: { id: layout_reactive_height, value: 120 }
+  - assert_frame: { id: layout_reactive_shape, width: 160, height: 120 }
+  - set_value: { id: layout_reactive_horizontal, value: 40 }
+  - set_value: { id: layout_reactive_vertical, value: 40 }
+  - assert_frame: { id: layout_reactive_shape, width: 160, height: 120 }
+  - scroll_to: { id: layout_reactive_preview }
+  - screenshot:
+      name: layout-reactive
+      title: { en: "Reactive sizing", fr: "Dimensions réactives", ar: "تحجيم تفاعلي", zh-CN: "响应式尺寸" }
+      source: src/pages/layout.rs
+  - set_value: { id: layout_reactive_width, value: 48 }
+  - set_value: { id: layout_reactive_height, value: 32 }
+  - assert_frame: { id: layout_reactive_shape, width: 48, height: 32 }
+  - tap: { id: layout_reactive_reset }
+  - assert_frame: { id: layout_reactive_shape, width: 120, height: 80 }
+  - assert_native: { id: layout_reactive_horizontal, number: 16 }
+  - assert_native: { id: layout_reactive_vertical, number: 16 }
+  - scroll_to: { id: layout_reactive_preview }
+  - screenshot:
+      name: layout-reactive-reset
+      title: { en: "Layout controls", fr: "Contrôles de disposition", ar: "عناصر التحكم بالتخطيط", zh-CN: "布局控件" }
+      source: src/pages/layout.rs

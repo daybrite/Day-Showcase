@@ -14,6 +14,7 @@ pub(crate) fn layout_page() -> AnyPiece {
         crate::res::str::nav_layout(),
         day::id!(layout_title),
         form((
+            reactive_sizing_section(),
             stacks_section(),
             fit_section(),
             cards_section(),
@@ -23,6 +24,97 @@ pub(crate) fn layout_page() -> AnyPiece {
         .any(),
     )
     .any()
+}
+
+/// All sliders update the existing shape. Width/height remeasure its layout; translation
+/// moves its paint without changing the space reserved for the preview.
+fn reactive_sizing_section() -> impl Piece {
+    let width = Signal::new(120.0);
+    let height = Signal::new(80.0);
+    let horizontal = Signal::new(16.0);
+    let vertical = Signal::new(16.0);
+    section((
+        label(crate::res::str::layout_reactive_note()).font(Font::Footnote),
+        zstack((rounded_rectangle(12.0)
+            .fill(|| system_color(SystemColor::Accent))
+            .frame(width, height)
+            .translation(
+                move || {
+                    if is_rtl() {
+                        -horizontal.get()
+                    } else {
+                        horizontal.get()
+                    }
+                },
+                vertical,
+            )
+            .a11y(move |a| {
+                a.role(Role::Image)
+                    .label(crate::res::str::layout_reactive_shape(
+                        crate::res::str::LayoutReactiveShape { width, height },
+                    ))
+            })
+            .id(day::id!(layout_reactive_shape)),))
+        .align(Alignment::TopLeading)
+        .min_height(180.0)
+        .grow(Dimension::Width)
+        .background(|| system_color(SystemColor::Surface))
+        .corner_radius(12.0)
+        .id(day::id!(layout_reactive_preview)),
+        sizing_control(
+            crate::res::str::layout_reactive_width(),
+            width,
+            48.0..=160.0,
+            day::id!(layout_reactive_width),
+        ),
+        sizing_control(
+            crate::res::str::layout_reactive_height(),
+            height,
+            32.0..=120.0,
+            day::id!(layout_reactive_height),
+        ),
+        sizing_control(
+            crate::res::str::layout_reactive_horizontal(),
+            horizontal,
+            0.0..=40.0,
+            day::id!(layout_reactive_horizontal),
+        ),
+        sizing_control(
+            crate::res::str::layout_reactive_vertical(),
+            vertical,
+            0.0..=40.0,
+            day::id!(layout_reactive_vertical),
+        ),
+        button(crate::res::str::layout_reactive_reset())
+            .action(move || {
+                batch(|| {
+                    width.set(120.0);
+                    height.set(80.0);
+                    horizontal.set(16.0);
+                    vertical.set(16.0);
+                });
+            })
+            .id(day::id!(layout_reactive_reset)),
+    ))
+    .title(crate::res::str::layout_reactive_title())
+}
+
+fn sizing_control(
+    title: LocalizedText,
+    value: Signal<f64>,
+    range: std::ops::RangeInclusive<f64>,
+    id: ElementId,
+) -> impl Piece {
+    labeled(
+        title,
+        row((
+            slider(value).range(range).step(1.0).id(id),
+            label(crate::res::str::layout_reactive_points(value))
+                .tabular()
+                .min_width(56.0),
+        ))
+        .spacing(Space::M),
+    )
 }
 
 /// Three swatches of different heights in one row: the alignment picker moves them against

@@ -61,7 +61,8 @@ platform cannot run stays, with a note.
 - **Controls, Text, Text areas, Focus.** Buttons, toggles, sliders, pickers, and fields, each bound
   two ways to a signal; styled text, selection, editing, and live syntax highlighting.
 - **Canvas & shapes, Animation, Grid, Layout.** Paths, gradients, transforms, and gestures on a
-  native drawing surface, next to the layout containers. Animation includes 1–250 glass marbles
+  native drawing surface, next to the layout containers. Layout includes sliders that resize
+  and move one shape in place, with live dimensions and a Reset button. Animation includes 1–250 glass marbles
   with randomized launches and collisions against all four canvas edges. The native frame clock
   drives fixed-step physics; minimum/maximum/average callback FPS uses a rolling two-second window,
   excludes paused intervals, and starts fresh on each bounce, count change, or Reset. Marbles move
@@ -91,7 +92,8 @@ language at runtime lays every screen out again, mirrored for Arabic.
 ## The same code on every platform
 
 The app is also Day's own integration test. `dayscript/walkthrough.yaml` drives every screen on
-every target, in both themes and all four locales, and the captures it takes are the
+every target, in both themes and all four locales. `dayscript/layout-reactive.yaml` separately
+checks resizing, translation controls, and reset on the Layout page. The captures form the
 [gallery](https://daybrite.dev/gallery/Day-Showcase/) on daybrite.dev.
 
 | Windows · XAML | Linux · GTK | Linux · Qt |

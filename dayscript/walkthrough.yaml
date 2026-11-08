@@ -350,6 +350,12 @@ flow:
   # targets; and the window's size classes.
   - navigate: { route: layout }
   - assert_route: { route: layout }
+  - set_value: { id: layout_reactive_width, value: 160 }
+  - set_value: { id: layout_reactive_height, value: 120 }
+  - assert_frame: { id: layout_reactive_shape, width: 160, height: 120 }
+  - tap: { id: layout_reactive_reset }
+  - assert_frame: { id: layout_reactive_shape, width: 120, height: 80 }
+  - scroll_to: { id: layout_stack }
   # Alignment is a build-time property, so each pick rebuilds the swatch row through its own
   # `when` arm. Drive all three so every arm realizes on every backend, then back to Center.
   - assert_visible: { id: layout_stack }

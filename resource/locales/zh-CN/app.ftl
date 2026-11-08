@@ -1431,3 +1431,14 @@ map_tap_marker = 标记：{ $sight ->
 map_tap_feature = { $layer }：{ $name }
 map_tap_layer = { $layer }
 map_tap_nothing = 此处无内容
+
+# Interactive layout sizing and translation.
+layout_reactive_title = 响应式尺寸
+layout_reactive_note = 调整形状大小或在预览中移动它。拖动滑块会更新同一个形状的尺寸和位移，不会重建形状。
+layout_reactive_width = 宽度
+layout_reactive_height = 高度
+layout_reactive_horizontal = 水平偏移
+layout_reactive_vertical = 垂直偏移
+layout_reactive_reset = 重置
+layout_reactive_points = { NUMBER($value, maximumFractionDigits: 0) } 点
+layout_reactive_shape = 形状：宽 { NUMBER($width, maximumFractionDigits: 0) } 点，高 { NUMBER($height, maximumFractionDigits: 0) } 点

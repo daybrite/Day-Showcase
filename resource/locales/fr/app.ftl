@@ -1441,3 +1441,14 @@ map_tap_marker = Repère : { $sight ->
 map_tap_feature = { $layer } : { $name }
 map_tap_layer = { $layer }
 map_tap_nothing = Rien ici
+
+# Interactive layout sizing and translation.
+layout_reactive_title = Dimensions réactives
+layout_reactive_note = Redimensionnez la forme ou déplacez-la dans l’aperçu. La forme reste en place pendant que les curseurs modifient ses dimensions et son décalage.
+layout_reactive_width = Largeur
+layout_reactive_height = Hauteur
+layout_reactive_horizontal = Décalage horizontal
+layout_reactive_vertical = Décalage vertical
+layout_reactive_reset = Réinitialiser
+layout_reactive_points = { NUMBER($value, maximumFractionDigits: 0) } pt
+layout_reactive_shape = Forme : { NUMBER($width, maximumFractionDigits: 0) } sur { NUMBER($height, maximumFractionDigits: 0) } points

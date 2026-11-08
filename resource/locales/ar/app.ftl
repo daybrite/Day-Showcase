@@ -1458,3 +1458,14 @@ map_tap_marker = علامة: { $sight ->
 map_tap_feature = { $layer }: { $name }
 map_tap_layer = { $layer }
 map_tap_nothing = لا شيء هنا
+
+# Interactive layout sizing and translation.
+layout_reactive_title = تحجيم تفاعلي
+layout_reactive_note = غيّر حجم الشكل أو حرّكه داخل المعاينة. يبقى الشكل نفسه أثناء تحديث أبعاده وإزاحته باستخدام أشرطة التمرير.
+layout_reactive_width = العرض
+layout_reactive_height = الارتفاع
+layout_reactive_horizontal = الإزاحة الأفقية
+layout_reactive_vertical = الإزاحة الرأسية
+layout_reactive_reset = إعادة الضبط
+layout_reactive_points = { NUMBER($value, maximumFractionDigits: 0) } نقطة
+layout_reactive_shape = شكل بعرض { NUMBER($width, maximumFractionDigits: 0) } وارتفاع { NUMBER($height, maximumFractionDigits: 0) } نقطة

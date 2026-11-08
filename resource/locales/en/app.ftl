@@ -1451,3 +1451,14 @@ map_tap_marker = Marker: { $sight ->
 map_tap_feature = { $layer }: { $name }
 map_tap_layer = { $layer }
 map_tap_nothing = Nothing there
+
+# Interactive layout sizing and translation.
+layout_reactive_title = Reactive sizing
+layout_reactive_note = Resize the shape or move it within the preview. The same shape stays mounted while the sliders update its frame and translation.
+layout_reactive_width = Width
+layout_reactive_height = Height
+layout_reactive_horizontal = Horizontal offset
+layout_reactive_vertical = Vertical offset
+layout_reactive_reset = Reset
+layout_reactive_points = { NUMBER($value, maximumFractionDigits: 0) } pt
+layout_reactive_shape = Shape: { NUMBER($width, maximumFractionDigits: 0) } by { NUMBER($height, maximumFractionDigits: 0) } points
