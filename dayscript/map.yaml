@@ -1,0 +1,50 @@
+# Copyright © The Daybrite Project
+# SPDX-License-Identifier: MPL-2.0
+
+name: showcase-map
+description: >-
+  The Map page (day-piece-map), switched from its OpenFreeMap default to the built-in sample
+  island, which the app answers in-process, so the script needs no network and draws the same
+  map on every target. It taps the marker at
+  the center, flies to the east coast, turns the map and brings it back north, reading each move
+  back from the readout, then frames both markers and turns the island for the capture. The
+  readout and the tap line are catalog messages selected by plain values, so every assertion
+  names its key and holds in each locale the CI runs.
+flow:
+  - wait_for: { id: nav }
+  - pause: { secs: 1.0 } # let the sidebar finish building before its selection is set
+  - navigate: { route: map }
+  - assert_route: { route: map }
+  - wait_for: { id: map_canvas }
+  - select: { id: map_source, index: 2 } # the island: the third entry, after Liberty and Positron
+  - pause: { secs: 2.0 } # the style loads, its tiles arrive, the frame re-records
+  - assert_text: { id: map_readout, key: map_readout, args: { status: ready, lat: "0.0000", lng: "0.0000", zoom: "9.00", bearing: 0 } }
+  - screenshot: map-island
+
+  # The island center's marker sits in the middle of the map: a tap on it names it, once the
+  # double-tap window has passed.
+  - tap: { id: map_canvas }
+  - pause: { secs: 0.8 }
+  - assert_text: { id: map_tap, key: map_tap_marker, args: { sight: center } }
+
+  # The first flight lands on the east coast at zoom 16.
+  - tap: { id: map_fly }
+  - pause: { secs: 1.6 }
+  - assert_text: { id: map_readout, key: map_readout, args: { status: ready, lat: "0.3000", lng: "1.1800", zoom: "16.00", bearing: 0 } }
+
+  # A turn by 45° holds the position, and North turns it back.
+  - tap: { id: map_rotate }
+  - pause: { secs: 1.0 }
+  - assert_text: { id: map_readout, key: map_readout, args: { status: ready, lat: "0.3000", lng: "1.1800", zoom: "16.00", bearing: 45 } }
+  - tap: { id: map_north }
+  - pause: { secs: 1.0 }
+  - assert_text: { id: map_readout, key: map_readout, args: { status: ready, lat: "0.3000", lng: "1.1800", zoom: "16.00", bearing: 0 } }
+
+  # Fit frames both markers (the zoom it lands at follows the window, so only the capture checks
+  # it), and a turn shows the island at 45°.
+  - tap: { id: map_fit }
+  - pause: { secs: 1.6 }
+  - tap: { id: map_rotate }
+  - pause: { secs: 1.0 }
+  - assert_visible: { id: map_readout }
+  - screenshot: map-turned

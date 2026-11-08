@@ -1408,3 +1408,41 @@ google_signed_in = Google account { $id }
 
 # Numeric notification count.
 badge_count = { $count }
+
+# Map (src/pages/map.rs): day-piece-map over the built-in sample island or a live OpenFreeMap
+# style, the camera calls on buttons, and a readout of what the piece reports.
+nav_map = Map
+map_source_sample = Sample island
+map_source_liberty = OpenFreeMap Liberty
+map_source_positron = OpenFreeMap Positron
+map_fly = Fly
+map_fit = Fit
+map_rotate = Rotate
+map_north = North
+# The places each source marks: the island's center and east coast, or two London sights.
+map_sight = { $sight ->
+        [center] Island center
+        [coast] East coast
+        [trafalgar] Trafalgar Square
+       *[bridge] Tower Bridge
+    }
+# Status · latitude, longitude · zoom · bearing.
+map_readout = { $status ->
+        [ready] Ready
+        [failed] Failed: { $reason }
+       *[loading] Loading
+    } · { $lat }, { $lng } · zoom { $zoom } · { $bearing ->
+        [0] North up
+       *[other] Bearing { $bearing }°
+    }
+# What the last tap found: a marker, a feature's layer and name, or nothing.
+map_tap_prompt = Tap the map
+map_tap_marker = Marker: { $sight ->
+        [center] Island center
+        [coast] East coast
+        [trafalgar] Trafalgar Square
+       *[bridge] Tower Bridge
+    }
+map_tap_feature = { $layer }: { $name }
+map_tap_layer = { $layer }
+map_tap_nothing = Nothing there

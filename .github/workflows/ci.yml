@@ -46,7 +46,7 @@ jobs:
       day-deps: ${{ inputs.day-main && 'main' || 'auto' }}
       target-packages: |
         windows-winui: webview2-runtime
-      scripts: dayscript/walkthrough.yaml dayscript/list.yaml dayscript/speech.yaml dayscript/tree.yaml dayscript/network.yaml dayscript/sidebar-sections.yaml
+      scripts: dayscript/walkthrough.yaml dayscript/list.yaml dayscript/speech.yaml dayscript/tree.yaml dayscript/network.yaml dayscript/sidebar-sections.yaml dayscript/map.yaml
       # The gallery's variant ids: one run per theme × locale, the same matrix day's own CI drives.
       # The medium_tablet emulator still hangs on the Physics animation (Showcase run
       # 42388456264). Keep its existing opt-out scoped to this AVD; phones and desktop

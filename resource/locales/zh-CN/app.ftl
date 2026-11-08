@@ -1391,3 +1391,38 @@ google_signed_in = Google 账户 { $id }
 
 # Numeric notification count.
 badge_count = { $count }
+
+# Map (src/pages/map.rs): day-piece-map over the built-in sample island or a live OpenFreeMap
+# style, the camera calls on buttons, and a readout of what the piece reports.
+nav_map = 地图
+map_source_sample = 示例岛屿
+map_source_liberty = OpenFreeMap Liberty
+map_source_positron = OpenFreeMap Positron
+map_fly = 飞往
+map_fit = 全览
+map_rotate = 旋转
+map_north = 正北
+map_sight = { $sight ->
+        [center] 岛屿中心
+        [coast] 东海岸
+        [trafalgar] 特拉法加广场
+       *[bridge] 塔桥
+    }
+map_readout = { $status ->
+        [ready] 就绪
+        [failed] 失败：{ $reason }
+       *[loading] 正在加载
+    } · { $lat }, { $lng } · 缩放 { $zoom } · { $bearing ->
+        [0] 上北
+       *[other] 方位 { $bearing }°
+    }
+map_tap_prompt = 轻点地图
+map_tap_marker = 标记：{ $sight ->
+        [center] 岛屿中心
+        [coast] 东海岸
+        [trafalgar] 特拉法加广场
+       *[bridge] 塔桥
+    }
+map_tap_feature = { $layer }：{ $name }
+map_tap_layer = { $layer }
+map_tap_nothing = 此处无内容

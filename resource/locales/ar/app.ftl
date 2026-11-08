@@ -1418,3 +1418,38 @@ google_signed_in = حساب Google { $id }
 
 # Numeric notification count.
 badge_count = { $count }
+
+# Map (src/pages/map.rs): day-piece-map over the built-in sample island or a live OpenFreeMap
+# style, the camera calls on buttons, and a readout of what the piece reports.
+nav_map = الخريطة
+map_source_sample = جزيرة تجريبية
+map_source_liberty = OpenFreeMap Liberty
+map_source_positron = OpenFreeMap Positron
+map_fly = حلّق
+map_fit = ملاءمة
+map_rotate = تدوير
+map_north = الشمال
+map_sight = { $sight ->
+        [center] وسط الجزيرة
+        [coast] الساحل الشرقي
+        [trafalgar] ميدان ترافالغار
+       *[bridge] جسر البرج
+    }
+map_readout = { $status ->
+        [ready] جاهزة
+        [failed] تعذّر التحميل: { $reason }
+       *[loading] جارٍ التحميل
+    } · { $lat }، { $lng } · التكبير { $zoom } · { $bearing ->
+        [0] الشمال للأعلى
+       *[other] الاتجاه { $bearing }°
+    }
+map_tap_prompt = انقر على الخريطة
+map_tap_marker = علامة: { $sight ->
+        [center] وسط الجزيرة
+        [coast] الساحل الشرقي
+        [trafalgar] ميدان ترافالغار
+       *[bridge] جسر البرج
+    }
+map_tap_feature = { $layer }: { $name }
+map_tap_layer = { $layer }
+map_tap_nothing = لا شيء هنا

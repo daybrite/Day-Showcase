@@ -1401,3 +1401,38 @@ google_signed_in = Compte Google { $id }
 
 # Numeric notification count.
 badge_count = { $count }
+
+# Map (src/pages/map.rs): day-piece-map over the built-in sample island or a live OpenFreeMap
+# style, the camera calls on buttons, and a readout of what the piece reports.
+nav_map = Carte
+map_source_sample = Île d'exemple
+map_source_liberty = OpenFreeMap Liberty
+map_source_positron = OpenFreeMap Positron
+map_fly = Survoler
+map_fit = Cadrer
+map_rotate = Pivoter
+map_north = Nord
+map_sight = { $sight ->
+        [center] Centre de l'île
+        [coast] Côte est
+        [trafalgar] Trafalgar Square
+       *[bridge] Tower Bridge
+    }
+map_readout = { $status ->
+        [ready] Prête
+        [failed] Échec : { $reason }
+       *[loading] Chargement
+    } · { $lat }, { $lng } · zoom { $zoom } · { $bearing ->
+        [0] Nord en haut
+       *[other] Cap { $bearing }°
+    }
+map_tap_prompt = Touchez la carte
+map_tap_marker = Repère : { $sight ->
+        [center] Centre de l'île
+        [coast] Côte est
+        [trafalgar] Trafalgar Square
+       *[bridge] Tower Bridge
+    }
+map_tap_feature = { $layer } : { $name }
+map_tap_layer = { $layer }
+map_tap_nothing = Rien ici
