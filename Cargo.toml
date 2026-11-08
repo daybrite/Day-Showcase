@@ -124,11 +124,9 @@ day-piece-lottie-gallery = "0.*"
 day-piece-charts = "0.*"
 day-piece-charts-gallery = "0.*"
 # The Map page draws day-piece-map's vector map, over its built-in sample island by default, so
-# the page needs no network. A path line until the piece's repository is pushed: neither a git
-# nor a crates.io dependency can resolve before it is published, even with a [patch] table.
-# Drop the path after the push, and `day patch --local ../day-piece-map` builds against the
-# checkout again.
-day-piece-map = { version = "0.*", path = "../day-piece-map" }
+# the page needs no network. From crates.io like the other pieces; `day patch --local
+# ../day-piece-map` builds against a checkout.
+day-piece-map = "0.*"
 # day-piece-camera renders on iOS, Android and HarmonyOS; the front-end compiles everywhere and
 # `day_piece_camera::support()` decides at run time whether the Camera page is listed. Its own
 # repository, like lottie: a bare git line, and `day patch --local ../day-piece-camera` builds
