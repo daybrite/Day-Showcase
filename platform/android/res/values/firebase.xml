@@ -1,0 +1,6 @@
+<resources>
+  <string name="google_app_id" translatable="false">1:566972518770:android:6ad0d06353c39ba7448deb</string>
+  <string name="gcm_defaultSenderId" translatable="false">566972518770</string>
+  <string name="google_api_key" translatable="false">AIzaSyB1ug9TzwcsU3IFCquITekxCsyMADoW4Ag</string>
+  <string name="project_id" translatable="false">day-showcase</string>
+</resources>

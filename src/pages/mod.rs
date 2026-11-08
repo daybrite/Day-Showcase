@@ -23,6 +23,7 @@ pub(crate) mod menus;
 pub(crate) mod model;
 pub(crate) mod network;
 pub(crate) mod physics;
+pub(crate) mod push;
 pub(crate) mod query;
 pub(crate) mod resources;
 pub(crate) mod scripting;

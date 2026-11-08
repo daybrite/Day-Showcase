@@ -33,6 +33,9 @@ CURRENT_PROJECT_VERSION = 1
 //CODE_SIGN_STYLE = Automatic
 //CODE_SIGN_IDENTITY = Apple Development
 //PROVISIONING_PROFILE_SPECIFIER = My Provisioning Profile
+CODE_SIGN_ENTITLEMENTS = $(DAY_PROJECT_ROOT)/platform/ios/Runner/Showcase.entitlements
+DAY_APNS_ENVIRONMENT = production
+DAY_APNS_ENVIRONMENT[config=Debug] = development
 
 // ===========================================================================
 // Platform
