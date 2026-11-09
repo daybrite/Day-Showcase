@@ -1417,7 +1417,6 @@ layout_reactive_shape = Shape: { NUMBER($width, maximumFractionDigits: 0) } by {
 
 push_caption = Send a push notification to this device through the Day relay. Use the delayed send, then leave the app or lock the device to see how it arrives.
 push_unavailable = Push notifications are unavailable in this build.
-push_code = Enrollment code (first send only)
 push_send_now = Send now
 push_send_later = { $seconds ->
     [one] Send in 1 second
@@ -1427,11 +1426,9 @@ push_hint = The first send asks for permission and registers this device with th
 push_sending = Sending…
 push_requested = Waiting for a device token from the push service…
 push_no_token = The push service did not provide a device token. Try again in a moment.
-push_need_code = Enter the enrollment code from the relay administrator, then send again.
 push_denied = Notifications are turned off for this app. Allow them in Settings, then send again.
 push_too_soon = The relay allows one test every 30 seconds. Wait a moment, then send again.
-push_sample_title = Hello from Day
-push_sample_body = This notification traveled through the Day relay and your device's push service.
+push_network_busy = The relay has registered many devices from this network in the last hour. Try again later.
 push_accepted = Sent. It should arrive in a moment.
 push_scheduled = { $seconds ->
     [one] Arriving in 1 second. Leave the app to see it in the background.

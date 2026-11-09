@@ -47,7 +47,6 @@ struct Push {
     token: Signal<Option<push::Token>>,
     event: Signal<Option<push::Event>>,
     registration: Signal<Option<Registration>>,
-    code: Signal<String>,
     sandbox: Signal<bool>,
     status: Signal<String>,
     busy: Signal<bool>,
@@ -68,7 +67,7 @@ impl Push {
     }
 
     /// Everything one tap needs: notification permission, a device token, a relay registration
-    /// (first time only, from the enrollment code), then the send itself.
+    /// (first time only), then the send itself.
     async fn send(self, delay: u64) -> Result<String, String> {
         let token = match self.token.get_untracked() {
             Some(token) => token,
@@ -83,35 +82,52 @@ impl Push {
         };
         let enrolled = match self.registration.get_untracked() {
             Some(enrolled) => enrolled,
-            None => {
-                let code = self.code.get_untracked();
-                if code.trim().is_empty() {
-                    return Err(tr::push_need_code().format());
-                }
-                let enrolled = client()
-                    .enroll(code.trim(), &token, self.environment(false))
+            None => self.enroll(&token).await?,
+        };
+        let locale = day::locale().get_untracked();
+        let delay = Duration::from_secs(delay);
+        match client().send_test_after(&enrolled, &locale, delay).await {
+            // The relay forgets a registration unused for a week, and drops one whose token the
+            // provider rejected: register again, once.
+            Err(push::Error::RelayStatus(401 | 404)) => {
+                self.forget();
+                let enrolled = self.enroll(&token).await?;
+                client()
+                    .send_test_after(&enrolled, &locale, delay)
                     .await
                     .map_err(failed)?;
-                if let Err(error) = remember(&enrolled) {
-                    let _ = client().remove(&enrolled).await;
-                    return Err(tr::push_error(error).format());
-                }
-                self.registration.set(Some(enrolled.clone()));
-                self.code.set(String::new());
-                enrolled
             }
-        };
-        let title = tr::push_sample_title().format();
-        let body = tr::push_sample_body().format();
-        client()
-            .send_test_after(&enrolled, &title, &body, Duration::from_secs(delay))
-            .await
-            .map_err(failed)?;
+            sent => sent.map_err(failed)?,
+        }
+        let delay = delay.as_secs();
         Ok(if delay == 0 {
             tr::push_accepted().format()
         } else {
             tr::push_scheduled(delay as i64).format()
         })
+    }
+
+    /// Registers the device token with the relay and keeps the credential in the keychain.
+    async fn enroll(self, token: &push::Token) -> Result<Registration, String> {
+        let enrolled = client()
+            .enroll(token, self.environment(false))
+            .await
+            .map_err(|error| match error {
+                push::Error::RelayStatus(429) => tr::push_network_busy().format(),
+                error => failed(error),
+            })?;
+        if let Err(error) = remember(&enrolled) {
+            let _ = client().remove(&enrolled).await;
+            return Err(tr::push_error(error).format());
+        }
+        self.registration.set(Some(enrolled.clone()));
+        Ok(enrolled)
+    }
+
+    /// Drops a registration the relay no longer knows; the next send registers again.
+    fn forget(self) {
+        let _ = day_part_keychain::remove(REGISTRATION);
+        self.registration.set(None);
     }
 
     /// The token arrives as an event after `register` returns; poll the signal the watch fills.
@@ -140,15 +156,14 @@ impl Push {
 /// from a server through APNs or FCM rather than posted by the app. One tap sends one through
 /// the Day demo relay; the delayed send leaves time to background the app and see how the
 /// notification arrives when the app is not in front. The first send also asks for permission,
-/// waits for the device token, and registers this device with the relay using a one-use
-/// enrollment code from the relay's administrator. Advanced holds the token, the APNs
+/// waits for the device token, and registers this device with the relay, which then sends its
+/// own sample text in the app's language. Advanced holds the token, the APNs
 /// environment, the raw payload of the last notification, and removal from the relay.
 pub(crate) fn push_page() -> AnyPiece {
     let state = Push {
         token: Signal::new(None),
         event: Signal::new(None),
         registration: Signal::new(saved()),
-        code: Signal::new(String::new()),
         sandbox: Signal::new(cfg!(debug_assertions)),
         status: Signal::new(String::new()),
         busy: Signal::new(false),
@@ -190,8 +205,11 @@ fn keep_token_current(state: Push) {
             *last_sync.borrow_mut() = snapshot;
             state.busy.set(true);
             page_task(async move {
-                if let Err(error) = client().update(&enrolled, &current, environment).await {
-                    state.status.set(failed(error));
+                match client().update(&enrolled, &current, environment).await {
+                    // Expired or dropped at the relay: the next send registers again.
+                    Err(push::Error::RelayStatus(401 | 404)) => state.forget(),
+                    Err(error) => state.status.set(failed(error)),
+                    Ok(()) => {}
                 }
                 state.busy.set(false);
             });
@@ -209,18 +227,6 @@ fn send_section(state: Push) -> impl Piece {
         })
         .font(Font::Footnote)
         .id(day::id!(push_support)),
-        // Needed once per device: the relay registers only devices its administrator invited.
-        when(
-            move || state.registration.get().is_none(),
-            move || {
-                text_field(state.code)
-                    .placeholder(tr::push_code())
-                    .a11y(|a| a.label(tr::push_code()))
-                    .enabled(ready)
-                    .id(day::id!(push_code))
-                    .any()
-            },
-        ),
         row((
             button(tr::push_send_now())
                 .tint(crate::widgets::primary())
@@ -315,9 +321,9 @@ fn advanced_section(state: Push) -> impl Piece {
                 page_task(async move {
                     if let Some(enrolled) = enrolled {
                         match client().remove(&enrolled).await {
-                            // The provider may already have invalidated and removed this
-                            // registration.
-                            Ok(()) | Err(push::Error::RelayStatus(401)) => {}
+                            // The relay may already have expired this registration, or removed
+                            // it when the provider invalidated its token.
+                            Ok(()) | Err(push::Error::RelayStatus(401 | 404)) => {}
                             Err(error) => {
                                 state.status.set(failed(error));
                                 state.busy.set(false);

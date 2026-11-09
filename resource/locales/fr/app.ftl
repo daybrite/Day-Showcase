@@ -1407,7 +1407,6 @@ layout_reactive_shape = Forme : { NUMBER($width, maximumFractionDigits: 0) } sur
 
 push_caption = Envoyez une notification push à cet appareil par le relais Day. Utilisez l'envoi différé, puis quittez l'app ou verrouillez l'appareil pour voir comment elle arrive.
 push_unavailable = Les notifications push ne sont pas disponibles dans cette version.
-push_code = Code d'inscription (premier envoi seulement)
 push_send_now = Envoyer maintenant
 push_send_later = { $seconds ->
     [one] Envoyer dans 1 seconde
@@ -1417,11 +1416,9 @@ push_hint = Le premier envoi demande l'autorisation et inscrit cet appareil aupr
 push_sending = Envoi…
 push_requested = En attente du jeton de l'appareil fourni par le service push…
 push_no_token = Le service push n'a pas fourni de jeton. Réessayez dans un instant.
-push_need_code = Saisissez le code d'inscription fourni par l'administrateur du relais, puis renvoyez.
 push_denied = Les notifications sont désactivées pour cette app. Autorisez-les dans les Réglages, puis renvoyez.
 push_too_soon = Le relais accepte un test toutes les 30 secondes. Patientez un instant, puis renvoyez.
-push_sample_title = Bonjour de la part de Day
-push_sample_body = Cette notification est passée par le relais Day et le service push de votre appareil.
+push_network_busy = Le relais a inscrit beaucoup d'appareils depuis ce réseau au cours de la dernière heure. Réessayez plus tard.
 push_accepted = Envoyée. Elle devrait arriver dans un instant.
 push_scheduled = { $seconds ->
     [one] Arrivée dans 1 seconde. Quittez l'app pour la voir en arrière-plan.
