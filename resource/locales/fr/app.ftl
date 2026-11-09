@@ -448,6 +448,7 @@ nav_system = Appareil et capteurs
 nav_network_http = Réseau et HTTP
 network_status_section = Connectivité
 nav_notify_badge = Notifications et badge
+nav_push = Notifications push
 nav_speech_haptics = Voix, sons et haptique
 nav_files_storage = Fichiers et stockage
 paths_title = Tracés, contours et découpe
@@ -1464,26 +1465,39 @@ layout_reactive_reset = Réinitialiser
 layout_reactive_points = { NUMBER($value, maximumFractionDigits: 0) } pt
 layout_reactive_shape = Forme : { NUMBER($width, maximumFractionDigits: 0) } sur { NUMBER($height, maximumFractionDigits: 0) } points
 
-push_heading = Notifications à distance
-push_caption = Activez les notifications push, puis saisissez un code d'inscription à usage unique fourni par l'administrateur du relais Day. Le relais envoie une notification de test à cet appareil et conserve les identifiants d'envoi sur le serveur.
-push_supported = Un service push natif est activé.
+push_caption = Envoyez une notification push à cet appareil par le relais Day. Utilisez l'envoi différé, puis quittez l'app ou verrouillez l'appareil pour voir comment elle arrive.
 push_unavailable = Les notifications push ne sont pas disponibles dans cette version.
-push_enable = Activer les notifications push
-push_requested = Inscription demandée. En attente du service push.
-push_token_ready = Jeton de l'appareil reçu
-push_no_token = Activez d'abord les notifications push et attendez le jeton de l'appareil.
-push_code = Code d'inscription
-push_sandbox = Utiliser l'environnement de test APNs (versions de développement)
-push_enroll = S'inscrire auprès du relais
-push_enrolled = Appareil inscrit auprès du relais
-push_send = Envoyer une notification de test
-push_need_enrollment = Inscrivez d'abord cet appareil auprès du relais.
+push_code = Code d'inscription (premier envoi seulement)
+push_send_now = Envoyer maintenant
+push_send_later = { $seconds ->
+    [one] Envoyer dans 1 seconde
+   *[other] Envoyer dans { $seconds } secondes
+}
+push_hint = Le premier envoi demande l'autorisation et inscrit cet appareil auprès du relais.
+push_sending = Envoi…
+push_requested = En attente du jeton de l'appareil fourni par le service push…
+push_no_token = Le service push n'a pas fourni de jeton. Réessayez dans un instant.
+push_need_code = Saisissez le code d'inscription fourni par l'administrateur du relais, puis renvoyez.
+push_denied = Les notifications sont désactivées pour cette app. Autorisez-les dans les Réglages, puis renvoyez.
+push_too_soon = Le relais accepte un test toutes les 30 secondes. Patientez un instant, puis renvoyez.
 push_sample_title = Bonjour de la part de Day
 push_sample_body = Cette notification est passée par le relais Day et le service push de votre appareil.
-push_accepted = Acceptée par le service push. La réception peut prendre un moment.
+push_accepted = Envoyée. Elle devrait arriver dans un instant.
+push_scheduled = { $seconds ->
+    [one] Arrivée dans 1 seconde. Quittez l'app pour la voir en arrière-plan.
+   *[other] Arrivée dans { $seconds } secondes. Quittez l'app pour la voir en arrière-plan.
+}
+push_received = Reçue pendant que l'app était ouverte : { $title }
+push_opened = Ouverte depuis la notification : { $title }
+push_advanced = Avancé
+push_token = Jeton de l'appareil
+push_token_apns = Reçu d'APNs
+push_token_fcm = Reçu de FCM
+push_token_none = Pas encore reçu
+push_relay = Inscription au relais
+push_relay_none = Non inscrit
+push_sandbox = Utiliser l'environnement de test APNs (versions de développement)
+push_waiting = Aucune notification reçue pour l'instant
 push_remove = Retirer du relais
 push_removed = Appareil retiré du relais
-push_opened = Notification ouverte : { $payload }
-push_received = Notification reçue : { $payload }
-push_waiting = En attente d'une notification à distance
-push_error = Échec de l'opération push : { $error }
+push_error = Échec de l'envoi push : { $error }

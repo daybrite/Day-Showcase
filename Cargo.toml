@@ -93,7 +93,7 @@ day-part-haptics = "0.*"
 day-part-sound = "0.*"
 # Local notifications (docs/notify.md): the Platform Services page posts and schedules them.
 day-part-local-notify = "0.*"
-day-part-push = { version = "0.*", path = "../day-part-push", features = ["relay"] }
+day-part-push = { version = "0.*", features = ["relay"] }
 # day-part-preferences is no longer a direct dependency: it arrives through the day facade as
 # `day::prefs` (docs/prefs.md).
 day-piece-settings = "0.*"

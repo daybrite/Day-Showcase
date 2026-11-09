@@ -1558,6 +1558,22 @@ flow:
       title: { en: "Notifications & badge", fr: "Notifications et badge", ar: "الإشعارات والشارة", zh-CN: "通知与角标" }
       source: src/pages/services.rs
 
+  # Push notifications (day-part-push): listed only where APNs or FCM delivers (the phones).
+  # The two send buttons and the Advanced readouts; nothing is sent, since a send needs a relay
+  # enrollment code and a real push service, and the permission prompt is an OS modal dayscript
+  # cannot dismiss. Sends are tried by hand on a device.
+  - navigate: { route: push, only_on: [ios-uikit, android-material] }
+  - assert_route: { route: push, only_on: [ios-uikit, android-material] }
+  - wait_for: { id: push_support, only_on: [ios-uikit, android-material] }
+  - assert_visible: { id: push_send, only_on: [ios-uikit, android-material] }
+  - assert_visible: { id: push_send_later, only_on: [ios-uikit, android-material] }
+  - assert_visible: { id: push_token_state, only_on: [ios-uikit, android-material] }
+  - screenshot:
+      name: push
+      only_on: [ios-uikit, android-material]
+      title: { en: "Push notifications", fr: "Notifications push", ar: "الإشعارات الفورية", zh-CN: "推送通知" }
+      source: src/pages/push.rs
+
   # Speech, sound & haptics (docs/bridge.md, docs/sound.md, docs/haptics.md): the support line is
   # the speech part's answer for this target; the voice itself is the acceptance test
   # (dayscript/speech.yaml speaks, opt-in, since a CI runner has nobody to hear it). The sound and

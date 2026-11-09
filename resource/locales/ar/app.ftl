@@ -455,6 +455,7 @@ nav_system = الجهاز والمستشعرات
 nav_network_http = الشبكة وHTTP
 network_status_section = الاتصال
 nav_notify_badge = الإشعارات والشارة
+nav_push = الإشعارات الفورية
 nav_speech_haptics = الكلام والصوت واللمس
 nav_files_storage = الملفات والتخزين
 paths_title = المسارات والحدود والاقتصاص
@@ -1481,26 +1482,43 @@ layout_reactive_reset = إعادة الضبط
 layout_reactive_points = { NUMBER($value, maximumFractionDigits: 0) } نقطة
 layout_reactive_shape = شكل بعرض { NUMBER($width, maximumFractionDigits: 0) } وارتفاع { NUMBER($height, maximumFractionDigits: 0) } نقطة
 
-push_heading = الإشعارات عن بُعد
-push_caption = فعّل الإشعارات، ثم أدخل رمز تسجيل يُستخدم مرة واحدة من مسؤول خدمة ترحيل Day. ترسل الخدمة إشعارًا تجريبيًا إلى هذا الجهاز وتحتفظ ببيانات اعتماد الإرسال على الخادم.
-push_supported = خدمة الإشعارات الأصلية مفعّلة.
-push_unavailable = الإشعارات غير متاحة في هذا الإصدار.
-push_enable = تفعيل الإشعارات
-push_requested = تم طلب التسجيل. بانتظار خدمة الإشعارات.
-push_token_ready = تم استلام رمز الجهاز
-push_no_token = فعّل الإشعارات أولًا وانتظر رمز الجهاز.
-push_code = رمز التسجيل
-push_sandbox = استخدام بيئة اختبار APNs (إصدارات التطوير)
-push_enroll = التسجيل في خدمة الترحيل
-push_enrolled = تم تسجيل الجهاز في خدمة الترحيل
-push_send = إرسال إشعار تجريبي
-push_need_enrollment = سجّل هذا الجهاز في خدمة الترحيل أولًا.
+push_caption = أرسل إشعارًا فوريًا إلى هذا الجهاز عبر خدمة ترحيل Day. استخدم الإرسال المؤجل، ثم غادر التطبيق أو اقفل الجهاز لترى كيف يصل.
+push_unavailable = الإشعارات الفورية غير متاحة في هذا الإصدار.
+push_code = رمز التسجيل (لأول إرسال فقط)
+push_send_now = إرسال الآن
+push_send_later = { $seconds ->
+    [one] إرسال بعد ثانية واحدة
+    [two] إرسال بعد ثانيتين
+    [few] إرسال بعد { $seconds } ثوانٍ
+   *[other] إرسال بعد { $seconds } ثانية
+}
+push_hint = يطلب أول إرسال الإذن ويسجّل هذا الجهاز في خدمة الترحيل.
+push_sending = جارٍ الإرسال…
+push_requested = بانتظار رمز الجهاز من خدمة الإشعارات…
+push_no_token = لم تقدّم خدمة الإشعارات رمزًا للجهاز. حاول مرة أخرى بعد قليل.
+push_need_code = أدخل رمز التسجيل من مسؤول خدمة الترحيل، ثم أعد الإرسال.
+push_denied = الإشعارات متوقفة لهذا التطبيق. اسمح بها من الإعدادات، ثم أعد الإرسال.
+push_too_soon = تسمح خدمة الترحيل باختبار واحد كل 30 ثانية. انتظر قليلًا، ثم أعد الإرسال.
 push_sample_title = مرحبًا من Day
 push_sample_body = وصل هذا الإشعار عبر خدمة ترحيل Day وخدمة الإشعارات في جهازك.
-push_accepted = قبلت خدمة الإشعارات الطلب. قد يستغرق وصوله إلى الجهاز بعض الوقت.
+push_accepted = تم الإرسال. سيصل بعد لحظات.
+push_scheduled = { $seconds ->
+    [one] يصل بعد ثانية واحدة. غادر التطبيق لتراه في الخلفية.
+    [two] يصل بعد ثانيتين. غادر التطبيق لتراه في الخلفية.
+    [few] يصل بعد { $seconds } ثوانٍ. غادر التطبيق لتراه في الخلفية.
+   *[other] يصل بعد { $seconds } ثانية. غادر التطبيق لتراه في الخلفية.
+}
+push_received = وصل والتطبيق مفتوح: { $title }
+push_opened = فُتح من الإشعار: { $title }
+push_advanced = خيارات متقدمة
+push_token = رمز الجهاز
+push_token_apns = تم استلامه من APNs
+push_token_fcm = تم استلامه من FCM
+push_token_none = لم يُستلم بعد
+push_relay = التسجيل في خدمة الترحيل
+push_relay_none = غير مسجّل
+push_sandbox = استخدام بيئة اختبار APNs (إصدارات التطوير)
+push_waiting = لم يصل أي إشعار بعد
 push_remove = إزالة الجهاز من خدمة الترحيل
 push_removed = تمت إزالة الجهاز من خدمة الترحيل
-push_opened = إشعار تم فتحه: { $payload }
-push_received = إشعار مستلم: { $payload }
-push_waiting = بانتظار إشعار عن بُعد
-push_error = فشلت عملية الإشعارات: { $error }
+push_error = فشل الإشعار الفوري: { $error }

@@ -220,6 +220,7 @@ day::routes! {
         System => "system",
         Network => "network",
         Notify => "notify",
+        Push => "push",
         Speech => "speech",
         Camera => "camera",
         Cursors => "cursors",
@@ -275,6 +276,7 @@ impl Section {
             Section::Scripting => "src/pages/scripting.rs",
             Section::Network => "src/pages/services.rs",
             Section::Notify => "src/pages/services.rs",
+            Section::Push => "src/pages/push.rs",
             Section::Speech => "src/pages/services.rs",
             Section::Camera => "src/pages/camera.rs",
             Section::Files => "src/pages/services.rs",
@@ -825,6 +827,13 @@ fn destinations() -> Vec<Dest> {
         ),
         d(
             Platform,
+            Section::Push,
+            crate::res::str::nav_push,
+            vectors::nav_push,
+            push_page,
+        ),
+        d(
+            Platform,
             Section::Speech,
             crate::res::str::nav_speech_haptics,
             vectors::nav_speech,
@@ -914,6 +923,8 @@ fn destinations() -> Vec<Dest> {
         Section::CrashReporting => crate::support::crash_reporting() != Support::Unsupported,
         // The piece's own probe: it renders on the mobile toolkits and nowhere else.
         Section::Camera => day_piece_camera::support() != Support::Unsupported,
+        // Only APNs (iOS) and FCM (Android) deliver push; the part says which this build has.
+        Section::Push => day_part_push::supported(),
         _ => true,
     });
     all

@@ -449,6 +449,7 @@ nav_system = Device & sensors
 nav_network_http = Network & HTTP
 network_status_section = Connectivity
 nav_notify_badge = Notifications & badge
+nav_push = Push notifications
 nav_speech_haptics = Speech, sound & haptics
 nav_files_storage = Files & storage
 paths_title = Paths, strokes & clipping
@@ -1474,26 +1475,39 @@ layout_reactive_reset = Reset
 layout_reactive_points = { NUMBER($value, maximumFractionDigits: 0) } pt
 layout_reactive_shape = Shape: { NUMBER($width, maximumFractionDigits: 0) } by { NUMBER($height, maximumFractionDigits: 0) } points
 
-push_heading = Remote notifications
-push_caption = Enable push, then enter a one-use enrollment code from the Day relay administrator. The relay sends a test notification to this device and keeps sender credentials on the server.
-push_supported = A native push backend is enabled.
-push_unavailable = Push is unavailable in this build.
-push_enable = Enable push notifications
-push_requested = Registration requested. Waiting for the push service.
-push_token_ready = Device token received
-push_no_token = Enable push and wait for a device token first.
-push_code = Enrollment code
-push_sandbox = Use the APNs sandbox (development builds)
-push_enroll = Register with relay
-push_enrolled = Device registered with the relay
-push_send = Send a test notification
-push_need_enrollment = Register this device with the relay first.
+push_caption = Send a push notification to this device through the Day relay. Use the delayed send, then leave the app or lock the device to see how it arrives.
+push_unavailable = Push notifications are unavailable in this build.
+push_code = Enrollment code (first send only)
+push_send_now = Send now
+push_send_later = { $seconds ->
+    [one] Send in 1 second
+   *[other] Send in { $seconds } seconds
+}
+push_hint = The first send asks for permission and registers this device with the relay.
+push_sending = Sending…
+push_requested = Waiting for a device token from the push service…
+push_no_token = The push service did not provide a device token. Try again in a moment.
+push_need_code = Enter the enrollment code from the relay administrator, then send again.
+push_denied = Notifications are turned off for this app. Allow them in Settings, then send again.
+push_too_soon = The relay allows one test every 30 seconds. Wait a moment, then send again.
 push_sample_title = Hello from Day
 push_sample_body = This notification traveled through the Day relay and your device's push service.
-push_accepted = Accepted by the push service. Device delivery may take a moment.
+push_accepted = Sent. It should arrive in a moment.
+push_scheduled = { $seconds ->
+    [one] Arriving in 1 second. Leave the app to see it in the background.
+   *[other] Arriving in { $seconds } seconds. Leave the app to see it in the background.
+}
+push_received = Arrived while the app was open: { $title }
+push_opened = Opened from the notification: { $title }
+push_advanced = Advanced
+push_token = Device token
+push_token_apns = Received from APNs
+push_token_fcm = Received from FCM
+push_token_none = Not received yet
+push_relay = Relay registration
+push_relay_none = Not registered
+push_sandbox = Use the APNs sandbox (development builds)
+push_waiting = No notification received yet
 push_remove = Remove from relay
 push_removed = Device removed from the relay
-push_opened = Opened notification: { $payload }
-push_received = Received notification: { $payload }
-push_waiting = Waiting for a remote notification
-push_error = Push operation failed: { $error }
+push_error = Push failed: { $error }

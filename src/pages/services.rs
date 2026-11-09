@@ -19,12 +19,7 @@ pub(crate) fn notify_page() -> AnyPiece {
     page(
         crate::res::str::nav_notify_badge(),
         day::id!(notify_page_title),
-        form((
-            notify_section(),
-            badge_section(),
-            super::push::push_section(),
-        ))
-        .any(),
+        form((notify_section(), badge_section())).any(),
     )
     .any()
 }

@@ -65,6 +65,7 @@ pub(crate) use media::media_page;
 pub(crate) use menus::{install_app_menu, menus_page};
 pub(crate) use model::model_page;
 pub(crate) use physics::physics_page;
+pub(crate) use push::push_page;
 pub(crate) use query::query_page;
 pub(crate) use resources::resources_page;
 pub(crate) use scripting::scripting_page;
