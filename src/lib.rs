@@ -12,9 +12,15 @@ mod composition;
 mod pages;
 mod palette;
 pub(crate) mod support;
+mod tls;
 mod widgets;
 
 use crate::pages::*;
+use crate::tls::PREFS;
+
+day::reactive::tls_root! {
+    shared: crate::tls::TlsGroupSlots,
+}
 
 // The mobile / embedded entry point (DESIGN.md §17.4): the iOS and macOS Runners bind `day_main`,
 // DayBridge binds the `Java_…` natives, the HarmonyOS ArkTS host binds `day_arkui_start`, and the
@@ -360,13 +366,6 @@ pub fn root() -> impl Piece {
     // idempotent.
     install_lifecycle_handlers();
     window_root(true)
-}
-
-thread_local! {
-    /// The installed settings surface (docs/settings.md), for the pages that embed it: the
-    /// About page renders its About, the sidebar its navigation presentation on a phone.
-    static PREFS: std::cell::RefCell<Option<day_piece_settings::Prefs>> =
-        const { std::cell::RefCell::new(None) };
 }
 
 /// The installed settings handle. `root` installs it before any window builds, so a page

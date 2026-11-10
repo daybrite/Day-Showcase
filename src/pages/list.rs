@@ -3,6 +3,7 @@ use std::collections::BTreeSet;
 use day::prelude::*;
 use day::pullrefresh::pull_to_refresh;
 
+use crate::tls::SHUFFLE_SEED as SEED;
 use crate::widgets::heading;
 
 /// A native recycling list (docs/list.md): 500 rows, but only the visible cells are ever built;
@@ -611,9 +612,6 @@ fn options_sheet(open: Signal<Option<OptionsKey>>, s: OptionSignals) -> impl Pie
 /// advances per call, so the sequence is deterministic per launch, which suits CI, while
 /// successive shuffles differ).
 fn shuffle(v: &mut [i64]) {
-    thread_local! {
-        static SEED: std::cell::Cell<u64> = const { std::cell::Cell::new(0x9E37_79B9_7F4A_7C15) };
-    }
     let mut s = SEED.with(|c| c.get());
     for i in (1..v.len()).rev() {
         s ^= s << 13;

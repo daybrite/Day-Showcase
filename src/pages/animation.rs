@@ -11,11 +11,10 @@
 //! parameter). Animation is backend-executed: on the backends that animate these channels
 //! natively the toolkit interpolates; elsewhere the value applies at commit.
 
-use std::cell::Cell;
-
 use day::prelude::*;
 
 use crate::palette::{RUST, SLATE, VIOLET};
+use crate::tls::ANIMATION_SEED as SEED;
 use crate::widgets::page;
 
 /// Every signal the page threads together: the queued (`p_`) targets the controls write, the
@@ -300,7 +299,6 @@ fn duration_stepper(dur: Signal<i64>) -> impl Piece {
 
 /// A uniform random `f64` in `lo..=hi`: a tiny xorshift seeded once from the clock (no rand dep).
 fn rand_range(lo: f64, hi: f64) -> f64 {
-    thread_local! { static SEED: Cell<u64> = const { Cell::new(0) }; }
     let x = SEED.with(|s| {
         let mut x = s.get();
         if x == 0 {
