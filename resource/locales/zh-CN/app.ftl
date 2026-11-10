@@ -1422,3 +1422,23 @@ push_waiting = 尚未收到通知
 push_remove = 从中继服务移除
 push_removed = 设备已从中继服务移除
 push_error = 推送失败：{ $error }
+
+# 分享、分组列表及应用级返回示例。
+list_opt_inset_grouped = 内缩分组
+list_opt_inset_hint = macOS 上显示内缩行，iOS 上显示圆角分组。其他平台保持普通列表样式。
+share_demo_title = 分享
+share_demo_native = 在分享菜单中选择自定义操作，更新上方的最近操作。
+share_demo_fallback = 此平台不显示自定义分享操作。可在下方尝试相同操作。
+share_demo_open = 分享 Day 网站…
+share_demo_remember = 记住链接
+share_demo_clear = 清除结果
+share_demo_remembered = 已选择“记住链接”操作
+share_demo_cleared = 已清除分享结果
+share_demo_failed = 无法打开分享菜单。
+share_demo_receive_hint = 在 Android 上，从其他应用向 Day Showcase 分享文本或链接。收到的内容将显示在这里。
+share_demo_none = 尚未收到内容。
+system_back_status = 应用返回：剩余 { $remaining } 次，已处理 { $handled } 次
+system_back_press = 返回
+system_back_stop = 停用
+system_back_hint = 启用三次应用级返回。堆栈页面和弹出页面优先处理返回；导航结束后，应用计数才会变化。测试栏在离开此页面后仍然可见。
+system_back_arm = 启用 3 次返回

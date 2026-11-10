@@ -1448,3 +1448,23 @@ push_waiting = No notification received yet
 push_remove = Remove from relay
 push_removed = Device removed from the relay
 push_error = Push failed: { $error }
+
+# Sharing, grouped lists, and app-level Back demonstrations.
+list_opt_inset_grouped = Inset grouped
+list_opt_inset_hint = Inset rows on macOS and rounded groups on iOS. Other platforms keep their plain list.
+share_demo_title = Sharing
+share_demo_native = Choose a custom action in the share chooser to update Last action above.
+share_demo_fallback = This platform does not show custom share actions. Try the same actions below.
+share_demo_open = Share Day website…
+share_demo_remember = Remember link
+share_demo_clear = Clear result
+share_demo_remembered = Remember link selected
+share_demo_cleared = Share result cleared
+share_demo_failed = The share chooser could not be opened.
+share_demo_receive_hint = On Android, share text or a link to Day Showcase from another app. It appears here.
+share_demo_none = Nothing received yet.
+system_back_status = App Back: { $remaining } remaining, { $handled } handled
+system_back_press = Back
+system_back_stop = Disarm
+system_back_hint = Arm three app-level Back presses. Pushed pages and covers handle Back first; the app counter changes when navigation has finished. The test bar stays visible outside this page.
+system_back_arm = Arm 3 Back presses

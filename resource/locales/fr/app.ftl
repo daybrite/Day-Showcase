@@ -1438,3 +1438,23 @@ push_waiting = Aucune notification reçue pour l'instant
 push_remove = Retirer du relais
 push_removed = Appareil retiré du relais
 push_error = Échec de l'envoi push : { $error }
+
+# Démonstrations du partage, des listes groupées et du retour de l’application.
+list_opt_inset_grouped = Groupes en retrait
+list_opt_inset_hint = Lignes en retrait sur macOS et groupes arrondis sur iOS. Les autres plateformes conservent leur liste habituelle.
+share_demo_title = Partage
+share_demo_native = Choisissez une action personnalisée dans le menu de partage pour mettre à jour la dernière action ci-dessus.
+share_demo_fallback = Cette plateforme n’affiche pas les actions de partage personnalisées. Essayez les mêmes actions ci-dessous.
+share_demo_open = Partager le site Day…
+share_demo_remember = Retenir le lien
+share_demo_clear = Effacer le résultat
+share_demo_remembered = Action « Retenir le lien » sélectionnée
+share_demo_cleared = Résultat du partage effacé
+share_demo_failed = Impossible d’ouvrir le menu de partage.
+share_demo_receive_hint = Sur Android, partagez du texte ou un lien vers Day Showcase depuis une autre application. Il apparaît ici.
+share_demo_none = Aucun contenu reçu.
+system_back_status = Retour de l’application : { $remaining } restants, { $handled } traités
+system_back_press = Retour
+system_back_stop = Désactiver
+system_back_hint = Activez trois retours au niveau de l’application. Les pages empilées et les fenêtres modales traitent le retour en premier ; le compteur change une fois la navigation terminée. La barre de test reste visible hors de cette page.
+system_back_arm = Activer 3 retours

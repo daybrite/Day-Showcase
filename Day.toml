@@ -2,6 +2,7 @@
 # Cargo.toml's [package]; any [app] property can be overridden per platform ([app.ios]),
 # per toolkit ([app.qt]), or per target ([app.macos-appkit]); the most specific wins.
 schema = 1
+share_target = ["text/plain"]
 
 [app]
 id = "dev.daybrite.showcase"

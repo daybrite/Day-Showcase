@@ -74,10 +74,27 @@ pub(crate) fn stack_page() -> AnyPiece {
     }
     let half_open = Signal::new(Option::<HalfKey>::None);
     let level = Signal::new(50.0_f64);
+    let back = crate::scene();
     let root = scroll(
         column((
             stack_glyph(),
             label(crate::res::str::stack_root_body()).id(day::id!(stack_root)),
+            label(crate::res::str::system_back_hint()).font(Font::Footnote),
+            button(crate::res::str::system_back_arm())
+                .icon(Symbol::History)
+                .action(move || {
+                    back.back_handled.set(0);
+                    back.back_pending.set(3);
+                })
+                .id(day::id!(system_back_arm)),
+            label(move || {
+                crate::res::str::system_back_status(crate::res::str::SystemBackStatus {
+                    remaining: back.back_pending.get(),
+                    handled: back.back_handled.get(),
+                })
+                .format()
+            })
+            .id(day::id!(system_back_page_status)),
             button(crate::res::str::stack_push())
                 .prominent()
                 .action(move || push(path))
@@ -98,7 +115,7 @@ pub(crate) fn stack_page() -> AnyPiece {
                 .tint(crate::widgets::secondary())
                 .id(day::id!(cover_present)),
             cover(cover_open, move |_| {
-                column((
+                let content = column((
                     label(crate::res::str::cover_title())
                         .font(Font::Title)
                         .id(day::id!(cover_title)),
@@ -109,8 +126,17 @@ pub(crate) fn stack_page() -> AnyPiece {
                         .id(day::id!(cover_dismiss)),
                 ))
                 .spacing(Space::M)
-                .padding(Space::XL)
-                .any()
+                .padding(Space::XL);
+                nav_stack(Signal::new(Vec::<Drill>::new()), content)
+                    .title(crate::res::str::cover_title())
+                    .toolbar(
+                        toolbar_button(
+                            day::id!(cover_toolbar_dismiss),
+                            crate::res::str::cover_dismiss(),
+                        )
+                        .action(move || cover_open.set(None)),
+                    )
+                    .any()
             }),
             button(crate::res::str::stack_half_button())
                 .action(move || half_open.set(Some(HalfKey)))

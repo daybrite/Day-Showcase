@@ -29,6 +29,7 @@ const TARGET_ROW: i64 = 100;
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 struct ListOptions {
     sections: bool,
+    inset_grouped: bool,
     automatic: bool,
     separators: Option<bool>,
     native_items: bool,
@@ -63,6 +64,7 @@ pub(crate) fn list_page() -> AnyPiece {
     // page has always shown: plain uniform rows, multi-select, pull to refresh and every
     // gesture.
     let sections = Signal::new(false);
+    let inset_grouped = Signal::new(false);
     let automatic = Signal::new(false);
     let separators: Signal<Option<bool>> = Signal::new(None);
     let native_items = Signal::new(false);
@@ -122,6 +124,7 @@ pub(crate) fn list_page() -> AnyPiece {
     );
     let options = move || ListOptions {
         sections: sections.get(),
+        inset_grouped: inset_grouped.get(),
         automatic: automatic.get(),
         separators: separators.get(),
         native_items: native_items.get(),
@@ -242,6 +245,7 @@ pub(crate) fn list_page() -> AnyPiece {
             options_open,
             OptionSignals {
                 sections,
+                inset_grouped,
                 automatic,
                 separators,
                 native_items,
@@ -296,6 +300,11 @@ fn demo_list(o: ListOptions, st: ListState) -> AnyPiece {
     .scroll_to_row(jump_row)
     .scroll_to_end(jump_end)
     .editing(editing);
+    let list = if o.inset_grouped {
+        list.inset_grouped()
+    } else {
+        list
+    };
     let list = if o.multi_select {
         list.multi_select()
     } else {
@@ -497,6 +506,7 @@ impl Route for OptionsKey {
 #[derive(Clone, Copy)]
 struct OptionSignals {
     sections: Signal<bool>,
+    inset_grouped: Signal<bool>,
     automatic: Signal<bool>,
     separators: Signal<Option<bool>>,
     native_items: Signal<bool>,
@@ -524,6 +534,11 @@ fn options_sheet(open: Signal<Option<OptionsKey>>, s: OptionSignals) -> impl Pie
                             t::list_opt_sections(),
                             toggle(s.sections).id(day::id!(list_opt_sections)),
                         ),
+                        labeled(
+                            t::list_opt_inset_grouped(),
+                            toggle(s.inset_grouped).id(day::id!(list_opt_inset_grouped)),
+                        ),
+                        label(t::list_opt_inset_hint()).font(Font::Footnote),
                         labeled(
                             t::list_opt_row_height(),
                             picker(

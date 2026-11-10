@@ -1,0 +1,30 @@
+name: showcase-system-back
+description: Navigation takes Back before the app handler; the cover owns its Dismiss toolbar action.
+flow:
+  - navigate: { route: stack }
+  - tap: { id: system_back_arm }
+  - assert_text: { id: system_back_status, key: system_back_status, args: { remaining: 3, handled: 0 } }
+  - tap: { id: stack_push }
+  - assert_route: { route: stack/1 }
+  - tap: { id: system_back_press }
+  - assert_route: { route: stack }
+  - assert_text: { id: system_back_status, key: system_back_status, args: { remaining: 3, handled: 0 } }
+  - tap: { id: cover_present }
+  # iOS gives the cover its own bar; desktop covers hide the window toolbar.
+  - wait_for: { id: cover_toolbar_dismiss, only_on: [uikit] }
+  - tap: { id: cover_toolbar_dismiss, only_on: [uikit] }
+  - tap: { id: cover_dismiss, only_on: [appkit, gtk, qt, xaml, arkui, dom, material] }
+  - pause: { secs: 0.5 }
+  - wait_for: { id: stack_root }
+  - assert_text: { id: system_back_status, key: system_back_status, args: { remaining: 3, handled: 0 } }
+  # The outer navigation returns to its root before the app handler takes over.
+  - nav_back:
+  - assert_route: { route: "" }
+  - assert_text: { id: system_back_status, key: system_back_status, args: { remaining: 3, handled: 0 } }
+  - tap: { id: system_back_press }
+  - assert_text: { id: system_back_status, key: system_back_status, args: { remaining: 2, handled: 1 } }
+  - tap: { id: system_back_press }
+  - assert_text: { id: system_back_status, key: system_back_status, args: { remaining: 1, handled: 2 } }
+  - tap: { id: system_back_press }
+  - navigate: { route: stack }
+  - assert_text: { id: system_back_page_status, key: system_back_status, args: { remaining: 0, handled: 3 } }

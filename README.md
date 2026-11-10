@@ -41,6 +41,20 @@ SBOM beside every package. The web build runs at
 
 ## What is in it
 
+Recent framework examples:
+
+- **Menus & dialogs → Sharing:** a native share chooser with app actions and a received-text
+  readout. On Android, share text or a web link to Day Showcase from another app.
+- **List → Options → Inset grouped:** compare the native grouped style with the plain list,
+  including section headers, selection, and row reordering.
+- **Stack → Arm 3 Back presses:** an app-level Back handler with a persistent test bar. Pushed
+  pages and covers handle Back before the app counter; the fullscreen cover also has its own
+  Dismiss toolbar action on iOS. On Android, try the system Back gesture as well as the test bar.
+
+`dayscript/system-back.yaml` and `dayscript/list-options.yaml` exercise these navigation and
+list behaviors. These examples require the matching Day changes when building from a checkout;
+use `day launch --patch-local ../day -t macos-appkit` until those APIs are published.
+
 Thirty-four screens in eight groups, each a working demo of the pieces it names: an overview;
 the controls (a catalogue of every control Day ships, text, text editing, date and time, focus);
 layout and grid; navigation and window chrome; data (list, tree, model, query); graphics and

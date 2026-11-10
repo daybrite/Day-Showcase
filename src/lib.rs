@@ -82,6 +82,9 @@ pub(crate) struct Scene {
     pub(crate) web: (Signal<String>, Signal<String>, Signal<String>),
     pub(crate) web_tab: Signal<crate::pages::WebTab>,
     pub(crate) web_embed_status: Signal<(u8, String)>,
+    /// The app-level Back demo stays visible when phone navigation returns to the section list.
+    pub(crate) back_pending: Signal<i64>,
+    pub(crate) back_handled: Signal<i64>,
 }
 
 impl Ambient for Scene {
@@ -107,6 +110,8 @@ impl Ambient for Scene {
             ),
             web_tab: Signal::new(crate::pages::WebTab::Embedded),
             web_embed_status: Signal::new((0, String::new())),
+            back_pending: Signal::new(0),
+            back_handled: Signal::new(0),
         }
     }
 }
@@ -328,6 +333,7 @@ pub fn install_crash_reporting() {
 }
 
 pub fn root() -> impl Piece {
+    pages::menus::install_share_receiver();
     // Arm crash capture before the UI mounts so the Crash Reporting page's crashes are recorded.
     install_crash_reporting();
     // Narrate every action to the console for the app's whole life (§14.6): the same lines the
@@ -1126,5 +1132,43 @@ fn window_body(primary: bool) -> impl Piece {
     // carry for HarmonyOS and the web is gone.
     let nav = nav.toolbar(pages::toolbars::window_items());
     let nav = if primary { nav } else { nav.local() };
-    nav.id(day::id!(nav))
+    let state = scene();
+    column((
+        nav.id(day::id!(nav)).grow(Dimension::Both),
+        when(
+            move || state.back_pending.get() > 0,
+            move || {
+                row((
+                    label(move || {
+                        res::str::system_back_status(res::str::SystemBackStatus {
+                            remaining: state.back_pending.get(),
+                            handled: state.back_handled.get(),
+                        })
+                        .format()
+                    })
+                    .id(day::id!(system_back_status))
+                    .grow(Dimension::Width),
+                    button(res::str::system_back_press())
+                        .icon(Symbol::History)
+                        .action(|| {
+                            nav_back();
+                        })
+                        .id(day::id!(system_back_press)),
+                    button(res::str::system_back_stop())
+                        .action(move || state.back_pending.set(0))
+                        .id(day::id!(system_back_stop)),
+                ))
+                .spacing(Space::S)
+                .fit(RowFit::Wrap { run_spacing: 8.0 })
+                .padding(Space::S)
+            },
+        ),
+    ))
+    .on_system_back(
+        move || state.back_pending.get() > 0,
+        move || {
+            state.back_pending.update(|n| *n -= 1);
+            state.back_handled.update(|n| *n += 1);
+        },
+    )
 }

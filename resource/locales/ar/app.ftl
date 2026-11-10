@@ -1459,3 +1459,23 @@ push_waiting = لم يصل أي إشعار بعد
 push_remove = إزالة الجهاز من خدمة الترحيل
 push_removed = تمت إزالة الجهاز من خدمة الترحيل
 push_error = فشل الإشعار الفوري: { $error }
+
+# أمثلة المشاركة والقوائم المجمّعة والرجوع على مستوى التطبيق.
+list_opt_inset_grouped = مجموعات بهوامش
+list_opt_inset_hint = صفوف بهوامش على macOS ومجموعات مستديرة على iOS. تحتفظ المنصات الأخرى بقوائمها العادية.
+share_demo_title = المشاركة
+share_demo_native = اختر إجراءً مخصصًا من قائمة المشاركة لتحديث آخر إجراء أعلاه.
+share_demo_fallback = لا تعرض هذه المنصة إجراءات المشاركة المخصصة. جرّب الإجراءات نفسها أدناه.
+share_demo_open = مشاركة موقع Day…
+share_demo_remember = تذكّر الرابط
+share_demo_clear = مسح النتيجة
+share_demo_remembered = تم اختيار إجراء تذكّر الرابط
+share_demo_cleared = تم مسح نتيجة المشاركة
+share_demo_failed = تعذّر فتح قائمة المشاركة.
+share_demo_receive_hint = على Android، شارك نصًا أو رابطًا مع Day Showcase من تطبيق آخر. سيظهر هنا.
+share_demo_none = لم يتم استلام شيء بعد.
+system_back_status = رجوع التطبيق: المتبقي { $remaining }، المنفّذ { $handled }
+system_back_press = رجوع
+system_back_stop = تعطيل
+system_back_hint = فعّل ثلاث ضغطات رجوع على مستوى التطبيق. تتعامل الصفحات المتراكبة والنوافذ المنبثقة مع الرجوع أولًا؛ يتغير عدّاد التطبيق بعد انتهاء التنقل. يظل شريط الاختبار ظاهرًا خارج هذه الصفحة.
+system_back_arm = تفعيل 3 ضغطات رجوع

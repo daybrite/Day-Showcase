@@ -203,6 +203,7 @@ pub(crate) fn menus_page() -> AnyPiece {
         day::id!(menus_title),
         form((
             app_menu_section(),
+            sharing_section(),
             commands_section(),
             context_section(),
             messages_section(),
@@ -212,6 +213,99 @@ pub(crate) fn menus_page() -> AnyPiece {
         .any(),
     )
     .any()
+}
+
+/// The incoming payload belongs to the app, so leaving this page does not discard a share.
+#[derive(Clone, Copy)]
+struct SharedReceipt(Signal<Option<String>>);
+
+impl Ambient for SharedReceipt {
+    fn create() -> Self {
+        Self(Signal::new(None))
+    }
+}
+
+pub(crate) fn install_share_receiver() {
+    let received = SharedReceipt::app().0;
+    day::on_shared_text(move |text| {
+        received.set(Some(text.to_owned()));
+        navigate_to(&crate::Section::Menus);
+    });
+    day::on_open_url(move |url| {
+        if url.split_once(':').is_some_and(|(scheme, _)| {
+            scheme.eq_ignore_ascii_case("https") || scheme.eq_ignore_ascii_case("http")
+        }) {
+            received.set(Some(url.to_owned()));
+            navigate_to(&crate::Section::Menus);
+            true
+        } else {
+            false
+        }
+    });
+}
+
+fn sharing_section() -> impl Piece {
+    use crate::res::str as t;
+    // App-owned state survives a native chooser outliving the page that opened it.
+    let last = menu_log();
+    let received = SharedReceipt::app().0;
+    let custom = capability(Cap::ShareActions) == Support::Native;
+    let remember = move || last.set(t::share_demo_remembered().format());
+    let clear = move || last.set(t::share_demo_cleared().format());
+    section((
+        label(if custom {
+            t::share_demo_native()
+        } else {
+            t::share_demo_fallback()
+        })
+        .font(Font::Footnote),
+        button(t::share_demo_open())
+            .icon(Symbol::Share)
+            .enabled(share_support() != Support::Unsupported)
+            .id(day::id!(share_demo_open))
+            .action(move || {
+                if !Share::url("https://daybrite.dev")
+                    .title(t::app_title().format())
+                    .action(
+                        share_action(t::share_demo_remember())
+                            .symbol(Symbol::Book)
+                            .action(remember),
+                    )
+                    .action(
+                        share_action(t::share_demo_clear())
+                            .symbol(Symbol::History)
+                            .action(clear),
+                    )
+                    .anchor(day::id!(share_demo_open))
+                    .present()
+                {
+                    last.set(t::share_demo_failed().format());
+                }
+            }),
+        when(
+            move || !custom,
+            move || {
+                row((
+                    button(t::share_demo_remember())
+                        .action(remember)
+                        .id(day::id!(share_demo_remember)),
+                    button(t::share_demo_clear())
+                        .action(clear)
+                        .id(day::id!(share_demo_clear)),
+                ))
+                .spacing(Space::S)
+                .fit(RowFit::Wrap { run_spacing: 8.0 })
+            },
+        ),
+        label(t::share_demo_receive_hint()).font(Font::Footnote),
+        label(move || {
+            received
+                .get()
+                .unwrap_or_else(|| t::share_demo_none().format())
+        })
+        .id(day::id!(share_demo_received)),
+    ))
+    .title(t::share_demo_title())
 }
 
 /// The app-menu section: a live readout of the last action fired from the menu bar (or the
