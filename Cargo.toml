@@ -139,6 +139,21 @@ day-piece-camera = "0.*"
 # backend and `day_piece_swiftui::support()` gates the UI, so no placeholder can ever realize.
 day-piece-swiftui = "0.*"
 
+# Lint policy: Clippy's default lints plus a short list that catches defects rather than style.
+# The project's CI treats every warning as an error (`cargo clippy --all-targets -- -D warnings`),
+# so a finding blocks the change that introduced it. Fix findings in the code; for a site where
+# the lint is wrong, use `#[expect(clippy::<lint>, reason = "…")]`. A stricter table, up to
+# Clippy's `pedantic` group, is the project's choice; keep these lines in it.
+[lints.clippy]
+# Debugging and placeholder macros do not ship.
+dbg_macro = "warn"
+todo = "warn"
+unimplemented = "warn"
+# Every `unsafe` block states why it is sound in a `// SAFETY:` comment.
+undocumented_unsafe_blocks = "warn"
+# `unwrap()` aborts the app with no explanation. Return the error, or use `expect("…")` with the
+# invariant that makes the failure impossible. Tests are exempt (clippy.toml).
+unwrap_used = "warn"
 
 # Its own workspace root, which is what `day new app` generates too. Without this, cloning the app
 # into a directory that is itself a cargo workspace (daybrite/day's CI checks it out inside the

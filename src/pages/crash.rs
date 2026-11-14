@@ -33,7 +33,7 @@ pub(crate) fn crash_page() -> AnyPiece {
     let report = Signal::new(String::new());
     let pending = day_piece_crash_reporter::pending();
     Effect::new(move || {
-        pending.get(); // track
+        pending.track();
         report.set(day_piece_crash_reporter::latest_report_text().unwrap_or_default());
     });
 
