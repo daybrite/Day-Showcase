@@ -145,6 +145,8 @@ fn schedule(crash: fn()) {
 
 fn segfault() {
     // A null write the optimizer can't elide.
+    // SAFETY: deliberately unsound. This page exists to fault the process so the crash reporter
+    // has a real segfault to capture; the invalid write is the intended behavior.
     unsafe {
         let p = std::hint::black_box(std::ptr::null_mut::<u8>());
         std::ptr::write_volatile(p, 1u8);

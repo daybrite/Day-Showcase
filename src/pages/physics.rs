@@ -1064,6 +1064,9 @@ fn launch(from: Point, to: Point, g: f64) -> (f64, f64) {
     (dx / reach, (dy - g * t / k) / reach + g / k)
 }
 
+/// Why `Demo::handle` is always `Some` while the page can call into the demo.
+const HANDLE_SET: &str = "the frame handle is stored at construction and taken only at cleanup";
+
 struct Demo {
     simulation: RefCell<Simulation>,
     repaint: Trigger,
@@ -1189,13 +1192,13 @@ impl Demo {
         self.paused.set(false);
         self.status.set(crate::res::str::frame_waiting().format());
         let handle = self.handle.borrow();
-        let handle = handle.as_ref().unwrap();
+        let handle = handle.as_ref().expect(HANDLE_SET);
         handle.pause(); // drop an interval partly measured before this bounce
         handle.resume();
         self.repaint.notify();
     }
     fn reset(&self) {
-        self.handle.borrow().as_ref().unwrap().pause();
+        self.handle.borrow().as_ref().expect(HANDLE_SET).pause();
         self.simulation.borrow_mut().reset();
         self.paused.set(false);
         self.reset_stats();
@@ -1442,7 +1445,7 @@ pub(crate) fn physics_page() -> AnyPiece {
             resize.simulation.borrow_mut().set_count(n);
             resize.reset_stats();
             // Discard an interval partly measured at the old load. Resume's first delta is zero.
-            resize.handle.borrow().as_ref().unwrap().pause();
+            resize.handle.borrow().as_ref().expect(HANDLE_SET).pause();
             // Changing load starts a fresh burst so even new marbles immediately animate.
             // A paused demo stays paused, making comparison screenshots easy.
             if resize.paused.get() {
@@ -1590,7 +1593,7 @@ pub(crate) fn physics_page() -> AnyPiece {
             button(crate::res::str::frame_pause())
                 .action(move || {
                     let handle = pause.handle.borrow();
-                    let handle = handle.as_ref().unwrap();
+                    let handle = handle.as_ref().expect(HANDLE_SET);
                     if pause.paused.get() {
                         pause.paused.set(false);
                         pause.status.set(crate::res::str::frame_waiting().format());
