@@ -119,7 +119,7 @@ pub(crate) fn tweaks_page() -> AnyPiece {
     .align(HAlign::Leading)
     .modifier(Card);
 
-    // Inline `.appkit(…)`/`.uikit(…)` on a text label with a conditional backing
+    // Inline `.tweak(appkit(…))`/`.tweak(uikit(…))` on a text label with a conditional backing
     // (docs/tweaks.md "Conditional backings"): with Selectable on, iOS realizes the label as a
     // read-only UITextView instead of a UILabel (docs/text.md). The tweak stays correct because
     // it sits after `.selectable()` in the chain and pokes view-level surface (alpha), which
@@ -176,20 +176,20 @@ fn tweaked_label(selectable: bool, seen: Signal<String>) -> impl Piece {
     let l = if selectable { l.selectable() } else { l };
     #[cfg(feature = "appkit")]
     let l = {
-        use day_toolkit_appkit::AppKitExt;
-        l.appkit(move |view, class, _mtm| {
+        use day_toolkit_appkit::appkit;
+        l.tweak(appkit(move |view, class, _mtm| {
             seen.set(class.to_string());
             // View-level surface, because alpha lands identically on any backing class.
             view.setAlphaValue(0.55);
-        })
+        }))
     };
     #[cfg(feature = "uikit")]
     let l = {
-        use day_toolkit_uikit::UiKitExt;
-        l.uikit(move |view, class, _mtm| {
+        use day_toolkit_uikit::uikit;
+        l.tweak(uikit(move |view, class, _mtm| {
             seen.set(class.to_string());
             view.setAlpha(0.55);
-        })
+        }))
     };
     // Toolkits without the inline arm keep the stock label; the class line stays an em dash.
     #[cfg(not(any(feature = "appkit", feature = "uikit")))]

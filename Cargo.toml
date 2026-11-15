@@ -98,8 +98,6 @@ day-part-push = { version = "0.*", features = ["relay"] }
 # `day::prefs` (docs/prefs.md).
 day-piece-settings = "0.*"
 day-part-http = { version = "0.*", features = ["reqwest"] }
-# The download manager (docs/downloads.md): the Networking page's pausable, resumable download.
-day-part-downloads = "0.*"
 day-part-filesystem = "0.*"
 # The keychain and the biometric prompt (docs/keychain.md, docs/biometrics.md): the Security page
 # stores an item at each protection level and shows the platform's own verification dialog.
