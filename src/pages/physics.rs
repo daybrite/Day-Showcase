@@ -1787,6 +1787,7 @@ impl Squash {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::assert_matches;
     #[test]
     fn fps_extrema_and_average_use_real_elapsed_time() {
         let mut stats = FrameStats::default();
@@ -2350,10 +2351,10 @@ mod tests {
     #[test]
     fn a_squashed_marble_keeps_its_volume_and_a_round_one_draws_as_an_ellipse() {
         let mut ball = Ball::at(100.0, 100.0);
-        assert!(matches!(
+        assert_matches!(
             Squash::of(&ball).ellipse(ball.x, ball.y, 0.0, 0.0, 12.0, 12.0),
             Shape::Ellipse(_)
-        ));
+        );
         ball.squash = 0.36;
         ball.nx = 0.0;
         ball.ny = 1.0;
@@ -2364,10 +2365,10 @@ mod tests {
             "{m:?}"
         );
         assert!(m[1].abs() < 1e-9 && m[2].abs() < 1e-9);
-        assert!(matches!(
+        assert_matches!(
             Squash::of(&ball).ellipse(ball.x, ball.y, 0.0, 0.0, 12.0, 12.0),
             Shape::Path(_)
-        ));
+        );
     }
 
     #[test]
