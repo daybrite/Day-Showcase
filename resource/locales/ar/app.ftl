@@ -1487,3 +1487,5 @@ map_provider_google = Google Maps
 map_missing_api_key = اضبط مفتاح واجهة برمجة تطبيقات خرائط Google لتطبيق Android هذا.
 map_play_services_unavailable = تتطلب خرائط Google خدمات Google Play.
 map_load_failed = تعذر تحميل الخريطة. تحقق من الاتصال وإعدادات مزود الخدمة.
+
+resources_missing = المورد المضمّن غير متاح: { $name }

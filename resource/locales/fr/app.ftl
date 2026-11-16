@@ -1466,3 +1466,5 @@ map_provider_google = Google Maps
 map_missing_api_key = Configurez une clé API Google Maps pour cette application Android.
 map_play_services_unavailable = Google Maps nécessite les services Google Play.
 map_load_failed = Impossible de charger la carte. Vérifiez la connexion et la configuration du fournisseur.
+
+resources_missing = Ressource intégrée indisponible : { $name }

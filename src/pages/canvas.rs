@@ -928,17 +928,15 @@ fn gauge_section() -> impl Piece {
 fn image_section() -> impl Piece {
     let shown: Signal<Option<day::Bitmap>> = Signal::new(None);
     let readout = Signal::new(crate::res::str::canvas_image_loading().format());
-    // Embedded rather than read back through `resource()`: this section is about decoding a
-    // blob, and embedding makes it the same blob on every backend. It also keeps the demo working
-    // on web-dom, where `resource()` has no reader at all: no backend installs an opener there,
-    // so it falls to the default one, which probes an env var and the executable's directory,
-    // neither of which exists in a browser.
-    const LOGO_PNG: &[u8] = include_bytes!("../../resource/images/day_logo.png");
     // Started while the section builds: reaching the toolkit from here is ordinary (the page
     // helpers already ask `capability()` at build), and a backend that decodes INLINE has its
     // completion drained when the tree borrow ends rather than being lost.
     day::task(async move {
-        match day::decode_image(std::sync::Arc::new(LOGO_PNG.to_vec())).await {
+        match day::decode_image(std::sync::Arc::new(
+            crate::res::image_bytes::day_logo.to_vec(),
+        ))
+        .await
+        {
             Ok(bitmap) => {
                 let info = bitmap.info();
                 readout.set(

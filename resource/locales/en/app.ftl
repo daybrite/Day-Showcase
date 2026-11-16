@@ -1476,3 +1476,5 @@ map_provider_google = Google Maps
 map_missing_api_key = Configure a Google Maps API key for this Android app.
 map_play_services_unavailable = Google Maps requires Google Play services.
 map_load_failed = The map could not load. Check the connection and provider configuration.
+
+resources_missing = Bundled resource unavailable: { $name }

@@ -63,7 +63,7 @@ pub(crate) fn drag_drop_page() -> AnyPiece {
         bitmaps[0],
         Item::new(vec![Representation::new(
             "image/png",
-            include_bytes!("../../resource/images/day_logo.png").as_slice(),
+            crate::res::image_bytes::day_logo,
         )]),
     );
     put(
@@ -303,7 +303,7 @@ mod tests {
     fn image_file_reference_provides_preview_bytes_without_changing_offer() {
         let path =
             std::env::temp_dir().join(format!("day-showcase-drop-{} ü.png", std::process::id()));
-        let png = include_bytes!("../../resource/images/day_logo.png");
+        let png = crate::res::image_bytes::day_logo;
         std::fs::write(&path, png).unwrap();
         let encoded: String = path
             .to_string_lossy()
