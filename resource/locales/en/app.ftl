@@ -1468,3 +1468,11 @@ system_back_press = Back
 system_back_stop = Disarm
 system_back_hint = Arm three app-level Back presses. Pushed pages and covers handle Back first; the app counter changes when navigation has finished. The test bar stays visible outside this page.
 system_back_arm = Arm 3 Back presses
+
+# Map provider selection and setup.
+map_provider_osm = OpenStreetMap
+map_provider_apple = Apple Maps
+map_provider_google = Google Maps
+map_missing_api_key = Configure a Google Maps API key for this Android app.
+map_play_services_unavailable = Google Maps requires Google Play services.
+map_load_failed = The map could not load. Check the connection and provider configuration.

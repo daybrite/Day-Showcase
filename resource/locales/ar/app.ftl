@@ -1479,3 +1479,11 @@ system_back_press = رجوع
 system_back_stop = تعطيل
 system_back_hint = فعّل ثلاث ضغطات رجوع على مستوى التطبيق. تتعامل الصفحات المتراكبة والنوافذ المنبثقة مع الرجوع أولًا؛ يتغير عدّاد التطبيق بعد انتهاء التنقل. يظل شريط الاختبار ظاهرًا خارج هذه الصفحة.
 system_back_arm = تفعيل 3 ضغطات رجوع
+
+# Map provider selection and setup.
+map_provider_osm = OpenStreetMap
+map_provider_apple = Apple Maps
+map_provider_google = Google Maps
+map_missing_api_key = اضبط مفتاح واجهة برمجة تطبيقات خرائط Google لتطبيق Android هذا.
+map_play_services_unavailable = تتطلب خرائط Google خدمات Google Play.
+map_load_failed = تعذر تحميل الخريطة. تحقق من الاتصال وإعدادات مزود الخدمة.

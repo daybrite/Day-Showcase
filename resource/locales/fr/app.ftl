@@ -1458,3 +1458,11 @@ system_back_press = Retour
 system_back_stop = Désactiver
 system_back_hint = Activez trois retours au niveau de l’application. Les pages empilées et les fenêtres modales traitent le retour en premier ; le compteur change une fois la navigation terminée. La barre de test reste visible hors de cette page.
 system_back_arm = Activer 3 retours
+
+# Map provider selection and setup.
+map_provider_osm = OpenStreetMap
+map_provider_apple = Apple Maps
+map_provider_google = Google Maps
+map_missing_api_key = Configurez une clé API Google Maps pour cette application Android.
+map_play_services_unavailable = Google Maps nécessite les services Google Play.
+map_load_failed = Impossible de charger la carte. Vérifiez la connexion et la configuration du fournisseur.

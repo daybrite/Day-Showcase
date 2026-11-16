@@ -1442,3 +1442,11 @@ system_back_press = 返回
 system_back_stop = 停用
 system_back_hint = 启用三次应用级返回。堆栈页面和弹出页面优先处理返回；导航结束后，应用计数才会变化。测试栏在离开此页面后仍然可见。
 system_back_arm = 启用 3 次返回
+
+# Map provider selection and setup.
+map_provider_osm = OpenStreetMap
+map_provider_apple = Apple Maps
+map_provider_google = Google Maps
+map_missing_api_key = 请为此 Android 应用配置 Google 地图 API 密钥。
+map_play_services_unavailable = Google 地图需要 Google Play 服务。
+map_load_failed = 无法加载地图。请检查网络连接和提供商配置。

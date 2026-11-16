@@ -21,6 +21,14 @@ flow:
   - assert_text: { id: map_readout, key: map_readout, args: { status: ready, lat: "0.0000", lng: "0.0000", zoom: "9.00", bearing: 0 } }
   - screenshot: map-island
 
+  # Remount the same common view across providers before testing its marker/camera.
+  - select: { id: map_provider, index: 1, only_on: [appkit, uikit, material] }
+  - pause: { secs: 2.0, only_on: [appkit, uikit, material] }
+  - assert_visible: { id: map_canvas }
+  - screenshot: { name: map-native-provider, only_on: [appkit, uikit, material] }
+  - select: { id: map_provider, index: 0, only_on: [appkit, uikit, material] }
+  - pause: { secs: 1.0 }
+
   # The island center's marker sits in the middle of the map: a tap on it names it, once the
   # double-tap window has passed.
   - tap: { id: map_canvas }

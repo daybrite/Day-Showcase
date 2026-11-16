@@ -219,3 +219,21 @@ project with `day open -t <target>`; edits to generated files are disposable. Ap
 sources, plists and `.xcconfig` files, and any Android resource overlays, remain app-owned
 under `platform/`. For additional native configuration, use
 `day project add-target <target> --persist-native-project` to create a persistent override.
+
+## Maps
+
+The Maps page shares camera and annotations across MapLibre and Apple Maps on iOS/macOS,
+and MapLibre and Google Maps on Android. Other targets use MapLibre. Basemap style and
+label-language controls apply to MapLibre; native providers use their SDK settings.
+
+Apple Maps uses the system MapKit framework with no API key. Google Maps uses SDK 20.0.0
+and requires Google Play services, Android API 23 or later, and a Google Cloud project
+with billing and Maps SDK for Android enabled. Set `com.google.android.geo.API_KEY` in
+`platform/android/AndroidManifest.xml` to a key restricted to this app's package and signing
+certificate, then rebuild. The checked-in value is empty: the page shows a localized setup
+message until configured. Keep developer credentials out of source control.
+
+`dayscript/map.yaml` covers the common camera controls and switching to the native provider
+and back. Google map imagery requires credentials; its missing-key fallback can still be
+exercised without them. See the [map crate documentation](https://github.com/daybrite/day-piece-map) for
+the common API and provider-specific options.

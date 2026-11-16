@@ -1,16 +1,13 @@
 // Copyright © The Daybrite Project
 // SPDX-License-Identifier: MPL-2.0
 
-//! Map (day-piece-map): a vector map drawn on Day's canvas from a MapLibre style, with a picker
+//! Maps: shared camera and annotations across Day's canvas renderer and the target's native provider, with a picker
 //! for where the style comes from, the piece's camera calls on buttons, and a readout of what it
 //! reports.
 //!
-//! The default source is the piece's built-in sample, a small island whose style and tiles are
-//! answered inside the app through `day-part-http`'s interception, so the page draws the same
-//! map on every target without a network (the CI captures have none). The other entries are
-//! OpenFreeMap's five styles and VersaTiles' two over London, all OpenStreetMap data served
-//! without a key, which go out to the network: the interception is not strict, so only the
-//! sample's own URLs are answered in-process.
+//! The canvas renderer starts with OpenFreeMap Liberty over London. The walkthrough selects the built-in
+//! sample island, whose style and tiles are answered inside the app through `day-part-http`'s
+//! interception. The other canvas sources and native SDKs use their network services.
 //!
 //! The Current Location button beside the picker asks for location access the first time, then
 //! for one fix, and flies there and marks it. The style stays as chosen, so on the island the
@@ -23,7 +20,11 @@ use day::prelude::*;
 use day_part_http::{Session, simulation::Simulation};
 use day_part_location::{Accuracy, LocationError};
 use day_part_permissions::{self as perms, Permission};
-use day_piece_map::{LngLat, MapStatus, MapView, Marker, MarkerId, map, sample};
+use day_piece_map::{LngLat, MapStatus, MapView, Marker, MarkerId};
+// Keep provider dependencies available for Day's automatic backend feature discovery.
+use day_piece_map_apple as _;
+use day_piece_map_canvas::{CanvasMapView, map, sample};
+use day_piece_map_google as _;
 
 use crate::res::str as tr;
 use crate::widgets::heading;
@@ -173,6 +174,8 @@ pub(crate) fn map_page() -> AnyPiece {
     let source = Signal::new(Source::Liberty);
     let (center, zoom) = Source::Liberty.home();
     let view = MapView::new(center, zoom);
+    let canvas_view = CanvasMapView::with_view(view);
+    let provider = Signal::new(Provider::Canvas);
     // Which sight each marker on the map stands for, so the tap readout names it.
     let marks: Signal<Vec<(MarkerId, Sight)>> = Signal::new(Vec::new());
     let flights = Signal::new(0usize);
@@ -192,7 +195,7 @@ pub(crate) fn map_page() -> AnyPiece {
     Effect::new(move || {
         let locale = day::locale().get();
         let language = locale.split(['-', '_']).next().unwrap_or_default();
-        view.set_language((!language.is_empty()).then_some(language));
+        canvas_view.set_language((!language.is_empty()).then_some(language));
     });
     // The source's two markers and the user's own, titled in the current language: this effect
     // follows the language too, so a switch at runtime renames them without moving the map.
@@ -218,21 +221,26 @@ pub(crate) fn map_page() -> AnyPiece {
         marks.set(placed);
     });
 
-    let picker_row = picker(
-        source,
-        [
-            (Source::Liberty, tr::map_source_liberty()),
-            (Source::Bright, tr::map_source_bright()),
-            (Source::Positron, tr::map_source_positron()),
-            (Source::Fiord, tr::map_source_fiord()),
-            (Source::Dark, tr::map_source_dark()),
-            (Source::Colorful, tr::map_source_colorful()),
-            (Source::ColorfulDark, tr::map_source_colorful_dark()),
-            (Source::Sample, tr::map_source_sample()),
-        ],
-    )
-    .menu()
-    .id(day::id!(map_source));
+    let picker_row = when(
+        move || provider.get() == Provider::Canvas,
+        move || {
+            picker(
+                source,
+                [
+                    (Source::Liberty, tr::map_source_liberty()),
+                    (Source::Bright, tr::map_source_bright()),
+                    (Source::Positron, tr::map_source_positron()),
+                    (Source::Fiord, tr::map_source_fiord()),
+                    (Source::Dark, tr::map_source_dark()),
+                    (Source::Colorful, tr::map_source_colorful()),
+                    (Source::ColorfulDark, tr::map_source_colorful_dark()),
+                    (Source::Sample, tr::map_source_sample()),
+                ],
+            )
+            .menu()
+            .id(day::id!(map_source))
+        },
+    );
 
     // Permission first: the request answers at once when access is already settled and prompts
     // only when nobody has decided yet, so one call covers the first tap and every later one.
@@ -292,13 +300,14 @@ pub(crate) fn map_page() -> AnyPiece {
             .action(move || view.reset_north())
             .id(day::id!(map_north)),
     ))
-    .spacing(Space::S);
+    .spacing(Space::S)
+    .fit(RowFit::Wrap { run_spacing: 8.0 });
 
     let readout = label(move || {
         let (status, reason) = match view.status.get() {
             MapStatus::Loading => ("loading", String::new()),
             MapStatus::Ready => ("ready", String::new()),
-            MapStatus::Failed(why) => ("failed", why),
+            MapStatus::Failed(why) => ("failed", map_failure(&why)),
         };
         let c = view.center.get();
         tr::map_readout(tr::MapReadout {
@@ -336,7 +345,12 @@ pub(crate) fn map_page() -> AnyPiece {
         {
             return tr::map_tap_marker(HERE).format();
         }
-        match tap.features.first() {
+        let features = if provider.get() == Provider::Canvas {
+            canvas_view.feature_hits.get()
+        } else {
+            Vec::new()
+        };
+        match features.first() {
             None => tr::map_tap_nothing().format(),
             Some(hit) => match hit.properties.get("name").and_then(|v| v.as_str()) {
                 Some(name) => tr::map_tap_feature(tr::MapTapFeature {
@@ -368,10 +382,33 @@ pub(crate) fn map_page() -> AnyPiece {
     // is given, which a scroll view never offers.
     column((
         heading(tr::nav_map(), day::id!(map_title)),
+        provider_picker(provider),
         row((picker_row, spacer(), locate)).spacing(Space::S),
-        map(move || source.get().style_url().to_string(), view)
-            .id(day::id!(map_canvas))
-            .grow(Dimension::Both),
+        switch(
+            move || provider.get(),
+            move |selected| {
+                view.tap.set(None);
+                match selected {
+                    Provider::Canvas => {
+                        map(move || source.get().style_url().to_string(), canvas_view)
+                            .id(day::id!(map_canvas))
+                            .any()
+                    }
+                    #[cfg(any(
+                        all(feature = "appkit", target_os = "macos"),
+                        all(feature = "uikit", target_os = "ios")
+                    ))]
+                    Provider::Apple => day_piece_map_apple::map(view)
+                        .id(day::id!(map_canvas))
+                        .any(),
+                    #[cfg(all(feature = "material", target_os = "android"))]
+                    Provider::Google => day_piece_map_google::map(view)
+                        .id(day::id!(map_canvas))
+                        .any(),
+                }
+            },
+        )
+        .grow(Dimension::Both),
         buttons,
         readout,
         tap,
@@ -381,4 +418,46 @@ pub(crate) fn map_page() -> AnyPiece {
     .padding(20.0)
     .grow(Dimension::Both)
     .any()
+}
+
+/// Available providers follow the compiled toolkit; the shared view survives a switch.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum Provider {
+    Canvas,
+    #[cfg(any(
+        all(feature = "appkit", target_os = "macos"),
+        all(feature = "uikit", target_os = "ios")
+    ))]
+    Apple,
+    #[cfg(all(feature = "material", target_os = "android"))]
+    Google,
+}
+fn provider_picker(provider: Signal<Provider>) -> impl Piece {
+    let choices = [
+        (Provider::Canvas, tr::map_provider_osm()),
+        #[cfg(any(
+            all(feature = "appkit", target_os = "macos"),
+            all(feature = "uikit", target_os = "ios")
+        ))]
+        (Provider::Apple, tr::map_provider_apple()),
+        #[cfg(all(feature = "material", target_os = "android"))]
+        (Provider::Google, tr::map_provider_google()),
+    ];
+    let multiple = choices.len() > 1;
+    when(
+        move || multiple,
+        move || {
+            picker(provider, choices.clone())
+                .segmented()
+                .id(day::id!(map_provider))
+        },
+    )
+}
+fn map_failure(code: &str) -> String {
+    match code {
+        "missing-api-key" => tr::map_missing_api_key(),
+        "play-services-unavailable" => tr::map_play_services_unavailable(),
+        _ => tr::map_load_failed(),
+    }
+    .format()
 }
