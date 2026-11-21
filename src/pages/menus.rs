@@ -1,7 +1,5 @@
 use day::prelude::*;
 
-use crate::widgets::page;
-
 /// The last menu action fired, shared between the app menu and this page, so both demonstrate
 /// action dispatch. App-wide (docs/state.md): it records what the app's one menu bar did.
 #[derive(Clone, Copy)]
@@ -198,18 +196,21 @@ fn build_app_menu() -> Vec<MenuEntry> {
 /// context menus (docs/menus.md), and the imperative dialogs (docs/dialogs.md), each in its own
 /// themed section with a live result readout.
 pub(crate) fn menus_page() -> AnyPiece {
-    page(
+    crate::widgets::page_cards(
         crate::res::str::nav_menus(),
         day::id!(menus_title),
-        form((
-            app_menu_section(),
-            sharing_section(),
-            commands_section(),
-            context_section(),
-            messages_section(),
-            photo_section(),
-            dialogs_section(),
-        ))
+        crate::gallery::balanced(
+            2,
+            vec![
+                app_menu_section().any(),
+                sharing_section().any(),
+                commands_section().any(),
+                context_section().any(),
+                messages_section().any(),
+                photo_section().any(),
+                dialogs_section().any(),
+            ],
+        )
         .any(),
     )
     .any()
@@ -252,73 +253,76 @@ fn sharing_section() -> impl Piece {
     let custom = capability(Cap::ShareActions) == Support::Native;
     let remember = move || last.set(t::share_demo_remembered().format());
     let clear = move || last.set(t::share_demo_cleared().format());
-    section((
-        label(if custom {
-            t::share_demo_native()
-        } else {
-            t::share_demo_fallback()
-        })
-        .font(Font::Footnote),
-        button(t::share_demo_open())
-            .icon(Symbol::Share)
-            .enabled(share_support() != Support::Unsupported)
-            .id(day::id!(share_demo_open))
-            .action(move || {
-                if !Share::url("https://daybrite.dev")
-                    .title(t::app_title().format())
-                    .action(
-                        share_action(t::share_demo_remember())
-                            .symbol(Symbol::Book)
-                            .action(remember),
-                    )
-                    .action(
-                        share_action(t::share_demo_clear())
-                            .symbol(Symbol::History)
-                            .action(clear),
-                    )
-                    .anchor(day::id!(share_demo_open))
-                    .present()
-                {
-                    last.set(t::share_demo_failed().format());
-                }
-            }),
-        when(
-            move || !custom,
-            move || {
-                row((
-                    button(t::share_demo_remember())
-                        .action(remember)
-                        .id(day::id!(share_demo_remember)),
-                    button(t::share_demo_clear())
-                        .action(clear)
-                        .id(day::id!(share_demo_clear)),
-                ))
-                .spacing(Space::S)
-                .fit(RowFit::Wrap { run_spacing: 8.0 })
-            },
+    crate::gallery::panel(
+        t::share_demo_title(),
+        (
+            when(
+                move || !custom,
+                || crate::gallery::note(t::share_demo_fallback()),
+            ),
+            button(t::share_demo_open())
+                .icon(Symbol::Share)
+                .enabled(share_support() != Support::Unsupported)
+                .id(day::id!(share_demo_open))
+                .action(move || {
+                    if !Share::url("https://daybrite.dev")
+                        .title(t::app_title().format())
+                        .action(
+                            share_action(t::share_demo_remember())
+                                .symbol(Symbol::Book)
+                                .action(remember),
+                        )
+                        .action(
+                            share_action(t::share_demo_clear())
+                                .symbol(Symbol::History)
+                                .action(clear),
+                        )
+                        .anchor(day::id!(share_demo_open))
+                        .present()
+                    {
+                        last.set(t::share_demo_failed().format());
+                    }
+                }),
+            when(
+                move || !custom,
+                move || {
+                    row((
+                        button(t::share_demo_remember())
+                            .action(remember)
+                            .id(day::id!(share_demo_remember)),
+                        button(t::share_demo_clear())
+                            .action(clear)
+                            .id(day::id!(share_demo_clear)),
+                    ))
+                    .spacing(Space::S)
+                    .fit(RowFit::Wrap { run_spacing: 8.0 })
+                },
+            ),
+            // Only Android hands this app what another app shares.
+            when(
+                || cfg!(target_os = "android"),
+                || crate::gallery::note(t::share_demo_receive_hint()),
+            ),
+            label(move || {
+                received
+                    .get()
+                    .unwrap_or_else(|| t::share_demo_none().format())
+            })
+            .id(day::id!(share_demo_received)),
         ),
-        label(t::share_demo_receive_hint()).font(Font::Footnote),
-        label(move || {
-            received
-                .get()
-                .unwrap_or_else(|| t::share_demo_none().format())
-        })
-        .id(day::id!(share_demo_received)),
-    ))
-    .title(t::share_demo_title())
+    )
 }
 
 /// The app-menu section: a live readout of the last action fired from the menu bar (or the
 /// context menu below), plus the keyboard-shortcut hint.
 fn app_menu_section() -> impl Piece {
-    section((
-        labeled(
+    crate::gallery::panel(
+        crate::res::str::menus_appmenu_section(),
+        (labeled(
             crate::res::str::menus_last(),
             label(move || menu_log().get()).id(day::id!(menus_last)),
-        ),
-        label(crate::res::str::menus_shortcut_hint()).font(Font::Footnote),
-    ))
-    .title(crate::res::str::menus_appmenu_section())
+        ),),
+    )
 }
 
 /// The context-menu section: a visually delineated target the user secondary-clicks
@@ -336,35 +340,37 @@ fn context_section() -> impl Piece {
     // Order matters: `.background`/`.corner_radius` build the pill container (a native
     // view), and `.context_menu` after them attaches to that container, so the whole padded
     // pill is the right-click / long-press surface rather than only the label's text run.
-    section((label(crate::res::str::menus_target())
-        .padding(Space::XL)
-        // A translucent brand-blue wash: tinted enough to read as "this spot is interactive"
-        // over both the light and dark grounds.
-        .background(Color::rgba(0.184, 0.435, 0.871, 0.13))
-        .corner_radius(10.0)
-        .id(day::id!(menus_context_target))
-        .context_menu(vec![
-            menu_item(rename.clone()).action(log(format!("{context} ▸ {rename}"))),
-            menu_item(duplicate.clone())
-                .key("d")
-                .action(log(format!("{context} ▸ {duplicate}"))),
-            menu_separator(),
-            sub_menu(
-                move_to.clone(),
-                vec![
-                    menu_item(inbox.clone())
-                        .action(log(format!("{context} ▸ {move_to} ▸ {inbox}"))),
-                    menu_item(archive.clone())
-                        .action(log(format!("{context} ▸ {move_to} ▸ {archive}"))),
-                ],
-            ),
-            menu_separator(),
-            menu_role(MenuRole::Copy),
-            menu_item(delete.clone())
-                .shortcut(Shortcut::plain("Delete"))
-                .action(log(format!("{context} ▸ {delete}"))),
-        ]),))
-    .title(crate::res::str::menus_context_section())
+    crate::gallery::panel(
+        crate::res::str::menus_context_section(),
+        (label(crate::res::str::menus_target())
+            .padding(Space::XL)
+            // A translucent brand-blue wash: tinted enough to read as "this spot is interactive"
+            // over both the light and dark grounds.
+            .background(Color::rgba(0.184, 0.435, 0.871, 0.13))
+            .corner_radius(10.0)
+            .id(day::id!(menus_context_target))
+            .context_menu(vec![
+                menu_item(rename.clone()).action(log(format!("{context} ▸ {rename}"))),
+                menu_item(duplicate.clone())
+                    .key("d")
+                    .action(log(format!("{context} ▸ {duplicate}"))),
+                menu_separator(),
+                sub_menu(
+                    move_to.clone(),
+                    vec![
+                        menu_item(inbox.clone())
+                            .action(log(format!("{context} ▸ {move_to} ▸ {inbox}"))),
+                        menu_item(archive.clone())
+                            .action(log(format!("{context} ▸ {move_to} ▸ {archive}"))),
+                    ],
+                ),
+                menu_separator(),
+                menu_role(MenuRole::Copy),
+                menu_item(delete.clone())
+                    .shortcut(Shortcut::plain("Delete"))
+                    .action(log(format!("{context} ▸ {delete}"))),
+            ]),),
+    )
 }
 
 /// Per-row menus (docs/menus.md): every message row carries its own context menu, so the
@@ -393,8 +399,9 @@ fn messages_section() -> impl Piece {
             .id(day::id!(menus_message, i))
             .context_menu(menu)
     };
-    section((
-        column((
+    crate::gallery::panel(
+        crate::res::str::menus_messages_section(),
+        (column((
             message_row(0, "Maya Chen", crate::res::str::msg_subject_one().format()),
             message_row(
                 1,
@@ -407,10 +414,8 @@ fn messages_section() -> impl Piece {
                 crate::res::str::msg_subject_three().format(),
             ),
         ))
-        .spacing(Space::S),
-        label(crate::res::str::menus_messages_hint()).font(Font::Footnote),
-    ))
-    .title(crate::res::str::menus_messages_section())
+        .spacing(Space::S),),
+    )
 }
 
 /// A media card with the sharing-flavored menu every photo grid grows eventually. The
@@ -421,18 +426,20 @@ fn photo_section() -> impl Piece {
     let copy_image = crate::res::str::menu_copy_image().format();
     let save_image = crate::res::str::menu_save_image().format();
     let info = crate::res::str::menu_get_info().format();
-    section((image(crate::res::images::day_logo)
-        .frame(96.0, 96.0)
-        .corner_radius(12.0)
-        .id(day::id!(menus_photo_target))
-        .context_menu(vec![
-            menu_item(share.clone()).action(log(share.clone())),
-            menu_item(copy_image.clone()).action(log(copy_image.clone())),
-            menu_item(save_image.clone()).action(log(save_image.clone())),
-            menu_separator(),
-            menu_item(info.clone()).action(log(info.clone())),
-        ]),))
-    .title(crate::res::str::menus_photo_section())
+    crate::gallery::panel(
+        crate::res::str::menus_photo_section(),
+        (image(crate::res::images::day_logo)
+            .frame(96.0, 96.0)
+            .corner_radius(12.0)
+            .id(day::id!(menus_photo_target))
+            .context_menu(vec![
+                menu_item(share.clone()).action(log(share.clone())),
+                menu_item(copy_image.clone()).action(log(copy_image.clone())),
+                menu_item(save_image.clone()).action(log(save_image.clone())),
+                menu_separator(),
+                menu_item(info.clone()).action(log(info.clone())),
+            ]),),
+    )
 }
 
 /// Imperative dialogs (docs/dialogs.md): each button opens a native dialog from within an
@@ -440,90 +447,92 @@ fn photo_section() -> impl Piece {
 /// walkthrough can assert it).
 fn dialogs_section() -> impl Piece {
     let last = Signal::new(String::new());
-    section((
-        row((
-            button(crate::res::str::modal_alert())
-                .action(move || {
-                    day::task(async move {
-                        alert(crate::res::str::alert_title())
-                            .message(crate::res::str::alert_body())
-                            .button(crate::res::str::ok(), ())
-                            .present()
-                            .await;
-                        last.set("alert-ok".into());
-                    });
-                })
-                .tint(crate::widgets::primary())
-                .id(day::id!(btn_alert)),
-            button(crate::res::str::modal_confirm())
-                .bordered()
-                .action(move || {
-                    day::task(async move {
-                        let ok = confirm(crate::res::str::confirm_title())
-                            .message(crate::res::str::confirm_body())
-                            .await;
-                        last.set(if ok { "confirm-yes" } else { "confirm-no" }.into());
-                    });
-                })
-                .id(day::id!(btn_confirm)),
-            button(crate::res::str::modal_delete())
-                .action(move || {
-                    day::task(async move {
-                        let ok = confirm(crate::res::str::delete_title())
-                            .message(crate::res::str::delete_body())
-                            .confirm_label(crate::res::str::delete())
-                            .destructive()
-                            .await;
-                        last.set(if ok { "delete-yes" } else { "delete-no" }.into());
-                    });
-                })
-                .tint(crate::widgets::danger())
-                .id(day::id!(btn_delete)),
-        ))
-        .spacing(Space::S),
-        row((
-            button(crate::res::str::modal_sheet())
-                .bordered()
-                .action(move || {
-                    day::task(async move {
-                        let choice = Alert::new(crate::res::str::flavor_title())
-                            .sheet()
-                            .button(crate::res::str::vanilla(), 0i64)
-                            .button(crate::res::str::pistachio(), 1i64)
-                            .cancel(crate::res::str::cancel())
-                            .present()
-                            .await;
-                        last.set(match choice {
-                            Some(i) => format!("sheet-{i}"),
-                            None => "sheet-cancel".into(),
+    crate::gallery::panel(
+        crate::res::str::menus_dialogs_section(),
+        (
+            row((
+                button(crate::res::str::modal_alert())
+                    .action(move || {
+                        day::task(async move {
+                            alert(crate::res::str::alert_title())
+                                .message(crate::res::str::alert_body())
+                                .button(crate::res::str::ok(), ())
+                                .present()
+                                .await;
+                            last.set("alert-ok".into());
                         });
-                    });
-                })
-                .id(day::id!(btn_sheet)),
-            button(crate::res::str::modal_prompt())
-                .bordered()
-                .action(move || {
-                    day::task(async move {
-                        let name = prompt(crate::res::str::name_placeholder()).await;
-                        last.set(match name {
-                            Some(t) => format!("prompt-{t}"),
-                            None => "prompt-none".into(),
+                    })
+                    .tint(crate::widgets::primary())
+                    .id(day::id!(btn_alert)),
+                button(crate::res::str::modal_confirm())
+                    .bordered()
+                    .action(move || {
+                        day::task(async move {
+                            let ok = confirm(crate::res::str::confirm_title())
+                                .message(crate::res::str::confirm_body())
+                                .await;
+                            last.set(if ok { "confirm-yes" } else { "confirm-no" }.into());
                         });
-                    });
+                    })
+                    .id(day::id!(btn_confirm)),
+                button(crate::res::str::modal_delete())
+                    .action(move || {
+                        day::task(async move {
+                            let ok = confirm(crate::res::str::delete_title())
+                                .message(crate::res::str::delete_body())
+                                .confirm_label(crate::res::str::delete())
+                                .destructive()
+                                .await;
+                            last.set(if ok { "delete-yes" } else { "delete-no" }.into());
+                        });
+                    })
+                    .tint(crate::widgets::danger())
+                    .id(day::id!(btn_delete)),
+            ))
+            .spacing(Space::S),
+            row((
+                button(crate::res::str::modal_sheet())
+                    .bordered()
+                    .action(move || {
+                        day::task(async move {
+                            let choice = Alert::new(crate::res::str::flavor_title())
+                                .sheet()
+                                .button(crate::res::str::vanilla(), 0i64)
+                                .button(crate::res::str::pistachio(), 1i64)
+                                .cancel(crate::res::str::cancel())
+                                .present()
+                                .await;
+                            last.set(match choice {
+                                Some(i) => format!("sheet-{i}"),
+                                None => "sheet-cancel".into(),
+                            });
+                        });
+                    })
+                    .id(day::id!(btn_sheet)),
+                button(crate::res::str::modal_prompt())
+                    .bordered()
+                    .action(move || {
+                        day::task(async move {
+                            let name = prompt(crate::res::str::name_placeholder()).await;
+                            last.set(match name {
+                                Some(t) => format!("prompt-{t}"),
+                                None => "prompt-none".into(),
+                            });
+                        });
+                    })
+                    .id(day::id!(btn_prompt)),
+            ))
+            .spacing(Space::S),
+            labeled(
+                crate::res::str::modal_result_label(),
+                label(move || {
+                    let v = last.get();
+                    if v.is_empty() { "—".into() } else { v }
                 })
-                .id(day::id!(btn_prompt)),
-        ))
-        .spacing(Space::S),
-        labeled(
-            crate::res::str::modal_result_label(),
-            label(move || {
-                let v = last.get();
-                if v.is_empty() { "—".into() } else { v }
-            })
-            .id(day::id!(modal_result)),
+                .id(day::id!(modal_result)),
+            ),
         ),
-    ))
-    .title(crate::res::str::menus_dialogs_section())
+    )
 }
 
 /// One definition per operation, presented as content buttons, a context menu, and toolbar items.
@@ -544,22 +553,23 @@ fn commands_section() -> impl Piece {
     .enabled(move || count.get() != 0)
     .icon(Symbol::Refresh);
     let (menu_add, menu_reset) = (add.clone(), reset.clone());
-    section((
-        label(crate::res::str::commands_hint()).font(Font::Callout),
-        label(move || count.get().to_string())
-            .tabular()
-            .id(day::id!(commands_count)),
-        row((
-            add.button().grow(Dimension::Width),
-            reset.button().grow(Dimension::Width),
-        ))
-        .spacing(10.0),
-        label(crate::res::str::menus_target())
-            .padding(Space::L)
-            .id(day::id!(commands_context))
-            .context_menu(move || vec![menu_add.menu_item(), menu_reset.menu_item()]),
-    ))
-    .title(crate::res::str::commands_title())
+    crate::gallery::panel(
+        crate::res::str::commands_title(),
+        (
+            label(move || count.get().to_string())
+                .tabular()
+                .id(day::id!(commands_count)),
+            row((
+                add.button().grow(Dimension::Width),
+                reset.button().grow(Dimension::Width),
+            ))
+            .spacing(10.0),
+            label(crate::res::str::menus_target())
+                .padding(Space::L)
+                .id(day::id!(commands_context))
+                .context_menu(move || vec![menu_add.menu_item(), menu_reset.menu_item()]),
+        ),
+    )
     .id(day::id!(commands_demo))
     .toolbar(move || {
         vec![

@@ -72,8 +72,10 @@ pub(crate) fn grid_page() -> AnyPiece {
                     .action(push(GridDemo::Stress))
                     .id(day::id!(grid_open_stress)),
             ))
-            .spacing(10.0)
+            .spacing(Space::M)
             .align(HAlign::Leading)
+            .grow(Dimension::Width)
+            .card()
             .any(),
         );
         nav_stack(path, menu)
@@ -95,10 +97,10 @@ pub(crate) fn grid_page() -> AnyPiece {
 /// plus scrolling so the stress page works everywhere).
 fn pane(title: LocalizedText, body: impl Piece) -> impl Piece {
     scroll(
-        column((label(title).font(Font::Title), body))
-            .spacing(Space::M)
+        column((label(title).font(Font::Title2).bold(), body.card()))
+            .spacing(Space::L)
             .align(HAlign::Leading)
-            .padding(Space::L),
+            .padding(20.0),
     )
 }
 
@@ -289,12 +291,10 @@ fn range_bar(low: f64, high: f64, wmin: f64, wmax: f64) -> impl Piece {
         let x1 = ((high - wmin) / span).clamp(0.0, 1.0);
         let w = (x1 - x0).max(6.0 / size.width);
         vec![
-            capsule()
-                .fill(Color::rgba(0.5, 0.55, 0.6, 0.25))
-                .at(0.0, y, 1.0, h),
+            capsule().fill(SystemColor::ControlFill).at(0.0, y, 1.0, h),
             // Cold-to-warm along the palette: azure lows into coral highs.
             capsule()
-                .fill_linear(LinearGradient::new(
+                .fill(LinearGradient::new(
                     UnitPoint::LEADING,
                     UnitPoint::TRAILING,
                     vec![(0.0, AZURE), (1.0, CORAL)],

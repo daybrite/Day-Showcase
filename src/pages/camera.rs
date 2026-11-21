@@ -5,8 +5,6 @@ use day::prelude::*;
 use day_part_permissions::{self as perms, Permission, Status};
 use day_piece_camera::{CameraState, Facing, Photo, camera};
 
-use crate::widgets::page;
-
 /// Camera (day-piece-camera): the platform's viewfinder, a shutter, and the last photo.
 ///
 /// The page asks for the permission itself, through the Allow button, and the viewfinder runs
@@ -34,71 +32,79 @@ pub(crate) fn camera_page() -> AnyPiece {
         bytes.set(next);
     });
 
-    page(
+    crate::widgets::page_cards(
         crate::res::str::nav_camera(),
         day::id!(camera_title),
-        form((
-            permission_section(active),
-            section((
-                column((camera()
-                    .facing(facing)
-                    .active(active)
-                    .capture(shutter)
-                    .state(state)
-                    .photo(photo)
-                    .frame(320.0, 240.0)
-                    .id(day::id!(camera_view)),))
-                .align(HAlign::Center)
-                .grow(Dimension::Width),
-                row((
-                    button(crate::res::str::camera_take_photo())
-                        .prominent()
-                        .enabled(move || state.get() == CameraState::Running)
-                        .action(move || shutter.notify())
-                        .id(day::id!(camera_shoot)),
-                    button(crate::res::str::camera_flip())
-                        .bordered()
-                        .enabled(move || state.get() == CameraState::Running)
-                        .action(move || facing.update(|f| *f = f.flipped()))
-                        .id(day::id!(camera_flip)),
-                ))
-                .spacing(Space::S),
-                labeled(
-                    crate::res::str::camera_state_label(),
-                    // The locale-independent label, so a script can assert it.
-                    label(move || state.get().label().to_string()).id(day::id!(camera_state)),
-                ),
-            ))
-            .title(crate::res::str::camera_viewfinder_section()),
-            section((
-                when(
-                    move || bytes.get().is_some(),
-                    move || {
-                        column((async_image(bytes)
-                            .frame(240.0, 180.0)
-                            .id(day::id!(camera_photo)),))
+        crate::gallery::deck(
+            2,
+            vec![
+                permission_section(active).any(),
+                crate::gallery::panel(
+                    crate::res::str::camera_viewfinder_section(),
+                    (
+                        column((camera()
+                            .facing(facing)
+                            .active(active)
+                            .capture(shutter)
+                            .state(state)
+                            .photo(photo)
+                            .frame(320.0, 240.0)
+                            .id(day::id!(camera_view)),))
                         .align(HAlign::Center)
-                        .grow(Dimension::Width)
-                    },
+                        .grow(Dimension::Width),
+                        row((
+                            button(crate::res::str::camera_take_photo())
+                                .prominent()
+                                .enabled(move || state.get() == CameraState::Running)
+                                .action(move || shutter.notify())
+                                .id(day::id!(camera_shoot)),
+                            button(crate::res::str::camera_flip())
+                                .bordered()
+                                .enabled(move || state.get() == CameraState::Running)
+                                .action(move || facing.update(|f| *f = f.flipped()))
+                                .id(day::id!(camera_flip)),
+                        ))
+                        .spacing(Space::S),
+                        labeled(
+                            crate::res::str::camera_state_label(),
+                            // The locale-independent label, so a script can assert it.
+                            label(move || state.get().label().to_string())
+                                .id(day::id!(camera_state)),
+                        ),
+                    ),
                 ),
-                labeled(
-                    crate::res::str::camera_photo_label(),
-                    label(move || match photo.get() {
-                        Some(p) => {
-                            crate::res::str::camera_photo_size(crate::res::str::CameraPhotoSize {
-                                width: p.width as i64,
-                                height: p.height as i64,
-                                name: p.file_name(),
+                crate::gallery::panel(
+                    crate::res::str::camera_last_photo_section(),
+                    (
+                        when(
+                            move || bytes.get().is_some(),
+                            move || {
+                                column((async_image(bytes)
+                                    .frame(240.0, 180.0)
+                                    .id(day::id!(camera_photo)),))
+                                .align(HAlign::Center)
+                                .grow(Dimension::Width)
+                            },
+                        ),
+                        labeled(
+                            crate::res::str::camera_photo_label(),
+                            label(move || match photo.get() {
+                                Some(p) => crate::res::str::camera_photo_size(
+                                    crate::res::str::CameraPhotoSize {
+                                        width: p.width as i64,
+                                        height: p.height as i64,
+                                        name: p.file_name(),
+                                    },
+                                )
+                                .format(),
+                                None => crate::res::str::camera_no_photo().format(),
                             })
-                            .format()
-                        }
-                        None => crate::res::str::camera_no_photo().format(),
-                    })
-                    .id(day::id!(camera_photo_size)),
+                            .id(day::id!(camera_photo_size)),
+                        ),
+                    ),
                 ),
-            ))
-            .title(crate::res::str::camera_last_photo_section()),
-        )),
+            ],
+        ),
     )
     .any()
 }
@@ -119,45 +125,47 @@ fn permission_section(active: Signal<bool>) -> impl Piece {
     } else {
         crate::res::str::perm_open_settings()
     };
-    section((labeled(
-        crate::res::str::camera_permission_label(),
-        adaptive((
-            label(move || status.get()).id(day::id!(camera_perm)),
-            when(
-                move || gated && !active.get(),
-                move || {
-                    button(action_label.clone())
-                        .bordered()
-                        .action(move || {
-                            if can_prompt {
-                                // The completion runs on an unspecified thread; Setters cross
-                                // back to the signals.
-                                let set_status = status.setter();
-                                let set_active = active.setter();
-                                perms::request(perm, move |s| {
-                                    set_status.set(format!(
+    crate::gallery::panel(
+        crate::res::str::camera_permission_section(),
+        (labeled(
+            crate::res::str::camera_permission_label(),
+            adaptive((
+                label(move || status.get()).id(day::id!(camera_perm)),
+                when(
+                    move || gated && !active.get(),
+                    move || {
+                        button(action_label.clone())
+                            .bordered()
+                            .action(move || {
+                                if can_prompt {
+                                    // The completion runs on an unspecified thread; Setters cross
+                                    // back to the signals.
+                                    let set_status = status.setter();
+                                    let set_active = active.setter();
+                                    perms::request(perm, move |s| {
+                                        set_status.set(format!(
+                                            "{} / {}",
+                                            perms::gate(perm).label(),
+                                            s.label()
+                                        ));
+                                        if s == Status::Granted {
+                                            set_active.set(true);
+                                        }
+                                    });
+                                } else {
+                                    perms::open_settings(perm);
+                                    status.set(format!(
                                         "{} / {}",
                                         perms::gate(perm).label(),
-                                        s.label()
+                                        perms::status(perm).label()
                                     ));
-                                    if s == Status::Granted {
-                                        set_active.set(true);
-                                    }
-                                });
-                            } else {
-                                perms::open_settings(perm);
-                                status.set(format!(
-                                    "{} / {}",
-                                    perms::gate(perm).label(),
-                                    perms::status(perm).label()
-                                ));
-                            }
-                        })
-                        .id(day::id!(camera_perm_action))
-                },
-            ),
-        ))
-        .spacing(Space::S),
-    ),))
-    .title(crate::res::str::camera_permission_section())
+                                }
+                            })
+                            .id(day::id!(camera_perm_action))
+                    },
+                ),
+            ))
+            .spacing(Space::S),
+        ),),
+    )
 }

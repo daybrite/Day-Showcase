@@ -1,37 +1,1135 @@
+// Copyright © The Daybrite Project
+// SPDX-License-Identifier: MPL-2.0
+
+//! The Canvas page (docs/canvas.md): one card per drawing, each on a `canvas` that reads the
+//! gallery's colors, so it follows light and dark.
+//!
+//! The first five cards are a dial on a spring, a clock, parsed SVG paths, compositing (clips,
+//! shadows, erased cut-outs and blend modes), and a sketch pad. Their motion is stepped from
+//! `day::frame::FrameClock` with `day::motion` and written into signals the draw closures
+//! read. The last four cards are the reference demos for canvas text, text anchors, pointer
+//! input and decoded images. Charts are on the Charts page (`charts.rs`), built with
+//! day-piece-charts.
+
+use std::cell::{Cell, RefCell};
+use std::ops::ControlFlow;
+use std::rc::Rc;
+
+use day::frame::{FrameClock, FrameHandle};
+use day::motion::{Spring, SpringState};
 use day::prelude::*;
 
-use crate::palette::{AMBER, AZURE, CORAL, INK, RUST, SKY, SLATE, TEAL, VIOLET};
-use crate::widgets::{gauge, page_wide};
+use crate::gallery::{self, Tone, card, card_page};
+use crate::palette::{AZURE, CORAL, TEAL};
 
-/// Drawing & composition (docs/shapes.md, docs/canvas.md, DESIGN.md §8/§11): the unified
-/// `shape` piece in every kind, live canvas transforms and gestures, the slider-driven gauge, and
-/// the composition-tier widgets (card, badge, button styles, ambient environment), each
-/// group in its own themed section.
+/// The Canvas page: the five drawings, then the text, anchor, input and image demos.
 pub(crate) fn canvas_page() -> AnyPiece {
-    page_wide(
+    card_page(
         crate::res::str::nav_canvas(),
         day::id!(canvas_title),
-        form((
-            shapes_section(),
-            text_section(),
-            anchors_section(),
-            interaction_section(),
-            paths_section(),
-            gradients_section(),
-            gauge_section(),
-            image_section(),
-        ))
-        .any(),
+        3,
+        vec![
+            dial_card,
+            clock_card,
+            svg_card,
+            compositing_card,
+            sketch_card,
+            text_card,
+            anchors_card,
+            interaction_card,
+            image_card,
+        ],
     )
-    .any()
 }
+
+// ---------------------------------------------------------------------------
+// Shared drawing helpers
+// ---------------------------------------------------------------------------
+
+/// The margin between a stage's edge and the drawing on it.
+const PAD: f64 = 12.0;
+
+/// The size of a chart's small labels, in canvas points.
+const SMALL: f64 = 11.0;
+
+/// The opaque color of a stage: the kit's recessed wash over the platform's surface color.
+///
+/// Opaque, so a shape filled with it hides what is under it: a ridge that covers the one
+/// behind it, a dot with a hollow middle, the base of a disc that casts a shadow.
+///
+/// Mixed from two inks, so it reads them with `day::resolve`: a canvas that calls it records
+/// again when the appearance changes.
+fn stage_color() -> Color {
+    let base = day::resolve(SystemColor::Surface);
+    let wash = day::resolve(gallery::INSET);
+    let over = |under: f64, top: f64| under * (1.0 - wash.a) + top * wash.a;
+    Color::rgb(
+        over(base.r, wash.r),
+        over(base.g, wash.g),
+        over(base.b, wash.b),
+    )
+}
+
+/// Fills `size` with the stage and runs `content` inside its margin, with the size left.
+fn staged(draw: &mut Draw, size: Size, content: impl FnOnce(&mut Draw, Size)) {
+    draw.fill(
+        Shape::RoundedRect(Rect::new(0.0, 0.0, size.width, size.height), 12.0),
+        stage_color(),
+    );
+    margined(draw, size, content);
+}
+
+/// Runs `content` inside a stage's margin, with the size left, and paints no stage: for a
+/// canvas whose stage is the view behind it, so what the drawing erases shows the stage.
+fn margined(draw: &mut Draw, size: Size, content: impl FnOnce(&mut Draw, Size)) {
+    let inner = Size::new(
+        (size.width - 2.0 * PAD).max(1.0),
+        (size.height - 2.0 * PAD).max(1.0),
+    );
+    draw.transformed(Affine::translate(PAD, PAD), |draw| content(draw, inner));
+}
+
+/// The color of a shadow: black, stronger in dark where a shadow has less to darken.
+fn shadow_color(light: f64, dark: f64) -> Ink {
+    Ink::adaptive(
+        Color::rgba(0.08, 0.08, 0.04, light),
+        Color::rgba(0.0, 0.0, 0.0, dark),
+    )
+}
+
+/// One line of text in the platform's face, hung on `at` by the anchor (`h`, `v`).
+fn text(
+    draw: &mut Draw,
+    text: &str,
+    at: Point,
+    (size, color): (f64, impl Into<Ink>),
+    (h, v): (TextAlign, TextVAlign),
+) {
+    draw.text(
+        text,
+        at,
+        TextStyle {
+            size,
+            color: color.into(),
+            anchor: TextAnchor { h, v },
+            font: CanvasFont::default(),
+        },
+    );
+}
+
+/// A circle of radius `r` around `center`.
+fn disc(center: Point, r: f64) -> Shape {
+    Shape::Ellipse(Rect::new(center.x - r, center.y - r, r * 2.0, r * 2.0))
+}
+
+/// The point `r` from `center` at `deg` (0 points right, 90 points down).
+fn polar(center: Point, r: f64, deg: f64) -> Point {
+    let (sin, cos) = deg.to_radians().sin_cos();
+    Point::new(center.x + r * cos, center.y + r * sin)
+}
+
+/// An open path through `points`.
+fn open_path(points: &[Point]) -> Shape {
+    let mut path = PathBuilder::new();
+    for (index, point) in points.iter().enumerate() {
+        path = if index == 0 {
+            path.move_to(*point)
+        } else {
+            path.line_to(*point)
+        };
+    }
+    path.build()
+}
+
+/// A whole number with thousands separators.
+fn grouped(value: i64) -> String {
+    let digits = value.abs().to_string();
+    let mut out = String::new();
+    if value < 0 {
+        out.push('-');
+    }
+    for (index, digit) in digits.chars().enumerate() {
+        if index > 0 && (digits.len() - index).is_multiple_of(3) {
+            out.push(',');
+        }
+        out.push(digit);
+    }
+    out
+}
+
+// ---------------------------------------------------------------------------
+// Shared parts
+// ---------------------------------------------------------------------------
+
+/// A fact about a drawing with the mechanism behind it underneath.
+fn fact(name: day::LocalizedText, note: day::LocalizedText) -> impl Piece {
+    column((
+        label(name).font(Font::Footnote),
+        label(note).font(Font::Caption).secondary(),
+    ))
+    .spacing(1.0)
+    .align(HAlign::Leading)
+}
+
+/// The body of a card: its pieces in a leading-aligned column.
+fn body(pieces: impl PieceSeq) -> impl Piece {
+    column(pieces).spacing(Space::M).align(HAlign::Leading)
+}
+
+/// Decodes the Day logo's bytes and puts the bitmap in `shown`. `readout`, when given, is told
+/// what the decoder said the bytes were, or that it could not read them.
+fn decode_logo(shown: Signal<Option<day::Bitmap>>, readout: Option<Signal<String>>) {
+    // Started while the card builds: a backend that decodes inline has its completion drained
+    // when the tree borrow ends rather than being lost.
+    day::task(async move {
+        match day::decode_image(std::sync::Arc::new(
+            crate::res::image_bytes::day_logo.to_vec(),
+        ))
+        .await
+        {
+            Ok(bitmap) => {
+                if let Some(readout) = readout {
+                    let info = bitmap.info();
+                    readout.set(
+                        crate::res::str::canvas_image_readout(
+                            crate::res::str::CanvasImageReadout {
+                                format: info.format.map(|f| f.mime()).unwrap_or("—"),
+                                width: info.pixels.width,
+                                height: info.pixels.height,
+                            },
+                        )
+                        .format(),
+                    );
+                }
+                shown.set(Some(bitmap));
+            }
+            Err(_) => {
+                if let Some(readout) = readout {
+                    readout.set(crate::res::str::canvas_image_failed().format());
+                }
+            }
+        }
+    });
+}
+
+/// Draws `bitmap` as large as fits `into`, centered, in the proportions its decoder reported.
+fn draw_fitted(draw: &mut Draw, bitmap: &day::Bitmap, into: Rect) {
+    let pixels = bitmap.info().pixels;
+    if pixels.width <= 0.0 || pixels.height <= 0.0 {
+        return;
+    }
+    let scale = (into.size.width / pixels.width).min(into.size.height / pixels.height);
+    let (w, h) = (pixels.width * scale, pixels.height * scale);
+    draw.image(
+        bitmap,
+        Rect::new(
+            into.origin.x + (into.size.width - w) / 2.0,
+            into.origin.y + (into.size.height - h) / 2.0,
+            w,
+            h,
+        ),
+    );
+}
+
+// ---------------------------------------------------------------------------
+// 1. The dial
+// ---------------------------------------------------------------------------
+
+/// Where the dial's scale starts, in degrees (lower left).
+const DIAL_START: f64 = 135.0;
+/// How far the dial's scale runs, in degrees (to lower right).
+const DIAL_SWEEP: f64 = 270.0;
+/// The load above which the turbine is past its limit.
+const DIAL_LIMIT: f64 = 85.0;
+/// The loads the three presets spring to: idle, cruise, peak.
+const DIAL_PRESETS: [f64; 3] = [18.0, 57.0, 91.0];
+
+/// "Turbine 3 load": a needle and a color sweep that follow one value on a damped spring.
+fn dial_card() -> AnyPiece {
+    let load = Signal::new(0.0_f64);
+    let preset = Signal::new(1_usize);
+    let state = Rc::new(Cell::new(SpringState::default()));
+    let handle: Rc<RefCell<Option<FrameHandle>>> = Rc::default();
+    let clock = FrameClock::current();
+    // Springs the load to `target`. The spring's state outlives a retarget, so a preset chosen
+    // mid-swing bends the motion instead of restarting it; the subscription pauses itself once
+    // the spring has settled.
+    let spring_to = {
+        let (state, handle) = (state.clone(), handle.clone());
+        move |spring: Spring, target: f64| {
+            if untrack(day::reduce_motion) {
+                handle.borrow_mut().take();
+                state.set(SpringState::at(target));
+                load.set(target);
+                return;
+            }
+            let state = state.clone();
+            let subscription = clock.subscribe(move |frame| {
+                let mut now = state.get();
+                spring.step(&mut now, target, frame.delta.as_secs_f64());
+                let settled = spring.settled(now, target);
+                if settled {
+                    now = SpringState::at(target);
+                }
+                state.set(now);
+                load.set(now.value);
+                if settled {
+                    ControlFlow::Break(())
+                } else {
+                    ControlFlow::Continue(())
+                }
+            });
+            *handle.borrow_mut() = Some(subscription);
+        }
+    };
+    Scope::current().on_cleanup(move || {
+        handle.borrow_mut().take();
+    });
+    spring_to(Spring::new(90.0, 9.0), DIAL_PRESETS[1]);
+    watch(
+        move || preset.get(),
+        move |chosen: &usize, _| {
+            let target = DIAL_PRESETS
+                .get(*chosen)
+                .copied()
+                .unwrap_or(DIAL_PRESETS[1]);
+            spring_to(Spring::new(140.0, 11.0), target);
+        },
+    );
+
+    // The readings follow the number the dial shows, which is the sprung value on its scale.
+    let shown = move || load.get().clamp(0.0, 100.0).round();
+    let zone = move || {
+        let load = shown();
+        if load >= DIAL_LIMIT {
+            (crate::res::str::canvas_dial_zone_redline(), Tone::Danger)
+        } else if load >= 60.0 {
+            (crate::res::str::canvas_dial_zone_high(), Tone::Warn)
+        } else {
+            (crate::res::str::canvas_dial_zone_nominal(), Tone::Up)
+        }
+    };
+    card(
+        crate::res::vectors::nav_benchmark,
+        crate::res::str::canvas_dial_title(),
+        crate::res::str::canvas_dial_subtitle(),
+        body((
+            canvas(move |draw, size| {
+                staged(draw, size, |draw, size| draw_dial(draw, size, load.get()));
+            })
+            .height(230.0 + 2.0 * PAD)
+            .grow(Dimension::Width)
+            .a11y(move |a| {
+                a.role(Role::Meter)
+                    .label(crate::res::str::canvas_dial_title())
+                    .value(move || format!("{:.0}", shown()))
+            })
+            .id(day::id!(canvas_dial)),
+            picker(
+                preset,
+                [
+                    (0_usize, crate::res::str::canvas_dial_idle()),
+                    (1, crate::res::str::canvas_dial_cruise()),
+                    (2, crate::res::str::canvas_dial_peak()),
+                ],
+            )
+            .segmented()
+            .id(day::id!(canvas_dial_preset)),
+            row((
+                // The zone's tone changes with the load, which the kit's `stat` fixes when it
+                // is built, so this cell is laid out the same way with a reactive color.
+                column((
+                    label(crate::res::str::canvas_dial_zone())
+                        .font(Font::Caption)
+                        .secondary(),
+                    label(move || zone().0.format())
+                        .font(Font::Callout)
+                        .single_line()
+                        .color(move || zone().1.color())
+                        .id(day::id!(canvas_dial_zone)),
+                ))
+                .spacing(2.0)
+                .align(HAlign::Leading)
+                .grow(Dimension::Width),
+                gallery::stat(
+                    crate::res::str::canvas_dial_spool(),
+                    move || {
+                        crate::res::str::canvas_dial_spool_value(grouped(shown() as i64 * 128))
+                            .format()
+                    },
+                    None,
+                ),
+                gallery::stat(
+                    crate::res::str::canvas_dial_limit(),
+                    format!("{DIAL_LIMIT:.0} %"),
+                    Some(Tone::Danger),
+                ),
+            ))
+            .grow(Dimension::Width),
+        )),
+    )
+    .id(day::id!(canvas_card_dial))
+    .build()
+}
+
+/// The dial at `value` (0 to 100): the hatched red zone, the ticks and their figures, the
+/// sweep, the readout, and the needle over its hub.
+fn draw_dial(draw: &mut Draw, size: Size, value: f64) {
+    // A loose spring overshoots; the needle stops at the ends of its scale.
+    let value = value.clamp(0.0, 100.0);
+    let center = Point::new(size.width / 2.0, 0.54 * size.height);
+    let r = (size.width / 2.0 - 8.0).min(0.5 * size.height) - 6.0;
+    if r < 36.0 {
+        return;
+    }
+    let at = |v: f64| DIAL_START + v / 100.0 * DIAL_SWEEP;
+    let (ink, muted, faint) = (
+        SystemColor::Text,
+        SystemColor::SecondaryText,
+        SystemColor::TertiaryText,
+    );
+    let danger = Tone::Danger.color();
+
+    // The red zone: hatching confined to the ring between the limit and the end of the scale.
+    let zone = PathBuilder::new()
+        .arc_to(
+            center,
+            r + 2.0,
+            Angle::deg(at(DIAL_LIMIT)),
+            Angle::deg(at(100.0) - at(DIAL_LIMIT)),
+        )
+        .arc_to(
+            center,
+            r - 20.0,
+            Angle::deg(at(100.0)),
+            Angle::deg(at(DIAL_LIMIT) - at(100.0)),
+        )
+        .close()
+        .build();
+    draw.clipped(zone, |draw| {
+        let area = Rect::new(center.x + 0.4 * r, center.y - 0.2 * r, 0.6 * r + 4.0, r);
+        draw.fill(Shape::Rect(area), danger.with_alpha(0.08));
+        gallery::hatch(draw, area, 5.0, danger.with_alpha(0.55));
+    });
+
+    // A tick every 2, a longer one with its figure every 20.
+    for step in 0..=50 {
+        let v = f64::from(step) * 2.0;
+        let major = step % 10 == 0;
+        let color = if v >= DIAL_LIMIT {
+            danger.into()
+        } else if major {
+            Ink::from(muted)
+        } else {
+            faint.into()
+        };
+        let (inner, width) = if major {
+            (r - 14.0, 2.0)
+        } else {
+            (r - 8.0, 1.0)
+        };
+        draw.stroke_styled(
+            Shape::Line(polar(center, r, at(v)), polar(center, inner, at(v))),
+            color,
+            StrokeStyle::round(width),
+        );
+        if major {
+            text(
+                draw,
+                &format!("{v:.0}"),
+                polar(center, r - 28.0, at(v)),
+                (SMALL, faint),
+                (TextAlign::Center, TextVAlign::Middle),
+            );
+        }
+    }
+
+    // The sweep: a track, then the arc up to the needle, one stroke in a conic gradient. The
+    // gradient is fixed to the dial, so a color stays at its angle as the arc grows.
+    let ring = Rect::new(
+        center.x - (r + 12.0),
+        center.y - (r + 12.0),
+        2.0 * (r + 12.0),
+        2.0 * (r + 12.0),
+    );
+    draw.stroke_styled(
+        Shape::Arc {
+            rect: ring,
+            start: Angle::deg(DIAL_START),
+            sweep: Angle::deg(DIAL_SWEEP),
+        },
+        gallery::RAISED,
+        StrokeStyle::round(5.0),
+    );
+    let swept = value / 100.0 * DIAL_SWEEP;
+    if swept > 0.01 {
+        // The colors meet in the middle of the gap at the foot of the dial, where nothing is
+        // drawn. The ramp starts 0.2 rad before the scale does, and the first and last colors
+        // hold flat on either side of it, so the round caps take the color of their own end.
+        let seam = DIAL_START + DIAL_SWEEP + (360.0 - DIAL_SWEEP) / 2.0 - 360.0;
+        let lead = (DIAL_START - 0.2_f64.to_degrees() - seam) / 360.0;
+        let info = Tone::Info.color();
+        draw.stroke_styled(
+            Shape::Arc {
+                rect: ring,
+                start: Angle::deg(DIAL_START),
+                sweep: Angle::deg(swept),
+            },
+            ConicGradient::centered(
+                Angle::deg(seam),
+                vec![
+                    (0.0, info),
+                    (lead, info),
+                    (lead + 0.45, Tone::Accent.color()),
+                    (lead + 0.75, Tone::Warn.color()),
+                    (lead + 0.8, danger),
+                    (1.0, danger),
+                ],
+            ),
+            StrokeStyle::round(5.0),
+        );
+    }
+
+    // The readout.
+    draw.text(
+        &format!("{value:.0}"),
+        Point::new(center.x, center.y + 0.62 * r),
+        TextStyle {
+            size: 40.0,
+            color: ink.into(),
+            anchor: TextAnchor {
+                h: TextAlign::Center,
+                v: TextVAlign::Baseline,
+            },
+            font: CanvasFont {
+                weight: Some(FontWeight::Semibold),
+                ..CanvasFont::default()
+            },
+        },
+    );
+    text(
+        draw,
+        &crate::res::str::canvas_dial_unit().format(),
+        Point::new(center.x, center.y + 0.62 * r + 18.0),
+        (SMALL, faint),
+        (TextAlign::Center, TextVAlign::Baseline),
+    );
+
+    // The needle, drawn pointing right and turned to its angle. It casts a shadow straight
+    // down whichever way it points: a shadow's offset does not turn with the transform.
+    draw.transformed(
+        Affine::rotate(Angle::deg(at(value))).then(Affine::translate(center.x, center.y)),
+        |draw| {
+            draw.shadowed(
+                Shadow::new(shadow_color(0.26, 0.55), 8.0).offset(0.0, 3.0),
+                |draw| {
+                    draw.fill(
+                        Shape::Polygon(vec![
+                            Point::new(-14.0, -3.0),
+                            Point::new(r - 18.0, 0.0),
+                            Point::new(-14.0, 3.0),
+                        ]),
+                        ink,
+                    );
+                },
+            );
+        },
+    );
+    // The hub: only its opaque base casts a shadow, so the wash and the rim over it add none.
+    draw.shadowed(
+        Shadow::new(shadow_color(0.24, 0.5), 6.0).offset(0.0, 2.0),
+        |draw| draw.fill(disc(center, 7.0), stage_color()),
+    );
+    draw.fill(disc(center, 7.0), gallery::RAISED);
+    draw.stroke(disc(center, 7.0), ink, 2.0);
+}
+
+// ---------------------------------------------------------------------------
+// 2. The clock
+// ---------------------------------------------------------------------------
+
+/// The side of the clock's canvas.
+const CLOCK_SIDE: f64 = 150.0;
+
+/// "Transforms": a clock drawn by rotating the canvas, its second hand turning on the frame
+/// clock.
+fn clock_card() -> AnyPiece {
+    // The seconds the hand shows: one turn a minute. With reduced motion it rests at twelve.
+    let seconds = Signal::new(0.0_f64);
+    if !untrack(day::reduce_motion) {
+        let mut elapsed = 0.0;
+        FrameClock::current()
+            .subscribe(move |frame| {
+                elapsed = (elapsed + frame.delta.as_secs_f64()) % 60.0;
+                seconds.set(elapsed);
+                ControlFlow::Continue(())
+            })
+            .in_scope();
+    }
+    card(
+        crate::res::vectors::nav_dates,
+        crate::res::str::canvas_clock_title(),
+        crate::res::str::canvas_clock_subtitle(),
+        row((
+            canvas(move |draw, size| draw_clock(draw, size, seconds.get()))
+                .frame(CLOCK_SIDE, CLOCK_SIDE)
+                .a11y(|a| a.label(crate::res::str::canvas_clock_title()))
+                .id(day::id!(canvas_clock)),
+            column((
+                fact(
+                    crate::res::str::canvas_clock_ticks(),
+                    crate::res::str::canvas_clock_ticks_note(),
+                ),
+                fact(
+                    crate::res::str::canvas_clock_hands(),
+                    crate::res::str::canvas_clock_hands_note(),
+                ),
+                fact(
+                    crate::res::str::canvas_clock_second(),
+                    crate::res::str::canvas_clock_second_note(),
+                ),
+            ))
+            .spacing(Space::S)
+            .align(HAlign::Leading)
+            .grow(Dimension::Width),
+        ))
+        .spacing(16.0)
+        .align(VAlign::Center),
+    )
+    .id(day::id!(canvas_card_clock))
+    .build()
+}
+
+/// The clock at ten past ten, with its second hand at `seconds`.
+fn draw_clock(draw: &mut Draw, size: Size, seconds: f64) {
+    let r = size.width.min(size.height) / 2.0;
+    if r < 20.0 {
+        return;
+    }
+    let center = Affine::translate(size.width / 2.0, size.height / 2.0);
+    let (ink, accent) = (SystemColor::Text, Tone::Accent.color());
+    let face = disc(Point::new(0.0, 0.0), r - 2.0);
+    draw.transformed(center, |draw| {
+        draw.fill(face.clone(), gallery::RAISED);
+        draw.stroke(face, SystemColor::Separator, 1.5);
+    });
+    // Sixty ticks: one line, drawn sixty times under sixty rotations.
+    for tick in 0..60 {
+        let turn = Affine::rotate(Angle::turns(f64::from(tick) / 60.0)).then(center);
+        let (inner, width, color) = if tick % 5 == 0 {
+            (r - 17.0, 2.0, SystemColor::SecondaryText)
+        } else {
+            (r - 12.0, 1.0, SystemColor::TertiaryText)
+        };
+        draw.transformed(turn, |draw| {
+            draw.stroke(
+                Shape::Line(Point::new(r - 8.0, 0.0), Point::new(inner, 0.0)),
+                color,
+                width,
+            );
+        });
+    }
+    // A hand is a line along x, turned to its place; twelve o'clock is a quarter turn back.
+    let mut hand = |turns: f64, (tail, length): (f64, f64), width: f64, color: Ink| {
+        draw.transformed(
+            (Affine::rotate(Angle::turns(turns) - Angle::QUARTER)).then(center),
+            |draw| {
+                draw.stroke_styled(
+                    Shape::Line(Point::new(-tail, 0.0), Point::new(length, 0.0)),
+                    color,
+                    StrokeStyle::round(width),
+                );
+            },
+        );
+    };
+    hand(10.0 / 12.0, (8.0, 0.48 * r), 4.5, ink.into());
+    hand(10.0 / 60.0, (8.0, 0.7 * r), 3.0, ink.into());
+    hand(seconds / 60.0, (14.0, 0.8 * r), 1.5, accent.into());
+    draw.transformed(center, |draw| {
+        draw.fill(disc(Point::new(0.0, 0.0), 4.0), accent);
+    });
+}
+
+// ---------------------------------------------------------------------------
+// 3. SVG paths
+// ---------------------------------------------------------------------------
+
+/// The side of a glyph's tile.
+const GLYPH_TILE: f64 = 60.0;
+
+/// "SVG paths": four glyphs whose path data `build_path!` parsed at compile time, relative and
+/// smooth commands included.
+fn svg_card() -> AnyPiece {
+    card(
+        crate::res::vectors::star,
+        crate::res::str::canvas_svg_title(),
+        crate::res::str::canvas_svg_subtitle(),
+        row((
+            glyph(
+                crate::res::str::canvas_svg_heart(),
+                day::id!(canvas_svg_heart),
+                |draw| {
+                    draw.fill(
+                        build_path!(
+                            "M12 21s-7-4.35-9.5-8.5C.5 8.5 3 4 7 4c2 0 3.5 1 5 3 1.5-2 3-3 5-3 \
+                         4 0 6.5 4.5 4.5 8.5C19 16.65 12 21 12 21z"
+                        )
+                        .build(),
+                        Tone::Danger.color(),
+                    );
+                },
+            ),
+            glyph(
+                crate::res::str::canvas_svg_star(),
+                day::id!(canvas_svg_star),
+                |draw| {
+                    draw.fill(
+                    build_path!(
+                        "M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.27 5.82 21 7 14.14l-5-4.87 \
+                         6.91-1.01z"
+                    )
+                    .build(),
+                    Tone::Warn.color(),
+                );
+                },
+            ),
+            glyph(
+                crate::res::str::canvas_svg_bolt(),
+                day::id!(canvas_svg_bolt),
+                |draw| {
+                    draw.fill(
+                        build_path!("M13 2L3 14h7l-1 8 10-12h-7z").build(),
+                        Tone::Info.color(),
+                    );
+                },
+            ),
+            glyph(
+                crate::res::str::canvas_svg_check(),
+                day::id!(canvas_svg_check),
+                |draw| {
+                    draw.stroke_styled(
+                        build_path!("M20 6L9 17l-5-5").build(),
+                        Tone::Accent.color(),
+                        StrokeStyle::round(2.5),
+                    );
+                },
+            ),
+        ))
+        .align(VAlign::Top)
+        .grow(Dimension::Width),
+    )
+    .id(day::id!(canvas_card_svg))
+    .build()
+}
+
+/// A glyph on a raised tile with its name underneath. `paint` draws in the path's own
+/// 24-unit box.
+fn glyph(name: day::LocalizedText, id: ElementId, paint: fn(&mut Draw)) -> impl Piece {
+    let spoken = name.clone();
+    column((
+        canvas(move |draw, size| {
+            let tile = Rect::new(
+                (size.width - GLYPH_TILE) / 2.0,
+                (size.height - GLYPH_TILE) / 2.0,
+                GLYPH_TILE,
+                GLYPH_TILE,
+            );
+            let inner = Rect::new(
+                tile.origin.x + 0.5,
+                tile.origin.y + 0.5,
+                GLYPH_TILE - 1.0,
+                GLYPH_TILE - 1.0,
+            );
+            draw.fill(Shape::RoundedRect(inner, 18.0), gallery::RAISED);
+            draw.stroke(Shape::RoundedRect(inner, 18.0), SystemColor::Separator, 1.0);
+            // The 24-unit path at 30 points, centered on the tile.
+            let scale = 30.0 / 24.0;
+            draw.transformed(
+                Affine::scale(scale, scale).then(Affine::translate(
+                    tile.origin.x + (GLYPH_TILE - 30.0) / 2.0,
+                    tile.origin.y + (GLYPH_TILE - 30.0) / 2.0,
+                )),
+                paint,
+            );
+        })
+        .frame(GLYPH_TILE, GLYPH_TILE)
+        .a11y(move |a| a.label(spoken.clone()))
+        .id(id),
+        label(name).font(Font::Footnote).secondary(),
+    ))
+    .spacing(Space::S)
+    .align(HAlign::Center)
+    .grow(Dimension::Width)
+}
+
+// ---------------------------------------------------------------------------
+// 4. Compositing
+// ---------------------------------------------------------------------------
+
+/// "Compositing": an image clipped to a disc, a ticket with its holes erased, a sphere lit by
+/// radial gradients, and three discs in each of four blend modes.
+///
+/// The stage of both canvases is a native view behind them and the canvases are clear, so the
+/// holes erased from the ticket show the stage itself.
+fn compositing_card() -> AnyPiece {
+    let logo: Signal<Option<day::Bitmap>> = Signal::new(None);
+    decode_logo(logo, None);
+    let name = |text: day::LocalizedText| {
+        column((label(text).font(Font::Footnote).secondary(),))
+            .align(HAlign::Center)
+            .grow(Dimension::Width)
+    };
+    card(
+        crate::res::vectors::nav_images,
+        crate::res::str::canvas_compositing_title(),
+        crate::res::str::canvas_compositing_subtitle(),
+        body((
+            canvas(move |draw, size| {
+                let logo = logo.get();
+                margined(draw, size, |draw, size| {
+                    draw_compositing(draw, size, logo.as_ref());
+                });
+            })
+            .height(132.0 + 2.0 * PAD)
+            .grow(Dimension::Width)
+            .a11y(|a| a.label(crate::res::str::canvas_compositing_title()))
+            .id(day::id!(canvas_compositing))
+            .background(stage_color)
+            .corner_radius(12.0),
+            row((
+                name(crate::res::str::canvas_compositing_image()),
+                name(crate::res::str::canvas_compositing_cutout()),
+                name(crate::res::str::canvas_compositing_radial()),
+            ))
+            .align(VAlign::Top)
+            .grow(Dimension::Width),
+            gallery::caption(
+                crate::res::str::canvas_compositing_blend(),
+                crate::res::str::canvas_compositing_blend_code(),
+            ),
+            canvas(draw_blends)
+                .height(BLEND_HEIGHT)
+                .grow(Dimension::Width)
+                .a11y(|a| a.label(crate::res::str::canvas_compositing_blend()))
+                .id(day::id!(canvas_blends))
+                .background(stage_color)
+                .corner_radius(12.0),
+            row((
+                name(crate::res::str::canvas_blend_normal()),
+                name(crate::res::str::canvas_blend_multiply()),
+                name(crate::res::str::canvas_blend_screen()),
+                name(crate::res::str::canvas_blend_add()),
+            ))
+            .align(VAlign::Top)
+            .grow(Dimension::Width),
+        )),
+    )
+    .id(day::id!(canvas_card_compositing))
+    .build()
+}
+
+/// The three motifs, each centered on a third of the width and scaled down together where
+/// the stage is too narrow for them side by side.
+fn draw_compositing(draw: &mut Draw, size: Size, logo: Option<&day::Bitmap>) {
+    let scale = (size.width / 330.0).min(1.0);
+    let y = size.height / 2.0;
+    // A shadow's blur and offset are in points whatever the scale, so they are not scaled here.
+    let shadow = Shadow::new(shadow_color(0.22, 0.5), 14.0).offset(0.0, 5.0);
+    let accent = Tone::Accent.color();
+    let origin = Point::new(0.0, 0.0);
+    let place = |sixths: f64| {
+        Affine::scale(scale, scale).then(Affine::translate(size.width * sixths / 6.0, y))
+    };
+
+    // An image clipped to a disc. The opaque base is the one shape that casts the shadow; the
+    // wash and the picture clipped over it cast none.
+    draw.transformed(place(1.0), |draw| {
+        let bounds = Rect::new(-40.0, -40.0, 80.0, 80.0);
+        draw.shadowed(shadow, |draw| {
+            draw.fill(disc(origin, 40.0), stage_color());
+        });
+        draw.clipped(disc(origin, 40.0), |draw| {
+            draw.fill(
+                Shape::Rect(bounds),
+                LinearGradient::new(
+                    UnitPoint::TOP_LEADING,
+                    UnitPoint::BOTTOM_TRAILING,
+                    vec![(0.0, gallery::RAISED), (1.0, gallery::INSET)],
+                ),
+            );
+            if let Some(logo) = logo {
+                draw_fitted(draw, logo, Rect::new(-46.0, -46.0, 92.0, 92.0));
+            }
+        });
+        draw.stroke(disc(origin, 44.0), accent.with_alpha(0.55), 1.5);
+    });
+
+    // A ticket with two notches, a hole and a tear line, all erased from it: the canvas is
+    // left clear there, shadow included, and the stage behind the canvas shows through.
+    draw.transformed(place(3.0), |draw| {
+        let ticket = Rect::new(-52.0, -36.0, 104.0, 72.0);
+        let deep = Color::rgb(accent.r * 0.62, accent.g * 0.62, accent.b * 0.62);
+        draw.shadowed(shadow, |draw| {
+            draw.fill(
+                Shape::RoundedRect(ticket, 14.0),
+                LinearGradient::new(
+                    UnitPoint::TOP_LEADING,
+                    UnitPoint::BOTTOM_TRAILING,
+                    vec![(0.0, accent), (1.0, deep)],
+                ),
+            );
+        });
+        draw.blended(BlendMode::Erase, |draw| {
+            // An erasing shape's color is ignored; only its alpha counts.
+            let cut = Color::BLACK;
+            draw.fill(disc(Point::new(20.0, -36.0), 8.0), cut);
+            draw.fill(disc(Point::new(20.0, 36.0), 8.0), cut);
+            draw.fill(disc(Point::new(-16.0, 0.0), 13.0), cut);
+            draw.stroke_styled(
+                Shape::Line(Point::new(20.0, -26.0), Point::new(20.0, 26.0)),
+                cut,
+                StrokeStyle::dashed(2.0, vec![4.0, 4.0]),
+            );
+        });
+    });
+
+    // A sphere: a glow, an off-center highlight, a dashed orbit and a moon.
+    draw.transformed(place(5.0), |draw| {
+        let warn = Tone::Warn.color();
+        draw.fill(
+            disc(origin, 52.0),
+            RadialGradient::new(
+                UnitPoint::CENTER,
+                0.5,
+                vec![
+                    (0.0, warn.with_alpha(0.32)),
+                    (22.0 / 52.0, warn.with_alpha(0.32)),
+                    (1.0, warn.with_alpha(0.0)),
+                ],
+            ),
+        );
+        // The gradient is centered on the highlight and reaches the far limb.
+        draw.fill(
+            disc(origin, 30.0),
+            RadialGradient::new(
+                UnitPoint::new(0.5 - 10.0 / 60.0, 0.5 - 12.0 / 60.0),
+                0.76,
+                vec![
+                    (0.0, Color::hex(0x00FF_F3D6)),
+                    (0.35, Color::hex(0x00FF_C05C)),
+                    (0.75, Color::hex(0x00E8_743B)),
+                    (1.0, Color::hex(0x00A9_3F2C)),
+                ],
+            ),
+        );
+        draw.stroke_styled(
+            disc(origin, 42.0),
+            warn.with_alpha(0.6),
+            StrokeStyle::dashed(1.25, vec![3.0, 5.0]),
+        );
+        draw.fill(
+            disc(polar(origin, 42.0, (-0.7_f64).to_degrees()), 4.0),
+            Color::hex(0x00FF_E2A8),
+        );
+    });
+}
+
+/// The height of the blend swatches' stage.
+const BLEND_HEIGHT: f64 = 76.0;
+
+/// The blend modes the swatches show, in the order of the names under them.
+const BLEND_MODES: [BlendMode; 4] = [
+    BlendMode::Normal,
+    BlendMode::Multiply,
+    BlendMode::Screen,
+    BlendMode::Add,
+];
+
+/// Three overlapping discs per blend mode, each group centered on a quarter of the width. The
+/// first disc is drawn plainly and the other two in the mode, so each overlap shows the mode
+/// at work on the colors under it. A canvas blends with its own drawing only, which is why the
+/// result is the same over a light stage and a dark one.
+fn draw_blends(draw: &mut Draw, size: Size) {
+    let cell = size.width / BLEND_MODES.len() as f64;
+    // A group is 52 points wide and 50 tall.
+    let scale = (cell / 60.0).min(size.height / 58.0).min(1.0);
+    for (index, mode) in BLEND_MODES.into_iter().enumerate() {
+        let center = Point::new(cell * (index as f64 + 0.5), size.height / 2.0);
+        draw.transformed(
+            Affine::scale(scale, scale).then(Affine::translate(center.x, center.y)),
+            |draw| {
+                draw.fill(disc(Point::new(0.0, -9.0), 16.0), Tone::Danger.color());
+                draw.blended(mode, |draw| {
+                    draw.fill(disc(Point::new(-10.0, 9.0), 16.0), Tone::Up.color());
+                    draw.fill(disc(Point::new(10.0, 9.0), 16.0), Tone::Info.color());
+                });
+            },
+        );
+    }
+}
+
+// ---------------------------------------------------------------------------
+// 5. The sketch pad
+// ---------------------------------------------------------------------------
+
+/// The strokes the pad opens with: the letters D, A and Y, centered in `size`.
+fn sketch_sample(size: Size) -> Vec<Vec<Point>> {
+    const LETTER: (f64, f64) = (50.0, 72.0);
+    const GAP: f64 = 24.0;
+    let left = (size.width - (3.0 * LETTER.0 + 2.0 * GAP)) / 2.0;
+    let top = (size.height - LETTER.1) / 2.0;
+    let at = |letter: usize, (x, y): (f64, f64)| {
+        Point::new(
+            left + letter as f64 * (LETTER.0 + GAP) + x * LETTER.0,
+            top + y * LETTER.1,
+        )
+    };
+    // The D: its stem, then its bowl as a half ellipse back to the foot of the stem.
+    let mut d = vec![at(0, (0.0, 1.0)), at(0, (0.0, 0.0))];
+    d.extend((1..=8).map(|step| {
+        let turn = (-90.0 + 180.0 * f64::from(step) / 8.0_f64).to_radians();
+        at(0, (turn.cos(), 0.5 + 0.5 * turn.sin()))
+    }));
+    vec![
+        d,
+        vec![at(1, (0.0, 1.0)), at(1, (0.5, 0.0)), at(1, (1.0, 1.0))],
+        vec![at(1, (0.2, 0.6)), at(1, (0.8, 0.6))],
+        vec![at(2, (0.0, 0.0)), at(2, (0.5, 0.5)), at(2, (1.0, 0.0))],
+        vec![at(2, (0.5, 0.5)), at(2, (0.5, 1.0))],
+    ]
+}
+
+/// "Sketch": a pad that turns each drag into a stroke.
+fn sketch_card() -> AnyPiece {
+    let sample = Signal::new(true);
+    let strokes = Signal::new(Vec::<Vec<Point>>::new());
+    // How many strokes and points the pad holds, the opening letters included.
+    let counts = move || {
+        let (mut count, mut points) =
+            strokes.with(|all| (all.len(), all.iter().map(Vec::len).sum::<usize>()));
+        if sample.get() {
+            let letters = sketch_sample(Size::new(0.0, 0.0));
+            count += letters.len();
+            points += letters.iter().map(Vec::len).sum::<usize>();
+        }
+        (count, points)
+    };
+    card(
+        crate::res::vectors::nav_gestures,
+        crate::res::str::canvas_sketch_title(),
+        crate::res::str::canvas_sketch_subtitle(),
+        body((
+            canvas(move |draw, size| {
+                let letters = if sample.get() {
+                    sketch_sample(size)
+                } else {
+                    Vec::new()
+                };
+                strokes.with(|drawn| draw_sketch(draw, size, &letters, drawn));
+            })
+            .height(200.0)
+            .grow(Dimension::Width)
+            .on_drag(move |drag| match drag.phase {
+                DragPhase::Began => strokes.update(|all| all.push(vec![drag.location])),
+                _ => strokes.update(|all| {
+                    if let Some(stroke) = all.last_mut() {
+                        stroke.push(drag.location);
+                    }
+                }),
+            })
+            .a11y(|a| a.label(crate::res::str::canvas_sketch_title()))
+            .id(day::id!(canvas_sketch)),
+            // The kit's caption, laid out here so the count itself carries the id.
+            row((
+                label(crate::res::str::canvas_sketch_strokes())
+                    .font(Font::Footnote)
+                    .secondary()
+                    .grow(Dimension::Width),
+                label(move || {
+                    let (count, points) = counts();
+                    crate::res::str::canvas_sketch_count(crate::res::str::CanvasSketchCount {
+                        points: points as i64,
+                        strokes: count as i64,
+                    })
+                    .format()
+                })
+                .font(Font::Caption)
+                .secondary()
+                .tabular()
+                .single_line()
+                .id(day::id!(canvas_sketch_count)),
+            ))
+            .spacing(Space::S)
+            .align(VAlign::Center)
+            .grow(Dimension::Width),
+        )),
+    )
+    .trailing(
+        button(crate::res::str::canvas_sketch_clear())
+            .action(move || {
+                sample.set(false);
+                strokes.set(Vec::new());
+            })
+            .enabled(move || sample.get() || strokes.with(|all| !all.is_empty()))
+            .bordered()
+            .id(day::id!(canvas_sketch_clear)),
+    )
+    .id(day::id!(canvas_card_sketch))
+    .build()
+}
+
+/// The pad: a dotted stage, then the opening `letters` and the `drawn` strokes as round lines.
+fn draw_sketch(draw: &mut Draw, size: Size, letters: &[Vec<Point>], drawn: &[Vec<Point>]) {
+    draw.fill(
+        Shape::RoundedRect(Rect::new(0.0, 0.0, size.width, size.height), 12.0),
+        stage_color(),
+    );
+    let mut dots = Vec::new();
+    let mut y = 8.0;
+    while y < size.height {
+        let mut x = 8.0;
+        while x < size.width {
+            dots.push(Point::new(x, y));
+            x += 16.0;
+        }
+        y += 16.0;
+    }
+    draw.stamp(
+        Shape::Rect(Rect::new(-0.75, -0.75, 1.5, 1.5)),
+        dots,
+        SystemColor::Separator,
+    );
+    if letters.is_empty() && drawn.is_empty() {
+        text(
+            draw,
+            &crate::res::str::canvas_sketch_empty().format(),
+            Point::new(size.width / 2.0, size.height / 2.0),
+            (14.0, SystemColor::TertiaryText),
+            (TextAlign::Center, TextVAlign::Middle),
+        );
+        return;
+    }
+    let accent = Tone::Accent.color();
+    for stroke in letters.iter().chain(drawn) {
+        match stroke.as_slice() {
+            [] => {}
+            // A press that has not moved yet: a dot the width of the line.
+            [only] => draw.fill(disc(*only, 1.5), accent),
+            points => draw.stroke_styled(open_path(points), accent, StrokeStyle::round(3.0)),
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Reference demos: text, anchors, pointer input, a decoded image
+// ---------------------------------------------------------------------------
 
 /// Canvas text in a chosen font (docs/fonts.md): a specimen line, the bold / italic / bold-italic
 /// faces, and a centered glyph, each framed by the box `measure_text` reports, so the anchor
 /// rule (a `Leading` anchor is the line box's top-leading corner) is visible. The menu lists
 /// every family `font_families()` knows (the platform's plus the bundled ones) and
 /// starts on the bundled Pacifico, which is exactly the family no platform ships.
-fn text_section() -> impl Piece {
+fn text_card() -> AnyPiece {
     let mut families: Vec<String> = day::font_families()
         .iter()
         .map(|f| f.family.clone())
@@ -45,154 +1143,171 @@ fn text_section() -> impl Piece {
     let names = families.clone();
     let listed = !day::font_families().is_empty();
     const H: f64 = 168.0;
-    section((
-        canvas(move |d, size| {
-            let family = names.get(chosen.get()).cloned().filter(|_| listed);
-            let font = |weight: Option<FontWeight>, italic: bool| CanvasFont {
-                family: family.clone(),
-                weight,
-                italic,
-            };
-            let frame = Color::rgba(0.5, 0.5, 0.55, 0.45);
-            let baseline_c = Color::rgba(0.9, 0.3, 0.3, 0.55);
-            let cap_c = Color::rgba(0.95, 0.65, 0.15, 0.75);
-            let ink_c = Color::rgba(0.35, 0.8, 0.55, 0.8);
-            // A line in the family under everything `measure_text` reports about it: the line
-            // box (grey; the typographic slot, identical for every string in this face at this
-            // size), the ink box (green; where the glyphs put marks), the baseline (red) and
-            // the cap line (amber). The three boxes only coincide for text that happens to fill
-            // its slot; a line of digits leaves the descender space empty, and the gap between
-            // grey and green is exactly why a chart's y labels need the cap line to look centered
-            // (docs/fonts.md).
-            let framed = |d: &mut Draw, text: &str, at: Point, size: f64, font: CanvasFont| {
-                let m = day::measure_text(text, size, &font);
-                d.stroke(
-                    Shape::Rect(Rect::new(at.x, at.y, m.width, m.height)),
-                    frame,
-                    1.0,
-                );
-                d.stroke(
-                    Shape::Rect(Rect::new(
-                        at.x + m.ink.origin.x,
-                        at.y + m.ink.origin.y,
-                        m.ink.size.width,
-                        m.ink.size.height,
-                    )),
-                    ink_c,
-                    1.0,
-                );
-                d.stroke(
-                    Shape::Line(
-                        Point::new(at.x, at.y + m.ascent),
-                        Point::new(at.x + m.width, at.y + m.ascent),
+    card(
+        crate::res::vectors::nav_text,
+        crate::res::str::canvas_text_title(),
+        crate::res::str::canvas_text_subtitle(),
+        body((
+            canvas(move |d, size| {
+                let family = names.get(chosen.get()).cloned().filter(|_| listed);
+                let font = |weight: Option<FontWeight>, italic: bool| CanvasFont {
+                    family: family.clone(),
+                    weight,
+                    italic,
+                };
+                let frame = Color::rgba(0.5, 0.5, 0.55, 0.45);
+                let baseline_c = Color::rgba(0.9, 0.3, 0.3, 0.55);
+                let cap_c = Color::rgba(0.95, 0.65, 0.15, 0.75);
+                let ink_c = Color::rgba(0.35, 0.8, 0.55, 0.8);
+                // A line in the family under everything `measure_text` reports about it: the
+                // line box (grey; the typographic slot, identical for every string in this face
+                // at this size), the ink box (green; where the glyphs put marks), the baseline
+                // (red) and the cap line (amber). The three boxes only coincide for text that
+                // happens to fill its slot; a line of digits leaves the descender space empty,
+                // and the gap between grey and green is exactly why a chart's y labels need the
+                // cap line to look centered (docs/fonts.md).
+                let framed = |d: &mut Draw, text: &str, at: Point, size: f64, font: CanvasFont| {
+                    let m = day::measure_text(text, size, &font);
+                    d.stroke(
+                        Shape::Rect(Rect::new(at.x, at.y, m.width, m.height)),
+                        frame,
+                        1.0,
+                    );
+                    d.stroke(
+                        Shape::Rect(Rect::new(
+                            at.x + m.ink.origin.x,
+                            at.y + m.ink.origin.y,
+                            m.ink.size.width,
+                            m.ink.size.height,
+                        )),
+                        ink_c,
+                        1.0,
+                    );
+                    d.stroke(
+                        Shape::Line(
+                            Point::new(at.x, at.y + m.ascent),
+                            Point::new(at.x + m.width, at.y + m.ascent),
+                        ),
+                        baseline_c,
+                        1.0,
+                    );
+                    d.stroke(
+                        Shape::Line(
+                            Point::new(at.x, at.y + m.ascent - m.cap_height),
+                            Point::new(at.x + m.width, at.y + m.ascent - m.cap_height),
+                        ),
+                        cap_c,
+                        1.0,
+                    );
+                    d.text(
+                        text,
+                        at,
+                        TextStyle {
+                            size,
+                            color: AZURE.into(),
+                            anchor: TextAnchor::LEADING,
+                            font,
+                        },
+                    );
+                    m
+                };
+                let specimen = crate::res::str::canvas_text_specimen().format();
+                // As large as the card is wide, up to 28 points: a wide face in a narrow column
+                // would otherwise run out of the card.
+                let natural = day::measure_text(&specimen, 28.0, &font(None, false)).width;
+                let room = (size.width - 16.0).max(1.0);
+                let big = if natural > room {
+                    (28.0 * room / natural).max(12.0)
+                } else {
+                    28.0
+                };
+                let m = framed(d, &specimen, Point::new(8.0, 8.0), big, font(None, false));
+                let y = 8.0 + m.height + 12.0;
+                let mut x = 8.0;
+                for (label, weight, italic) in [
+                    (
+                        crate::res::str::canvas_text_bold().format(),
+                        Some(FontWeight::Bold),
+                        false,
                     ),
-                    baseline_c,
-                    1.0,
-                );
-                d.stroke(
-                    Shape::Line(
-                        Point::new(at.x, at.y + m.ascent - m.cap_height),
-                        Point::new(at.x + m.width, at.y + m.ascent - m.cap_height),
+                    (crate::res::str::canvas_text_italic().format(), None, true),
+                    (
+                        crate::res::str::canvas_text_bold_italic().format(),
+                        Some(FontWeight::Bold),
+                        true,
                     ),
-                    cap_c,
-                    1.0,
-                );
+                ] {
+                    let m = framed(d, &label, Point::new(x, y), 20.0, font(weight, italic));
+                    x += m.width + 18.0;
+                }
+                // A centered glyph pair in a circle: the `Centered` anchor is the line box's
+                // center.
+                let r = 30.0;
+                let c = Point::new(size.width - r - 12.0, size.height - r - 10.0);
+                d.stroke(disc(c, r), CORAL, 2.0);
                 d.text(
-                    text,
-                    at,
+                    "Aa",
+                    c,
                     TextStyle {
-                        size,
-                        color: AZURE,
-                        anchor: TextAnchor::LEADING,
-                        font,
+                        size: 26.0,
+                        color: CORAL.into(),
+                        anchor: TextAnchor::CENTERED,
+                        font: font(None, false),
                     },
                 );
-                m
-            };
-            let specimen = crate::res::str::canvas_text_specimen().format();
-            let big = 28.0;
-            let m = framed(d, &specimen, Point::new(8.0, 8.0), big, font(None, false));
-            let y = 8.0 + m.height + 12.0;
-            let mut x = 8.0;
-            for (label, weight, italic) in [
-                (
-                    crate::res::str::canvas_text_bold().format(),
-                    Some(FontWeight::Bold),
-                    false,
-                ),
-                (crate::res::str::canvas_text_italic().format(), None, true),
-                (
-                    crate::res::str::canvas_text_bold_italic().format(),
-                    Some(FontWeight::Bold),
-                    true,
-                ),
-            ] {
-                let m = framed(d, &label, Point::new(x, y), 20.0, font(weight, italic));
-                x += m.width + 18.0;
-            }
-            // A centered glyph pair in a circle: the `Centered` anchor is the line box's center.
-            let r = 30.0;
-            let c = Point::new(size.width - r - 12.0, size.height - r - 10.0);
-            d.stroke(
-                Shape::Ellipse(Rect::new(c.x - r, c.y - r, 2.0 * r, 2.0 * r)),
-                CORAL,
-                2.0,
-            );
-            d.text(
-                "Aa",
-                c,
-                TextStyle {
-                    size: 26.0,
-                    color: CORAL,
-                    anchor: TextAnchor::CENTERED,
-                    font: font(None, false),
-                },
-            );
-            // What the measuring above cost, read last so it counts this recording's own calls
-            // (docs/fonts.md "It is cached"). Drawn inside the canvas rather than beside it
-            // because that needs no reactivity at all: the numbers change when this closure runs,
-            // and this closure is what draws them.
-            //
-            // Watch it move. Resizing the window re-records with the same strings, so `hits`
-            // climbs and `misses` does not; the measurements never reach the toolkit twice.
-            // Choosing another font changes the key of every specimen, so `misses` jumps by the
-            // number of lines here and then stops again.
-            let st = day::text_metrics_cache_stats();
-            d.text(
-                // Named arguments: three `i64`s in the wrong order would compile and render a
-                // plausible-looking lie, so the generated accessor takes a struct.
-                &crate::res::str::canvas_metrics_cache(crate::res::str::CanvasMetricsCache {
-                    hits: st.hits as i64,
-                    misses: st.misses as i64,
-                    entries: st.entries as i64,
-                })
-                .format(),
-                Point::new(8.0, size.height - 6.0),
-                TextStyle {
-                    size: 11.0,
-                    color: Color::rgba(0.5, 0.5, 0.55, 0.9),
-                    anchor: TextAnchor {
-                        h: TextAlign::Leading,
-                        v: TextVAlign::Bottom,
+                // What the measuring above cost, read last so it counts this recording's own
+                // calls (docs/fonts.md "It is cached"). Drawn inside the canvas rather than
+                // beside it because that needs no reactivity at all: the numbers change when
+                // this closure runs, and this closure is what draws them.
+                //
+                // Watch it move. Resizing the window re-records with the same strings, so
+                // `hits` climbs and `misses` does not; the measurements never reach the toolkit
+                // twice. Choosing another font changes the key of every specimen, so `misses`
+                // jumps by the number of lines here and then stops again.
+                let st = day::text_metrics_cache_stats();
+                d.text(
+                    // Named arguments: three `i64`s in the wrong order would compile and render
+                    // a plausible-looking lie, so the generated accessor takes a struct.
+                    &crate::res::str::canvas_metrics_cache(crate::res::str::CanvasMetricsCache {
+                        hits: st.hits as i64,
+                        misses: st.misses as i64,
+                        entries: st.entries as i64,
+                    })
+                    .format(),
+                    Point::new(8.0, size.height - 6.0),
+                    TextStyle {
+                        size: 11.0,
+                        color: SystemColor::SecondaryText.into(),
+                        anchor: TextAnchor {
+                            h: TextAlign::Leading,
+                            v: TextVAlign::Bottom,
+                        },
+                        font: CanvasFont::default(),
                     },
-                    font: CanvasFont::default(),
-                },
-            );
-        })
-        .height(H)
-        .grow(Dimension::Width)
-        .id(day::id!(canvas_text)),
-        labeled(
-            crate::res::str::canvas_font_label(),
-            picker(
-                chosen,
-                families.iter().cloned().enumerate().collect::<Vec<_>>(),
-            )
-            .menu()
-            .id(day::id!(canvas_font)),
-        ),
-    ))
-    .title(crate::res::str::canvas_text_title())
+                );
+            })
+            .height(H)
+            .grow(Dimension::Width)
+            .id(day::id!(canvas_text)),
+            row((
+                label(crate::res::str::canvas_font_label())
+                    .font(Font::Footnote)
+                    .secondary()
+                    .grow(Dimension::Width),
+                picker(
+                    chosen,
+                    families.iter().cloned().enumerate().collect::<Vec<_>>(),
+                )
+                .menu()
+                .id(day::id!(canvas_font)),
+            ))
+            .spacing(Space::S)
+            .align(VAlign::Center)
+            .grow(Dimension::Width),
+        )),
+    )
+    .id(day::id!(canvas_card_text))
+    .build()
 }
 
 /// Every `TextAnchor` placement, on a crosshair (docs/canvas.md "Anchors").
@@ -200,101 +1315,107 @@ fn text_section() -> impl Piece {
 /// Twelve cells: the three `TextAlign` values across, the four `TextVAlign` values down. Each
 /// cell draws the anchor `at` as a crosshair and then hangs the same word on it, so what an
 /// anchor means is the picture rather than a sentence, and a backend that gets one wrong shows it
-/// here immediately, which is the reason this is a page and not a doc example. The sample has
+/// here immediately, which is the reason this is a card and not a doc example. The sample has
 /// both an ascender and a descender so `Baseline` and `Bottom` are told apart.
 ///
 /// The placement names are API identifiers, shown verbatim like the Cursors page's `css_name`s;
-/// only the section title is localized.
-fn anchors_section() -> impl Piece {
+/// only the card's title and subtitle are localized.
+fn anchors_card() -> AnyPiece {
     const H: f64 = 232.0;
     const SAMPLE: &str = "Agy";
-    section((canvas(|d, size| {
-        let muted = Color::rgba(0.5, 0.5, 0.55, 0.85);
-        let rule = Color::rgba(0.9, 0.3, 0.3, 0.5);
-        let caption = |d: &mut Draw, text: &str, at: Point, anchor: TextAnchor| {
-            d.text(
-                text,
-                at,
-                TextStyle {
-                    size: 11.0,
-                    color: muted,
-                    anchor,
-                    font: CanvasFont::default(),
-                },
-            );
-        };
-        let gutter = 62.0;
-        let head = 18.0;
-        let cw = ((size.width - gutter - 8.0) / 3.0).max(1.0);
-        let ch = ((size.height - head - 8.0) / 4.0).max(1.0);
-        for (i, h) in [TextAlign::Leading, TextAlign::Center, TextAlign::Trailing]
-            .into_iter()
-            .enumerate()
-        {
-            let cx = gutter + cw * (i as f64 + 0.5);
-            caption(
-                d,
-                &format!("{h:?}"),
-                Point::new(cx, 2.0),
-                TextAnchor {
-                    h: TextAlign::Center,
-                    v: TextVAlign::Top,
-                },
-            );
-            for (j, v) in [
-                TextVAlign::Top,
-                TextVAlign::Middle,
-                TextVAlign::Baseline,
-                TextVAlign::Bottom,
-            ]
-            .into_iter()
-            .enumerate()
-            {
-                let cy = head + ch * (j as f64 + 0.5);
-                if i == 0 {
-                    // The row's name, itself right-aligned against the grid: this section's own
-                    // small use of the anchor it is documenting.
-                    caption(
-                        d,
-                        &format!("{v:?}"),
-                        Point::new(gutter - 10.0, cy),
-                        TextAnchor {
-                            h: TextAlign::Trailing,
-                            v: TextVAlign::Middle,
-                        },
-                    );
-                }
-                // The crosshair marks the anchor position itself.
-                d.stroke(
-                    Shape::Line(
-                        Point::new(cx - cw * 0.45, cy),
-                        Point::new(cx + cw * 0.45, cy),
-                    ),
-                    rule,
-                    1.0,
-                );
-                d.stroke(
-                    Shape::Line(Point::new(cx, cy - 13.0), Point::new(cx, cy + 13.0)),
-                    rule,
-                    1.0,
-                );
+    card(
+        crate::res::vectors::nav_textfields,
+        crate::res::str::canvas_anchors_title(),
+        crate::res::str::canvas_anchors_subtitle(),
+        canvas(|d, size| {
+            let muted = Color::rgba(0.5, 0.5, 0.55, 0.85);
+            let rule = Color::rgba(0.9, 0.3, 0.3, 0.5);
+            let caption = |d: &mut Draw, text: &str, at: Point, anchor: TextAnchor| {
                 d.text(
-                    SAMPLE,
-                    Point::new(cx, cy),
+                    text,
+                    at,
                     TextStyle {
-                        size: 19.0,
-                        color: AZURE,
-                        anchor: TextAnchor { h, v },
+                        size: 11.0,
+                        color: muted.into(),
+                        anchor,
                         font: CanvasFont::default(),
                     },
                 );
+            };
+            let gutter = 62.0;
+            let head = 18.0;
+            let cw = ((size.width - gutter - 8.0) / 3.0).max(1.0);
+            let ch = ((size.height - head - 8.0) / 4.0).max(1.0);
+            for (i, h) in [TextAlign::Leading, TextAlign::Center, TextAlign::Trailing]
+                .into_iter()
+                .enumerate()
+            {
+                let cx = gutter + cw * (i as f64 + 0.5);
+                caption(
+                    d,
+                    &format!("{h:?}"),
+                    Point::new(cx, 2.0),
+                    TextAnchor {
+                        h: TextAlign::Center,
+                        v: TextVAlign::Top,
+                    },
+                );
+                for (j, v) in [
+                    TextVAlign::Top,
+                    TextVAlign::Middle,
+                    TextVAlign::Baseline,
+                    TextVAlign::Bottom,
+                ]
+                .into_iter()
+                .enumerate()
+                {
+                    let cy = head + ch * (j as f64 + 0.5);
+                    if i == 0 {
+                        // The row's name, itself right-aligned against the grid: this card's
+                        // own small use of the anchor it is documenting.
+                        caption(
+                            d,
+                            &format!("{v:?}"),
+                            Point::new(gutter - 10.0, cy),
+                            TextAnchor {
+                                h: TextAlign::Trailing,
+                                v: TextVAlign::Middle,
+                            },
+                        );
+                    }
+                    // The crosshair marks the anchor position itself.
+                    d.stroke(
+                        Shape::Line(
+                            Point::new(cx - cw * 0.45, cy),
+                            Point::new(cx + cw * 0.45, cy),
+                        ),
+                        rule,
+                        1.0,
+                    );
+                    d.stroke(
+                        Shape::Line(Point::new(cx, cy - 13.0), Point::new(cx, cy + 13.0)),
+                        rule,
+                        1.0,
+                    );
+                    d.text(
+                        SAMPLE,
+                        Point::new(cx, cy),
+                        TextStyle {
+                            size: 19.0,
+                            color: AZURE.into(),
+                            anchor: TextAnchor { h, v },
+                            font: CanvasFont::default(),
+                        },
+                    );
+                }
             }
-        }
-    })
-    .height(H)
-    .grow(Dimension::Width)
-    .id(day::id!(canvas_anchors)),))
-    .title(crate::res::str::canvas_anchors_title())
+        })
+        .height(H)
+        .grow(Dimension::Width)
+        .id(day::id!(canvas_anchors)),
+    )
+    .id(day::id!(canvas_card_anchors))
+    .build()
 }
 
 /// Tap, drag and hover on one canvas (docs/canvas.md "Interaction").
@@ -307,612 +1428,105 @@ fn anchors_section() -> impl Piece {
 ///
 /// The readout names what each gesture last reported, so a run on any backend says plainly which
 /// of the three that backend delivers.
-fn interaction_section() -> impl Piece {
+fn interaction_card() -> AnyPiece {
     const H: f64 = 200.0;
     let hover = Signal::new(None::<Point>);
     let tap = Signal::new(None::<Point>);
     let trail = Signal::new(Vec::<Point>::new());
     let dragging = Signal::new(false);
-    section((
-        canvas(move |d, size| {
-            let muted = Color::rgba(0.5, 0.5, 0.55, 0.7);
-            // A frame, so the canvas's bounds are visible; a hover that reports nothing and
-            // a canvas that is not there look the same otherwise.
-            d.stroke(
-                Shape::Rect(Rect::new(0.5, 0.5, size.width - 1.0, size.height - 1.0)),
-                muted,
-                1.0,
-            );
-            // Hover: a crosshair, drawn only while a pointer is inside.
-            if let Some(p) = hover.get() {
+    card(
+        crate::res::vectors::nav_cursor,
+        crate::res::str::canvas_interaction_title(),
+        crate::res::str::canvas_interaction_subtitle(),
+        body((
+            canvas(move |d, size| {
+                let muted = Color::rgba(0.5, 0.5, 0.55, 0.7);
+                // A frame, so the canvas's bounds are visible; a hover that reports nothing and
+                // a canvas that is not there look the same otherwise.
                 d.stroke(
-                    Shape::Line(Point::new(0.0, p.y), Point::new(size.width, p.y)),
+                    Shape::Rect(Rect::new(0.5, 0.5, size.width - 1.0, size.height - 1.0)),
                     muted,
                     1.0,
                 );
-                d.stroke(
-                    Shape::Line(Point::new(p.x, 0.0), Point::new(p.x, size.height)),
-                    muted,
-                    1.0,
-                );
-            }
-            // Drag: the path travelled, as one stamped run of dots plus a line, the batched op
-            // (docs/canvas.md "Stamping"), because a long drag is a lot of marks.
-            let pts = trail.get();
-            if pts.len() > 1 {
-                d.stroke(Shape::Polygon(pts.clone()), TEAL.with_alpha(0.45), 1.5);
-                d.stamp(Shape::Ellipse(Rect::new(-2.0, -2.0, 4.0, 4.0)), pts, TEAL);
-            }
-            // Tap: a ring where the last one landed.
-            if let Some(p) = tap.get() {
-                d.stroke(circle_at(p, 9.0), CORAL, 2.0);
-                d.fill(circle_at(p, 2.5), CORAL);
-            }
-        })
-        .height(H)
-        .grow(Dimension::Width)
-        .on_hover(move |at| hover.set(at))
-        .on_tap_at(move |p| tap.set(Some(p)))
-        .on_drag(move |drag| {
-            match drag.phase {
-                DragPhase::Began => {
-                    dragging.set(true);
-                    trail.set(vec![drag.location]);
-                }
-                _ => trail.update(|t| t.push(drag.location)),
-            }
-            if drag.phase == DragPhase::Ended {
-                dragging.set(false);
-            }
-        })
-        .id(day::id!(canvas_interaction)),
-        labeled(
-            crate::res::str::canvas_interaction_label(),
-            label(move || {
-                let fmt = |p: Option<Point>| match p {
-                    Some(p) => format!("{:.0}, {:.0}", p.x, p.y),
-                    None => crate::res::str::canvas_interaction_none().format(),
-                };
-                // A generated `res::str` takes its arguments alphabetically, not in the order the
-                // message mentions them; named locals so the call reads as a check.
-                let (hover_s, tap_s, trail_n) = (
-                    fmt(hover.get()),
-                    fmt(tap.get()),
-                    trail.with(|t| t.len() as i64),
-                );
-                crate::res::str::canvas_interaction_readout(
-                    crate::res::str::CanvasInteractionReadout {
-                        hover: hover_s,
-                        tap: tap_s,
-                        trail: trail_n,
-                    },
-                )
-                .format()
-            })
-            .font(Font::Callout)
-            .id(day::id!(canvas_interaction_readout)),
-        ),
-    ))
-    .title(crate::res::str::canvas_interaction_title())
-}
-
-/// A circle centered on a point: the ring and dot the tap mark is made of.
-fn circle_at(at: Point, r: f64) -> Shape {
-    Shape::Ellipse(Rect::new(at.x - r, at.y - r, r * 2.0, r * 2.0))
-}
-
-/// Paths, stroke styles and clipping (docs/canvas.md): the primitives beyond rectangles and
-/// polygons, in three canvases so the whole vocabulary fits one screen.
-///
-/// Each canvas takes an equal share of the row's width (`grow_w`) and derives its height from
-/// that width (`aspect_ratio`), so the group fills the page and grows with the window. The
-/// drawings themselves are written in a fixed [`DESIGN_W`] x [`DESIGN_H`] space and scaled once
-/// by [`in_design_box`], which is what keeps every shape's proportions instead of stretching
-/// them.
-fn paths_section() -> impl Piece {
-    section((row((
-        // Arcs as SEGMENTS (docs/canvas.md "Paths"): three figures that are each one closed
-        // contour and could not be, without `arc_to`.
-        //
-        // A donut wedge is two arcs (out along the far edge, back along the near one), and the
-        // hole between them exists because the same contour comes back. A gauge is a single arc
-        // stroked with round caps. A leaf is two arcs bulging opposite ways, which is what a
-        // shape built out of arcs looks like when neither of them is a circle's worth.
-        canvas(|d, size| {
-            in_design_box(d, size, |d| {
-                let wedge = Point::new(38.0, 40.0);
-                d.fill(
-                    PathBuilder::new()
-                        .arc_to(wedge, 28.0, 200.0, 140.0)
-                        .arc_to(wedge, 15.0, 340.0, -140.0)
-                        .close()
-                        .build(),
-                    TEAL,
-                );
-                // A gauge: one arc, no fill, round caps; the track and the value on it.
-                let gauge = Point::new(105.0, 46.0);
-                for (sweep, color, w) in [(180.0, SLATE, 7.0), (118.0, AMBER, 7.0)] {
-                    d.stroke_styled(
-                        PathBuilder::new().arc_to(gauge, 30.0, 180.0, sweep).build(),
-                        color,
-                        StrokeStyle::round(w),
-                    );
-                }
-                // A leaf: two arcs bulging opposite ways, closed into one contour.
-                let (a, b) = (Point::new(24.0, 96.0), Point::new(56.0, 96.0));
-                d.fill(
-                    PathBuilder::new()
-                        .arc_to(a, 26.0, -50.0, 100.0)
-                        .arc_to(b, 26.0, 130.0, 100.0)
-                        .close()
-                        .build(),
-                    VIOLET,
-                );
-            });
-        })
-        .id(day::id!(canvas_arcs))
-        .aspect_ratio(DESIGN_RATIO)
-        .grow(Dimension::Width),
-        // Arbitrary paths: the same two contours under both fill rules (even-odd cuts the
-        // hole, non-zero does not), and a Catmull-Rom spline through scattered points.
-        canvas(|d, size| {
-            in_design_box(d, size, |d| {
-                for (i, rule) in [FillRule::EvenOdd, FillRule::NonZero].iter().enumerate() {
-                    let cx = if i == 0 { 40.0 } else { 110.0 };
-                    d.fill(
-                        PathBuilder::new()
-                            .rule(*rule)
-                            .circle(Point::new(cx, 32.0), 20.0)
-                            .circle(Point::new(cx, 32.0), 11.0)
-                            .build(),
-                        if i == 0 { TEAL } else { VIOLET },
-                    );
-                }
-                let pts: Vec<Point> = [
-                    (9.0, 90.0),
-                    (42.0, 66.0),
-                    (75.0, 86.0),
-                    (108.0, 62.0),
-                    (141.0, 80.0),
-                ]
-                .iter()
-                .map(|(x, y)| Point::new(*x, *y))
-                .collect();
-                d.stroke_styled(
-                    PathBuilder::new().smooth_polyline(&pts, 1.0).build(),
-                    AZURE,
-                    StrokeStyle::round(3.0),
-                );
-            });
-        })
-        .id(day::id!(canvas_paths))
-        .aspect_ratio(DESIGN_RATIO)
-        .grow(Dimension::Width),
-        // Stroke styles and clipping: the three caps, the three joins, a dashed rule, a
-        // gradient-painted stroke, and a fan of lines confined to a path.
-        canvas(|d, size| {
-            in_design_box(d, size, |d| {
-                for (i, cap) in [LineCap::Butt, LineCap::Round, LineCap::Square]
-                    .iter()
-                    .enumerate()
-                {
-                    let y = 12.0 + 10.0 * i as f64;
-                    d.stroke_styled(
-                        Shape::Line(Point::new(14.0, y), Point::new(64.0, y)),
-                        CORAL,
-                        StrokeStyle {
-                            width: 7.0,
-                            cap: *cap,
-                            ..Default::default()
-                        },
-                    );
-                }
-                for (i, join) in [LineJoin::Miter, LineJoin::Round, LineJoin::Bevel]
-                    .iter()
-                    .enumerate()
-                {
-                    let x = 92.0 + 21.0 * i as f64;
-                    d.stroke_styled(
-                        PathBuilder::new()
-                            .move_to(Point::new(x - 8.0, 30.0))
-                            .line_to(Point::new(x, 10.0))
-                            .line_to(Point::new(x + 8.0, 30.0))
-                            .build(),
-                        AMBER,
-                        StrokeStyle {
-                            width: 6.0,
-                            join: *join,
-                            ..Default::default()
-                        },
-                    );
-                }
-                d.stroke_styled(
-                    Shape::Line(Point::new(12.0, 46.0), Point::new(138.0, 46.0)),
-                    SLATE,
-                    StrokeStyle::dashed(2.0, vec![8.0, 5.0]),
-                );
-                d.stroke_styled(
-                    Shape::Line(Point::new(12.0, 56.0), Point::new(138.0, 56.0)),
-                    LinearGradient::horizontal(RUST, SKY),
-                    StrokeStyle::round(6.0),
-                );
-                // Without the clip these lines would run the full height of the box.
-                let clip = PathBuilder::new()
-                    .move_to(Point::new(15.0, 98.0))
-                    .line_to(Point::new(15.0, 74.0))
-                    .quad_to(Point::new(75.0, 58.0), Point::new(135.0, 74.0))
-                    .line_to(Point::new(135.0, 98.0))
-                    .close()
-                    .build();
-                d.clipped(clip, |d| {
-                    for i in 0..20 {
-                        let x = 3.0 + 8.0 * i as f64;
-                        d.stroke(
-                            Shape::Line(Point::new(x, 60.0), Point::new(x - 12.0, 100.0)),
-                            if i % 2 == 0 { INK } else { TEAL },
-                            4.0,
-                        );
-                    }
-                });
-            });
-        })
-        .id(day::id!(canvas_strokes))
-        .aspect_ratio(DESIGN_RATIO)
-        .grow(Dimension::Width),
-        // SVG path data, parsed at compile time into PathBuilder chains (build_path!). Each
-        // glyph is authored in a 24x24 box; the 3x2 grid places them inside the design box.
-        canvas(|d, size| {
-            in_design_box(d, size, |d| {
-                let (cw, ch) = (DESIGN_W / 3.0, DESIGN_H / 2.0);
-                let s = cw.min(ch) * 0.82 / 24.0;
-                let cell = |col: usize, rowi: usize| {
-                    Affine::scale(s, s).then(Affine::translate(
-                        cw * col as f64 + (cw - 24.0 * s) / 2.0,
-                        ch * rowi as f64 + (ch - 24.0 * s) / 2.0,
-                    ))
-                };
-                // A heart, from relative cubics.
-                d.transformed(cell(0, 0), |d| {
-                    d.fill(
-                        build_path!(
-                            "M12,21 C5.5,15.5 2,12 2,8.5 C2,5.4 4.4,3 7.5,3 \
-                                 C9.2,3 10.9,3.8 12,5.1 C13.1,3.8 14.8,3 16.5,3 \
-                                 C19.6,3 22,5.4 22,8.5 C22,12 18.5,15.5 12,21 Z"
-                        )
-                        .build(),
-                        CORAL,
-                    );
-                });
-                // A pentagram: one self-intersecting contour, so the fill rules disagree.
-                // Even-odd hollows the middle pentagon, non-zero would fill it solid.
-                d.transformed(cell(1, 0), |d| {
-                    d.fill(
-                        build_path!("M12,2 L19.1,21.5 2.4,9.2 21.6,9.2 4.9,21.5 Z")
-                            .rule(FillRule::EvenOdd)
-                            .build(),
-                        AMBER,
-                    );
-                });
-                // Arcs (A) become cubics in the macro: a crescent from two of them.
-                d.transformed(cell(2, 0), |d| {
-                    d.fill(
-                        build_path!("M16,3 A 10,10 0 1 0 16,21 A 8,8 0 1 1 16,3 Z").build(),
-                        VIOLET,
-                    );
-                });
-                // Smooth cubics (S) reflect the previous control point: one continuous wave.
-                d.transformed(cell(0, 1), |d| {
-                    d.stroke_styled(
-                        build_path!("M1,12 C4,4 8,4 11,12 S18,20 23,12").build(),
-                        AZURE,
-                        StrokeStyle::round(2.4),
-                    );
-                });
-                // Quadratics (Q/T): a stylised cloud.
-                d.transformed(cell(1, 1), |d| {
-                    d.fill(
-                        build_path!(
-                            "M6,18 Q2,18 2,14 T6,10 Q6,4 12,4 Q18,4 18,10 Q22,10 22,14 T18,18 Z"
-                        )
-                        .build(),
-                        SKY,
-                    );
-                });
-                // Two arc circles, filled even-odd: the inner one reads as a hole.
-                d.transformed(cell(2, 1), |d| {
-                    d.fill(
-                        build_path!("M12,2 A10,10 0 1 1 11.99,2 Z M12,7 A5,5 0 1 0 12.01,7 Z")
-                            .rule(FillRule::EvenOdd)
-                            .build(),
-                        TEAL,
-                    );
-                });
-            });
-        })
-        .id(day::id!(canvas_svg_paths))
-        .aspect_ratio(DESIGN_RATIO)
-        .grow(Dimension::Width),
-    ))
-    .spacing(Space::L),))
-    .title(crate::res::str::paths_title())
-}
-
-/// The coordinate space the drawings above are written in, and the ratio the canvases hold.
-///
-/// 3:2 because the SVG grid is three cells by two rows, and because a square canvas taking a
-/// third of a wide window would make this one section taller than the screen.
-const DESIGN_W: f64 = 150.0;
-const DESIGN_H: f64 = 100.0;
-const DESIGN_RATIO: f64 = DESIGN_W / DESIGN_H;
-
-/// Run `f` in the [`DESIGN_W`] x [`DESIGN_H`] box, scaled uniformly to fit `size` and centered.
-///
-/// One scale factor for both axes, because the canvas is whatever size the row gives it, and
-/// every shape inside keeps the proportions it was drawn with rather than stretching.
-/// The canvas is asked to hold the same ratio, so the fit is exact and the centering terms are
-/// zero; they matter only if a backend hands the canvas a differently-shaped box.
-fn in_design_box(d: &mut Draw, size: Size, f: impl FnOnce(&mut Draw)) {
-    let s = (size.width / DESIGN_W)
-        .min(size.height / DESIGN_H)
-        .max(0.001);
-    d.transformed(
-        Affine::scale(s, s).then(Affine::translate(
-            (size.width - DESIGN_W * s) / 2.0,
-            (size.height - DESIGN_H * s) / 2.0,
-        )),
-        f,
-    );
-}
-
-/// Rotate a gradient unit point about the box center (0.5, 0.5): the shared angle applied to
-/// every swatch's base geometry.
-fn spin(p: UnitPoint, deg: f64) -> UnitPoint {
-    let (s, c) = deg.to_radians().sin_cos();
-    let (dx, dy) = (p.x - 0.5, p.y - 0.5);
-    UnitPoint::new(0.5 + dx * c - dy * s, 0.5 + dx * s + dy * c)
-}
-
-/// Linear + radial gradients (docs/shapes.md §7): `.fill_linear`/`.fill_radial` on shape pieces.
-/// One angle slider drives the whole group; each swatch's closure re-records with its base
-/// geometry rotated by the shared signal (linear lines spin about the unit-box center; radial
-/// centers orbit it).
-fn gradients_section() -> impl Piece {
-    let angle = Signal::new(0.0f64);
-    // Base geometry + stops per swatch, spun by the shared angle at record time.
-    let linear = move |start: UnitPoint, end: UnitPoint, stops: Vec<(f64, Color)>| {
-        move || {
-            LinearGradient::new(
-                spin(start, angle.get()),
-                spin(end, angle.get()),
-                stops.clone(),
-            )
-        }
-    };
-    let radial = move |center: UnitPoint, radius: f64, stops: Vec<(f64, Color)>| {
-        move || RadialGradient::new(spin(center, angle.get()), radius, stops.clone())
-    };
-    // A 3×2 grid of width-flexible swatches (like the Kinds grid); every swatch responds to
-    // the shared angle: linear lines spin about the unit-box center, radial centers orbit it.
-    const H: f64 = 72.0;
-    section((
-        grid((
-            grid_row((
-                // Dawn: the icon's amber down into its rust sun-base.
-                rectangle()
-                    .fill_linear(linear(
-                        UnitPoint::TOP,
-                        UnitPoint::BOTTOM,
-                        vec![(0.0, AMBER), (1.0, RUST)],
-                    ))
-                    .height(H)
-                    .id(day::id!(gradient_vertical))
-                    .grow(Dimension::Width),
-                rounded_rectangle(12.0)
-                    .fill_linear(linear(
-                        UnitPoint::LEADING,
-                        UnitPoint::TRAILING,
-                        vec![(0.0, VIOLET), (1.0, SKY)],
-                    ))
-                    .height(H)
-                    .id(day::id!(gradient_horizontal))
-                    .grow(Dimension::Width),
-                // The website's sunrise gradient (--grad-day): amber through coral into blue.
-                circle()
-                    .fill_linear(linear(
-                        UnitPoint::TOP_LEADING,
-                        UnitPoint::BOTTOM_TRAILING,
-                        vec![(0.0, AMBER), (0.5, CORAL), (1.0, AZURE)],
-                    ))
-                    .height(H)
-                    .id(day::id!(gradient_stops))
-                    .grow(Dimension::Width),
-            )),
-            grid_row((
-                rounded_rectangle(12.0)
-                    .fill_linear(linear(
-                        UnitPoint::LEADING,
-                        UnitPoint::TRAILING,
-                        vec![(0.0, TEAL), (1.0, INK)],
-                    ))
-                    .height(H)
-                    .id(day::id!(gradient_angle))
-                    .grow(Dimension::Width),
-                // Radial: off-center highlight, and a multi-stop "sunset" in a non-square
-                // frame (the unit-space radius stretches elliptically to the bounds).
-                circle()
-                    .fill_radial(radial(
-                        UnitPoint::new(0.35, 0.35),
-                        0.75,
-                        vec![(0.0, Color::hex(0xD9E6FF)), (1.0, SKY)],
-                    ))
-                    .height(H)
-                    .id(day::id!(gradient_radial_offset))
-                    .grow(Dimension::Width),
-                rounded_rectangle(12.0)
-                    .fill_radial(radial(
-                        UnitPoint::BOTTOM,
+                // Hover: a crosshair, drawn only while a pointer is inside.
+                if let Some(p) = hover.get() {
+                    d.stroke(
+                        Shape::Line(Point::new(0.0, p.y), Point::new(size.width, p.y)),
+                        muted,
                         1.0,
-                        vec![(0.0, AMBER), (0.5, RUST), (1.0, INK)],
-                    ))
-                    .height(H)
-                    .id(day::id!(gradient_radial_stops))
-                    .grow(Dimension::Width),
-            )),
-        ))
-        .spacing(Space::M),
-        labeled(
-            crate::res::str::gradient_angle(),
-            slider(angle)
-                .range(0.0..=360.0)
-                .id(day::id!(gradient_angle_slider)),
-        ),
-    ))
-    .title(crate::res::str::gradients_title())
-}
-
-/// The nine shape kinds in a 3×3 grid whose cells split the section width evenly (`grow_w`
-/// marks every column flexible; docs/grid.md) and whose drawing scales with the cell. One
-/// angle slider rotates every shape live. Each cell draws through [`shape_group_fn`], sizing
-/// its shape to the largest box that fits the laid-out cell at every angle, so the slider
-/// is a pure transform (the shape spins without resizing) and rotation never clips on
-/// backends that clip a canvas to its bounds (Qt, Android, the web).
-fn shapes_section() -> impl Piece {
-    let angle = Signal::new(0.0f64);
-    const H: f64 = 96.0;
-    // A Kinds cell: `make()`'s shape at `aspect` (height:width), centered, at a constant size
-    // independent of the shared rotation: a w × (w·aspect) box sweeps a circumcircle of
-    // diameter w·√(1+aspect²), so capping that at the cell's short side fits every angle.
-    // Reads `angle` inside the recorder, so the slider re-records live.
-    let cell = move |aspect: f64, make: fn() -> ShapePiece| {
-        shape_group_fn(move |size| {
-            let a = angle.get();
-            let avail = ((size.width - 8.0).min(size.height - 8.0)).max(1.0);
-            let w = avail / (1.0 + aspect * aspect).sqrt();
-            let (uw, uh) = (w / size.width, w * aspect / size.height);
-            vec![
-                make()
-                    .rotate(a)
-                    .at((1.0 - uw) / 2.0, (1.0 - uh) / 2.0, uw, uh),
-            ]
-        })
-        .height(H)
-    };
-    section((
-        grid((
-            grid_row((
-                cell(0.5, || rectangle().fill(SKY))
-                    .id(day::id!(shape_rect))
-                    .grow(Dimension::Width),
-                cell(0.5, || rounded_rectangle(12.0).fill(VIOLET))
-                    .id(day::id!(shape_rrect))
-                    .grow(Dimension::Width),
-                cell(1.0, || circle().fill(TEAL))
-                    .id(day::id!(shape_circle))
-                    .grow(Dimension::Width),
-            )),
-            grid_row((
-                cell(0.45, || capsule().fill(CORAL))
-                    .id(day::id!(shape_capsule))
-                    .grow(Dimension::Width),
-                cell(0.55, || ellipse().stroke(AZURE, 4.0))
-                    .id(day::id!(shape_ellipse))
-                    .grow(Dimension::Width),
-                cell(1.0, || arc(135.0, 270.0).stroke(TEAL, 6.0))
-                    .id(day::id!(shape_arc))
-                    .grow(Dimension::Width),
-            )),
-            grid_row((
-                // Line + polygon resolve unit points against their box (docs/shapes.md §3.1).
-                cell(1.0, || line((0.1, 0.85), (0.9, 0.15)).stroke(SLATE, 4.0))
-                    .id(day::id!(shape_line))
-                    .grow(Dimension::Width),
-                cell(1.0, || {
-                    polygon([
-                        (0.5, 0.03),
-                        (0.61, 0.38),
-                        (0.98, 0.38),
-                        (0.68, 0.6),
-                        (0.79, 0.95),
-                        (0.5, 0.73),
-                        (0.21, 0.95),
-                        (0.32, 0.6),
-                        (0.02, 0.38),
-                        (0.39, 0.38),
-                    ])
-                    .fill(AMBER)
+                    );
+                    d.stroke(
+                        Shape::Line(Point::new(p.x, 0.0), Point::new(p.x, size.height)),
+                        muted,
+                        1.0,
+                    );
+                }
+                // Drag: the path travelled, as one stamped run of dots plus a line, the batched
+                // op (docs/canvas.md "Stamping"), because a long drag is a lot of marks.
+                let pts = trail.get();
+                if pts.len() > 1 {
+                    d.stroke(Shape::Polygon(pts.clone()), TEAL.with_alpha(0.45), 1.5);
+                    d.stamp(Shape::Ellipse(Rect::new(-2.0, -2.0, 4.0, 4.0)), pts, TEAL);
+                }
+                // Tap: a ring where the last one landed.
+                if let Some(p) = tap.get() {
+                    d.stroke(disc(p, 9.0), CORAL, 2.0);
+                    d.fill(disc(p, 2.5), CORAL);
+                }
+            })
+            .height(H)
+            .grow(Dimension::Width)
+            .on_hover(move |at| hover.set(at))
+            .on_tap_at(move |p| tap.set(Some(p)))
+            .on_drag(move |drag| {
+                match drag.phase {
+                    DragPhase::Began => {
+                        dragging.set(true);
+                        trail.set(vec![drag.location]);
+                    }
+                    _ => trail.update(|t| t.push(drag.location)),
+                }
+                if drag.phase == DragPhase::Ended {
+                    dragging.set(false);
+                }
+            })
+            .id(day::id!(canvas_interaction)),
+            column((
+                label(crate::res::str::canvas_interaction_label())
+                    .font(Font::Caption)
+                    .secondary(),
+                label(move || {
+                    let fmt = |p: Option<Point>| match p {
+                        Some(p) => format!("{:.0}, {:.0}", p.x, p.y),
+                        None => crate::res::str::canvas_interaction_none().format(),
+                    };
+                    // A generated `res::str` takes its arguments alphabetically, not in the
+                    // order the message mentions them; named locals so the call reads as a
+                    // check.
+                    let (hover_s, tap_s, trail_n) = (
+                        fmt(hover.get()),
+                        fmt(tap.get()),
+                        trail.with(|t| t.len() as i64),
+                    );
+                    crate::res::str::canvas_interaction_readout(
+                        crate::res::str::CanvasInteractionReadout {
+                            hover: hover_s,
+                            tap: tap_s,
+                            trail: trail_n,
+                        },
+                    )
+                    .format()
                 })
-                .id(day::id!(shape_polygon))
-                .grow(Dimension::Width),
-                // A multi-shape group in one canvas leaf (docs/shapes.md §3.6): a target
-                // (ring, disc, four tick lines) spun by rotating just the lines (each line's
-                // spec spans the group's box, so `.rotate` orbits its endpoints about the
-                // center); the centered ring and disc are rotation-invariant, and the figure
-                // stays inside its circumcircle, so it needs no shrink-to-fit.
-                shape_group_fn(move |size| {
-                    let a = angle.get();
-                    let side = (size.width.min(size.height) - 8.0).max(1.0);
-                    let (uw, uh) = (side / size.width, side / size.height);
-                    let (ux, uy) = ((1.0 - uw) / 2.0, (1.0 - uh) / 2.0);
-                    // The disc's own unit rect, composed into the centered square box.
-                    let (dx, dy) = (ux + 0.38 * uw, uy + 0.38 * uh);
-                    vec![
-                        circle().stroke(RUST, 4.0).inset(4.0).at(ux, uy, uw, uh),
-                        circle().fill(RUST).at(dx, dy, 0.24 * uw, 0.24 * uh),
-                        line((0.5, 0.0), (0.5, 0.14))
-                            .stroke(RUST, 3.0)
-                            .rotate(a)
-                            .at(ux, uy, uw, uh),
-                        line((0.5, 0.86), (0.5, 1.0))
-                            .stroke(RUST, 3.0)
-                            .rotate(a)
-                            .at(ux, uy, uw, uh),
-                        line((0.0, 0.5), (0.14, 0.5))
-                            .stroke(RUST, 3.0)
-                            .rotate(a)
-                            .at(ux, uy, uw, uh),
-                        line((0.86, 0.5), (1.0, 0.5))
-                            .stroke(RUST, 3.0)
-                            .rotate(a)
-                            .at(ux, uy, uw, uh),
-                    ]
-                })
-                .height(H)
-                .id(day::id!(shape_group))
-                .grow(Dimension::Width),
-            )),
-        ))
-        .spacing(Space::M),
-        labeled(
-            crate::res::str::shapes_angle(),
-            slider(angle)
-                .range(0.0..=360.0)
-                .id(day::id!(shapes_angle_slider)),
-        ),
-    ))
-    .title(crate::res::str::shapes_kinds())
-}
-
-/// Three custom-drawn readings of one value signal: the arc dial, a VU-style segment
-/// meter, and a sunrise (the sun climbs from the left horizon to the zenith and sets to the
-/// right as the value runs 0→100, under a sky whose light follows it). Laid out like the
-/// grids above: three width-flexible cells splitting the row evenly, each canvas
-/// re-recording at its laid-out size, with the shared slider underneath.
-fn gauge_section() -> impl Piece {
-    let level = Signal::new(40.0f64);
-    const H: f64 = 120.0;
-    section((
-        grid((grid_row((
-            gauge(level).height(H).grow(Dimension::Width),
-            led_meter(level).height(H).grow(Dimension::Width),
-            sunrise_meter(level).height(H).grow(Dimension::Width),
-        )),))
-        .spacing(Space::M),
-        labeled(
-            crate::res::str::gauge_value_label(),
-            slider(level).range(0.0..=100.0).id(day::id!(gauge_slider)),
-        ),
-    ))
-    .title(crate::res::str::canvas_gauge())
+                .font(Font::Callout)
+                .id(day::id!(canvas_interaction_readout)),
+            ))
+            .spacing(2.0)
+            .align(HAlign::Leading)
+            .grow(Dimension::Width),
+        )),
+    )
+    .id(day::id!(canvas_card_interaction))
+    .build()
 }
 
 /// A raster image decoded from BYTES and drawn on a canvas (docs/images.md).
@@ -925,204 +1539,28 @@ fn gauge_section() -> impl Piece {
 /// The readout names what the platform's decoder said the bytes were, so a backend that reads
 /// them differently says so here rather than in a doc, which is the reason this runs on every
 /// toolkit.
-fn image_section() -> impl Piece {
+fn image_card() -> AnyPiece {
     let shown: Signal<Option<day::Bitmap>> = Signal::new(None);
     let readout = Signal::new(crate::res::str::canvas_image_loading().format());
-    // Started while the section builds: reaching the toolkit from here is ordinary (the page
-    // helpers already ask `capability()` at build), and a backend that decodes INLINE has its
-    // completion drained when the tree borrow ends rather than being lost.
-    day::task(async move {
-        match day::decode_image(std::sync::Arc::new(
-            crate::res::image_bytes::day_logo.to_vec(),
-        ))
-        .await
-        {
-            Ok(bitmap) => {
-                let info = bitmap.info();
-                readout.set(
-                    crate::res::str::canvas_image_readout(crate::res::str::CanvasImageReadout {
-                        format: info.format.map(|f| f.mime()).unwrap_or("—"),
-                        width: info.pixels.width,
-                        height: info.pixels.height,
-                    })
-                    .format(),
-                );
-                shown.set(Some(bitmap));
-            }
-            Err(_) => readout.set(crate::res::str::canvas_image_failed().format()),
-        }
-    });
-    section((
-        canvas(move |d, size| {
-            let Some(bitmap) = shown.get() else { return };
-            // Fit inside the canvas and center, preserving the aspect the decoder reported: a
-            // stretched logo would misrepresent the very thing this section is showing.
-            let px = bitmap.info().pixels;
-            if px.width <= 0.0 || px.height <= 0.0 {
-                return;
-            }
-            let scale = (size.width / px.width).min(size.height / px.height);
-            let (w, h) = (px.width * scale, px.height * scale);
-            d.image(
-                &bitmap,
-                Rect::new((size.width - w) / 2.0, (size.height - h) / 2.0, w, h),
-            );
-        })
-        .height(180.0)
-        .grow(Dimension::Width)
-        .a11y(|a| a.label(crate::res::str::canvas_image_title()))
-        .id(day::id!(canvas_image)),
-        label(move || readout.get()).id(day::id!(canvas_image_readout)),
-    ))
-    .title(crate::res::str::canvas_image_title())
-}
-
-/// A VU-style segment meter: twelve bottom-anchored bars in a rising ramp, lit up to the
-/// level: teal through amber into coral at the top of the scale, the unlit tail dimmed.
-fn led_meter(level: Signal<f64>) -> impl Piece {
-    canvas(move |d, size| {
-        const N: usize = 12;
-        let gap = (size.width * 0.012).clamp(3.0, 8.0);
-        let w = (size.width - 16.0 - gap * (N as f64 - 1.0)) / N as f64;
-        let max_h = size.height - 16.0;
-        if w <= 1.0 || max_h <= 8.0 {
-            return;
-        }
-        let frac = (level.get() / 100.0).clamp(0.0, 1.0);
-        let lit = (frac * N as f64).round() as usize;
-        let track = Color::rgba(0.5, 0.5, 0.55, 0.25);
-        for i in 0..N {
-            let t = (i as f64 + 1.0) / N as f64;
-            let h = max_h * (0.35 + 0.65 * t);
-            let color = if i < lit {
-                if t > 0.85 {
-                    CORAL
-                } else if t > 0.6 {
-                    AMBER
-                } else {
-                    TEAL
-                }
-            } else {
-                track
-            };
-            d.fill(
-                Shape::RoundedRect(
-                    Rect::new(8.0 + i as f64 * (w + gap), 8.0 + (max_h - h), w, h),
-                    (w / 2.0).min(4.0),
-                ),
-                color,
-            );
-        }
-    })
-    .a11y(move |a| {
-        a.role(Role::Meter)
-            .label(crate::res::str::gauge_value_label())
-            .value(move || format!("{:.0}", level.get()))
-    })
-    .id(day::id!(gauge_led))
-}
-
-/// Blend two colors component-wise, `t` = 0 → `a`, 1 → `b`.
-fn mix(a: Color, b: Color, t: f64) -> Color {
-    let l = |x: f64, y: f64| x + (y - x) * t;
-    Color::rgba(l(a.r, b.r), l(a.g, b.g), l(a.b, b.b), l(a.a, b.a))
-}
-
-/// A sunrise meter: the sun travels a half-circle above the horizon (rising from the left
-/// at 0, zenith at 50, setting to the right at 100) with rays, a faint path track, a
-/// ground line, and a sky gradient whose light follows the sun: night indigo over an amber
-/// glow at dawn, blue over haze at noon, dusk purple over coral at sunset. All geometry
-/// derives from the laid-out size.
-fn sunrise_meter(level: Signal<f64>) -> impl Piece {
-    canvas(move |d, size| {
-        let frac = (level.get() / 100.0).clamp(0.0, 1.0);
-        let horizon_y = size.height - 24.0;
-        let cx = size.width / 2.0;
-        let r = (size.width / 2.0 - 26.0).min(horizon_y - 26.0);
-        if r <= 10.0 {
-            return;
-        }
-        // Sky first, behind everything: top and horizon colors each lerp dawn → noon →
-        // sunset with the slider.
-        let (top, glow) = if frac < 0.5 {
-            let t = frac * 2.0;
-            (
-                mix(Color::hex(0x232A5C), Color::hex(0x6FBFF2), t),
-                mix(Color::hex(0xFFAC5F), Color::hex(0xEAF6FF), t),
-            )
-        } else {
-            let t = frac * 2.0 - 1.0;
-            (
-                mix(Color::hex(0x6FBFF2), Color::hex(0x46265E), t),
-                mix(Color::hex(0xEAF6FF), Color::hex(0xFF6B52), t),
-            )
-        };
-        d.fill(
-            Shape::Rect(Rect::new(8.0, 8.0, size.width - 16.0, horizon_y - 8.0)),
-            LinearGradient::new(
-                UnitPoint::TOP,
-                UnitPoint::BOTTOM,
-                vec![(0.0, top), (1.0, glow)],
-            ),
-        );
-        let track = Color::rgba(0.5, 0.5, 0.55, 0.3);
-        // The sun's path, then the ground.
-        d.stroke(
-            Shape::Arc {
-                rect: Rect::new(cx - r, horizon_y - r, r * 2.0, r * 2.0),
-                start_deg: 180.0,
-                sweep_deg: 180.0,
-            },
-            track,
-            2.0,
-        );
-        d.fill(
-            Shape::Rect(Rect::new(
-                8.0,
-                horizon_y,
-                size.width - 16.0,
-                size.height - horizon_y - 8.0,
-            )),
-            Color::rgba(0.5, 0.5, 0.55, 0.15),
-        );
-        d.stroke(
-            Shape::Line(
-                Point::new(8.0, horizon_y),
-                Point::new(size.width - 8.0, horizon_y),
-            ),
-            SLATE,
-            2.5,
-        );
-        // Sun position along the half-circle (y-down coords: subtract the sine).
-        let ang = std::f64::consts::PI * (1.0 - frac);
-        let (sx, sy) = (cx + r * ang.cos(), horizon_y - r * ang.sin());
-        let sun_r = (r * 0.16).clamp(6.0, 15.0);
-        for i in 0..8 {
-            let ra = f64::from(i) * std::f64::consts::FRAC_PI_4;
-            let (rc, rs) = (ra.cos(), ra.sin());
-            d.stroke(
-                Shape::Line(
-                    Point::new(sx + rc * (sun_r + 4.0), sy + rs * (sun_r + 4.0)),
-                    Point::new(sx + rc * (sun_r + 9.0), sy + rs * (sun_r + 9.0)),
-                ),
-                RUST,
-                2.5,
-            );
-        }
-        // The sun itself warms from deep amber at the horizons to a pale noon glare.
-        d.fill(
-            Shape::Ellipse(Rect::new(sx - sun_r, sy - sun_r, sun_r * 2.0, sun_r * 2.0)),
-            mix(
-                Color::hex(0xFF9E3B),
-                Color::hex(0xFFEDAD),
-                (std::f64::consts::PI * frac).sin(),
-            ),
-        );
-    })
-    .a11y(move |a| {
-        a.role(Role::Meter)
-            .label(crate::res::str::gauge_value_label())
-            .value(move || format!("{:.0}", level.get()))
-    })
-    .id(day::id!(gauge_sunrise))
+    decode_logo(shown, Some(readout));
+    card(
+        crate::res::vectors::nav_resources,
+        crate::res::str::canvas_image_title(),
+        crate::res::str::canvas_image_subtitle(),
+        body((
+            canvas(move |d, size| {
+                let Some(bitmap) = shown.get() else { return };
+                // Fit inside the canvas and center, preserving the aspect the decoder reported:
+                // a stretched logo would misrepresent the very thing this card is showing.
+                draw_fitted(d, &bitmap, Rect::new(0.0, 0.0, size.width, size.height));
+            })
+            .height(180.0)
+            .grow(Dimension::Width)
+            .a11y(|a| a.label(crate::res::str::canvas_image_title()))
+            .id(day::id!(canvas_image)),
+            label(move || readout.get()).id(day::id!(canvas_image_readout)),
+        )),
+    )
+    .id(day::id!(canvas_card_image))
+    .build()
 }

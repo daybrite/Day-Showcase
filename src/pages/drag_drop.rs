@@ -1,9 +1,8 @@
 //! Native transfer between views, windows, toolkits, and independent processes.
 use day::prelude::*;
-use day::transfer::{Drop, Item, Offer, Operation, Representation, Target};
+use day::transfer::{Drop, Item, Offer, Operation, Representation};
 use std::{
     io::Read,
-    rc::Rc,
     sync::{
         Arc,
         atomic::{AtomicU64, Ordering},
@@ -92,6 +91,9 @@ pub(crate) fn drag_drop_page() -> AnyPiece {
         ][index];
         let source_page = page_id.clone();
         let target_page = page_id.clone();
+        // Whether a drag this tile would take is over it: lit from enter to leave, and the
+        // leave also follows the drop, so the drop itself needs no reset.
+        let hovering = Signal::new(false);
         let source = move |_| {
             let mut item = slots[index].get_untracked()?;
             item.representations.retain(|r| r.mime != ORIGIN);
@@ -101,9 +103,8 @@ pub(crate) fn drag_drop_page() -> AnyPiece {
             ));
             Some(Offer { items: vec![item] })
         };
-        let target = Target {
-            types: vec!["image/png".into(), "text/uri-list".into(), CARD.into()],
-            accept: Rc::new(move |at| {
+        let target = DropTarget::new(["image/png", "text/uri-list", CARD])
+            .accept(move |at| {
                 let dx = at.position.x - rejection.x;
                 let dy = at.position.y - rejection.y;
                 if enabled.get_untracked()
@@ -115,8 +116,10 @@ pub(crate) fn drag_drop_page() -> AnyPiece {
                 } else {
                     Operation::None
                 }
-            }),
-            receive: Rc::new(move |drop: Drop| {
+            })
+            .on_enter(move |_| hovering.set(true))
+            .on_leave(move || hovering.set(false))
+            .on_drop(move |drop: Drop| {
                 if drop.items.len() != 1 {
                     return false;
                 }
@@ -156,14 +159,20 @@ pub(crate) fn drag_drop_page() -> AnyPiece {
                 put(slots[index], bitmaps[index], item);
                 status.set(description);
                 true
-            }),
-        };
+            });
         column((
             canvas(move |d, size| {
-                d.fill(
-                    Shape::Rect(Rect::from_size(size)),
-                    Color::rgba(0.2, 0.5, 0.8, 0.12),
-                );
+                let bounds = Rect::from_size(size);
+                if hovering.get() {
+                    d.fill(Shape::Rect(bounds), SystemColor::Accent.with_alpha(0.28));
+                    d.stroke(
+                        Shape::Rect(Rect::new(1., 1., size.width - 2., size.height - 2.)),
+                        SystemColor::Accent,
+                        2.,
+                    );
+                } else {
+                    d.fill(Shape::Rect(bounds), Color::rgba(0.2, 0.5, 0.8, 0.12));
+                }
                 if let Some(image) = bitmaps[index].get() {
                     d.image(&image, Rect::new(36., 8., 96., 96.));
                 } else if let Some(item) = slots[index].get() {
@@ -229,67 +238,82 @@ pub(crate) fn drag_drop_page() -> AnyPiece {
         crate::res::str::nav_drag_drop(),
         day::id!(dnd_title),
         column((
-            label(crate::res::str::dnd_hint()),
-            row((
-                button(crate::res::str::dnd_new_window())
-                    .action(|| {
-                        day::open_new_window();
-                    })
-                    .id(day::id!(dnd_new_window)),
-                button(crate::res::str::dnd_choose_file())
-                    .action(move || {
-                        day::task(async move {
-                            if let Some(file) = open_file().await {
-                                let raw = file.as_str();
-                                let uri = if raw.contains("://") {
-                                    raw.to_string()
-                                } else {
-                                    let path = raw.replace('\\', "/");
-                                    let encoded: String = path
-                                        .bytes()
-                                        .map(|b| {
-                                            if b.is_ascii_alphanumeric() || b"/-._~:".contains(&b) {
-                                                (b as char).to_string()
-                                            } else {
-                                                format!("%{b:02X}")
-                                            }
-                                        })
-                                        .collect();
-                                    format!(
-                                        "file://{}{encoded}",
-                                        if encoded.starts_with('/') { "" } else { "/" }
-                                    )
-                                };
-                                put(
-                                    slots[1],
-                                    bitmaps[1],
-                                    Item::new(vec![Representation::new(
-                                        "text/uri-list",
-                                        format!("{uri}\r\n"),
-                                    )]),
-                                );
-                            }
-                        });
-                    })
-                    .id(day::id!(dnd_choose_file)),
-                labeled(crate::res::str::dnd_accept(), toggle(enabled)).id(day::id!(dnd_accept)),
-                labeled(
-                    crate::res::str::dnd_disallowed(),
-                    toggle(disallowed_regions).id(day::id!(dnd_disallowed)),
-                ),
+            // The explanation and the controls, as one card over the tiles.
+            column((
+                label(crate::res::str::dnd_hint()).secondary(),
+                row((
+                    button(crate::res::str::dnd_new_window())
+                        .action(|| {
+                            day::open_new_window();
+                        })
+                        .id(day::id!(dnd_new_window)),
+                    button(crate::res::str::dnd_choose_file())
+                        .action(move || {
+                            day::task(async move {
+                                if let Some(file) = open_file().await {
+                                    let raw = file.as_str();
+                                    let uri = if raw.contains("://") {
+                                        raw.to_string()
+                                    } else {
+                                        let path = raw.replace('\\', "/");
+                                        let encoded: String = path
+                                            .bytes()
+                                            .map(|b| {
+                                                if b.is_ascii_alphanumeric()
+                                                    || b"/-._~:".contains(&b)
+                                                {
+                                                    (b as char).to_string()
+                                                } else {
+                                                    format!("%{b:02X}")
+                                                }
+                                            })
+                                            .collect();
+                                        format!(
+                                            "file://{}{encoded}",
+                                            if encoded.starts_with('/') { "" } else { "/" }
+                                        )
+                                    };
+                                    put(
+                                        slots[1],
+                                        bitmaps[1],
+                                        Item::new(vec![Representation::new(
+                                            "text/uri-list",
+                                            format!("{uri}\r\n"),
+                                        )]),
+                                    );
+                                }
+                            });
+                        })
+                        .id(day::id!(dnd_choose_file)),
+                    labeled(crate::res::str::dnd_accept(), toggle(enabled))
+                        .id(day::id!(dnd_accept)),
+                    labeled(
+                        crate::res::str::dnd_disallowed(),
+                        toggle(disallowed_regions).id(day::id!(dnd_disallowed)),
+                    ),
+                ))
+                .spacing(Space::M)
+                .align(VAlign::Center)
+                .fit(RowFit::Wrap { run_spacing: 12. }),
             ))
-            .spacing(12.)
-            .fit(RowFit::Wrap { run_spacing: 12. }),
+            .spacing(Space::M)
+            .align(HAlign::Leading)
+            .grow(Dimension::Width)
+            .card(),
             row((zone(0), zone(1), zone(2)))
                 .spacing(12.)
                 .fit(RowFit::Wrap { run_spacing: 12. }),
             row((zone(3), zone(4), zone(5)))
                 .spacing(12.)
                 .fit(RowFit::Wrap { run_spacing: 12. }),
-            label(move || status.get()).id(day::id!(dnd_status)),
+            label(move || status.get())
+                .font(Font::Footnote)
+                .secondary()
+                .id(day::id!(dnd_status)),
             crate::widgets::support_note(capability(Cap::DragDrop)),
         ))
-        .spacing(16.)
+        .spacing(Space::L)
+        .align(HAlign::Leading)
         .any(),
     )
     .any()

@@ -1,15 +1,21 @@
 use day::prelude::*;
 
-use crate::widgets::page;
-
 /// Keyboard focus as app state (docs/focus.md): one optional enum signal steering a whole form,
 /// a plain Bool binding on a single field, and focus on non-text controls where the platform
 /// allows it, each permutation in its own section with a live readout.
 pub(crate) fn focus_page() -> AnyPiece {
-    page(
+    crate::widgets::page_cards(
         crate::res::str::nav_focus(),
         day::id!(focus_title),
-        form((group_section(), bool_section(), probe_section())).any(),
+        crate::gallery::balanced(
+            2,
+            vec![
+                group_section().any(),
+                bool_section().any(),
+                probe_section().any(),
+            ],
+        )
+        .any(),
     )
     .any()
 }
@@ -61,54 +67,55 @@ fn group_section() -> impl Piece {
             }
         },
     );
-    section((
-        labeled(
-            crate::res::str::focus_name_label(),
-            text_field(name)
-                .on_submit(move || focus.set(Some(Field::Email)))
-                .id(day::id!(focus_name_field))
-                .focused((focus, Field::Name)),
+    crate::gallery::panel(
+        crate::res::str::focus_group_section(),
+        (
+            labeled(
+                crate::res::str::focus_name_label(),
+                text_field(name)
+                    .on_submit(move || focus.set(Some(Field::Email)))
+                    .id(day::id!(focus_name_field))
+                    .focused((focus, Field::Name)),
+            ),
+            labeled(
+                crate::res::str::focus_email_label(),
+                text_field(email)
+                    .on_submit(move || focus.set(Some(Field::City)))
+                    .id(day::id!(focus_email_field))
+                    .focused((focus, Field::Email)),
+            ),
+            labeled(
+                crate::res::str::focus_city_label(),
+                text_field(city)
+                    .on_submit(move || focus.set(None))
+                    .id(day::id!(focus_city_field))
+                    .focused((focus, Field::City)),
+            ),
+            labeled(
+                crate::res::str::focus_current_label(),
+                label(move || Field::display(focus.get())).id(day::id!(focus_current)),
+            ),
+            row((
+                button(crate::res::str::focus_next())
+                    .action(move || {
+                        let next = last
+                            .get_untracked()
+                            .and_then(Field::after)
+                            .unwrap_or(Field::Name);
+                        focus.set(Some(next));
+                    })
+                    .tint(crate::widgets::primary())
+                    .id(day::id!(focus_next_button)),
+                button(crate::res::str::focus_clear())
+                    .action(move || {
+                        focus.set(None);
+                        last.set(None);
+                    })
+                    .id(day::id!(focus_clear_button)),
+            ))
+            .spacing(12.0),
         ),
-        labeled(
-            crate::res::str::focus_email_label(),
-            text_field(email)
-                .on_submit(move || focus.set(Some(Field::City)))
-                .id(day::id!(focus_email_field))
-                .focused((focus, Field::Email)),
-        ),
-        labeled(
-            crate::res::str::focus_city_label(),
-            text_field(city)
-                .on_submit(move || focus.set(None))
-                .id(day::id!(focus_city_field))
-                .focused((focus, Field::City)),
-        ),
-        labeled(
-            crate::res::str::focus_current_label(),
-            label(move || Field::display(focus.get())).id(day::id!(focus_current)),
-        ),
-        row((
-            button(crate::res::str::focus_next())
-                .action(move || {
-                    let next = last
-                        .get_untracked()
-                        .and_then(Field::after)
-                        .unwrap_or(Field::Name);
-                    focus.set(Some(next));
-                })
-                .tint(crate::widgets::primary())
-                .id(day::id!(focus_next_button)),
-            button(crate::res::str::focus_clear())
-                .action(move || {
-                    focus.set(None);
-                    last.set(None);
-                })
-                .id(day::id!(focus_clear_button)),
-        ))
-        .spacing(12.0),
-        label(crate::res::str::focus_group_caption()).font(Font::Footnote),
-    ))
-    .title(crate::res::str::focus_group_section())
+    )
 }
 
 /// The plain shape: one field, one `Signal<bool>`. The buttons drive it; the readout and the
@@ -116,34 +123,35 @@ fn group_section() -> impl Piece {
 fn bool_section() -> impl Piece {
     let editing = Signal::new(false);
     let text = Signal::new(String::new());
-    section((
-        text_field(text)
-            .placeholder(crate::res::str::focus_bool_placeholder())
-            .id(day::id!(focus_bool_field))
-            .focused(editing),
-        labeled(
-            crate::res::str::focus_state_label(),
-            label(move || {
-                if editing.get() {
-                    crate::res::str::focus_state_on().format()
-                } else {
-                    crate::res::str::focus_state_off().format()
-                }
-            })
-            .id(day::id!(focus_bool_state)),
+    crate::gallery::panel(
+        crate::res::str::focus_bool_section(),
+        (
+            text_field(text)
+                .placeholder(crate::res::str::focus_bool_placeholder())
+                .id(day::id!(focus_bool_field))
+                .focused(editing),
+            labeled(
+                crate::res::str::focus_state_label(),
+                label(move || {
+                    if editing.get() {
+                        crate::res::str::focus_state_on().format()
+                    } else {
+                        crate::res::str::focus_state_off().format()
+                    }
+                })
+                .id(day::id!(focus_bool_state)),
+            ),
+            row((
+                button(crate::res::str::focus_focus_btn())
+                    .action(move || editing.set(true))
+                    .id(day::id!(focus_bool_focus)),
+                button(crate::res::str::focus_blur_btn())
+                    .action(move || editing.set(false))
+                    .id(day::id!(focus_bool_blur)),
+            ))
+            .spacing(12.0),
         ),
-        row((
-            button(crate::res::str::focus_focus_btn())
-                .action(move || editing.set(true))
-                .id(day::id!(focus_bool_focus)),
-            button(crate::res::str::focus_blur_btn())
-                .action(move || editing.set(false))
-                .id(day::id!(focus_bool_blur)),
-        ))
-        .spacing(12.0),
-        label(crate::res::str::focus_bool_caption()).font(Font::Footnote),
-    ))
-    .title(crate::res::str::focus_bool_section())
+    )
 }
 
 /// Focus on non-text controls. Desktop toolkits honor these bindings (with each platform's own
@@ -155,39 +163,47 @@ fn probe_section() -> impl Piece {
     let on_button = Signal::new(false);
     let flag = Signal::new(true);
     let level = Signal::new(30.0f64);
-    section((
-        labeled(
-            crate::res::str::focus_probe_toggle(),
-            toggle(flag)
-                .id(day::id!(focus_probe_toggle))
-                .focused(on_toggle),
+    crate::gallery::panel(
+        crate::res::str::focus_probe_section(),
+        (
+            labeled(
+                crate::res::str::focus_probe_toggle(),
+                toggle(flag)
+                    .id(day::id!(focus_probe_toggle))
+                    .focused(on_toggle),
+            ),
+            labeled(
+                crate::res::str::focus_probe_slider(),
+                slider(level)
+                    .range(0.0..=100.0)
+                    .id(day::id!(focus_probe_slider))
+                    .focused(on_slider),
+            ),
+            button(crate::res::str::focus_probe_button())
+                .id(day::id!(focus_probe_button))
+                .focused(on_button),
+            labeled(
+                crate::res::str::focus_current_label(),
+                label(move || {
+                    if on_toggle.get() {
+                        crate::res::str::focus_probe_toggle().format()
+                    } else if on_slider.get() {
+                        crate::res::str::focus_probe_slider().format()
+                    } else if on_button.get() {
+                        crate::res::str::focus_probe_button().format()
+                    } else {
+                        "—".into()
+                    }
+                })
+                .id(day::id!(focus_probe_current)),
+            ),
+            // Why the readout stays empty on a phone or a tablet.
+            cfg!(any(
+                target_os = "ios",
+                target_os = "android",
+                target_env = "ohos"
+            ))
+            .then(|| crate::gallery::note(crate::res::str::focus_probe_caption())),
         ),
-        labeled(
-            crate::res::str::focus_probe_slider(),
-            slider(level)
-                .range(0.0..=100.0)
-                .id(day::id!(focus_probe_slider))
-                .focused(on_slider),
-        ),
-        button(crate::res::str::focus_probe_button())
-            .id(day::id!(focus_probe_button))
-            .focused(on_button),
-        labeled(
-            crate::res::str::focus_current_label(),
-            label(move || {
-                if on_toggle.get() {
-                    crate::res::str::focus_probe_toggle().format()
-                } else if on_slider.get() {
-                    crate::res::str::focus_probe_slider().format()
-                } else if on_button.get() {
-                    crate::res::str::focus_probe_button().format()
-                } else {
-                    "—".into()
-                }
-            })
-            .id(day::id!(focus_probe_current)),
-        ),
-        label(crate::res::str::focus_probe_caption()).font(Font::Footnote),
-    ))
-    .title(crate::res::str::focus_probe_section())
+    )
 }

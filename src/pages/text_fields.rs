@@ -1,6 +1,7 @@
 use day::prelude::*;
 
-use crate::widgets::page;
+use crate::gallery;
+use crate::widgets::page_cards;
 
 /// The PIN's length, and the limited field's: named because the counters beside them read the
 /// same number the fields are held to.
@@ -10,17 +11,19 @@ const NOTE_LENGTH: u32 = 12;
 /// Text fields (docs/textfield.md): how a `text_field` takes its text. Every section is the
 /// platform's own single-line field; what changes is what it is told about its contents.
 pub(crate) fn text_fields_page() -> AnyPiece {
-    page(
+    page_cards(
         crate::res::str::nav_textfields(),
         day::id!(textfields_title),
         {
-            form((
-                password_section(),
-                purpose_section(),
-                pin_section(),
-                attributes_section(),
-            ))
-            .any()
+            gallery::balanced(
+                2,
+                vec![
+                    password_section().any(),
+                    purpose_section().any(),
+                    pin_section().any(),
+                    attributes_section().any(),
+                ],
+            )
         },
     )
     .any()
@@ -32,26 +35,28 @@ pub(crate) fn text_fields_page() -> AnyPiece {
 fn password_section() -> impl Piece {
     let password = Signal::new(String::new());
     let shown = Signal::new(false);
-    section((
-        labeled(
-            crate::res::str::textfields_password(),
-            secure_field(password)
-                .secure(move || !shown.get())
-                .placeholder(crate::res::str::textfields_password_placeholder())
-                .id(day::id!(tf_password)),
+    crate::gallery::panel(
+        crate::res::str::textfields_password_section(),
+        (
+            labeled(
+                crate::res::str::textfields_password(),
+                secure_field(password)
+                    .secure(move || !shown.get())
+                    .placeholder(crate::res::str::textfields_password_placeholder())
+                    .id(day::id!(tf_password)),
+            ),
+            labeled(
+                crate::res::str::textfields_show_password(),
+                toggle(shown).id(day::id!(tf_show_password)),
+            ),
+            // The length, never the text: a readout of a password would defeat the field above it.
+            labeled(
+                crate::res::str::textfields_length(),
+                label(move || password.get().chars().count().to_string())
+                    .id(day::id!(tf_password_length)),
+            ),
         ),
-        labeled(
-            crate::res::str::textfields_show_password(),
-            toggle(shown).id(day::id!(tf_show_password)),
-        ),
-        // The length, never the text: a readout of a password would defeat the field above it.
-        labeled(
-            crate::res::str::textfields_length(),
-            label(move || password.get().chars().count().to_string())
-                .id(day::id!(tf_password_length)),
-        ),
-    ))
-    .title(crate::res::str::textfields_password_section())
+    )
 }
 
 /// One field per purpose. A phone or tablet changes its keyboard for each; every platform
@@ -70,66 +75,70 @@ fn purpose_section() -> impl Piece {
                 .id(id),
         )
     };
-    section((
-        field(
-            crate::res::str::textfields_email(),
-            InputPurpose::Email,
-            "ada@example.com",
-            day::id!(tf_email),
+    crate::gallery::panel(
+        crate::res::str::textfields_purpose_section(),
+        (
+            field(
+                crate::res::str::textfields_email(),
+                InputPurpose::Email,
+                "ada@example.com",
+                day::id!(tf_email),
+            ),
+            field(
+                crate::res::str::textfields_phone(),
+                InputPurpose::Phone,
+                "+1 555 0100",
+                day::id!(tf_phone),
+            ),
+            field(
+                crate::res::str::textfields_url(),
+                InputPurpose::Url,
+                "https://daybrite.dev",
+                day::id!(tf_url),
+            ),
+            field(
+                crate::res::str::textfields_number(),
+                InputPurpose::Number,
+                "42",
+                day::id!(tf_number),
+            ),
+            field(
+                crate::res::str::textfields_decimal(),
+                InputPurpose::Decimal,
+                "19.99",
+                day::id!(tf_decimal),
+            ),
+            field(
+                crate::res::str::textfields_code(),
+                InputPurpose::OneTimeCode,
+                "123456",
+                day::id!(tf_code),
+            ),
         ),
-        field(
-            crate::res::str::textfields_phone(),
-            InputPurpose::Phone,
-            "+1 555 0100",
-            day::id!(tf_phone),
-        ),
-        field(
-            crate::res::str::textfields_url(),
-            InputPurpose::Url,
-            "https://daybrite.dev",
-            day::id!(tf_url),
-        ),
-        field(
-            crate::res::str::textfields_number(),
-            InputPurpose::Number,
-            "42",
-            day::id!(tf_number),
-        ),
-        field(
-            crate::res::str::textfields_decimal(),
-            InputPurpose::Decimal,
-            "19.99",
-            day::id!(tf_decimal),
-        ),
-        field(
-            crate::res::str::textfields_code(),
-            InputPurpose::OneTimeCode,
-            "123456",
-            day::id!(tf_code),
-        ),
-    ))
-    .title(crate::res::str::textfields_purpose_section())
+    )
 }
 
 /// Secure and numeric together, held to four characters: the traits compose.
 fn pin_section() -> impl Piece {
     let pin = Signal::new(String::new());
-    section((
-        labeled(
-            crate::res::str::textfields_pin(),
-            secure_field(pin)
-                .input_purpose(InputPurpose::Number)
-                .max_length(PIN_LENGTH)
-                .submit_label(SubmitLabel::Done)
-                .id(day::id!(tf_pin)),
+    crate::gallery::panel(
+        crate::res::str::textfields_pin_section(),
+        (
+            labeled(
+                crate::res::str::textfields_pin(),
+                secure_field(pin)
+                    .input_purpose(InputPurpose::Number)
+                    .max_length(PIN_LENGTH)
+                    .submit_label(SubmitLabel::Done)
+                    .id(day::id!(tf_pin)),
+            ),
+            labeled(
+                crate::res::str::textfields_length(),
+                label(move || format!("{} / {PIN_LENGTH}", pin.get().chars().count()))
+                    .id(day::id!(tf_pin_count)),
+            ),
         ),
-        labeled(
-            crate::res::str::textfields_length(),
-            label(move || format!("{} / {PIN_LENGTH}", pin.get().chars().count()))
-                .id(day::id!(tf_pin_count)),
-        ),
-    ))
-    .title(crate::res::str::textfields_pin_section())
+    )
 }
 
 /// Read-only, a length limit, and the keyboard's action key.
@@ -139,45 +148,47 @@ fn attributes_section() -> impl Piece {
     let note = Signal::new(String::new());
     let message = Signal::new(String::new());
     let sent = Signal::new(0u32);
-    section((
-        labeled(
-            crate::res::str::textfields_reference(),
-            text_field(reference)
-                .read_only(read_only)
-                .id(day::id!(tf_readonly)),
+    crate::gallery::panel(
+        crate::res::str::textfields_attrs_section(),
+        (
+            labeled(
+                crate::res::str::textfields_reference(),
+                text_field(reference)
+                    .read_only(read_only)
+                    .id(day::id!(tf_readonly)),
+            ),
+            labeled(
+                crate::res::str::textfields_read_only(),
+                toggle(read_only).id(day::id!(tf_readonly_toggle)),
+            ),
+            labeled(
+                crate::res::str::textfields_limited(),
+                text_field(note)
+                    .max_length(NOTE_LENGTH)
+                    .id(day::id!(tf_limited)),
+            ),
+            labeled(
+                crate::res::str::textfields_length(),
+                label(move || format!("{} / {NOTE_LENGTH}", note.get().chars().count()))
+                    .id(day::id!(tf_limited_count)),
+            ),
+            labeled(
+                crate::res::str::textfields_message(),
+                text_field(message)
+                    .submit_label(SubmitLabel::Send)
+                    .on_submit(move || {
+                        if !message.get_untracked().is_empty() {
+                            sent.update(|n| *n += 1);
+                            message.set(String::new());
+                        }
+                    })
+                    .placeholder(crate::res::str::textfields_message_placeholder())
+                    .id(day::id!(tf_message)),
+            ),
+            labeled(
+                crate::res::str::textfields_sent(),
+                label(move || sent.get().to_string()).id(day::id!(tf_sent_count)),
+            ),
         ),
-        labeled(
-            crate::res::str::textfields_read_only(),
-            toggle(read_only).id(day::id!(tf_readonly_toggle)),
-        ),
-        labeled(
-            crate::res::str::textfields_limited(),
-            text_field(note)
-                .max_length(NOTE_LENGTH)
-                .id(day::id!(tf_limited)),
-        ),
-        labeled(
-            crate::res::str::textfields_length(),
-            label(move || format!("{} / {NOTE_LENGTH}", note.get().chars().count()))
-                .id(day::id!(tf_limited_count)),
-        ),
-        labeled(
-            crate::res::str::textfields_message(),
-            text_field(message)
-                .submit_label(SubmitLabel::Send)
-                .on_submit(move || {
-                    if !message.get_untracked().is_empty() {
-                        sent.update(|n| *n += 1);
-                        message.set(String::new());
-                    }
-                })
-                .placeholder(crate::res::str::textfields_message_placeholder())
-                .id(day::id!(tf_message)),
-        ),
-        labeled(
-            crate::res::str::textfields_sent(),
-            label(move || sent.get().to_string()).id(day::id!(tf_sent_count)),
-        ),
-    ))
-    .title(crate::res::str::textfields_attrs_section())
+    )
 }

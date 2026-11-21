@@ -1,4 +1,5 @@
 use std::collections::BTreeSet;
+use std::ops::Range;
 
 use day::prelude::*;
 use day::pullrefresh::pull_to_refresh;
@@ -20,7 +21,8 @@ use crate::widgets::heading;
 /// toolkits with the same settings (docs/list.md).
 ///
 /// The row "Scroll to item 100" targets: a row number, which is also its key. The button
-/// resolves it to a position at press time, so the jump follows the row through a shuffle.
+/// resolves it to a position at press time, so the jump follows the row through a shuffle, and
+/// lands it where the alignment picker says.
 const TARGET_ROW: i64 = 100;
 
 /// How the demo list is built (docs/list.md): every option the Options sheet flips. A change
@@ -45,7 +47,8 @@ struct ListOptions {
 struct ListState {
     rows: Signal<Vec<i64>>,
     refreshing: Signal<bool>,
-    jump_row: Signal<Option<usize>>,
+    jump_row: Signal<Option<RowTarget>>,
+    visible: Signal<Range<usize>>,
     jump_end: Trigger,
     activated: Signal<i64>,
     selected: Signal<BTreeSet<i64>>,
@@ -80,6 +83,8 @@ pub(crate) fn list_page() -> AnyPiece {
         // Programmatic scrolling (docs/list.md): a row-jump signal + an end trigger drive the
         // native list, the row rail's counterpart to `scroll(...).scroll_target(...)`.
         jump_row: Signal::new(None),
+        // The rows in view, as positions in `rows`, reported by the native list as it scrolls.
+        visible: Signal::new(0..0),
         jump_end: Trigger::new(),
         // The selected row numbers (1-based, matching the row labels), fed from the native
         // list's selection reports; single-selection toolkits contribute one-element sets.
@@ -88,8 +93,15 @@ pub(crate) fn list_page() -> AnyPiece {
         // Reactive, unlike the rest: the platform animates into and out of editing mode.
         editing: Signal::new(false),
     };
-    let (jump_row, jump_end, selected, activated) =
-        (st.jump_row, st.jump_end, st.selected, st.activated);
+    let (jump_row, jump_end, selected, activated, visible) = (
+        st.jump_row,
+        st.jump_end,
+        st.selected,
+        st.activated,
+        st.visible,
+    );
+    // Where a jump lands: the least movement, or the row at the top, middle or bottom.
+    let align = Signal::new(RowAlign::Center);
     // The one reload path for every begin (pull, toggle, programmatic): a timed task on the
     // main-loop executor (`day::sleep`, docs/async.md) stands in for the network: the same
     // code on every platform, including the single-threaded web backend.
@@ -140,7 +152,7 @@ pub(crate) fn list_page() -> AnyPiece {
             spacer(),
             button(crate::res::str::list_options())
                 .bordered()
-                .action(move || options_open.set(Some(OptionsKey)))
+                .action(move || options_open.set(Some(OptionsKey::Open)))
                 .id(day::id!(list_options)),
             button(crate::res::str::list_clear_selection())
                 .bordered()
@@ -153,90 +165,156 @@ pub(crate) fn list_page() -> AnyPiece {
                 .id(day::id!(list_add)),
         ))
         .spacing(Space::S)
+        .align(VAlign::Center)
         .fit(RowFit::Wrap { run_spacing: 8.0 }),
-        label(move || crate::res::str::list_caption(rows.get().len() as i64).format())
-            .tabular()
-            .id(day::id!(list_caption)),
-        // The tier this backend realizes for the pull (docs/pullrefresh.md): native on the
-        // phones and HarmonyOS, an elastic overshoot on the desktops, visible in the CI captures.
-        label(match day::pullrefresh::support() {
-            Support::Native => crate::res::str::refresh_tier_native(),
-            _ => crate::res::str::refresh_tier_emulated(),
-        })
-        .font(Font::Footnote)
-        .id(day::id!(list_tier)),
-        // Programmatic scrolling + order controls, merged from the old Scrolling page: the
-        // buttons drive the recycling list (scroll-to-row realizes virtualized rows), and
-        // Shuffle/Reset permute the backing Vec, animated as native row moves where the
-        // toolkit supports it (docs/list.md). Wrapped, because five buttons overflow a
-        // phone-portrait window: a plain row left Shuffle and Reset offscreen and untappable
-        // (docs/size-classes.md "Row fit policies").
-        row((
-            button(crate::res::str::scroll_to_top())
-                .bordered()
-                .action(move || jump_row.set(Some(0)))
-                .id(day::id!(list_scroll_top)),
-            button(crate::res::str::scroll_to_item())
-                .bordered()
-                // Find the row by identity, not by position. The list's keys are the row
-                // numbers, but `scroll_to_row` addresses a position, and shuffle and
-                // drag-to-reorder move row 100 elsewhere, so a hardcoded index 99 scrolls to
-                // whatever row happens to have landed there. Selecting it too makes the landing
-                // unambiguous once the row is no longer where its number suggests.
-                .action(move || {
-                    if let Some(at) = rows.get_untracked().iter().position(|n| *n == TARGET_ROW) {
-                        jump_row.set(Some(at));
-                        selected.set(BTreeSet::from([TARGET_ROW]));
+        // What the list holds and how to drive it, as one card over the list itself.
+        column((
+            label(move || crate::res::str::list_caption(rows.get().len() as i64).format())
+                .font(Font::Headline)
+                .tabular()
+                .id(day::id!(list_caption)),
+            // The tier this backend realizes for the pull (docs/pullrefresh.md): native on the
+            // phones and HarmonyOS, an elastic overshoot on the desktops, visible in the CI captures.
+            label(match day::pullrefresh::support() {
+                Support::Native => crate::res::str::refresh_tier_native(),
+                _ => crate::res::str::refresh_tier_emulated(),
+            })
+            .font(Font::Footnote)
+            .secondary()
+            .id(day::id!(list_tier)),
+            // Programmatic scrolling + order controls, merged from the old Scrolling page: the
+            // buttons drive the recycling list (scroll-to-row realizes virtualized rows), and
+            // Shuffle/Reset permute the backing Vec, animated as native row moves where the
+            // toolkit supports it (docs/list.md). Wrapped, because five buttons overflow a
+            // phone-portrait window: a plain row left Shuffle and Reset offscreen and untappable
+            // (docs/size-classes.md "Row fit policies").
+            row((
+                button(crate::res::str::scroll_to_top())
+                    .bordered()
+                    .action(move || jump_row.set(Some(RowTarget::new(0).align(RowAlign::Start))))
+                    .id(day::id!(list_scroll_top)),
+                button(crate::res::str::scroll_to_item())
+                    .bordered()
+                    // Find the row by identity, not by position. The list's keys are the row
+                    // numbers, but `scroll_to_row` addresses a position, and shuffle and
+                    // drag-to-reorder move row 100 elsewhere, so a hardcoded index 99 scrolls to
+                    // whatever row happens to have landed there. Selecting it too makes the landing
+                    // unambiguous once the row is no longer where its number suggests.
+                    .action(move || {
+                        if let Some(at) = rows.get_untracked().iter().position(|n| *n == TARGET_ROW)
+                        {
+                            jump_row.set(Some(RowTarget::new(at).align(align.get_untracked())));
+                            selected.set(BTreeSet::from([TARGET_ROW]));
+                        }
+                    })
+                    .id(day::id!(list_scroll_item)),
+                button(crate::res::str::scroll_to_bottom())
+                    .bordered()
+                    .action(move || jump_end.notify())
+                    .id(day::id!(list_scroll_bottom)),
+                button(crate::res::str::list_shuffle())
+                    .action(move || rows.update(|v| shuffle(v)))
+                    .tint(crate::widgets::secondary())
+                    .id(day::id!(list_shuffle)),
+                // Reset rebuilds the full set rather than sorting in place: rows can now be
+                // swiped away, and a sort would faithfully restore the order of whatever survived
+                // while leaving the deleted ones gone.
+                button(crate::res::str::list_reset())
+                    .bordered()
+                    .action(move || rows.set((1..=total.get_untracked()).collect()))
+                    .id(day::id!(list_reset)),
+            ))
+            .spacing(Space::S)
+            .fit(RowFit::Wrap { run_spacing: 8.0 }),
+            labeled(
+                crate::res::str::list_align(),
+                picker(
+                    align,
+                    [
+                        (RowAlign::Nearest, crate::res::str::list_align_nearest()),
+                        (RowAlign::Start, crate::res::str::list_align_start()),
+                        (RowAlign::Center, crate::res::str::list_align_center()),
+                        (RowAlign::End, crate::res::str::list_align_end()),
+                    ],
+                )
+                .segmented()
+                .id(day::id!(list_align)),
+            ),
+            // Keyed changes (docs/list.md "Keyed updates"): an insert or a removal in view
+            // reaches the native list as one row change, animated where the toolkit animates
+            // row changes, rather than a reload.
+            row((
+                button(crate::res::str::list_insert())
+                    .bordered()
+                    .icon(Symbol::Add)
+                    .action(move || {
+                        let n = total.get_untracked() + 1;
+                        let at = visible.get_untracked().start.max(1);
+                        rows.update(|v| v.insert(at.min(v.len()), n));
+                        total.set(n);
+                    })
+                    .id(day::id!(list_insert)),
+                button(crate::res::str::list_remove())
+                    .bordered()
+                    .action(move || {
+                        let at = visible.get_untracked().start.max(1);
+                        rows.update(|v| {
+                            if at < v.len() {
+                                v.remove(at);
+                            }
+                        });
+                    })
+                    .id(day::id!(list_remove)),
+                button(crate::res::str::list_remove_all())
+                    .bordered()
+                    .action(move || rows.set(Vec::new()))
+                    .id(day::id!(list_remove_all)),
+            ))
+            .spacing(Space::S)
+            .fit(RowFit::Wrap { run_spacing: 8.0 }),
+            // The readouts side by side where there is room, wrapping where there is not. The
+            // order readout makes a committed reorder assertable (dayscript `reorder` steps).
+            row((
+                label(move || {
+                    let first: Vec<String> =
+                        rows.get().iter().take(5).map(|n| n.to_string()).collect();
+                    crate::res::str::list_order(first.join(",")).format()
+                })
+                .font(Font::Footnote)
+                .tabular()
+                .id(day::id!(list_order)),
+                // The live selection summary: pluralized per locale, runs compressed ("4-10").
+                label(move || {
+                    let sel = selected.get();
+                    if sel.is_empty() {
+                        crate::res::str::list_selection_none().format()
+                    } else {
+                        crate::res::str::list_selection(crate::res::str::ListSelection {
+                            count: sel.len() as i64,
+                            rows: format_rows(&sel),
+                        })
+                        .format()
                     }
                 })
-                .id(day::id!(list_scroll_item)),
-            button(crate::res::str::scroll_to_bottom())
-                .bordered()
-                .action(move || jump_end.notify())
-                .id(day::id!(list_scroll_bottom)),
-            button(crate::res::str::list_shuffle())
-                .action(move || rows.update(|v| shuffle(v)))
-                .tint(crate::widgets::secondary())
-                .id(day::id!(list_shuffle)),
-            // Reset rebuilds the full set rather than sorting in place: rows can now be
-            // swiped away, and a sort would faithfully restore the order of whatever survived
-            // while leaving the deleted ones gone.
-            button(crate::res::str::list_reset())
-                .bordered()
-                .action(move || rows.set((1..=total.get_untracked()).collect()))
-                .id(day::id!(list_reset)),
+                .font(Font::Footnote)
+                .tabular()
+                .id(day::id!(list_selection)),
+                label(move || crate::res::str::list_activated(activated.get()).format())
+                    .font(Font::Footnote)
+                    .tabular()
+                    .id(day::id!(list_activated)),
+                label(move || in_view(rows, visible))
+                    .font(Font::Footnote)
+                    .tabular()
+                    .id(day::id!(list_visible)),
+            ))
+            .spacing(Space::L)
+            .fit(RowFit::Wrap { run_spacing: 4.0 }),
         ))
         .spacing(Space::S)
-        .fit(RowFit::Wrap { run_spacing: 8.0 }),
-        // Drag-to-reorder (docs/list.md): the hint names the pinned-row guard, and the order
-        // readout makes the committed order assertable (dayscript `reorder` steps check it).
-        label(crate::res::str::list_reorder_hint())
-            .font(Font::Footnote)
-            .id(day::id!(list_reorder_hint)),
-        label(move || {
-            let first: Vec<String> = rows.get().iter().take(5).map(|n| n.to_string()).collect();
-            crate::res::str::list_order(first.join(",")).format()
-        })
-        .font(Font::Footnote)
-        .id(day::id!(list_order)),
-        // The live selection summary: pluralized per locale, runs compressed ("4-10").
-        label(move || {
-            let sel = selected.get();
-            if sel.is_empty() {
-                crate::res::str::list_selection_none().format()
-            } else {
-                crate::res::str::list_selection(crate::res::str::ListSelection {
-                    count: sel.len() as i64,
-                    rows: format_rows(&sel),
-                })
-                .format()
-            }
-        })
-        .font(Font::Footnote)
-        .id(day::id!(list_selection)),
-        label(move || crate::res::str::list_activated(activated.get()).format())
-            .font(Font::Footnote)
-            .id(day::id!(list_activated)),
+        .align(HAlign::Leading)
+        .grow(Dimension::Width)
+        .card(),
         keyed(
             move || Some(options()),
             move |o: &ListOptions| demo_list(*o, st),
@@ -258,9 +336,9 @@ pub(crate) fn list_page() -> AnyPiece {
             },
         ),
     ))
-    .spacing(10.0)
+    .spacing(Space::M)
     .align(HAlign::Leading)
-    .padding(Space::L)
+    .padding(20.0)
     .any()
 }
 
@@ -270,6 +348,7 @@ fn demo_list(o: ListOptions, st: ListState) -> AnyPiece {
         rows,
         refreshing,
         jump_row,
+        visible,
         jump_end,
         activated,
         selected,
@@ -299,7 +378,35 @@ fn demo_list(o: ListOptions, st: ListState) -> AnyPiece {
     })
     .scroll_to_row(jump_row)
     .scroll_to_end(jump_end)
-    .editing(editing);
+    .visible_rows(visible)
+    .editing(editing)
+    // Above the first row and below the last, scrolling with them; neither is a row, so no
+    // index counts them. The empty state takes the rows' place while there are none.
+    .header(|| {
+        label(crate::res::str::list_reorder_hint())
+            .font(Font::Footnote)
+            .secondary()
+            .id(day::id!(list_reorder_hint))
+            .padding(Insets::symmetric(12.0, 8.0))
+    })
+    .footer(move || {
+        label(move || crate::res::str::list_footer(rows.with(Vec::len) as i64).format())
+            .font(Font::Footnote)
+            .secondary()
+            .id(day::id!(list_footer))
+            .padding(Insets::symmetric(12.0, 8.0))
+    })
+    .empty(|| {
+        label(crate::res::str::list_empty())
+            .secondary()
+            .id(day::id!(list_empty))
+    })
+    .content_padding(Insets {
+        top: 4.0,
+        leading: 0.0,
+        bottom: 16.0,
+        trailing: 0.0,
+    });
     let list = if o.inset_grouped {
         list.inset_grouped()
     } else {
@@ -489,17 +596,10 @@ fn demo_row(row: ItemSlot<i64, i64>, o: ListOptions, selected: Signal<BTreeSet<i
     .any()
 }
 
-// The options sheet's route key: a unit route matching only "options", so a String key never
-// claims every segment routed while this page is current (docs/cover.md).
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-struct OptionsKey;
-impl Route for OptionsKey {
-    fn key(&self) -> String {
-        "options".into()
-    }
-    fn from_key(key: &str) -> Option<Self> {
-        (key == "options").then_some(OptionsKey)
-    }
+day::routes! {
+    /// The options sheet's route: a one-variant route claims only "options", where a `String`
+    /// key would claim every segment routed while this page is current (docs/cover.md).
+    enum OptionsKey { Open => "options" }
 }
 
 /// The signals the options sheet edits.
@@ -621,6 +721,23 @@ fn options_sheet(open: Signal<Option<OptionsKey>>, s: OptionSignals) -> impl Pie
         .any()
     })
     .sheet()
+}
+
+/// The rows in view, by their numbers. Where the toolkit reports only the first visible row
+/// (`Cap::ListViewport` unsupported) it says that one and no range.
+fn in_view(rows: Signal<Vec<i64>>, visible: Signal<Range<usize>>) -> String {
+    let range = visible.get();
+    rows.with(|v| {
+        let first = v.get(range.start).copied();
+        let last = range.end.checked_sub(1).and_then(|at| v.get(at)).copied();
+        match (first, last) {
+            (Some(first), Some(last)) if capability(Cap::ListViewport) == Support::Native => {
+                crate::res::str::list_visible(crate::res::str::ListVisible { first, last }).format()
+            }
+            (Some(first), _) => crate::res::str::list_visible_first(first).format(),
+            _ => crate::res::str::list_visible_none().format(),
+        }
+    })
 }
 
 /// Fisher–Yates over a hand-rolled xorshift64 (no rand dependency; the seed is fixed and

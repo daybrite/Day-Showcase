@@ -218,9 +218,9 @@ pub(crate) fn benchmark_page() -> AnyPiece {
         heading(crate::res::str::nav_benchmark(), day::id!(benchmark_title)),
         body,
     ))
-    .spacing(10.0)
+    .spacing(Space::M)
     .align(HAlign::Leading)
-    .padding(Space::L)
+    .padding(20.0)
     .grow(Dimension::Both)
     .any()
 }

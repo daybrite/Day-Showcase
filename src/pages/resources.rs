@@ -1,16 +1,22 @@
 use day::colorpicker::color_picker;
 use day::prelude::*;
 
-use crate::widgets::page;
-
 /// Bundled resources (§18.3): an image loaded *by name* from the `images/` resource (the native
 /// image pipeline) shown in each content mode, plus efficient random-access reads of arbitrary
 /// embedded data via `resource()`.
 pub(crate) fn resources_page() -> AnyPiece {
-    page(
+    crate::widgets::page_cards(
         crate::res::str::nav_resources(),
         day::id!(resources_title),
-        form((image_section(), vectors_section(), data_section())).any(),
+        crate::gallery::balanced(
+            2,
+            vec![
+                image_section().any(),
+                vectors_section().any(),
+                data_section().any(),
+            ],
+        )
+        .any(),
     )
     .any()
 }
@@ -24,42 +30,45 @@ fn image_section() -> impl Piece {
             .spacing(6.0)
             .align(HAlign::Center)
     }
-    section((
-        image(crate::res::images::day_logo).frame(96.0, 96.0),
-        label(crate::res::str::resources_modes_note()).font(Font::Footnote),
-        row((
-            mode(
-                crate::res::str::image_mode_fit(),
-                image(crate::res::images::day_logo).frame(120.0, 72.0).any(),
-            ),
-            mode(
-                crate::res::str::image_mode_fill(),
-                image(crate::res::images::day_logo)
-                    .fill()
-                    .frame(120.0, 72.0)
-                    .any(),
-            ),
-            mode(
-                crate::res::str::image_mode_stretch(),
-                image(crate::res::images::day_logo)
-                    .stretch()
-                    .frame(120.0, 72.0)
-                    .any(),
-            ),
-        ))
-        .spacing(Space::L),
-    ))
-    .title(crate::res::str::resources_image_section())
+    crate::gallery::panel(
+        crate::res::str::resources_image_section(),
+        (
+            image(crate::res::images::day_logo).frame(96.0, 96.0),
+            row((
+                mode(
+                    crate::res::str::image_mode_fit(),
+                    image(crate::res::images::day_logo).frame(120.0, 72.0).any(),
+                ),
+                mode(
+                    crate::res::str::image_mode_fill(),
+                    image(crate::res::images::day_logo)
+                        .fill()
+                        .frame(120.0, 72.0)
+                        .any(),
+                ),
+                mode(
+                    crate::res::str::image_mode_stretch(),
+                    image(crate::res::images::day_logo)
+                        .stretch()
+                        .frame(120.0, 72.0)
+                        .any(),
+                ),
+            ))
+            .spacing(Space::L),
+        ),
+    )
 }
 
 /// Random-access reads of two bundled data resources, via the zero-copy `resource()` view.
 fn data_section() -> impl Piece {
     let (numbers_line, greeting_line) = resource_lines();
-    section((
-        label(move || numbers_line.clone()).id(day::id!(resources_numbers)),
-        label(move || greeting_line.clone()).id(day::id!(resources_greeting)),
-    ))
-    .title(crate::res::str::resources_data_section())
+    crate::gallery::panel(
+        crate::res::str::resources_data_section(),
+        (
+            label(move || numbers_line.clone()).id(day::id!(resources_numbers)),
+            label(move || greeting_line.clone()).id(day::id!(resources_greeting)),
+        ),
+    )
 }
 
 /// Open two bundled data resources and format one random-access read from each. `numbers.bin` holds
@@ -112,213 +121,213 @@ fn vectors_section() -> impl Piece {
     let zoom = Signal::new(96.0_f64);
 
     use crate::res::vectors as gv;
-    section((
-        label(crate::res::str::vectors_note()).font(Font::Footnote),
-        // The two pickers that govern every glyph below. Neither is reactive on the piece:
-        // `.weight(…)` resolves to a different staged source name and `.frame(…)` is a layout
-        // constant, so both are build-time facts, which is why the row is rebuilt through
-        // `keyed` on the pair rather than patched.
-        labeled(
-            crate::res::str::vectors_weights(),
-            picker(
-                weight,
-                [
-                    (VectorWeight::Light, crate::res::str::text_weight_light()),
-                    (
-                        VectorWeight::Regular,
-                        crate::res::str::text_weight_regular(),
-                    ),
-                    (VectorWeight::Bold, crate::res::str::text_weight_bold()),
-                ],
-            )
-            .segmented()
-            .id(day::id!(vector_weight)),
-        ),
-        labeled(
-            crate::res::str::vectors_sizes(),
-            picker(size, GLYPH_SIZES.map(|s| (s, format!("{s:.0}"))))
+    crate::gallery::panel(
+        crate::res::str::vectors_title(),
+        (
+            // The two pickers that govern every glyph below. Neither is reactive on the piece:
+            // `.weight(…)` resolves to a different staged source name and `.frame(…)` is a layout
+            // constant, so both are build-time facts, which is why the row is rebuilt through
+            // `keyed` on the pair rather than patched.
+            labeled(
+                crate::res::str::vectors_weights(),
+                picker(
+                    weight,
+                    [
+                        (VectorWeight::Light, crate::res::str::text_weight_light()),
+                        (
+                            VectorWeight::Regular,
+                            crate::res::str::text_weight_regular(),
+                        ),
+                        (VectorWeight::Bold, crate::res::str::text_weight_bold()),
+                    ],
+                )
                 .segmented()
-                .id(day::id!(vector_size)),
-        ),
-        // The glyph row is derived, not hand-written: one list of glyphs in one `row`, wrapped by
-        // the row itself. It was a `grid` whose column count this page computed from the window's
-        // width class and the glyph size, arithmetic that existed only because a row could not
-        // wrap. `RowFit::Wrap` (docs/size-classes.md) moved that into layout, where the run break
-        // happens against the measured width rather than against a guess.
-        //
-        // Still rebuilt through `keyed`, on the weight and size the pickers hold, because
-        // both change what each glyph is rather than how it is laid out.
-        keyed(
-            move || Some((weight.get(), size.get())),
-            move |&(w, px)| {
-                // `home_symbol` leads: it is the one SF-template source here with true
-                // per-weight art. Every glyph after it is a plain SVG, so moving the Weight
-                // picker off Regular exercises the aliasing path on all 23 at once: a weight a
-                // source has no art for must resolve back to its base glyph rather than draw
-                // nothing (docs/vectors.md). Doing it in bulk is what caught android-material
-                // resolving the image piece's name without that fallback: every aliased glyph was
-                // blank there, and `assert_visible` could not see it because the ImageView had a
-                // frame either way.
-                let glyphs = [
-                    gv::home_symbol,
-                    gv::nav_about,
-                    gv::nav_animation,
-                    gv::nav_canvas,
-                    gv::nav_controls,
-                    gv::nav_crash,
-                    gv::nav_dates,
-                    gv::nav_focus,
-                    gv::nav_grid,
-                    gv::nav_list,
-                    gv::nav_localization,
-                    gv::nav_media,
-                    gv::nav_menus,
-                    gv::nav_network,
-                    gv::nav_resources,
-                    gv::nav_scripting,
-                    gv::nav_services,
-                    gv::nav_stack,
-                    gv::nav_tabs,
-                    gv::nav_text,
-                    gv::nav_textareas,
-                    gv::nav_textfields,
-                    gv::nav_toolbars,
-                    gv::nav_tweaks,
-                    gv::nav_webview,
-                ];
-                let cells: Vec<_> = glyphs
-                    .into_iter()
-                    .map(|g| {
-                        vector(g)
-                            .weight(w)
-                            .tint(crate::palette::SLATE)
-                            .frame(px, px)
-                    })
-                    .collect();
-                row(cells)
-                    .spacing(Space::M)
-                    .fit(RowFit::Wrap { run_spacing: 12.0 })
-                    .grow(Dimension::Width)
-                    .id(day::id!(resources_vectors_row))
-            },
-        ),
-        // The aliasing case again, called out on its own so a script can assert it directly: a
-        // plain SVG asked for Bold, which it has no art for. It must look exactly like Regular,
-        // which proves that the alias resolves instead of drawing nothing.
-        row((
-            vector(gv::nav_about)
-                .weight(VectorWeight::Bold)
-                .tint(crate::palette::SLATE)
-                .frame(28.0, 28.0)
-                .id(day::id!(vector_aliased_weight)),
-            label(crate::res::str::vectors_alias_note()).font(Font::Footnote),
-        ))
-        .spacing(Space::S)
-        .align(VAlign::Top),
-        // Tints: one glyph through the tint ladder.
-        labeled(
-            crate::res::str::vectors_tints(),
+                .id(day::id!(vector_weight)),
+            ),
+            labeled(
+                crate::res::str::vectors_sizes(),
+                picker(size, GLYPH_SIZES.map(|s| (s, format!("{s:.0}"))))
+                    .segmented()
+                    .id(day::id!(vector_size)),
+            ),
+            // The glyph row is derived, not hand-written: one list of glyphs in one `row`, wrapped by
+            // the row itself. It was a `grid` whose column count this page computed from the window's
+            // width class and the glyph size, arithmetic that existed only because a row could not
+            // wrap. `RowFit::Wrap` (docs/size-classes.md) moved that into layout, where the run break
+            // happens against the measured width rather than against a guess.
+            //
+            // Still rebuilt through `keyed`, on the weight and size the pickers hold, because
+            // both change what each glyph is rather than how it is laid out.
+            keyed(
+                move || Some((weight.get(), size.get())),
+                move |&(w, px)| {
+                    // `home_symbol` leads: it is the one SF-template source here with true
+                    // per-weight art. Every glyph after it is a plain SVG, so moving the Weight
+                    // picker off Regular exercises the aliasing path on all 23 at once: a weight a
+                    // source has no art for must resolve back to its base glyph rather than draw
+                    // nothing (docs/vectors.md). Doing it in bulk is what caught android-material
+                    // resolving the image piece's name without that fallback: every aliased glyph was
+                    // blank there, and `assert_visible` could not see it because the ImageView had a
+                    // frame either way.
+                    let glyphs = [
+                        gv::home_symbol,
+                        gv::nav_about,
+                        gv::nav_animation,
+                        gv::nav_canvas,
+                        gv::nav_controls,
+                        gv::nav_crash,
+                        gv::nav_dates,
+                        gv::nav_focus,
+                        gv::nav_grid,
+                        gv::nav_list,
+                        gv::nav_localization,
+                        gv::nav_media,
+                        gv::nav_menus,
+                        gv::nav_network,
+                        gv::nav_resources,
+                        gv::nav_scripting,
+                        gv::nav_services,
+                        gv::nav_stack,
+                        gv::nav_tabs,
+                        gv::nav_text,
+                        gv::nav_textareas,
+                        gv::nav_textfields,
+                        gv::nav_toolbars,
+                        gv::nav_tweaks,
+                        gv::nav_webview,
+                    ];
+                    let cells: Vec<_> = glyphs
+                        .into_iter()
+                        .map(|g| {
+                            vector(g)
+                                .weight(w)
+                                .tint(crate::palette::SLATE)
+                                .frame(px, px)
+                        })
+                        .collect();
+                    row(cells)
+                        .spacing(Space::M)
+                        .fit(RowFit::Wrap { run_spacing: 12.0 })
+                        .grow(Dimension::Width)
+                        .id(day::id!(resources_vectors_row))
+                },
+            ),
+            // The aliasing case again, called out on its own so a script can assert it directly: a
+            // plain SVG asked for Bold, which it has no art for. It must look exactly like Regular,
+            // which proves that the alias resolves instead of drawing nothing.
             row((
-                t(gv::nav_scripting, crate::palette::SLATE),
-                t(gv::nav_scripting, crate::palette::RUST),
-                t(gv::nav_scripting, Color::rgba(0.18, 0.50, 0.94, 1.0)),
-                t(gv::nav_scripting, Color::rgba(0.16, 0.65, 0.37, 1.0)),
-            ))
-            .spacing(Space::M)
-            .id(day::id!(resources_vectors_tints)),
-        ),
-        // A live tint: the same glyph bound to a signal, so any of the three controls beside it
-        // repaints the realized view through `ImagePatch::Tint` instead of rebuilding it
-        // (docs/vectors.md). Cycle walks the palette ramp; the two wells open a color chooser
-        // each, one the platform's and one Day's own (docs/colorpicker.md), which is why both
-        // are here.
-        labeled(
-            crate::res::str::vectors_live_tint(),
-            row((
-                vector(gv::nav_animation)
-                    .tint(move || tint.get())
+                vector(gv::nav_about)
+                    .weight(VectorWeight::Bold)
+                    .tint(crate::palette::SLATE)
                     .frame(28.0, 28.0)
-                    .id(day::id!(vector_live_tint)),
-                button(crate::res::str::vectors_cycle_tint())
-                    .action(move || {
-                        live.update(|i| *i += 1);
-                        tint.set(
-                            crate::palette::RAMP[live.get_untracked() % crate::palette::RAMP.len()],
-                        );
-                    })
-                    .id(day::id!(vector_cycle_tint)),
-                // The platform's chooser. `.native()` is literal: on a toolkit with no
-                // color picker (android-material, harmony-arkui) this draws Day's placeholder rather
-                // than quietly substituting the composed panel, which is what the page is here
-                // to show. The banner below says so in words.
-                color_picker(tint)
-                    .native()
-                    .title(crate::res::str::vectors_pick_tint())
-                    .id(day::id!(vector_tint_native)),
-                // Day's own panel, built from pieces and a canvas, identical on all nine
-                // targets. Its id is also the well's dayscript id.
-                color_picker(tint)
-                    .composed()
-                    .title(crate::res::str::vectors_pick_tint())
-                    .id(day::id!(vector_tint_composed)),
+                    .id(day::id!(vector_aliased_weight)),
+                crate::gallery::note(crate::res::str::vectors_alias_note()),
             ))
-            .spacing(Space::M)
-            .fit(RowFit::Wrap { run_spacing: 8.0 })
+            .spacing(Space::S)
             .align(VAlign::Center),
+            // Tints: one glyph through the tint ladder.
+            labeled(
+                crate::res::str::vectors_tints(),
+                row((
+                    t(gv::nav_scripting, crate::palette::SLATE),
+                    t(gv::nav_scripting, crate::palette::RUST),
+                    t(gv::nav_scripting, Color::rgba(0.18, 0.50, 0.94, 1.0)),
+                    t(gv::nav_scripting, Color::rgba(0.16, 0.65, 0.37, 1.0)),
+                ))
+                .spacing(Space::M)
+                .id(day::id!(resources_vectors_tints)),
+            ),
+            // A live tint: the same glyph bound to a signal, so any of the three controls beside it
+            // repaints the realized view through `ImagePatch::Tint` instead of rebuilding it
+            // (docs/vectors.md). Cycle walks the palette ramp; the two wells open a color chooser
+            // each, one the platform's and one Day's own (docs/colorpicker.md), which is why both
+            // are here.
+            labeled(
+                crate::res::str::vectors_live_tint(),
+                row((
+                    vector(gv::nav_animation)
+                        .tint(move || tint.get())
+                        .frame(28.0, 28.0)
+                        .id(day::id!(vector_live_tint)),
+                    button(crate::res::str::vectors_cycle_tint())
+                        .action(move || {
+                            live.update(|i| *i += 1);
+                            tint.set(
+                                crate::palette::RAMP
+                                    [live.get_untracked() % crate::palette::RAMP.len()],
+                            );
+                        })
+                        .id(day::id!(vector_cycle_tint)),
+                    // The platform's chooser. `.native()` is literal: on a toolkit with no
+                    // color picker (android-material, harmony-arkui) this draws Day's placeholder rather
+                    // than quietly substituting the composed panel, which is what the page is here
+                    // to show. The banner below says so in words.
+                    color_picker(tint)
+                        .native()
+                        .title(crate::res::str::vectors_pick_tint())
+                        .id(day::id!(vector_tint_native)),
+                    // Day's own panel, built from pieces and a canvas, identical on all nine
+                    // targets. Its id is also the well's dayscript id.
+                    color_picker(tint)
+                        .composed()
+                        .title(crate::res::str::vectors_pick_tint())
+                        .id(day::id!(vector_tint_composed)),
+                ))
+                .spacing(Space::M)
+                .fit(RowFit::Wrap { run_spacing: 8.0 })
+                .align(VAlign::Center),
+            ),
+            // On android-material and harmony-arkui the first well has nothing to open (neither platform
+            // ships a color chooser anywhere), so it draws Day's `⟨day.piece.colorpicker⟩`
+            // placeholder and this banner says why. The second well works there exactly as it does
+            // here, which is the argument for having built it. (Same shape as the Controls page's
+            // note beside the combo box on iOS.)
+            crate::widgets::support_banner(day::colorpicker::support()),
+            // Full-color art, not a tintable glyph: everything above is a monochrome symbol that
+            // takes a `.tint`, so the pipeline's other half (many-path, authored-color art) had
+            // no example here. The tiger is 240 paths, and it stays a real vector on every backend
+            // (on android-material a VectorDrawable, not a raster; docs/vectors.md).
+            //
+            // The glyph is rebuilt at each zoom step, not transform-scaled. A `.scale()` would
+            // magnify whatever the backend last rasterized, the very thing this demo exists to
+            // disprove, so the size change goes through `keyed`, which disposes the old
+            // view and asks the backend for the art at the new size. Every step is a fresh render
+            // from the SVG, which is what keeps the edges crisp as it grows.
+            //
+            // Keyed on 8 px steps rather than the raw f64: a slider drag would otherwise rebuild a
+            // 240-path drawing on every pixel of travel.
+            //
+            // Centered while it fits, pannable once it does not. The top of the zoom range is five
+            // times what it was, which is wider than the page's content column on every desktop
+            // window and several times a phone's. Clipping the art at the column edge would hide
+            // exactly the detail the raised range exists to show, so past that width the art keeps
+            // its full size inside a horizontal scroll strip and the reader pans across it.
+            //
+            // The `keyed` key therefore carries the width class as well as the zoom step: crossing
+            // a breakpoint changes which of the two arrangements applies, and a key that ignored it
+            // would leave a resized window showing the wrong one.
+            keyed(
+                move || Some(((zoom.get() / 8.0).round() as i64, tiger_room() as i64)),
+                move |&(step, room)| {
+                    let px = step as f64 * 8.0;
+                    let art = vector(gv::tiger).frame(px, px).id(day::id!(vector_tiger));
+                    // Two different piece types, one branch each: `Either` keeps both concrete
+                    // instead of boxing whichever arm this row takes.
+                    if px <= room as f64 {
+                        Either::Left(column((art,)).align(HAlign::Center).grow(Dimension::Width))
+                    } else {
+                        Either::Right(scroll(art).horizontal().grow(Dimension::Width))
+                    }
+                },
+            ),
+            // The zoom sits below the art it drives now that it drives only that art; the glyph row
+            // above takes its size from the Size picker instead.
+            labeled(
+                crate::res::str::vectors_zoom(),
+                slider(zoom).range(48.0..=1200.0).id(day::id!(vector_zoom)),
+            ),
         ),
-        label(crate::res::str::vectors_tint_idioms()).font(Font::Footnote),
-        // On android-material and harmony-arkui the first well has nothing to open (neither platform
-        // ships a color chooser anywhere), so it draws Day's `⟨day.piece.colorpicker⟩`
-        // placeholder and this banner says why. The second well works there exactly as it does
-        // here, which is the argument for having built it. (Same shape as the Controls page's
-        // note beside the combo box on iOS.)
-        crate::widgets::support_note(day::colorpicker::support()),
-        // Full-color art, not a tintable glyph: everything above is a monochrome symbol that
-        // takes a `.tint`, so the pipeline's other half (many-path, authored-color art) had
-        // no example here. The tiger is 240 paths, and it stays a real vector on every backend
-        // (on android-material a VectorDrawable, not a raster; docs/vectors.md).
-        //
-        // The glyph is rebuilt at each zoom step, not transform-scaled. A `.scale()` would
-        // magnify whatever the backend last rasterized, the very thing this demo exists to
-        // disprove, so the size change goes through `keyed`, which disposes the old
-        // view and asks the backend for the art at the new size. Every step is a fresh render
-        // from the SVG, which is what keeps the edges crisp as it grows.
-        //
-        // Keyed on 8 px steps rather than the raw f64: a slider drag would otherwise rebuild a
-        // 240-path drawing on every pixel of travel.
-        //
-        // Centered while it fits, pannable once it does not. The top of the zoom range is five
-        // times what it was, which is wider than the page's content column on every desktop
-        // window and several times a phone's. Clipping the art at the column edge would hide
-        // exactly the detail the raised range exists to show, so past that width the art keeps
-        // its full size inside a horizontal scroll strip and the reader pans across it.
-        //
-        // The `keyed` key therefore carries the width class as well as the zoom step: crossing
-        // a breakpoint changes which of the two arrangements applies, and a key that ignored it
-        // would leave a resized window showing the wrong one.
-        keyed(
-            move || Some(((zoom.get() / 8.0).round() as i64, tiger_room() as i64)),
-            move |&(step, room)| {
-                let px = step as f64 * 8.0;
-                let art = vector(gv::tiger).frame(px, px).id(day::id!(vector_tiger));
-                // Two different piece types, one branch each: `Either` keeps both concrete
-                // instead of boxing whichever arm this row takes.
-                if px <= room as f64 {
-                    Either::Left(column((art,)).align(HAlign::Center).grow(Dimension::Width))
-                } else {
-                    Either::Right(scroll(art).horizontal().grow(Dimension::Width))
-                }
-            },
-        ),
-        // The zoom sits below the art it drives now that it drives only that art; the glyph row
-        // above takes its size from the Size picker instead.
-        labeled(
-            crate::res::str::vectors_zoom(),
-            slider(zoom).range(48.0..=1200.0).id(day::id!(vector_zoom)),
-        ),
-        label(crate::res::str::vectors_scene_note()).font(Font::Footnote),
-    ))
-    .title(crate::res::str::vectors_title())
+    )
 }
 
 /// One glyph of the tint ladder, at the fixed size that row has always used.

@@ -1,7 +1,6 @@
 use std::time::Duration;
 
 use crate::res::str as tr;
-use crate::widgets::page;
 use day::prelude::*;
 use day_part_keychain::{Protection, Secret};
 use day_part_push::{
@@ -180,10 +179,14 @@ pub(crate) fn push_page() -> AnyPiece {
     }
     keep_token_current(state);
 
-    page(
+    crate::widgets::page_cards(
         tr::nav_push(),
         day::id!(push_title),
-        form((send_section(state), advanced_section(state))).any(),
+        crate::gallery::deck(
+            2,
+            vec![send_section(state).any(), advanced_section(state).any()],
+        )
+        .any(),
     )
     .any()
 }
@@ -219,7 +222,7 @@ fn keep_token_current(state: Push) {
 
 fn send_section(state: Push) -> impl Piece {
     let ready = move || push::supported() && !state.busy.get();
-    section((
+    crate::gallery::plain((
         label(if push::supported() {
             tr::push_caption()
         } else {
@@ -277,70 +280,72 @@ fn send_section(state: Push) -> impl Piece {
 }
 
 fn advanced_section(state: Push) -> impl Piece {
-    section((
-        labeled(
-            tr::push_token(),
-            label(move || match state.token.get() {
-                Some(token) => match token.provider {
-                    push::Provider::Apns => tr::push_token_apns().format(),
-                    push::Provider::Fcm => tr::push_token_fcm().format(),
-                },
-                None => tr::push_token_none().format(),
+    crate::gallery::panel(
+        tr::push_advanced(),
+        (
+            labeled(
+                tr::push_token(),
+                label(move || match state.token.get() {
+                    Some(token) => match token.provider {
+                        push::Provider::Apns => tr::push_token_apns().format(),
+                        push::Provider::Fcm => tr::push_token_fcm().format(),
+                    },
+                    None => tr::push_token_none().format(),
+                })
+                .id(day::id!(push_token_state)),
+            ),
+            labeled(
+                tr::push_relay(),
+                label(move || match state.registration.get() {
+                    Some(enrolled) => enrolled.id().to_string(),
+                    None => tr::push_relay_none().format(),
+                })
+                .id(day::id!(push_registration)),
+            ),
+            labeled(
+                tr::push_sandbox(),
+                toggle(state.sandbox)
+                    .enabled(move || cfg!(target_os = "ios") && !state.busy.get())
+                    .id(day::id!(push_sandbox)),
+            ),
+            label(move || match state.event.get() {
+                Some(push::Event::Message { payload, .. }) => {
+                    serde_json::to_string_pretty(&payload).unwrap_or_default()
+                }
+                Some(push::Event::Error { message }) => tr::push_error(message).format(),
+                _ => tr::push_waiting().format(),
             })
-            .id(day::id!(push_token_state)),
-        ),
-        labeled(
-            tr::push_relay(),
-            label(move || match state.registration.get() {
-                Some(enrolled) => enrolled.id().to_string(),
-                None => tr::push_relay_none().format(),
-            })
-            .id(day::id!(push_registration)),
-        ),
-        labeled(
-            tr::push_sandbox(),
-            toggle(state.sandbox)
-                .enabled(move || cfg!(target_os = "ios") && !state.busy.get())
-                .id(day::id!(push_sandbox)),
-        ),
-        label(move || match state.event.get() {
-            Some(push::Event::Message { payload, .. }) => {
-                serde_json::to_string_pretty(&payload).unwrap_or_default()
-            }
-            Some(push::Event::Error { message }) => tr::push_error(message).format(),
-            _ => tr::push_waiting().format(),
-        })
-        .font(Font::Footnote)
-        .id(day::id!(push_message)),
-        button(tr::push_remove())
-            .id(day::id!(push_remove))
-            .enabled(move || !state.busy.get() && state.registration.get().is_some())
-            .action(move || {
-                let enrolled = state.registration.get_untracked();
-                state.busy.set(true);
-                page_task(async move {
-                    if let Some(enrolled) = enrolled {
-                        match client().remove(&enrolled).await {
-                            // The relay may already have expired this registration, or removed
-                            // it when the provider invalidated its token.
-                            Ok(()) | Err(push::Error::RelayStatus(401 | 404)) => {}
-                            Err(error) => {
-                                state.status.set(failed(error));
-                                state.busy.set(false);
-                                return;
+            .font(Font::Footnote)
+            .id(day::id!(push_message)),
+            button(tr::push_remove())
+                .id(day::id!(push_remove))
+                .enabled(move || !state.busy.get() && state.registration.get().is_some())
+                .action(move || {
+                    let enrolled = state.registration.get_untracked();
+                    state.busy.set(true);
+                    page_task(async move {
+                        if let Some(enrolled) = enrolled {
+                            match client().remove(&enrolled).await {
+                                // The relay may already have expired this registration, or removed
+                                // it when the provider invalidated its token.
+                                Ok(()) | Err(push::Error::RelayStatus(401 | 404)) => {}
+                                Err(error) => {
+                                    state.status.set(failed(error));
+                                    state.busy.set(false);
+                                    return;
+                                }
                             }
                         }
-                    }
-                    if let Err(error) = day_part_keychain::remove(REGISTRATION) {
-                        state.status.set(tr::push_error(error.to_string()).format());
+                        if let Err(error) = day_part_keychain::remove(REGISTRATION) {
+                            state.status.set(tr::push_error(error.to_string()).format());
+                            state.busy.set(false);
+                            return;
+                        }
+                        state.registration.set(None);
+                        state.status.set(tr::push_removed().format());
                         state.busy.set(false);
-                        return;
-                    }
-                    state.registration.set(None);
-                    state.status.set(tr::push_removed().format());
-                    state.busy.set(false);
-                });
-            }),
-    ))
-    .title(tr::push_advanced())
+                    });
+                }),
+        ),
+    )
 }

@@ -1,9 +1,9 @@
 name: shapes-check
-description: Verify stroked shapes are not clipped at the edges.
+description: Verify the Canvas page's first cards (the dial and the clock) mount and draw.
 flow:
   - wait_for: { id: nav }
   - navigate: { route: canvas }
   - assert_route: { route: canvas }
-  - assert_visible: { id: shape_rect }
-  - assert_visible: { id: shape_arc }
+  - assert_visible: { id: canvas_dial }
+  - assert_visible: { id: canvas_clock }
   - screenshot: shapes

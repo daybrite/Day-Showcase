@@ -4,4 +4,8 @@ flow:
   - wait_for: { id: dnd_slot:0 }
   - assert_text: { id: dnd_value:0, text: image/png }
   - assert_text: { id: dnd_value:2, text: application/vnd.day.showcase-card }
+  - drop: { id: dnd_value:1, files: ["${project}/resource/images/day_logo.png"] }
+  - assert_text: { id: dnd_value:1, text: text/uri-list }
+  - drop: { id: dnd_value:4, files: ["${project}/resource/images/day_logo.png"], phase: enter }
   - screenshot: drag-drop
+  - drop: { id: dnd_value:4, phase: leave }

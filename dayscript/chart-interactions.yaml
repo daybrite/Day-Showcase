@@ -3,6 +3,7 @@ description: Exercise the shared declarative chart gallery inside Day Showcase.
 flow:
   - navigate: { route: charts }
   - wait_for: { id: charts_gallery_picker }
+  - scroll_to: { id: charts_gallery_picker }
   - select: { id: charts_gallery_picker, index: 14 }
   - wait_for: { id: linked_primary }
   - tap: { id: linked_select_sample }

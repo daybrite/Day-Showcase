@@ -1,5 +1,5 @@
-//! Physics: marbles under adjustable gravity, driven by one native frame subscription, filling the
-//! whole page.
+//! Physics: marbles under adjustable gravity, driven by one native frame subscription, and the
+//! disc on a spring (`physics_spring.rs`), each filling the page under a segmented picker.
 //!
 //! Tap or click the canvas and every marble leaps along a ballistic arc toward that point, each
 //! turned a few degrees off the line so a crowd scatters around it, then gravity takes over. The
@@ -1073,22 +1073,16 @@ struct Demo {
     status: Signal<String>,
     stats: RefCell<FrameStats>,
     fps: Signal<String>,
-    paused: Cell<bool>,
+    /// Whether Pause holds the clock. A signal, so the button names what it will do next.
+    paused: Signal<bool>,
     handle: RefCell<Option<day::frame::FrameHandle>>,
     /// Whether the full-screen cover is up: then its canvas owns the simulation's size and the
     /// page's canvas, hidden under it, paints nothing.
     fullscreen: Cell<bool>,
     /// The window state to put back when full screen ends, when entering it changed the window.
     window_before: Cell<Option<day::WindowState>>,
-    /// The drag in progress on a marble: where the finger last was and when, and its speed
-    /// smoothed over the last few events, which is the fling the marble gets when let go.
-    drag: RefCell<Option<Pointer>>,
-}
-/// A finger on a marble.
-struct Pointer {
-    at: Point,
-    when: std::time::Instant,
-    velocity: (f64, f64),
+    /// Whether a drag is carrying a marble.
+    dragging: Cell<bool>,
 }
 impl Demo {
     /// A tap: on a marble, flick it; on empty canvas, throw every marble toward the point.
@@ -1101,53 +1095,39 @@ impl Demo {
             self.kick_toward(at);
         }
     }
-    /// A drag: pick up the marble under the finger, carry it, and fling it on release.
+    /// A drag: pick up the marble under the finger, carry it at the drag's velocity, and fling it
+    /// on release at the velocity the drag ended with (zero when the finger paused first).
     fn drag(&self, drag: Drag) {
-        let now = std::time::Instant::now();
+        let velocity = (drag.velocity.x, drag.velocity.y);
         match drag.phase {
             DragPhase::Began => {
-                let grabbed = self.simulation.borrow_mut().grab(drag.location);
-                *self.drag.borrow_mut() = grabbed.then_some(Pointer {
-                    at: drag.location,
-                    when: now,
-                    velocity: (0.0, 0.0),
-                });
+                // The press point, not where `Began` arrived: some recognizers report it only
+                // after the pointer has moved.
+                let grabbed = self.simulation.borrow_mut().grab(drag.start());
+                self.dragging.set(grabbed);
                 if grabbed {
+                    self.simulation
+                        .borrow_mut()
+                        .drag_to(drag.location, velocity);
                     self.wake();
                     self.repaint.notify();
                 }
             }
             DragPhase::Changed => {
-                let mut pointer = self.drag.borrow_mut();
-                let Some(p) = pointer.as_mut() else {
+                if !self.dragging.get() {
                     return;
-                };
-                // The finger's speed, smoothed: one event's jitter should not decide the fling.
-                let dt = now.duration_since(p.when).as_secs_f64().max(1e-3);
-                let instant = (
-                    (drag.location.x - p.at.x) / dt,
-                    (drag.location.y - p.at.y) / dt,
-                );
-                p.velocity = (
-                    p.velocity.0 * 0.5 + instant.0 * 0.5,
-                    p.velocity.1 * 0.5 + instant.1 * 0.5,
-                );
-                p.at = drag.location;
-                p.when = now;
+                }
                 self.simulation
                     .borrow_mut()
-                    .drag_to(drag.location, p.velocity);
+                    .drag_to(drag.location, velocity);
                 self.wake();
             }
             DragPhase::Ended => {
-                let Some(p) = self.drag.borrow_mut().take() else {
+                if !self.dragging.replace(false) {
                     return;
-                };
-                // A finger that paused before lifting drops the marble rather than flinging it.
-                let idle = now.duration_since(p.when).as_secs_f64();
-                let keep = (1.0 - idle / 0.15).clamp(0.0, 1.0);
+                }
                 let mut sim = self.simulation.borrow_mut();
-                sim.drag_to(drag.location, (p.velocity.0 * keep, p.velocity.1 * keep));
+                sim.drag_to(drag.location, velocity);
                 sim.release();
                 drop(sim);
                 self.wake();
@@ -1210,7 +1190,7 @@ impl Demo {
         let handle = self.handle.borrow();
         if let Some(handle) = handle.as_ref()
             && self.simulation.borrow().alive()
-            && !self.paused.get()
+            && !self.paused.get_untracked()
             && !handle.is_active()
         {
             self.status.set(crate::res::str::frame_waiting().format());
@@ -1286,11 +1266,12 @@ fn elasticity_text(elasticity: f64) -> String {
 /// and its value read out at the trailing end in a box as wide as `widest`. Both reservations
 /// keep the sliders aligned, and keep each one still as its digits change.
 ///
-/// At Compact width (a phone) the title and the widest readout together leave a slider no room
-/// to move in, so the control stacks: the title with its readout at the trailing edge, and the
-/// slider under them with the whole row to itself. `size_class()` is a tracked read
-/// (docs/size-classes.md), so a rotation or a window dragged narrow re-lays the form.
-fn control(
+/// In a narrow column (a phone, or the controls standing beside a stage) the title and the
+/// widest readout together leave a slider no room to move in, so with `wide` false the control
+/// stacks: the title with its readout at the trailing edge, and the slider under them with the
+/// whole row to itself.
+pub(crate) fn control(
+    wide: bool,
     title: day::LocalizedText,
     widest_title: String,
     slider: impl Piece,
@@ -1298,16 +1279,13 @@ fn control(
     widest: String,
     readout_id: day::ElementId,
 ) -> AnyPiece {
-    let compact = day::size_class()
-        .map(|c| c.width == WidthClass::Compact)
-        .unwrap_or(false);
     // `widgets::numeric_readout`, trailing-aligned inside its reserved box.
     let readout = label(readout)
         .tabular()
         .align(TextAlign::Trailing)
         .id(readout_id)
         .reserving(widest);
-    if compact {
+    if !wide {
         column((
             row((label(title).grow(Dimension::Width), readout))
                 .spacing(Space::M)
@@ -1330,11 +1308,35 @@ fn control(
     }
 }
 
-/// On a phone the page scrolls and the marbles' box is this tall, so that some of it is always
-/// on screen however large the text: without a floor, the four controls and their readouts at a
-/// zoomed text size take every point an iPhone mini has, and the box is squeezed to nothing.
-/// Full screen is the way to the whole screen there.
-const COMPACT_CANVAS_HEIGHT: f64 = 300.0;
+/// The marbles' box on a phone, where the controls under it scroll in what is left. Full screen
+/// is the way to the whole screen.
+const COMPACT_CANVAS_HEIGHT: f64 = 260.0;
+
+/// How wide the controls are where they stand beside a pane's stage.
+pub(crate) const SIDE_CONTROLS_WIDTH: f64 = 320.0;
+
+/// How a pane arranges its stage and its controls (docs/size-classes.md), decided when the pane
+/// is built.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub(crate) enum Arrangement {
+    /// A phone: the stage at a fixed height, with the controls scrolling under it.
+    Stacked,
+    /// A narrow window: the stage over the controls, taking what they leave.
+    Over,
+    /// A desktop window: the controls in a column beside the stage.
+    Beside,
+}
+
+impl Arrangement {
+    /// The arrangement for the window's width class.
+    pub(crate) fn current() -> Self {
+        match day::size_class().map(|class| class.width) {
+            Some(WidthClass::Compact) => Arrangement::Stacked,
+            Some(WidthClass::Medium) | None => Arrangement::Over,
+            Some(_) => Arrangement::Beside,
+        }
+    }
+}
 
 /// The marbles' canvas: paints the simulation and throws the marbles at a tap. `owns_size` is
 /// whether this canvas's size is the simulation's box (the page's canvas gives that up while
@@ -1364,7 +1366,63 @@ fn marbles(ui: Rc<Demo>, owns_size: bool, height: Option<f64>, id: day::ElementI
     }
 }
 
+/// The Physics page: the marbles and the disc on a spring, one at a time under a
+/// segmented picker.
+///
+/// The page does not scroll. Both demos are dragged, and a drag inside a scroll view is the
+/// scroll view's to claim, so each demo gets a pane of its own that fills what the page has
+/// left and nothing around it moves under a finger.
 pub(crate) fn physics_page() -> AnyPiece {
+    /// The two demos the picker names.
+    #[derive(Clone, Copy, PartialEq, Eq)]
+    enum Pane {
+        Marbles,
+        Spring,
+    }
+    let pane = Signal::new(Pane::Marbles);
+    let info = crate::gallery::current_page();
+    // Centered over the pane, as a title for it (the Benchmark page's picker does the same).
+    let tabs = column((picker(
+        pane,
+        [
+            (Pane::Marbles, crate::res::str::physics_card_marbles_title()),
+            (Pane::Spring, crate::res::str::physics_spring_title()),
+        ],
+    )
+    .segmented()
+    .id(day::id!(physics_tabs)),))
+    .align(HAlign::Center)
+    .grow(Dimension::Width);
+    column((
+        crate::gallery::page_header(crate::res::str::nav_physics(), day::id!(physics_title)),
+        tabs,
+        switch(
+            move || pane.get(),
+            move |pane| {
+                let pane = *pane;
+                let build = || match pane {
+                    Pane::Marbles => marbles_pane(),
+                    Pane::Spring => super::physics_spring::spring_pane(),
+                };
+                // The switch rebuilds outside the table's call, so the destination is set
+                // again for anything in the pane that takes its tint.
+                match info.clone() {
+                    Some(info) => crate::gallery::with_page(info, build),
+                    None => build(),
+                }
+            },
+        )
+        .grow(Dimension::Both),
+    ))
+    .spacing(Space::M)
+    .align(HAlign::Leading)
+    .padding(20.0)
+    .grow(Dimension::Both)
+    .any()
+}
+
+/// The marbles pane: the simulation with its four sliders, its buttons and its readouts.
+fn marbles_pane() -> AnyPiece {
     // Twenty marbles to start: enough to see them scatter, collide and pull on each other,
     // light enough for any device; the slider runs the count up to `MAX_BALLS` for a load test.
     let count = Signal::new(20.0_f64);
@@ -1394,11 +1452,11 @@ pub(crate) fn physics_page() -> AnyPiece {
         status: Signal::new(crate::res::str::frame_resting().format()),
         stats: RefCell::new(FrameStats::default()),
         fps: Signal::new(FrameStats::default().text()),
-        paused: Cell::new(false),
+        paused: Signal::new(false),
         handle: RefCell::new(None),
         fullscreen: Cell::new(false),
         window_before: Cell::new(None),
-        drag: RefCell::new(None),
+        dragging: Cell::new(false),
     });
     let weak = Rc::downgrade(&ui);
     let handle = day::frame::FrameClock::current().subscribe(move |frame| {
@@ -1448,7 +1506,7 @@ pub(crate) fn physics_page() -> AnyPiece {
             resize.handle.borrow().as_ref().expect(HANDLE_SET).pause();
             // Changing load starts a fresh burst so even new marbles immediately animate.
             // A paused demo stays paused, making comparison screenshots easy.
-            if resize.paused.get() {
+            if resize.paused.get_untracked() {
                 resize.simulation.borrow_mut().kick();
                 resize.repaint.notify();
             } else {
@@ -1514,150 +1572,194 @@ pub(crate) fn physics_page() -> AnyPiece {
     .unwrap_or_default();
     let (status, fps) = (ui.status, ui.fps);
     let cover_ui = ui.clone();
-    // Two layouts (docs/size-classes.md; `size_class()` is a tracked read, as in `control`). At
-    // Regular width the marbles' box takes every point the page has left, which a scroll view
-    // never offers, so this is not `widgets::page`. At Compact width (a phone) the controls can
-    // take the whole height at a large text size and leave the box nothing, so the page scrolls
-    // and the box has a fixed height instead: some of it is always on screen.
-    let compact = day::size_class()
-        .map(|c| c.width == WidthClass::Compact)
-        .unwrap_or(false);
-    let body = column((
-        crate::widgets::heading(crate::res::str::nav_physics(), day::id!(physics_title)),
-        label(crate::res::str::frame_hint()).font(Font::Callout),
-        marbles(
-            ui.clone(),
-            false,
-            compact.then_some(COMPACT_CANVAS_HEIGHT),
-            day::id!(frame_ball),
+    // Three arrangements (docs/size-classes.md). On a desktop the controls stand beside the
+    // marbles' box, which takes the pane's whole height. In a narrow window the box sits over
+    // them and takes what they leave. On a phone the controls can be taller than the pane at a
+    // large text size, so the box has a fixed height and the controls scroll under it. The box
+    // itself is never inside the scroll view, so a drag on a marble is the marble's.
+    let arrangement = Arrangement::current();
+    let wide = arrangement == Arrangement::Over;
+    let paused = ui.paused;
+    let sliders = section((column((
+        control(
+            wide,
+            crate::res::str::frame_balls_label(),
+            widest_title.clone(),
+            slider(count)
+                .range(1.0..=MAX_BALLS as f64)
+                .step(1.0)
+                .a11y(|a| a.label(crate::res::str::frame_balls_label()))
+                .id(day::id!(frame_ball_slider)),
+            move || day::format_decimal(count.get().round(), 0),
+            widest_value.clone(),
+            day::id!(frame_ball_count),
         ),
-        // The four controls as one form under the marbles, each slider with its value beside it.
-        section((column((
-            control(
-                crate::res::str::frame_balls_label(),
-                widest_title.clone(),
-                slider(count)
-                    .range(1.0..=MAX_BALLS as f64)
-                    .step(1.0)
-                    .a11y(|a| a.label(crate::res::str::frame_balls_label()))
-                    .id(day::id!(frame_ball_slider)),
-                move || day::format_decimal(count.get().round(), 0),
-                widest_value.clone(),
-                day::id!(frame_ball_count),
-            ),
-            control(
-                crate::res::str::physics_elasticity_label(),
-                widest_title.clone(),
-                slider(elasticity)
-                    .range(0.0..=1.0)
-                    .step(0.01)
-                    .a11y(|a| a.label(crate::res::str::physics_elasticity_label()))
-                    .id(day::id!(physics_elasticity_slider)),
-                move || elasticity_text(elasticity.get()),
-                widest_value.clone(),
-                day::id!(physics_elasticity_value),
-            ),
-            control(
-                crate::res::str::physics_mass_label(),
-                widest_title.clone(),
-                slider(mass)
-                    .range(0.0..=MAX_MASS_MT)
-                    .step(0.001)
-                    .a11y(|a| a.label(crate::res::str::physics_mass_label()))
-                    .id(day::id!(physics_mass_slider)),
-                move || mass_text(mass.get()),
-                widest_value.clone(),
-                day::id!(physics_mass_value),
-            ),
-            control(
-                crate::res::str::physics_gravity_label(),
-                widest_title.clone(),
-                slider(gravity)
-                    .range(0.0..=JUPITER)
-                    .step(0.01)
-                    .a11y(|a| a.label(crate::res::str::physics_gravity_label()))
-                    .id(day::id!(physics_gravity_slider)),
-                move || gravity_text(gravity.get()),
-                widest_value,
-                day::id!(physics_gravity_value),
-            ),
-        ))
-        .spacing(Space::S),)),
-        row((
-            button(crate::res::str::frame_bounce())
-                .action(move || bounce.kick())
-                .id(day::id!(frame_bounce)),
-            button(crate::res::str::frame_shuffle())
-                .action(move || shuffle.shuffle(count, gravity, mass, elasticity))
-                .id(day::id!(physics_shuffle)),
-            button(crate::res::str::frame_pause())
-                .action(move || {
-                    let handle = pause.handle.borrow();
-                    let handle = handle.as_ref().expect(HANDLE_SET);
-                    if pause.paused.get() {
-                        pause.paused.set(false);
-                        pause.status.set(crate::res::str::frame_waiting().format());
-                        handle.resume();
-                    } else if handle.is_active() {
-                        pause.paused.set(true);
-                        handle.pause();
-                        pause.fps.set(pause.stats.borrow().text());
-                        pause.status.set(crate::res::str::frame_paused().format());
-                    }
-                })
-                .id(day::id!(frame_pause)),
-            button(crate::res::str::anim_reset_label())
-                .action(move || reset.reset())
-                .id(day::id!(frame_reset)),
-            button(crate::res::str::physics_fullscreen())
-                .action(move || fullscreen_open.set(Some(FullscreenKey)))
-                .id(day::id!(physics_fullscreen)),
-        ))
-        .spacing(10.0),
-        row((
-            label(status).id(day::id!(frame_status)),
-            spacer(),
-            label(fps)
-                .tabular()
-                .align(TextAlign::Trailing)
-                .id(day::id!(frame_fps))
-                .reserving(crate::res::str::frame_fps(crate::res::str::FrameFps {
-                    min: "999.9",
-                    max: "999.9",
-                    avg: "999.9",
-                }))
-                .font(Font::Caption),
-        )),
-        label(crate::res::str::frame_explanation()).font(Font::Caption),
-        // Full screen: the same marbles over the whole window, with one way out in the corner.
-        cover(fullscreen_open, move |_| {
-            marbles(
-                cover_ui.clone(),
-                true,
-                None,
-                day::id!(physics_fullscreen_canvas),
-            )
-            .overlay_aligned(
-                Alignment::TopTrailing,
-                button(crate::res::str::physics_exit_fullscreen())
-                    .prominent()
-                    .action(move || fullscreen_open.set(None))
-                    .id(day::id!(physics_exit_fullscreen))
-                    .padding(Space::L),
-            )
-            .any()
+        control(
+            wide,
+            crate::res::str::physics_gravity_label(),
+            widest_title.clone(),
+            slider(gravity)
+                .range(0.0..=JUPITER)
+                .step(0.01)
+                .a11y(|a| a.label(crate::res::str::physics_gravity_label()))
+                .id(day::id!(physics_gravity_slider)),
+            move || gravity_text(gravity.get()),
+            widest_value.clone(),
+            day::id!(physics_gravity_value),
+        ),
+        control(
+            wide,
+            crate::res::str::physics_elasticity_label(),
+            widest_title.clone(),
+            slider(elasticity)
+                .range(0.0..=1.0)
+                .step(0.01)
+                .a11y(|a| a.label(crate::res::str::physics_elasticity_label()))
+                .id(day::id!(physics_elasticity_slider)),
+            move || elasticity_text(elasticity.get()),
+            widest_value.clone(),
+            day::id!(physics_elasticity_value),
+        ),
+        control(
+            wide,
+            crate::res::str::physics_mass_label(),
+            widest_title,
+            slider(mass)
+                .range(0.0..=MAX_MASS_MT)
+                .step(0.001)
+                .a11y(|a| a.label(crate::res::str::physics_mass_label()))
+                .id(day::id!(physics_mass_slider)),
+            move || mass_text(mass.get()),
+            widest_value,
+            day::id!(physics_mass_value),
+        ),
+    ))
+    .spacing(Space::S),));
+    let buttons = row((
+        button(crate::res::str::frame_bounce())
+            .action(move || bounce.kick())
+            .id(day::id!(frame_bounce)),
+        button(crate::res::str::frame_shuffle())
+            .action(move || shuffle.shuffle(count, gravity, mass, elasticity))
+            .id(day::id!(physics_shuffle)),
+        button(move || {
+            if paused.get() {
+                crate::res::str::physics_resume().format()
+            } else {
+                crate::res::str::frame_pause().format()
+            }
         })
-        .unrouted()
-        .background(|_| Color::hex(0x111820)),
+        .action(move || {
+            let handle = pause.handle.borrow();
+            let handle = handle.as_ref().expect(HANDLE_SET);
+            if pause.paused.get_untracked() {
+                pause.paused.set(false);
+                pause.status.set(crate::res::str::frame_waiting().format());
+                handle.resume();
+            } else if handle.is_active() {
+                pause.paused.set(true);
+                handle.pause();
+                pause.fps.set(pause.stats.borrow().text());
+                pause.status.set(crate::res::str::frame_paused().format());
+            }
+        })
+        .id(day::id!(frame_pause)),
+        button(crate::res::str::anim_reset_label())
+            .action(move || reset.reset())
+            .id(day::id!(frame_reset)),
+        button(crate::res::str::physics_fullscreen())
+            .action(move || fullscreen_open.set(Some(FullscreenKey)))
+            .id(day::id!(physics_fullscreen)),
     ))
     .spacing(10.0)
-    .padding(20.0)
-    .id(day::id!(frame_demo));
-    if compact {
-        scroll(body.grow(Dimension::Width)).any()
+    // Five buttons are wider than a phone's card or the side column, so the row wraps there.
+    .fit(RowFit::Wrap { run_spacing: 10.0 });
+    let status = label(status).id(day::id!(frame_status));
+    let fps = label(fps)
+        .tabular()
+        .id(day::id!(frame_fps))
+        .reserving(crate::res::str::frame_fps(crate::res::str::FrameFps {
+            min: "999.9",
+            max: "999.9",
+            avg: "999.9",
+        }))
+        .font(Font::Caption);
+    // Beside the box the column is too narrow for the state and the rates on one line.
+    let readouts = if arrangement == Arrangement::Beside {
+        column((status, fps))
+            .spacing(Space::XS)
+            .align(HAlign::Leading)
+            .any()
     } else {
-        body.grow(Dimension::Both).any()
-    }
+        row((status, spacer(), fps)).any()
+    };
+    let hint = crate::gallery::note(crate::res::str::frame_hint());
+    // Full screen: the same marbles over the whole window, with one way out in the corner.
+    let fullscreen = cover(fullscreen_open, move |_| {
+        marbles(
+            cover_ui.clone(),
+            true,
+            None,
+            day::id!(physics_fullscreen_canvas),
+        )
+        .overlay_aligned(
+            Alignment::TopTrailing,
+            button(crate::res::str::physics_exit_fullscreen())
+                .prominent()
+                .action(move || fullscreen_open.set(None))
+                .id(day::id!(physics_exit_fullscreen))
+                .padding(Space::L),
+        )
+        .any()
+    })
+    .unrouted()
+    .background(|_| Color::hex(0x111820));
+    let pane = match arrangement {
+        Arrangement::Beside => row((
+            marbles(ui.clone(), false, None, day::id!(frame_ball)),
+            column((hint, sliders, buttons, readouts, fullscreen))
+                .spacing(Space::M)
+                .align(HAlign::Leading)
+                .width(SIDE_CONTROLS_WIDTH),
+        ))
+        .spacing(Space::L)
+        .align(VAlign::Top)
+        .grow(Dimension::Both)
+        .any(),
+        Arrangement::Over => column((
+            hint,
+            marbles(ui.clone(), false, None, day::id!(frame_ball)),
+            sliders,
+            buttons,
+            readouts,
+            fullscreen,
+        ))
+        .spacing(10.0)
+        .align(HAlign::Leading)
+        .grow(Dimension::Both)
+        .any(),
+        Arrangement::Stacked => column((
+            marbles(
+                ui.clone(),
+                false,
+                Some(COMPACT_CANVAS_HEIGHT),
+                day::id!(frame_ball),
+            ),
+            scroll(
+                column((sliders, buttons, readouts))
+                    .spacing(10.0)
+                    .align(HAlign::Leading)
+                    .grow(Dimension::Width),
+            )
+            .grow(Dimension::Both),
+            fullscreen,
+        ))
+        .spacing(10.0)
+        .align(HAlign::Leading)
+        .grow(Dimension::Both)
+        .any(),
+    };
+    pane.card().id(day::id!(frame_demo)).any()
 }
 
 fn paint(d: &mut Draw, size: Size, sim: &Simulation) {

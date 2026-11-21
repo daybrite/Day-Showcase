@@ -56,7 +56,7 @@ list behaviors. These examples require the matching Day changes when building fr
 use `day launch --patch-local ../day -t macos-appkit` until those APIs are published.
 
 Thirty-four screens in eight groups, each a working demo of the pieces it names: an overview;
-the controls (a catalogue of every control Day ships, text, text editing, date and time, focus);
+the controls (a catalogue of every control Day ships, text, text editing, date and time, focus, keyboard);
 layout and grid; navigation and window chrome; data (list, tree, model, query); graphics and
 media (canvas, charts, animation, resources, video, Lottie, map, web view); the platform (device and
 sensors, network and HTTP, notifications and badge, push notifications, speech, sound and
@@ -72,17 +72,19 @@ platform cannot run stays, with a note.
   <kbd><img src="https://showcase.daybrite.dev/gallery/ios-uikit/iphone/light/tree.png" width="200" alt="The tree piece on iPhone"></kbd>
 </p>
 
-- **Controls, Text, Text areas, Focus.** Buttons, toggles, sliders, pickers, and fields, each bound
-  two ways to a signal; styled text, selection, editing, and live syntax highlighting.
-- **Canvas & shapes, Animation, Grid, Layout.** Paths, gradients, transforms, and gestures on a
+- **Controls, Text, Text areas, Focus, Keyboard.** Buttons, toggles, sliders, pickers, and fields, each bound
+  two ways to a signal; styled text, selection, editing, and live syntax highlighting; key
+  events on a canvas, a focusable row, and a field that walks its suggestions.
+- **Canvas, Animation, Grid, Layout.** Paths, gradients, transforms, and gestures on a
   native drawing surface, next to the layout containers. Layout includes sliders that resize
   and move one shape in place, with live dimensions and a Reset button. Animation includes 1–250 glass marbles
   with randomized launches and collisions against all four canvas edges. The native frame clock
   drives fixed-step physics; minimum/maximum/average callback FPS uses a rolling two-second window,
   excludes paused intervals, and starts fresh on each bounce, count change, or Reset. Marbles move
   independently (no inter-ball collisions), and frame requests stop when they settle.
-- **List, Tree, Tabs, Stack, Refresh.** The native recycling list and outline, tab and stack
-  navigation, a fullscreen cover and a half sheet, and pull to refresh.
+- **List, Feeds, Tree, Tabs, Pager, Stack, Refresh.** The native recycling list and outline, a
+  timeline that follows its newest entry, a list whose rows download pictures, tab, pager and
+  stack navigation, a fullscreen cover with half, large and locked sheets, and pull to refresh.
 - **Menus & dialogs, Toolbars, Settings.** The platform's own chrome, including the shared
   Settings and About surface: a Settings window and an About window on the desktop, a Settings
   section on a phone, with Day's appearance and language rows, the starred pages, and a
@@ -141,6 +143,24 @@ day launch -t macos-appkit --script dayscript/walkthrough.yaml \
 
 Captures land under `build/day/screenshots/<target>/<variant>/`. The other flows in `dayscript/`
 exercise window management, the clipboard round trip, and crash reporting.
+
+### Fixture mode
+
+The Images, Feeds, Pager, Stack, Gestures and Styles pages download pictures from NASA's Image
+and Video Library, and the Media page streams a NASA video, so what a scripted run captures
+depends on the network. Fixture mode serves them from copies bundled in `resource/assets/nasa/`:
+
+```sh
+day launch -t macos-appkit --env SHOWCASE_FIXTURES=1 --script dayscript/walkthrough.yaml
+```
+
+With `SHOWCASE_FIXTURES=1`, the app answers every request for a library picture with its bundled
+copy, whatever size it asks for, and the Media page plays a six-second clip of its video from the
+bundle. The walkthrough's steps gated `only_on: [env:SHOWCASE_FIXTURES]` then check that a
+download arrives and decodes and that the clip loads and pauses. `--env` reaches the app on every
+target; on the web, `day launch` passes it in the page address. Without the variable, the app
+loads the pictures and the video from the network. `resource/assets/nasa/README.md` lists the
+source and credit of each file.
 
 To build against a local `day` checkout instead of the pinned git revision, let the CLI write and
 verify the patch table. [Developing Day and an app together](https://daybrite.dev/docs/local-development)

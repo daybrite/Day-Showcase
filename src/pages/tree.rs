@@ -296,103 +296,111 @@ pub(crate) fn tree_page() -> AnyPiece {
 
     scroll(
         column((
-            row((
-                heading(crate::res::str::nav_tree(), day::id!(tree_title)),
-                spacer(),
-                button(crate::res::str::tree_add_file())
-                    .prominent()
-                    .action(add_into)
-                    .tint(crate::widgets::primary())
-                    .id(day::id!(tree_add)),
-            ))
-            .spacing(Space::S),
-            label(crate::res::str::tree_caption())
-                .font(Font::Footnote)
-                .id(day::id!(tree_caption)),
-            row((
-                button(crate::res::str::tree_expand_all())
-                    .bordered()
-                    .action(move || open.set(folder_ids()))
-                    .id(day::id!(tree_expand_all)),
-                button(crate::res::str::tree_collapse_all())
-                    .bordered()
-                    .action(move || open.set(std::collections::HashSet::new()))
-                    .id(day::id!(tree_collapse_all)),
-                button(crate::res::str::tree_reveal())
-                    .bordered()
-                    // Two collapsed ancestors sit above the target: reveal expands them through
-                    // the same app-owned signal the chevrons write, then scrolls.
-                    .action(move || reveal.set(Some(REVEAL_TARGET)))
-                    .id(day::id!(tree_reveal)),
+            heading(crate::res::str::nav_tree(), day::id!(tree_title)),
+            // The controls that drive the outline, as one card over the tree.
+            column((
+                row((
+                    button(crate::res::str::tree_add_file())
+                        .prominent()
+                        .action(add_into)
+                        .tint(crate::widgets::primary())
+                        .id(day::id!(tree_add)),
+                    button(crate::res::str::tree_expand_all())
+                        .bordered()
+                        .action(move || open.set(folder_ids()))
+                        .id(day::id!(tree_expand_all)),
+                    button(crate::res::str::tree_collapse_all())
+                        .bordered()
+                        .action(move || open.set(std::collections::HashSet::new()))
+                        .id(day::id!(tree_collapse_all)),
+                    button(crate::res::str::tree_reveal())
+                        .bordered()
+                        // Two collapsed ancestors sit above the target: reveal expands them through
+                        // the same app-owned signal the chevrons write, then scrolls.
+                        .action(move || reveal.set(Some(REVEAL_TARGET)))
+                        .id(day::id!(tree_reveal)),
+                ))
+                .spacing(Space::S)
+                .fit(RowFit::Wrap { run_spacing: 8.0 }),
+                row((
+                    labeled(
+                        crate::res::str::tree_multi(),
+                        toggle(multi).id(day::id!(tree_multi)),
+                    ),
+                    labeled(
+                        crate::res::str::tree_lock(),
+                        toggle(locked).id(day::id!(tree_lock)),
+                    ),
+                ))
+                .spacing(Space::L)
+                .fit(RowFit::Wrap { run_spacing: 8.0 }),
+                label(crate::res::str::tree_hint())
+                    .font(Font::Footnote)
+                    .secondary()
+                    .id(day::id!(tree_hint)),
             ))
             .spacing(Space::S)
-            .fit(RowFit::Wrap { run_spacing: 8.0 }),
-            row((
-                labeled(
-                    crate::res::str::tree_multi(),
-                    toggle(multi).id(day::id!(tree_multi)),
-                ),
-                labeled(
-                    crate::res::str::tree_lock(),
-                    toggle(locked).id(day::id!(tree_lock)),
-                ),
-            ))
-            .spacing(Space::L)
-            .fit(RowFit::Wrap { run_spacing: 8.0 }),
-            label(crate::res::str::tree_hint())
-                .font(Font::Footnote)
-                .id(day::id!(tree_hint)),
+            .align(HAlign::Leading)
+            .grow(Dimension::Width)
+            .card(),
             when(move || multi.get(), move || build_tree(true))
                 .otherwise(move || build_tree(false)),
-            label(move || crate::res::str::tree_count(nodes.get().len() as i64).format())
-                .font(Font::Footnote)
-                .tabular()
-                .id(day::id!(tree_count)),
-            label(move || {
-                let sel = selection.get();
-                if sel.is_empty() {
-                    crate::res::str::tree_selection_none().format()
-                } else {
-                    let names: Vec<String> = sel.iter().map(|id| name_of(*id)).collect();
-                    crate::res::str::tree_selection(crate::res::str::TreeSelection {
-                        count: sel.len() as i64,
-                        names: names.join(", "),
-                    })
-                    .format()
-                }
-            })
-            .font(Font::Footnote)
-            .id(day::id!(tree_selection)),
-            label(move || match last_move.get() {
-                None => crate::res::str::tree_move_none().format(),
-                Some((id, parent, index)) => {
-                    let target = match parent {
-                        Some(p) => name_of(p),
-                        None => crate::res::str::tree_root().format(),
-                    };
-                    match index {
-                        Some(i) => crate::res::str::tree_move(crate::res::str::TreeMove {
-                            name: name_of(id),
-                            parent: target,
-                            index: i as i64,
+            // The readouts side by side where there is room, wrapping where there is not.
+            row((
+                label(move || crate::res::str::tree_count(nodes.get().len() as i64).format())
+                    .font(Font::Footnote)
+                    .tabular()
+                    .id(day::id!(tree_count)),
+                label(move || {
+                    let sel = selection.get();
+                    if sel.is_empty() {
+                        crate::res::str::tree_selection_none().format()
+                    } else {
+                        let names: Vec<String> = sel.iter().map(|id| name_of(*id)).collect();
+                        crate::res::str::tree_selection(crate::res::str::TreeSelection {
+                            count: sel.len() as i64,
+                            names: names.join(", "),
                         })
-                        .format(),
-                        None => {
-                            crate::res::str::tree_move_append(crate::res::str::TreeMoveAppend {
+                        .format()
+                    }
+                })
+                .font(Font::Footnote)
+                .secondary()
+                .id(day::id!(tree_selection)),
+                label(move || match last_move.get() {
+                    None => crate::res::str::tree_move_none().format(),
+                    Some((id, parent, index)) => {
+                        let target = match parent {
+                            Some(p) => name_of(p),
+                            None => crate::res::str::tree_root().format(),
+                        };
+                        match index {
+                            Some(i) => crate::res::str::tree_move(crate::res::str::TreeMove {
                                 name: name_of(id),
                                 parent: target,
+                                index: i as i64,
                             })
-                            .format()
+                            .format(),
+                            None => {
+                                crate::res::str::tree_move_append(crate::res::str::TreeMoveAppend {
+                                    name: name_of(id),
+                                    parent: target,
+                                })
+                                .format()
+                            }
                         }
                     }
-                }
-            })
-            .font(Font::Footnote)
-            .id(day::id!(tree_last_move)),
+                })
+                .font(Font::Footnote)
+                .secondary()
+                .id(day::id!(tree_last_move)),
+            ))
+            .spacing(Space::L)
+            .fit(RowFit::Wrap { run_spacing: 4.0 }),
         ))
-        .spacing(10.0)
+        .spacing(Space::M)
         .align(HAlign::Leading)
-        .padding(Space::L),
+        .padding(20.0),
     )
     .any()
 }

@@ -1,41 +1,96 @@
 use day::prelude::*;
 
-use crate::widgets::{battery_line, page};
+use crate::widgets::battery_line;
 
-/// Device & sensors (docs/battery.md, docs/sensors.md, docs/network.md): every headless
-/// device-state part in one grouped form: the battery visualization with preview controls,
-/// the connectivity snapshot, the motion sensors, and the device identity. Each group is a
-/// form `section`; the readout rows are `labeled`, so their labels align form-wide.
+/// Device & sensors (docs/battery.md, docs/sensors.md, docs/location.md): what the window's
+/// environment reports, then every headless device-state part as a card: the motion sensors,
+/// the location fix, the device identity, and the battery drawing with its preview controls.
 pub(crate) fn system_page() -> AnyPiece {
-    page(
+    crate::widgets::page_cards(
         crate::res::str::nav_system(),
         day::id!(system_title),
-        form((
-            sensors_section(),
-            sensor_section(
-                day_part_sensors::SensorKind::Magnetometer,
-                crate::res::str::sensor_magnetometer(),
-                crate::res::str::sensor_unit_magnetic,
-                day::id!(sensor_magnet),
-            ),
-            sensor_section(
-                day_part_sensors::SensorKind::Accelerometer,
-                crate::res::str::sensor_accelerometer(),
-                crate::res::str::sensor_unit_acceleration,
-                day::id!(sensor_accel),
-            ),
-            sensor_section(
-                day_part_sensors::SensorKind::Gyroscope,
-                crate::res::str::sensor_gyroscope(),
-                crate::res::str::sensor_unit_rotation,
-                day::id!(sensor_gyro),
-            ),
-            location_section(),
-            device_section(),
-            battery_section(),
-        ))
+        crate::gallery::balanced(
+            2,
+            vec![
+                environment_section().any(),
+                sensors_section().any(),
+                sensor_section(
+                    day_part_sensors::SensorKind::Magnetometer,
+                    crate::res::str::sensor_magnetometer(),
+                    crate::res::str::sensor_unit_magnetic,
+                    day::id!(sensor_magnet),
+                )
+                .any(),
+                sensor_section(
+                    day_part_sensors::SensorKind::Accelerometer,
+                    crate::res::str::sensor_accelerometer(),
+                    crate::res::str::sensor_unit_acceleration,
+                    day::id!(sensor_accel),
+                )
+                .any(),
+                sensor_section(
+                    day_part_sensors::SensorKind::Gyroscope,
+                    crate::res::str::sensor_gyroscope(),
+                    crate::res::str::sensor_unit_rotation,
+                    day::id!(sensor_gyro),
+                )
+                .any(),
+                location_section().any(),
+                device_section().any(),
+                battery_section().any(),
+            ],
+        )
         .any(),
     )
+    .any()
+}
+
+/// What the window's environment reports, live (docs/size-classes.md, docs/accessibility.md):
+/// the appearance, the size class and the reduce-motion setting. Each readout is a tracked
+/// read, so it follows a theme switch, a window dragged across a breakpoint and the system
+/// setting without a refresh.
+fn environment_section() -> AnyPiece {
+    let class = |name: fn(SizeClass) -> String| {
+        move || day::size_class().map_or_else(|| crate::res::str::location_unknown().format(), name)
+    };
+    crate::gallery::panel(
+        crate::res::str::env_title(),
+        (
+            labeled(
+                crate::res::str::toolbar_appearance_label(),
+                label(|| {
+                    if day::dark_mode() {
+                        crate::res::str::cmd_appearance_dark().format()
+                    } else {
+                        crate::res::str::cmd_appearance_light().format()
+                    }
+                })
+                .id(day::id!(env_appearance)),
+            ),
+            // The class names are the API's (`WidthClass::Expanded`), which a script can assert
+            // in every locale.
+            labeled(
+                crate::res::str::env_width_class(),
+                label(class(|size| format!("{:?}", size.width))).id(day::id!(env_width)),
+            ),
+            labeled(
+                crate::res::str::env_height_class(),
+                label(class(|size| format!("{:?}", size.height))).id(day::id!(env_height)),
+            ),
+            labeled(
+                crate::res::str::env_reduce_motion(),
+                label(|| {
+                    if day::reduce_motion() {
+                        crate::res::str::env_on().format()
+                    } else {
+                        crate::res::str::env_off().format()
+                    }
+                })
+                .id(day::id!(env_motion)),
+            ),
+        ),
+    )
+    .id(day::id!(env_card))
     .any()
 }
 
@@ -50,61 +105,65 @@ fn battery_section() -> impl Piece {
     );
     let charging = Signal::new(status.map(|b| b.is_charging()).unwrap_or(false));
     let reading = Signal::new(battery_line().format());
-    section((
-        crate::widgets::support_note(crate::support::battery()),
-        // Centred: the drawing is a fixed 260x120 box, so on any window wider than that it
-        // would otherwise sit against the leading edge with a growing gap beside it. The column
-        // takes the full width (`grow_w`) and centers its one child inside it.
-        column((battery_view(level, charging),))
-            .align(HAlign::Center)
-            .grow(Dimension::Width),
-        labeled(
-            crate::res::str::battery_level(),
+    crate::gallery::panel(
+        crate::res::str::nav_battery(),
+        (
+            crate::widgets::support_banner(crate::support::battery()),
+            // Centred: the drawing is a fixed 260x120 box, so on any window wider than that it
+            // would otherwise sit against the leading edge with a growing gap beside it. The column
+            // takes the full width (`grow_w`) and centers its one child inside it.
+            column((battery_view(level, charging),))
+                .align(HAlign::Center)
+                .grow(Dimension::Width),
+            labeled(
+                crate::res::str::battery_level(),
+                row((
+                    slider(level).range(0.0..=100.0).id(day::id!(battery_level)),
+                    label(move || format!("{:.0}%", level.get()))
+                        .tabular()
+                        .id(day::id!(battery_level_value)),
+                ))
+                .spacing(Space::S),
+            ),
+            labeled(
+                crate::res::str::battery_charging(),
+                toggle(charging).id(day::id!(battery_charging)),
+            ),
             row((
-                slider(level).range(0.0..=100.0).id(day::id!(battery_level)),
-                label(move || format!("{:.0}%", level.get()))
-                    .tabular()
-                    .id(day::id!(battery_level_value)),
+                button(crate::res::str::battery_refresh())
+                    .action(move || {
+                        reading.set(battery_line().format());
+                        if let Some(b) = day_part_device::battery::status() {
+                            if let Some(p) = b.percent() {
+                                level.set(f64::from(p));
+                            }
+                            charging.set(b.is_charging());
+                        }
+                    })
+                    .tint(crate::widgets::primary())
+                    .id(day::id!(battery_refresh)),
+                label(move || reading.get()).id(day::id!(battery_reading)),
             ))
             .spacing(Space::S),
         ),
-        labeled(
-            crate::res::str::battery_charging(),
-            toggle(charging).id(day::id!(battery_charging)),
-        ),
-        row((
-            button(crate::res::str::battery_refresh())
-                .action(move || {
-                    reading.set(battery_line().format());
-                    if let Some(b) = day_part_device::battery::status() {
-                        if let Some(p) = b.percent() {
-                            level.set(f64::from(p));
-                        }
-                        charging.set(b.is_charging());
-                    }
-                })
-                .tint(crate::widgets::primary())
-                .id(day::id!(battery_refresh)),
-            label(move || reading.get()).id(day::id!(battery_reading)),
-        ))
-        .spacing(Space::S),
-    ))
-    .title(crate::res::str::nav_battery())
+    )
 }
 
 /// The sensors group's opener: the platform note and the motion permission's row. The three
 /// sensors follow as sections of their own ([`sensor_section`]), each titled by its name, so the
 /// readout has a line to itself.
 fn sensors_section() -> impl Piece {
-    section((
-        crate::widgets::support_note(crate::support::sensors()),
-        permission_row(
-            crate::res::str::sensor_permission(),
-            day_part_permissions::Permission::Motion,
-            day::id!(sensors_perm),
+    crate::gallery::panel(
+        crate::res::str::nav_sensors(),
+        (
+            crate::widgets::support_banner(crate::support::sensors()),
+            permission_row(
+                crate::res::str::sensor_permission(),
+                day_part_permissions::Permission::Motion,
+                day::id!(sensors_perm),
+            ),
         ),
-    ))
-    .title(crate::res::str::nav_sensors())
+    )
 }
 
 /// Each sensor owns a subscription: pausing drops it, resuming starts a new generation.
@@ -193,87 +252,89 @@ fn sensor_section(
     let toggle_id = day::id!(sensor_running, id.as_str());
     let calibration_id = day::id!(sensor_calibrated, id.as_str());
     let chart_id = day::id!(sensor_chart, id.as_str());
-    section((
-        labeled(
-            crate::res::str::sensor_live(),
-            toggle(running).enabled(available).id(toggle_id),
-        ),
-        when(
-            move || can_calibrate,
-            move || {
-                labeled(
-                    crate::res::str::sensor_calibrated(),
-                    toggle(calibrated).id(calibration_id.clone()),
-                )
-            },
-        ),
-        when(
-            move || available,
-            move || {
-                let (visual, hint) = match kind {
-                    day_part_sensors::SensorKind::Magnetometer => (
-                        column((compass_view(reading, calibrated),))
-                            .align(HAlign::Center)
-                            .grow(Dimension::Width)
-                            .any(),
-                        label(move || {
-                            if calibrated.get() {
-                                crate::res::str::sensor_compass_hint().format()
-                            } else {
-                                crate::res::str::sensor_uncalibrated_hint().format()
-                            }
-                        })
-                        .font(Font::Footnote)
-                        .secondary()
-                        .any(),
-                    ),
-                    day_part_sensors::SensorKind::Accelerometer => (
-                        column((acceleration_view(reading),))
-                            .align(HAlign::Center)
-                            .grow(Dimension::Width)
-                            .any(),
-                        label(crate::res::str::sensor_tilt_hint())
+    crate::gallery::panel(
+        title,
+        (
+            labeled(
+                crate::res::str::sensor_live(),
+                toggle(running).enabled(available).id(toggle_id),
+            ),
+            when(
+                move || can_calibrate,
+                move || {
+                    labeled(
+                        crate::res::str::sensor_calibrated(),
+                        toggle(calibrated).id(calibration_id.clone()),
+                    )
+                },
+            ),
+            when(
+                move || available,
+                move || {
+                    let (visual, hint) = match kind {
+                        day_part_sensors::SensorKind::Magnetometer => (
+                            column((compass_view(reading, calibrated),))
+                                .align(HAlign::Center)
+                                .grow(Dimension::Width)
+                                .any(),
+                            label(move || {
+                                if calibrated.get() {
+                                    crate::res::str::sensor_compass_hint().format()
+                                } else {
+                                    crate::res::str::sensor_uncalibrated_hint().format()
+                                }
+                            })
                             .font(Font::Footnote)
                             .secondary()
                             .any(),
-                    ),
-                    day_part_sensors::SensorKind::Gyroscope => (
-                        rotation_view(reading).any(),
-                        label(crate::res::str::sensor_rotation_hint())
-                            .font(Font::Footnote)
-                            .secondary()
-                            .any(),
-                    ),
-                };
-                column((
-                    visual,
-                    hint,
-                    strip_chart(series, chart_id.clone()),
-                    label(crate::res::str::chart_axes())
-                        .font(Font::Caption)
-                        .secondary(),
-                ))
-                .any()
-            },
-        ),
-        label(move || match reading.get() {
-            Some(r) => crate::res::str::sensor_reading(crate::res::str::SensorReading {
-                x: format!("{:+7.2}", r.x),
-                y: format!("{:+7.2}", r.y),
-                z: format!("{:+7.2}", r.z),
-                unit: unit().format(),
+                        ),
+                        day_part_sensors::SensorKind::Accelerometer => (
+                            column((acceleration_view(reading),))
+                                .align(HAlign::Center)
+                                .grow(Dimension::Width)
+                                .any(),
+                            label(crate::res::str::sensor_tilt_hint())
+                                .font(Font::Footnote)
+                                .secondary()
+                                .any(),
+                        ),
+                        day_part_sensors::SensorKind::Gyroscope => (
+                            rotation_view(reading).any(),
+                            label(crate::res::str::sensor_rotation_hint())
+                                .font(Font::Footnote)
+                                .secondary()
+                                .any(),
+                        ),
+                    };
+                    column((
+                        visual,
+                        hint,
+                        strip_chart(series, chart_id.clone()),
+                        label(crate::res::str::chart_axes())
+                            .font(Font::Caption)
+                            .secondary(),
+                    ))
+                    .any()
+                },
+            ),
+            label(move || match reading.get() {
+                Some(r) => crate::res::str::sensor_reading(crate::res::str::SensorReading {
+                    x: format!("{:+7.2}", r.x),
+                    y: format!("{:+7.2}", r.y),
+                    z: format!("{:+7.2}", r.z),
+                    unit: unit().format(),
+                })
+                .format(),
+                None if available => crate::res::str::sensor_waiting().format(),
+                None => crate::res::str::sensor_unavailable().format(),
             })
-            .format(),
-            None if available => crate::res::str::sensor_waiting().format(),
-            None => crate::res::str::sensor_unavailable().format(),
-        })
-        .monospace()
-        .tabular()
-        .font(Font::Footnote)
-        .id(id.clone())
-        .reserving(widest),
-    ))
-    .title(title)
+            .monospace()
+            .tabular()
+            .font(Font::Footnote)
+            .id(id.clone())
+            .reserving(widest),
+        ),
+    )
 }
 
 /// Angle of magnetic north relative to the device's portrait top edge. The raw x/y
@@ -342,7 +403,7 @@ fn compass_view(
                 ),
                 TextStyle {
                     size: 13.0,
-                    color: if i == 0 { crate::palette::CORAL } else { ink },
+                    color: if i == 0 { crate::palette::CORAL } else { ink }.into(),
                     anchor: TextAnchor::CENTERED,
                     ..Default::default()
                 },
@@ -497,7 +558,7 @@ fn rotation_view(reading: Signal<Option<day_part_sensors::SensorReading>>) -> im
                 Point::new(c.x, c.y + radius * 0.52),
                 TextStyle {
                     size: 12.0,
-                    color: colors[i],
+                    color: colors[i].into(),
                     anchor: TextAnchor::CENTERED,
                     ..Default::default()
                 },
@@ -693,76 +754,78 @@ fn location_section() -> impl Piece {
         held.borrow_mut().take();
     });
 
-    section((
-        permission_row(
-            crate::res::str::location_permission(),
-            day_part_permissions::Permission::Location,
-            day::id!(location_perm),
-        ),
-        labeled(
-            crate::res::str::nav_location(),
-            label(move || coords.get())
-                .selectable()
-                .id(day::id!(location_coords)),
-        ),
-        labeled(
-            crate::res::str::location_altitude(),
-            label(move || altitude.get())
-                .selectable()
-                .id(day::id!(location_altitude)),
-        ),
-        labeled(
-            crate::res::str::location_accuracy(),
-            label(move || accuracy.get())
-                .selectable()
-                .id(day::id!(location_accuracy)),
-        ),
-        button(move || {
-            if running.get() {
-                crate::res::str::location_stop().format()
-            } else {
-                crate::res::str::location_start().format()
-            }
-        })
-        .bordered()
-        .action(move || {
-            if running.get() {
-                watch.borrow_mut().take();
-                running.set(false);
-                return;
-            }
-            let (set_coords, set_alt, set_acc) =
-                (coords.setter(), altitude.setter(), accuracy.setter());
-            let handle = day_part_location::watch(Accuracy::Balanced, move |fix| match fix {
-                Ok(f) => {
-                    set_coords.set(
-                        crate::res::str::location_coords(crate::res::str::LocationCoords {
-                            lat: format!("{:.5}", f.latitude),
-                            lon: format!("{:.5}", f.longitude),
-                        })
-                        .format(),
-                    );
-                    set_alt.set(f.altitude.map_or_else(
-                        || crate::res::str::location_unknown().format(),
-                        |a| format!("{a:.0} m"),
-                    ));
-                    set_acc.set(f.accuracy_m.map_or_else(
-                        || crate::res::str::location_unknown().format(),
-                        |a| format!("±{a:.0} m"),
-                    ));
+    crate::gallery::panel(
+        crate::res::str::nav_location(),
+        (
+            permission_row(
+                crate::res::str::location_permission(),
+                day_part_permissions::Permission::Location,
+                day::id!(location_perm),
+            ),
+            labeled(
+                crate::res::str::nav_location(),
+                label(move || coords.get())
+                    .selectable()
+                    .id(day::id!(location_coords)),
+            ),
+            labeled(
+                crate::res::str::location_altitude(),
+                label(move || altitude.get())
+                    .selectable()
+                    .id(day::id!(location_altitude)),
+            ),
+            labeled(
+                crate::res::str::location_accuracy(),
+                label(move || accuracy.get())
+                    .selectable()
+                    .id(day::id!(location_accuracy)),
+            ),
+            button(move || {
+                if running.get() {
+                    crate::res::str::location_stop().format()
+                } else {
+                    crate::res::str::location_start().format()
                 }
-                // A denial is the interesting error: it is what the permission row above is for.
-                Err(LocationError::PermissionDenied) => {
-                    set_coords.set(crate::res::str::location_permission().format())
+            })
+            .bordered()
+            .action(move || {
+                if running.get() {
+                    watch.borrow_mut().take();
+                    running.set(false);
+                    return;
                 }
-                Err(e) => set_coords.set(e.to_string()),
-            });
-            *watch.borrow_mut() = Some(handle);
-            running.set(true);
-        })
-        .id(day::id!(location_toggle)),
-    ))
-    .title(crate::res::str::nav_location())
+                let (set_coords, set_alt, set_acc) =
+                    (coords.setter(), altitude.setter(), accuracy.setter());
+                let handle = day_part_location::watch(Accuracy::Balanced, move |fix| match fix {
+                    Ok(f) => {
+                        set_coords.set(
+                            crate::res::str::location_coords(crate::res::str::LocationCoords {
+                                lat: format!("{:.5}", f.latitude),
+                                lon: format!("{:.5}", f.longitude),
+                            })
+                            .format(),
+                        );
+                        set_alt.set(f.altitude.map_or_else(
+                            || crate::res::str::location_unknown().format(),
+                            |a| format!("{a:.0} m"),
+                        ));
+                        set_acc.set(f.accuracy_m.map_or_else(
+                            || crate::res::str::location_unknown().format(),
+                            |a| format!("±{a:.0} m"),
+                        ));
+                    }
+                    // A denial is the interesting error: it is what the permission row above is for.
+                    Err(LocationError::PermissionDenied) => {
+                        set_coords.set(crate::res::str::location_permission().format())
+                    }
+                    Err(e) => set_coords.set(e.to_string()),
+                });
+                *watch.borrow_mut() = Some(handle);
+                running.set(true);
+            })
+            .id(day::id!(location_toggle)),
+        ),
+    )
 }
 
 fn device_section() -> impl Piece {
@@ -771,27 +834,29 @@ fn device_section() -> impl Piece {
     let model = Signal::new(m);
     let system = Signal::new(s);
     let simulator = Signal::new(sim);
-    section((
-        label(move || model.get())
-            .selectable()
-            .id(day::id!(deviceinfo_model)),
-        label(move || system.get())
-            .selectable()
-            .id(day::id!(deviceinfo_system)),
-        label(move || simulator.get())
-            .selectable()
-            .id(day::id!(deviceinfo_simulator)),
-        button(crate::res::str::deviceinfo_refresh())
-            .bordered()
-            .action(move || {
-                let (m, s, sim) = deviceinfo_lines();
-                model.set(m);
-                system.set(s);
-                simulator.set(sim);
-            })
-            .id(day::id!(deviceinfo_refresh)),
-    ))
-    .title(crate::res::str::nav_deviceinfo())
+    crate::gallery::panel(
+        crate::res::str::nav_deviceinfo(),
+        (
+            label(move || model.get())
+                .selectable()
+                .id(day::id!(deviceinfo_model)),
+            label(move || system.get())
+                .selectable()
+                .id(day::id!(deviceinfo_system)),
+            label(move || simulator.get())
+                .selectable()
+                .id(day::id!(deviceinfo_simulator)),
+            button(crate::res::str::deviceinfo_refresh())
+                .bordered()
+                .action(move || {
+                    let (m, s, sim) = deviceinfo_lines();
+                    model.set(m);
+                    system.set(s);
+                    simulator.set(sim);
+                })
+                .id(day::id!(deviceinfo_refresh)),
+        ),
+    )
 }
 
 /// Draw a battery on a canvas: rounded body + terminal nub, a level fill colored by band
@@ -890,7 +955,7 @@ fn battery_view(level: Signal<f64>, charging: Signal<bool>) -> impl Piece {
             Point::new(size.width / 2.0, size.height - caption_h / 2.0),
             TextStyle {
                 size: 16.0,
-                color: band,
+                color: band.into(),
                 anchor: TextAnchor::CENTERED,
                 ..Default::default()
             },

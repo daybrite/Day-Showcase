@@ -17,7 +17,6 @@
 //! backend, and the page only shares a [`MapView`] with it.
 
 use day::prelude::*;
-use day_part_http::{Session, simulation::Simulation};
 use day_part_location::{Accuracy, LocationError};
 use day_part_permissions::{self as perms, Permission};
 use day_piece_map::{LngLat, MapStatus, MapView, Marker, MarkerId};
@@ -119,18 +118,12 @@ impl Sight {
     }
 }
 
-/// Answer the sample's URLs in-process for the whole app. The HTTP session holds one simulation,
-/// and nothing else in the app installs one on the global session (the Network page runs its
-/// own session), so this one is the app's. Not strict: every other URL, the live styles' among
+/// Answer the sample's URLs in-process for the whole app, through the app's one simulation on
+/// the global HTTP session ([`crate::http_simulation`]). Every other URL, the live styles' among
 /// them, still reaches the network.
 fn install_sample() {
     static ONCE: std::sync::Once = std::sync::Once::new();
-    ONCE.call_once(|| {
-        let sim = Simulation::new();
-        sim.set_strict(false);
-        sample::routes(&sim);
-        Session::global().set_simulation(Some(sim));
-    });
+    ONCE.call_once(|| sample::routes(&crate::http_simulation()));
 }
 
 /// A coordinate to four places, without the `-0.0000` a value a hair below zero would print.
@@ -414,7 +407,7 @@ pub(crate) fn map_page() -> AnyPiece {
         tap,
         note,
     ))
-    .spacing(8.0)
+    .spacing(Space::M)
     .padding(20.0)
     .grow(Dimension::Both)
     .any()

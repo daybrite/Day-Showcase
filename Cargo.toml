@@ -47,7 +47,7 @@ crate-type = ["rlib"]
 day-build = "0.*"
 
 [dependencies]
-day = { package = "day-app", version = "0.*", features = ["model"] }
+day = { package = "day-app", version = "0.*", features = ["model", "http-image"] }
 # The Content List page persists its items as one JSON blob in `day::prefs`, exactly as the
 # scaffold it copies does (src/pages/content_list/model.rs).
 serde = { version = "1", features = ["derive"] }

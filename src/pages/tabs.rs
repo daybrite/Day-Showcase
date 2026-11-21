@@ -1,4 +1,3 @@
-use crate::composition::Card;
 use day::prelude::*;
 
 day::routes! {
@@ -15,20 +14,16 @@ day::routes! {
 pub(crate) fn tabs_page() -> AnyPiece {
     fn pane<P1: Piece>(
         title: LocalizedText,
-        body: LocalizedText,
         content_id: day::ElementId,
         extra: P1,
     ) -> impl Piece + use<P1> {
         // Scrolled, so a phone in landscape (a Compact height) still reaches every row.
         scroll(
-            column((
-                label(title).font(Font::Title),
-                label(body).id(content_id),
-                extra,
-            ))
-            .spacing(Space::M)
-            .align(HAlign::Leading)
-            .padding(20.0),
+            column((label(title).font(Font::Title2).bold().id(content_id), extra))
+                .spacing(Space::L)
+                .align(HAlign::Leading)
+                .max_width(crate::widgets::CONTENT_MAX_WIDTH)
+                .padding(20.0),
         )
     }
     let tab = Signal::new(Tab::One);
@@ -51,7 +46,6 @@ pub(crate) fn tabs_page() -> AnyPiece {
                 .page(move || {
                     pane(
                         crate::res::str::tab_one(),
-                        crate::res::str::tab_one_body(),
                         day::id!(tab_one_content),
                         overview_extra(clicks),
                     )
@@ -61,7 +55,6 @@ pub(crate) fn tabs_page() -> AnyPiece {
                 .page(|| {
                     pane(
                         crate::res::str::tab_two(),
-                        crate::res::str::tab_two_body(),
                         day::id!(tab_two_content),
                         // The data-driven tab demo lives inside this pane, two nested tab
                         // views: the outer typed tabs, and a dynamic string-keyed set within
@@ -77,7 +70,6 @@ pub(crate) fn tabs_page() -> AnyPiece {
                 .page(move || {
                     pane(
                         crate::res::str::tab_three(),
-                        crate::res::str::tab_three_body(),
                         day::id!(tab_three_content),
                         settings_extra(badges, sounds),
                     )
@@ -126,7 +118,7 @@ fn dynamic_tabs_demo() -> impl Piece {
                 |k: &String| item(k.clone(), k.clone()),
             ))
             .destination(|k: &String| {
-                label(format!("Tab: {k}"))
+                label(k.clone())
                     .id(day::id!(dyn_tab_content))
                     .padding(Space::L)
                     .any()
@@ -136,7 +128,9 @@ fn dynamic_tabs_demo() -> impl Piece {
     .spacing(Space::S)
     .align(HAlign::Leading)
     .padding(Space::L)
-    .frame(560.0, 220.0)
+    .grow(Dimension::Width)
+    .max_width(560.0)
+    .height(220.0)
 }
 
 /// Overview: a counter whose signal outlives the pane: count a few clicks, switch tabs, and
@@ -154,17 +148,20 @@ fn overview_extra(clicks: Signal<i64>) -> impl Piece {
                 .action(move || clicks.update(|c| *c += 1))
                 .id(day::id!(tab_one_inc)),
         ))
-        .spacing(Space::S),
-        label(crate::res::str::tab_state_note()).font(Font::Footnote),
+        .spacing(Space::S)
+        .align(VAlign::Center),
+        crate::gallery::note(crate::res::str::tab_state_note()),
     ))
     .spacing(Space::M)
     .align(HAlign::Leading)
+    .grow(Dimension::Width)
+    .card()
 }
 
 /// Details: the addressing facts for this tab, as a quiet card. The values are route keys
 /// (data, not prose), so they stay raw.
 fn details_extra() -> impl Piece {
-    column((
+    crate::gallery::plain((
         labeled(
             crate::res::str::tab_detail_route(),
             label("two").font(Font::Callout),
@@ -174,14 +171,11 @@ fn details_extra() -> impl Piece {
             label("tabs/two").font(Font::Callout),
         ),
     ))
-    .spacing(Space::S)
-    .align(HAlign::Leading)
-    .modifier(Card)
 }
 
 /// Settings: two toggles bound to page-scope signals. Flip one, tour the other tabs, return.
 fn settings_extra(badges: Signal<bool>, sounds: Signal<bool>) -> impl Piece {
-    column((
+    crate::gallery::plain((
         labeled(
             crate::res::str::tab_set_badges(),
             toggle(badges).id(day::id!(tab_set_badges)),
@@ -190,8 +184,5 @@ fn settings_extra(badges: Signal<bool>, sounds: Signal<bool>) -> impl Piece {
             crate::res::str::tab_set_sounds(),
             toggle(sounds).id(day::id!(tab_set_sounds)),
         ),
-        label(crate::res::str::tab_state_note()).font(Font::Footnote),
     ))
-    .spacing(Space::S)
-    .align(HAlign::Leading)
 }

@@ -18,6 +18,7 @@ ctl_tinted = Tinted
 ctl_destructive = Destructive
 ctl_disabled = Disabled
 ctl_link = Link
+ctl_composed = Composed
 ctl_link_text = daybrite.dev
 ctl_presses = Presses
 ctl_switches = Switches & sliders
@@ -53,7 +54,6 @@ ctl_divider = Divider
 ctl_state = State
 ctl_on = On
 ctl_off = Off
-ctl_crates_note = These controls are provided by Day core; the badge is composed locally in Showcase.
 nav_menus = Menus & dialogs
 nav_text = Text
 nav_battery = Battery
@@ -96,11 +96,6 @@ group_graphics = Graphics & media
 group_platform = Platform
 group_app = App & tooling
 
-shapes_kinds = Kinds
-gradients_title = Gradients
-gradient_angle = Angle
-shapes_angle = Angle
-
 picker_selected = Selected
 picker_segmented = Segmented
 picker_menu = Menu
@@ -119,12 +114,11 @@ date_bounded = Within 2026
 date_picked = Picked date
 time_picked = Picked time
 
-compose_caption = Pure-composition pieces — no native code, no cargo features, every backend for free.
 compose_card_title = Reusable surface
-compose_card_body = Padding + background + rounded corners, applied as a Modifier.
+compose_card_body = Padding, a background and rounded corners.
 compose_env_value = Tinted by the provided accent
 list_add = Add 100
-list_caption = { $count } rows — only the visible cells are built
+list_caption = { $count } rows
 list_selection_none = No rows selected
 list_selection = { $count ->
     [one] Selected row: { $rows }
@@ -158,16 +152,29 @@ list_opt_editing = Editing mode
 list_opt_reorder = Drag to reorder
 list_opt_swipe = Swipe actions
 list_opt_delete = Swipe to delete
-list_opt_gestures_footer = With section headers, rows drag within their own section, and swipe to delete is off, since deleting a section's last row would remove its header.
+list_opt_gestures_footer = With section headers, rows drag within their section and swipe to delete is off.
 list_section = Rows { $first }–{ $last }
 list_row_note = A second line of detail for this row
 list_row_note_long = Rows sized by their content grow to fit longer text, like this third line, which wraps in a narrow window.
 list_swipe_select = Select
 list_swipe_deselect = Deselect
+list_align = Jumps land
+list_align_nearest = Nearest
+list_align_start = Top
+list_align_center = Middle
+list_align_end = Bottom
+list_insert = Insert
+list_remove = Remove
+list_remove_all = Remove all
+list_footer = End of the list: { $count } rows
+list_empty = No rows. Reset brings them back.
+list_visible = In view: { $first }–{ $last }
+list_visible_first = In view from { $first }
+list_visible_none = No rows in view
 
 nav_model = Model
-model_caption = { $count } rows shown — the list is driven straight by the store
-model_cost = observing { $paths } paths · { $nodes } interned nodes — flat while you scroll
+model_caption = { $count } rows shown
+model_cost = { $paths } observed paths · { $nodes } interned nodes
 model_hide_done = Hide done
 model_selected = Selected: { $title }
 model_selected_none = Nothing selected
@@ -175,8 +182,8 @@ model_add = Add Task
 model_delete = Delete Selected
 model_undo = Undo
 model_redo = Redo
-model_storage_file = Rows live in { $file } — each edit folds to SQL at the turn's end
-model_storage_memory = Rows live in memory on this target
+model_storage_file = Stored in { $file }
+model_storage_memory = Stored in memory on this platform
 nav_query = Query
 query_caption = { $count } of { $total } tracks match
 query_resident = { $resident } of { $total } rows cached by the database worker
@@ -197,29 +204,23 @@ webview_reload = Reload
 webview_js_hint = JavaScript to run in the page
 webview_js_run = Run JS »
 webview_js_result_hint = The JSON result appears here
-webview_note_iframe = This platform embeds the page in an iframe. The browser blocks cross-origin history and URL readback, so Back, Forward and Stop are unavailable and the field above will not follow links opened inside the page.
+webview_note_iframe = This platform embeds the page in an iframe, so Back, Forward and Stop are unavailable and the field does not follow links.
 webview_tab_remote = Remote
 webview_tab_embedded = Embedded
-webview_embedded_caption = A complete site — pages, stylesheet, script, image — ships inside the app under resource/assets/web/minisite/ and loads with no network. Relative links stay in the site; external links open outside; day-showcase:// links are intercepted and navigate this app.
 webview_embedded_unsupported = No web engine is available in this toolkit build.
 webview_embedded_status_none = No external link followed yet.
 webview_embedded_opened = Opened outside the app: { $url }
 webview_embedded_intercepted = Intercepted — navigated in-app to "{ $route }".
 
-stack_root_body = A real push/pop stack. Its path is an app-owned signal.
 stack_push = Push a detail
 stack_detail_title = Level { $depth }
-stack_detail_body = Pushed onto the path. The native back button writes the pop back.
 stack_item_title = Item { $id }
-stack_link_42 = Open item-42 with a hint (absolute route)
+stack_link_42 = Open item 42 by route
 stack_param_hint = Opened with hint: {$hint}
 tab_one = Overview
 tab_two = Details
 tab_three = Settings
-tab_one_body = The overview tab. Each tab keeps its own state.
-tab_two_body = The details tab, selected by its route key.
-tab_three_body = The settings tab. Deep links and dayscript select tabs by key.
-tab_state_note = Switch tabs and back — this tab's state survives.
+tab_state_note = Switch tabs and come back: the count is still here.
 tab_detail_route = Route key
 tab_detail_link = Deep link
 tab_set_badges = Show badges
@@ -244,7 +245,6 @@ vanilla = vanilla
 pistachio = pistachio
 
 # Files playground (docs/files.md)
-files_caption = Native open/save file pickers. Open reads a text file into the editor; Save writes it back out.
 files_placeholder = Type something to save…
 files_open = Open File…
 files_save = Save File…
@@ -267,7 +267,6 @@ sensor_waiting = waiting for first sample…
 sensor_unavailable = unavailable on this device
 
 # Clipboard playground (docs/clipboard.md)
-clipboard_caption = The day-part-clipboard part reads and writes the system clipboard natively.
 clipboard_placeholder = Type something to copy
 clipboard_copy = Copy
 clipboard_paste = Paste
@@ -275,13 +274,13 @@ clipboard_idle = Clipboard untouched
 clipboard_copied = Copied to the system clipboard
 clipboard_copy_failed = Copy failed (no clipboard API here)
 clipboard_pasted = Pasted from the system clipboard
-clipboard_empty = Clipboard is empty (or unreadable in the background)
+clipboard_empty = Clipboard is empty or unreadable
 
 # Network playground (docs/network.md)
 network_refresh = Read Network
 network_reading_online = Online · { $kind } · metered: { $expensive }
 network_reading_offline = Offline
-network_reading_none = Connectivity unavailable (no platform API, or the reading failed)
+network_reading_none = Connectivity unavailable
 
 # Media playground (docs/media.md)
 media_play = Play
@@ -292,7 +291,7 @@ media_load = Load
 #     collation) ---
 nav_localization = Localization
 loc_locale_section = Live locale
-loc_live_note = The locale is a signal — switching re-renders every string instantly. Layout direction is fixed at launch (launch with ar for the mirrored UI).
+loc_live_note = Layout direction is fixed at launch.
 loc_current_label = Current
 loc_reset = Reset
 loc_numbers_section = Numbers
@@ -322,23 +321,19 @@ plural_items = { $count ->
 text_selectable_toggle = Selectable
 text_styles_header = Styles
 text_weights_header = Weights
-text_styling_header = Bold & italic
-text_colors_header = Color
+text_styling_header = Bold, italic and color
 text_custom_header = Custom sizes
-text_custom_note = Font.System(pt) — still scaled by the accessibility text size (Dynamic Type / font scale).
 text_fonts_header = Bundled fonts
-text_fonts_note = Font.Custom("Family", pt) — files from the app's resource/fonts/ directory, bundled by day build and resolved by family name on every platform.
 
 # Menus playground
 menus_last = Last action
 menus_lifecycle = Lifecycle
-menus_target = Right-click here (long-press on mobile) for a context menu
-menus_shortcut_hint = Keyboard shortcuts (⌘/Ctrl + key) are shown in the menu bar and work while the app is focused — e.g. New (N), Save (S), Reload (R), Save As (⇧/Shift + S).
+menus_target = Right-click or long-press here
 
 # --- day-part-haptics ---
 nav_haptics = Haptics
-haptics_supported_yes = Haptic engine available on this platform
-haptics_supported_no = No haptic engine on this platform (buttons are silent)
+haptics_supported_yes = Haptic engine available
+haptics_supported_no = No haptic engine on this platform
 haptics_light = Light
 haptics_medium = Medium
 haptics_heavy = Heavy
@@ -358,7 +353,7 @@ sound_error = Error
 sound_glass = Glass
 sound_card = Card
 sound_jingle = Jingle
-sound_pan_caption = The same clip placed left, center, and right.
+sound_pan_caption = Stereo pan
 sound_left = Left
 sound_center = Center
 sound_right = Right
@@ -366,7 +361,6 @@ sound_volume = Volume
 sound_last = Last played
 sound_none = Nothing played yet
 sound_last_played = Played: { $clip }
-sound_loop_caption = A clip that repeats until it is stopped.
 sound_loop = Loop a hum
 sound_loop_volume = Loop volume
 sound_looping = Looping
@@ -375,27 +369,15 @@ sound_looping_clip = Looping: { $clip }
 
 # --- day-part-preferences ---
 nav_prefs = Preferences
-prefs_caption = Persist a string across launches with day-part-preferences.
-prefs_placeholder = Value to remember
-prefs_save = Save
-prefs_load = Load
-prefs_clear = Clear
-prefs_idle = Type a value, then Save.
+prefs_placeholder = A note to remember
 prefs_empty = (nothing stored)
-prefs_saved = Saved.
-prefs_save_failed = Save failed.
-prefs_loaded = Loaded from storage.
-prefs_missing = Nothing stored yet.
-prefs_cleared = Cleared.
-prefs_value_label = Stored value:
+prefs_value_label = Stored value
 
 # --- bundled resources (§18.3) ---
 nav_resources = Resources
 vectors_title = Vectors
-vectors_note = The sidebar's glyphs, drawn from resource/vectors/ — one SVG per icon, resolution-independent on every backend.
 vectors_tints = Tints
 vectors_zoom = Zoom
-vectors_scene_note = One 240-path SVG, redrawn from the vector at every zoom step rather than magnified — the edges stay crisp at any size. On Android it ships as a VectorDrawable, not a raster.
 vectors_weights = Weights
 vectors_sizes = Sizes
 resources_numbers = numbers.bin: { $len } bytes, byte[100] = { $byte }
@@ -423,27 +405,26 @@ nav_tweaks = Tweaks
 tweaks_stock = Stock
 tweaks_tweaked = Tweaked
 tweaks_bezel_title = Button bezel
-tweaks_bezel_caption = day-tweak-button-bezel — AppKit only: NSBezelStyle constants on the real NSButton.
+tweaks_bezel_caption = AppKit only
 tweaks_selectable_title = Selectable label
-tweaks_selectable_caption = The .selectable() core modifier — the platform's own text selection on a label, opt-in, wherever the toolkit supports it.
-tweaks_selectable_text = This label's text can be selected and copied — try it.
+tweaks_selectable_text = Select this text and copy it.
 tweaks_tooltip_title = Tooltip
-tweaks_tooltip_caption = day-tweak-tooltip — AppKit, GTK, Android: a native help tooltip, one modifier across three access tiers.
+tweaks_tooltip_caption = AppKit, GTK and Android. Hover or long-press the button.
 tweaks_tooltip_label = Auto-save
-tweaks_tooltip_hint = Your work is saved automatically. Hover (or long-press on Android) for details.
+tweaks_tooltip_hint = Your work is saved automatically.
 tweaks_ticks_title = Slider tick marks
-tweaks_ticks_caption = day-tweak-slider-tick-marks — AppKit, GTK, Android, Qt, XAML, ArkUI: native ticks, snapping where the platform supports it. The tweaked slider snaps; the stock one glides.
+tweaks_ticks_caption = AppKit, GTK, Android, Qt, XAML and ArkUI. The tweaked slider snaps to its marks.
 tweaks_ref_title = NativeRef liveness
-tweaks_ref_caption = A NativeRef reaches the tweaked slider after mount; unmount it and the ref clears instead of dangling.
+tweaks_ref_caption = Mount the slider
 tweaks_ref_live = ref: live
 tweaks_ref_cleared = ref: cleared
 tweaks_label_title = Tweak a text label
-tweaks_label_caption = An inline tweak (AppKit, UIKit) dims this label through its native view and reports the class it saw. On iOS, Selectable rebuilds the label as a read-only UITextView — the tweak runs after .selectable(), so it lands on the widget that ships.
+tweaks_label_caption = AppKit and UIKit. On iOS, Selectable swaps the native class.
 tweaks_label_sample = This label is dimmed by a native tweak.
 tweaks_label_class = Native class: { $class }
 
 # --- merged section pages (design overhaul) ---
-nav_canvas = Canvas & shapes
+nav_canvas = Canvas
 nav_charts = Charts
 nav_system = Device & sensors
 nav_network_http = Network & HTTP
@@ -452,8 +433,6 @@ nav_notify_badge = Notifications & badge
 nav_push = Push notifications
 nav_speech_haptics = Speech, sound & haptics
 nav_files_storage = Files & storage
-paths_title = Paths, strokes & clipping
-canvas_gauge = Canvas gauge
 gauge_value_label = Value
 canvas_text_title = Text & fonts
 canvas_anchors_title = Text anchors
@@ -523,7 +502,6 @@ media_player_section = Video
 
 # Resources page sections
 resources_image_section = Bundled image
-resources_modes_note = One image, three content modes — Fit preserves aspect, Fill crops, Stretch distorts.
 image_mode_fit = Fit
 image_mode_fill = Fill
 image_mode_stretch = Stretch
@@ -547,7 +525,6 @@ about_locale = Locale
 # Focus page (docs/focus.md)
 nav_focus = Focus
 focus_group_section = One signal, one form
-focus_group_caption = Three fields bound to one optional enum signal. Click or Tab between them and the readout follows; Return hops to the next field.
 focus_name_label = Name
 focus_email_label = Email
 focus_city_label = City
@@ -555,7 +532,6 @@ focus_current_label = Focused
 focus_next = Focus next
 focus_clear = Clear focus
 focus_bool_section = One control, one Bool
-focus_bool_caption = The same field bound to a Bool signal — the buttons write it; clicking in and out of the field writes it back.
 focus_bool_placeholder = Focus lands here
 focus_focus_btn = Focus
 focus_blur_btn = Blur
@@ -563,7 +539,7 @@ focus_state_label = State
 focus_state_on = focused
 focus_state_off = blurred
 focus_probe_section = Beyond text fields
-focus_probe_caption = Desktop toolkits focus buttons, toggles, and sliders too; touch platforms mostly reserve focus for text input.
+focus_probe_caption = Touch platforms keep focus for text input.
 focus_probe_toggle = Toggle
 focus_probe_slider = Slider
 focus_probe_button = Button
@@ -670,18 +646,15 @@ text_font_pacifico_lg = Pacifico at 36 points
 text_links_section = Links
 text_runs_section = Styled runs
 text_markdown_section = Markdown, parsed live
-text_markdown_caption = Type below. The label under the divider re-parses on every keystroke — the same path a translated string or a value off the network takes.
 text_markdown_sample = Day parses **bold**, *italic*, `code`, ~~strikethrough~~ and [links](https://daybrite.dev) at run time. Unfinished markup like ** stays literal.
 text_markdown_opened = Opened: {$url}
 text_baseline_section = Baseline alignment
-text_baseline_caption = Rows sit their text on one line rather than centering boxes of different heights. Turn it off to see the difference: the field's text, the label beside it, and the trailing unit drift apart.
 text_baseline_toggle = Align baselines
 text_baseline_quantity = Quantity
 text_baseline_unit = items
 text_baseline_total = Total
 text_baseline_currency = USD
 text_baseline_due = Due
-text_links_caption = Tap a link to open it in the system browser.
 text_link_icons_label = Material Symbols on Google Fonts
 text_link_mail_label = Email the team
 
@@ -702,7 +675,7 @@ crash_contained = Panic (contained)
 crash_contained_label = Caught by day, app survives
 crash_send = Send report
 crash_clear = Clear reports
-crash_empty = No crash report yet. Trigger a crash, then relaunch to see it here.
+crash_empty = No crash report yet. Trigger a crash, then relaunch.
 
 # Text Fields page (docs/textfield.md)
 nav_textfields = Text fields
@@ -782,15 +755,13 @@ location_unknown = —
 chart_axes = x red · y teal · z violet
 
 # Fullscreen cover (docs/cover.md): presented over the whole window from cover(signal).
-stack_cover_button = Present a cover
+stack_cover_button = Cover
 cover_title = Fullscreen cover
-cover_body = Presented over the whole window by cover(signal). Native on iOS and Android, a topmost child elsewhere.
 cover_dismiss = Dismiss
 
 # Half sheet (docs/cover.md): the bottom half of the window, the page on show beneath it.
-stack_half_button = Present a half sheet
+stack_half_button = Half sheet
 half_title = Half sheet
-half_body = Presented over the bottom half by cover(signal).half_sheet(), with the page still on show. A medium-detent sheet on iOS, a bottom sheet on Android.
 half_level = Level
 half_readout = Sheet level: { $level }
 
@@ -805,7 +776,6 @@ tab_dynamic_remove = Remove tab
 
 # App-local file storage (services page, docs/fs.md).
 storage_title = Local files
-storage_caption = The day-part-filesystem part stores app-private files on every target — real files natively, OPFS in the browser.
 storage_placeholder = Text to store
 storage_save = Save file
 storage_load = Load
@@ -818,14 +788,13 @@ prefs_window_title = Preferences
 
 # --- Tree page (docs/tree.md) ---
 nav_tree = Tree
-tree_caption = A hierarchical outline over app-owned rows: expansion, selection, reveal, drag-to-move, and per-row context menus.
 tree_expand_all = Expand All
 tree_collapse_all = Collapse All
 tree_reveal = Reveal tree.rs
 tree_add_file = Add File
 tree_multi = Multi-select
 tree_lock = Lock docs
-tree_hint = Drag a row onto a folder to move it, or use its context menu — while the lock is on, docs refuses drops.
+tree_hint = Drag a row onto a folder to move it. While the lock is on, docs refuses drops.
 tree_count = { $count ->
     [one] { $count } node
    *[other] { $count } nodes
@@ -847,10 +816,9 @@ tree_ctx_delete = Delete
 
 # --- Toolbars page (docs/toolbars.md) ---
 nav_toolbars = Toolbars
-toolbar_unsupported = This toolkit has no window toolbar, so nothing was installed. A phone puts these commands in the content instead.
+toolbar_unsupported = This toolkit has no window toolbar.
 toolbar_readout_title = What the toolbar is doing
 toolbar_controls_title = Driving it from here
-toolbar_vocabulary_title = The item vocabulary
 # Item labels: these appear in the toolbar, so they stay short.
 toolbar_new = New Window
 toolbar_menu_open_scripting = Open the Scripting page
@@ -887,23 +855,12 @@ toolbar_enabled_label = Show Source enabled
 toolbar_clear_search = Clear search
 toolbar_seed_search = Fill search
 toolbar_seed_text = toolbars
-# One line per item kind.
-toolbar_kind_button = Button
-toolbar_kind_button_note = Runs a command, and can share its closure with a menu item.
-toolbar_kind_toggle = Toggle
-toolbar_kind_toggle_note = Two-way with a signal, so the switch above and the button agree.
-toolbar_kind_menu = Menu
-toolbar_kind_menu_note = A pull-down built from the same entries the menu bar takes.
-toolbar_kind_search = Search
-toolbar_kind_search_note = The platform's search control, bound two-way to a signal.
-toolbar_kind_space = Spacers
-toolbar_kind_space_note = A flexible space splits leading items from trailing ones.
 # --- day-part-local-notify (docs/notify.md) ---
 nav_notify = Notifications
-notify_caps_post = Posting supported on this platform
-notify_caps_unsupported = Local notifications are unavailable in this build (on macOS they need a signed app bundle — use day pack)
+notify_caps_post = Posting is supported
+notify_caps_unsupported = Unavailable in this build. On macOS, notifications need a signed app bundle (day pack).
 notify_caps_schedule_os = Scheduled notifications survive the app closing
-notify_caps_schedule_process = Scheduled notifications are an in-process timer and are lost if the app exits
+notify_caps_schedule_process = Scheduled notifications are lost if the app exits
 notify_title_label = Title
 notify_title_placeholder = Notification title
 notify_title_default = Hello from Day
@@ -931,9 +888,9 @@ notify_status_cancelled = Cancelled every notification
 notify_status_failed = Could not post
 notify_last = Last result
 notify_perm_granted = Notification permission granted
-notify_perm_missing = Notification permission not granted — posts will be dropped
+notify_perm_missing = Permission not granted: posts are dropped
 notify_perm_request = Request permission
-haptics_songs_caption = Longer sequences — the gaps carry the rhythm as much as the taps do.
+haptics_songs_caption = Sequences
 haptics_song_celebration = Celebration
 haptics_song_levelup = Level up
 haptics_song_heartbeat = Heartbeat
@@ -956,10 +913,10 @@ scripting_saved = Saved
 
 # --- app badge (docs/badge.md) ---
 nav_badge = App badge
-badge_caps_native = This platform draws a badge on the app icon
-badge_caps_emulated = The badge is sent, but whether it appears depends on the shell or on the app being installed
-badge_caps_none = This platform has no app-badge API
-badge_android_note = Android has no API for setting a badge: launchers derive the dot from posted notifications, so use a notification's badge count instead.
+badge_caps_native = The app icon shows a badge
+badge_caps_emulated = Sent; the shell decides whether it appears
+badge_caps_none = No app-badge API on this platform
+badge_android_note = Android derives the badge from posted notifications: set a notification's badge count instead.
 badge_count_label = Count
 badge_minus = −
 badge_plus = +
@@ -979,13 +936,11 @@ voice_search_placeholder = Filter flavors…
 # Context-menu demos (menus page): the message-list rows and the media card.
 menu_reply = Reply
 menu_forward = Forward
-menu_archive = Archive
 menu_share = Share…
 menu_copy_image = Copy Image
 menu_save_image = Save to Photos
 menu_get_info = Get Info
 menus_messages_section = A message list
-menus_messages_hint = Each row carries its own menu — the action names the message it came from.
 menus_photo_section = A media card
 msg_subject_one = Quarterly numbers, first pass
 msg_subject_two = Weekend plan, final answer
@@ -1013,7 +968,6 @@ cmd_toggle_pseudo_locale = Toggle Pseudo-Locale
 # Speech (day-part-speech): the daybridge reference part. One API, a different language per
 # platform (docs/bridge.md).
 speech_title = Text to speech
-speech_caption = One Rust API; the platform's own voice underneath — Swift on Apple, Java on Android, ArkTS on HarmonyOS, JavaScript on the web, C++ on Windows.
 speech_phrase = A clear day, with a chance of rain later.
 speech_speak = Speak
 speech_stop = Stop
@@ -1032,7 +986,7 @@ vectors_live_tint = Live tint
 vectors_cycle_tint = Cycle
 
 # Layout page (docs/size-classes.md "Row fit policies")
-layout_note = Pick a policy, then add components until the row runs out of room. Clip lets the tail fall offscreen (debug builds log it), Wrap breaks onto new lines at each button's own width, Even columns aligns those lines into a grid, Column stacks below compact width, Scroll keeps one swipeable line. On a desktop, drag the window narrower to watch Column engage.
+layout_note = Pick a policy, then add components until the row runs out of room.
 layout_row_section = Row fit
 layout_fit_label = Fit policy
 layout_fit_clip = Clip
@@ -1046,10 +1000,9 @@ layout_item_wide = Item { $n } (wider)
 
 # The Resources page's Weight picker reuses the Text page's weight names (text_weight_*),
 # same three words, same meaning, so only the notes below are new here.
-vectors_alias_note = A plain SVG asked for Bold: it has no weight axis, so the alias resolves back to the base glyph rather than drawing nothing.
+vectors_alias_note = No Bold art: the base glyph is drawn
 # The two color wells beside Cycle (docs/colorpicker.md).
 vectors_pick_tint = Pick a tint
-vectors_tint_idioms = Two color wells, one bound color: the first opens the platform's own chooser, the second opens the panel Day draws itself — the same picker on every target.
 
 # The Content List page (src/pages/content_list): the `day new` scaffold's own item list and
 # editor, so the keys below are the scaffold's, verbatim; the copied code reads them by name.
@@ -1070,7 +1023,7 @@ split_support_title = On this toolkit
 split_support_label = Divider drawn by
 split_native = The toolkit's own splitter
 split_composed = Day (this toolkit has no splitter of its own)
-split_hint = Drag the divider: the share slider follows it, and the slider moves the divider. The form on one side and the drawing on the other read the same state.
+split_hint = Drag the divider or move the share slider.
 split_arrangement_title = Arrangement
 split_stacked = Stacked
 split_share = Form's share
@@ -1094,16 +1047,14 @@ cursors_support_label = Support here
 cursors_native = Native
 cursors_emulated = Emulated (nearest shapes)
 cursors_unsupported = Unsupported on this target
-cursors_hint = Move the pointer over a tile and it takes that shape. A touch screen shows none, which is correct.
+cursors_hint = Move the pointer over a tile.
 cursors_shapes_title = Pointer shapes
 cursors_drag_title = Drag and drop
 cursors_resize_title = Resize and zoom
 cursors_busy_title = Busy
 cursors_reactive_title = One box, many shapes
-cursors_reactive_caption = The box takes `cursor(closure)`: pick a shape and the pointer over it changes without rebuilding anything.
 cursors_reactive_pick = Shape
 cursors_nested_title = Nearest ancestor wins
-cursors_nested_caption = The outer box asks for a crosshair, the inner tile for a hand; leaving the tile restores the crosshair.
 cursors_nested_outer = Crosshair out here
 cursors_nested_inner = A hand in here
 cursors_native_title = This toolkit's own
@@ -1135,7 +1086,7 @@ ctl_icon_only = Icon only
 ctl_image = Bundled image
 
 nav_drag_drop = Drag & Drop
-dnd_hint = Drag the image, a chosen file, or custom data to another tile or Showcase window. Circles marked with an X reject drops. Moves within this page preserve the object; other windows receive a copy.
+dnd_hint = Drag a tile onto another tile or another Showcase window. Circles marked with an X reject drops.
 dnd_ready = Ready to receive a drop.
 dnd_empty = Drop here
 dnd_new_window = New window
@@ -1150,29 +1101,26 @@ files_bookmark_failed = Access to the saved file could not be restored. Choose i
 dnd_disallowed = Add disallowed regions
 
 # Native display frame demo
-frame_hint = Tap anywhere to throw every ball toward that point. Drag a ball to carry it and fling it; tap one to flick it. Raise the count to test performance.
+frame_hint = Tap to throw the marbles. Drag one to fling it.
 frame_bounce = Bounce
 frame_shuffle = Shuffle
-frame_pause = Pause / resume
+frame_pause = Pause
 frame_waiting = Waiting for a frame
 frame_running = Running
 frame_paused = Paused
 frame_resting = Resting
-frame_explanation = FPS shows the last 2 seconds of frame callbacks, excluding pauses. Each bounce starts a new measurement.
-frame_native_title = Native widget animations
-frame_balls_label = Balls
+frame_balls_label = Marbles
 frame_fps = FPS · min { $min } · max { $max } · avg { $avg }
 
 commands_title = Reusable commands
 commands_add = Add one
-commands_hint = Buttons, toolbar items, and the context menu share the same actions. Add up to three, then reset; availability stays in sync.
 
 # The Physics page (src/pages/physics.rs): the ball mass and planetary gravity sliders, and the
 # bodies the gravity readout names.
-physics_gravity_label = Planetary gravity
+physics_gravity_label = Gravity
 physics_gravity = { $value } m/s²
 physics_gravity_named = { $value } m/s² ({ $body })
-physics_mass_label = Ball mass
+physics_mass_label = Mass
 physics_mass = { $value } Mt
 physics_elasticity_label = Elasticity
 physics_elasticity = { $value }%
@@ -1190,10 +1138,9 @@ net_provider = HTTP provider
 net_native = Native
 net_reqwest = reqwest
 net_native_only = This target uses the native provider.
-net_provider_note = Provider changes apply to new requests and sockets. Existing transfers keep their provider.
+net_provider_note = Applies to new requests and sockets.
 net_simulation = Network simulation
 net_intercept = Intercept requests
-net_sim_note = The same controls use local handlers when interception is on. Seed: 42. Speed and failures apply to simulated traffic.
 net_speed = Transfer speed
 net_speed_value = { $speed } KiB/s per transfer
 net_failures = Failure rate
@@ -1210,7 +1157,7 @@ net_upload_preset = Upload preset
 net_received = Received { $bytes } bytes
 net_error = Request failed: { $error }
 net_request = HTTP request
-net_ws_note = Native targets default to the local echo server. In the browser, enter a live WebSocket URL or enable interception to use the simulated echo.
+net_ws_note = Enter a live WebSocket URL, or turn on interception for the simulated echo.
 net_message = Message
 net_connected = Connected
 net_closed = Closed
@@ -1223,7 +1170,6 @@ net_rate = KiB/s
 net_series = Traffic
 net_totals = Sent { $sent } bytes · received { $received } bytes · active { $active } · failed { $failed }
 net_average = Session average: upload { $upload } KiB/s · download { $download } KiB/s
-net_stats_note = Payload bytes through this page’s day-part-http session only. Excludes other frameworks and protocol overhead. Averages include idle time; the chart shows the last 30 seconds.
 net_statistics = Live traffic
 net_send_request = Send request
 net_options = Request options
@@ -1238,7 +1184,7 @@ sensor_unit_magnetic = µT
 
 sensor_live = Live readings
 sensor_compass = Magnetic compass
-sensor_compass_hint = Hold the phone flat in portrait orientation. Red points toward magnetic north; nearby metal can affect the reading. If waiting, rotate gently to calibrate.
+sensor_compass_hint = Hold the phone flat. Red points to magnetic north.
 sensor_north = N
 sensor_east = E
 sensor_south = S
@@ -1247,10 +1193,10 @@ sensor_heading = Magnetic heading: { $degrees }°
 
 sensor_calibrated = Calibrated
 sensor_tilt = X/Y acceleration level
-sensor_tilt_hint = The bubble follows X/Y acceleration: one g at the rim. Hold still to observe tilt; movement also affects it.
+sensor_tilt_hint = The bubble follows X/Y acceleration, one g at the rim.
 sensor_rotation = Rotation-rate gauges
-sensor_rotation_hint = X, Y and Z angular velocity; ±π rad/s at the ends of each scale. These show rotation speed, not orientation.
-sensor_uncalibrated_hint = Uncalibrated readings include device bias. The needle shows the measured field and may not point north.
+sensor_rotation_hint = Rotation speed per axis, ±π rad/s at the ends.
+sensor_uncalibrated_hint = Uncalibrated: the needle may not point north.
 sensor_axis_x = X
 sensor_axis_y = Y
 sensor_axis_z = Z
@@ -1258,7 +1204,6 @@ sensor_axis_z = Z
 # --- Security: the keychain and the biometric prompt (docs/keychain.md, docs/biometrics.md) ---
 nav_security = Security
 keychain_title = Keychain
-keychain_caption = One Rust API over the platform's own secure store: the keychain on iOS and macOS, the Android Keystore, DPAPI on Windows, the Secret Service on Linux, the Universal Keystore on HarmonyOS.
 keychain_support_label = Store here
 keychain_backend_label = Backend
 keychain_key_label = Key
@@ -1281,7 +1226,6 @@ keychain_entries_label = Stored keys
 keychain_entries_none = None
 keychain_presence_reason = Read the secret the Security page stored.
 biometrics_title = Biometrics
-biometrics_caption = The platform's own prompt: Touch ID or Face ID, Android's biometric prompt, Windows Hello, HarmonyOS user authentication. The device passcode is the way in when a finger is wet.
 biometrics_support_label = Support here
 biometrics_availability_label = Availability
 biometrics_biometry_label = Sensor
@@ -1296,10 +1240,7 @@ permission_biometrics = Confirm it is you on the Security page.
 
 # --- Sign-in: day-part-auth (the auth browser, OpenID Connect, passkeys, Apple, Google) ---
 nav_signin = Sign-in
-signin_info = About sign-in
-signin_info_intro = Sign-in through the platform's own doors. Every request carries PKCE, a state and a nonce, and an ID token is verified against the provider's keys before the page shows it. Nothing is stored: the tokens live on this page until you sign out.
 signin_oidc_title = OpenID Connect
-signin_caption = The system's own sign-in browser, an authorization request with PKCE, state and nonce, and an ID token verified against the provider's keys before you see it. The demo provider runs inside this app on loopback and signs in two demo accounts; Google, Apple and any issuer by discovery take the client id you registered.
 signin_provider_demo = Demo provider (built in)
 signin_provider_google = Google
 signin_provider_apple = Apple (web flow)
@@ -1328,7 +1269,6 @@ signin_userinfo_ok = Userinfo answered for { $sub }
 signin_revoked = The access token was revoked
 signin_signed_out = Signed out
 passkeys_title = Passkeys
-passkeys_caption = WebAuthn through the platform authenticator: the options JSON a server would send, the credential JSON it gets back. The relying party must be a domain this app is associated with; the sheet says so in its own words when it is not.
 passkeys_available_yes = Platform authenticator available
 passkeys_available_no = No platform authenticator on this device
 passkeys_create = Create a passkey
@@ -1338,11 +1278,9 @@ passkeys_prompting = Waiting for the authenticator…
 passkeys_created = Created credential { $id }
 passkeys_asserted = Signed in with credential { $id }
 apple_title = Sign in with Apple
-apple_caption = The system sheet on iOS and macOS, with Face ID, Touch ID or the passcode. The app needs the Sign in with Apple capability on its identifier; without it the sheet reports an error, shown here.
 apple_sign_in = Sign in with Apple
 apple_signed_in = Apple user { $user }
 google_title = Google
-google_caption = Credential Manager on Android lists the device's Google accounts and returns an ID token for the one chosen, with no browser. Paste the OAuth client id of the web application type your server owns. Elsewhere, Google is a provider in the section above.
 google_client_placeholder = Server client id
 google_sign_in = Sign in with Google
 google_signed_in = Google account { $id }
@@ -1406,7 +1344,6 @@ map_locate_failed = { $why ->
 
 # Interactive layout sizing and translation.
 layout_reactive_title = Reactive sizing
-layout_reactive_note = Resize the shape or move it within the preview. The same shape stays mounted while the sliders update its frame and translation.
 layout_reactive_width = Width
 layout_reactive_height = Height
 layout_reactive_horizontal = Horizontal offset
@@ -1415,14 +1352,14 @@ layout_reactive_reset = Reset
 layout_reactive_points = { NUMBER($value, maximumFractionDigits: 0) } pt
 layout_reactive_shape = Shape: { NUMBER($width, maximumFractionDigits: 0) } by { NUMBER($height, maximumFractionDigits: 0) } points
 
-push_caption = Send a push notification to this device through the Day relay. Use the delayed send, then leave the app or lock the device to see how it arrives.
+push_caption = Send a test push to this device through the Day relay.
 push_unavailable = Push notifications are unavailable in this build.
 push_send_now = Send now
 push_send_later = { $seconds ->
     [one] Send in 1 second
    *[other] Send in { $seconds } seconds
 }
-push_hint = The first send asks for permission and registers this device with the relay.
+push_hint = The first send asks for permission.
 push_sending = Sending…
 push_requested = Waiting for a device token from the push service…
 push_no_token = The push service did not provide a device token. Try again in a moment.
@@ -1453,20 +1390,19 @@ push_error = Push failed: { $error }
 list_opt_inset_grouped = Inset grouped
 list_opt_inset_hint = Inset rows on macOS and rounded groups on iOS. Other platforms keep their plain list.
 share_demo_title = Sharing
-share_demo_native = Choose a custom action in the share chooser to update Last action above.
-share_demo_fallback = This platform does not show custom share actions. Try the same actions below.
+share_demo_fallback = This platform shows no custom share actions. Use the buttons below.
 share_demo_open = Share Day website…
 share_demo_remember = Remember link
 share_demo_clear = Clear result
 share_demo_remembered = Remember link selected
 share_demo_cleared = Share result cleared
 share_demo_failed = The share chooser could not be opened.
-share_demo_receive_hint = On Android, share text or a link to Day Showcase from another app. It appears here.
+share_demo_receive_hint = Share text or a link to Day Showcase from another app.
 share_demo_none = Nothing received yet.
 system_back_status = App Back: { $remaining } remaining, { $handled } handled
 system_back_press = Back
 system_back_stop = Disarm
-system_back_hint = Arm three app-level Back presses. Pushed pages and covers handle Back first; the app counter changes when navigation has finished. The test bar stays visible outside this page.
+system_back_hint = Pushed pages and covers take Back before the app does.
 system_back_arm = Arm 3 Back presses
 
 # Map provider selection and setup.
@@ -1478,3 +1414,56 @@ map_play_services_unavailable = Google Maps requires Google Play services.
 map_load_failed = The map could not load. Check the connection and provider configuration.
 
 resources_missing = Bundled resource unavailable: { $name }
+
+# The gallery pages added with the card layout, and the line under every page's title.
+nav_styles = Styles
+nav_images = Images
+nav_gestures = Gestures
+detail_controls = Buttons, switches, sliders, steppers, pickers and progress
+detail_dates = Date and time pickers, in the platform's calendar
+detail_focus = Keyboard focus as app state
+detail_text = Fonts, styled runs, Markdown, selection and truncation
+detail_text_areas = Multi-line editing, code modes and live Markdown
+detail_text_fields = Single-line input, keyboards, secure entry and search
+detail_toolbars = Window and page commands in the platform's bars
+detail_localization = Four languages, plurals and right-to-left layout
+detail_canvas = Paths, gradients, text and images drawn every frame
+detail_styles = Corners, borders, shadows, clipping and transforms
+detail_images = Fit modes, corners, remote pictures, placeholders and fades
+detail_gestures = Drag, pinch, rotate, press and hover on any view
+detail_charts = A grammar of marks: lines, bars, areas and selections
+detail_animation = Platform animations, tweens, easing and springs
+detail_physics = Marbles and a spring on the frame clock
+detail_benchmark = A patchwork of live views, timed against SwiftUI
+detail_grid = Fixed columns, spans, alignment and sizing
+detail_layout = Rows, columns, stacks, wrapping and size classes
+detail_split = Resizable panes with the platform's own splitters
+detail_list = Recycled rows, sections, swipes, reordering and selection
+detail_tree = Outlines that expand, select, reorder and load lazily
+detail_drag_drop = Text, files and images dragged between views and apps
+detail_model = Typed stores, derived values and undo
+detail_query = A database queried live, with search and sorting
+detail_tabs = Tab bars and segmented pages, each with its own state
+detail_stack = Pushed pages, a path you own, and the back gesture
+detail_content_list = A list, its items and a detail in three columns
+detail_media = A native video player with its own transport
+detail_lottie = Vector animations, played, paused and scrubbed
+detail_map = Vector tiles on the canvas beside the platform's maps
+detail_web_view = A bundled site and the live web, with JavaScript both ways
+detail_menus = Menus, context menus, alerts, sheets and prompts
+detail_system = Battery, sensors, location, device facts and appearance
+detail_network = Requests, uploads, downloads, proxies and connectivity
+detail_notify = Local notifications and the app's badge
+detail_push = Remote notifications through a relay you can try
+detail_speech = Speech, sound effects and haptics
+detail_camera = Live preview, capture and the photo that comes back
+detail_cursors = Every pointer shape the platform offers
+detail_files = The clipboard, preferences, file pickers and app storage
+detail_security = The keychain and biometrics
+detail_sign_in = Sign in with Apple, Google, a passkey or any OpenID provider
+detail_scripting = The scripts that drive and screenshot this app
+detail_resources = Bundled images, vector glyphs, fonts and data files
+detail_tweaks = Per-toolkit adjustments to the native views
+detail_crash_reporting = Crashes caught and reported on the next launch
+detail_about = What Day is, and what this app shows
+detail_settings = Appearance, language and the app's own preferences

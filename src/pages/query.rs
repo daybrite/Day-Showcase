@@ -2,7 +2,6 @@
 //! thread. The UI receives owned rows and preserves stable list identities. The full result
 //! remains scrollable; the web build uses the same page with an in-memory projection.
 
-use day::model::Op;
 use day::prelude::*;
 use day::searchfield::search_field;
 #[cfg(not(target_arch = "wasm32"))]
@@ -322,118 +321,133 @@ pub(crate) fn query_page() -> AnyPiece {
     column((
         heading(crate::res::str::nav_query(), day::id!(query_title)),
         search_field(term).id(day::id!(query_search)),
-        // Stacked, not a three-up row: phone widths clip it.
-        labeled(
-            crate::res::str::query_starred(),
-            toggle(starred).id(day::id!(query_filter)),
-        ),
-        {
-            #[cfg(not(target_arch = "wasm32"))]
-            {
-                labeled(
-                    crate::res::str::query_fts(),
-                    toggle(fts).id(day::id!(query_fts)),
-                )
-            }
-            #[cfg(target_arch = "wasm32")]
-            {
-                spacer().any()
-            }
-        },
-        {
-            #[cfg(not(target_arch = "wasm32"))]
-            {
-                column((
+        crate::gallery::deck(
+            2,
+            vec![
+                // The filters. Stacked, not a three-up row: phone widths clip it.
+                crate::gallery::plain((
                     labeled(
-                        crate::res::str::query_viewport(),
-                        toggle(viewport).id(day::id!(query_viewport)),
+                        crate::res::str::query_starred(),
+                        toggle(starred).id(day::id!(query_filter)),
                     ),
-                    slider(lat_min).range(0.0..=85.0).id(day::id!(query_lat)),
+                    {
+                        #[cfg(not(target_arch = "wasm32"))]
+                        {
+                            labeled(
+                                crate::res::str::query_fts(),
+                                toggle(fts).id(day::id!(query_fts)),
+                            )
+                        }
+                        #[cfg(target_arch = "wasm32")]
+                        {
+                            crate::widgets::nothing().any()
+                        }
+                    },
+                    {
+                        #[cfg(not(target_arch = "wasm32"))]
+                        {
+                            column((
+                                labeled(
+                                    crate::res::str::query_viewport(),
+                                    toggle(viewport).id(day::id!(query_viewport)),
+                                ),
+                                slider(lat_min).range(0.0..=85.0).id(day::id!(query_lat)),
+                                label(move || {
+                                    crate::res::str::query_viewport_box(
+                                        crate::res::str::QueryViewportBox {
+                                            from: lat_min.get() as i64,
+                                            to: (lat_min.get() + 15.0) as i64,
+                                        },
+                                    )
+                                    .format()
+                                })
+                                .tabular()
+                                .font(Font::Footnote)
+                                .secondary()
+                                .id(day::id!(query_viewport_box)),
+                            ))
+                            .spacing(Space::S)
+                            .align(HAlign::Leading)
+                            .grow(Dimension::Width)
+                            .any()
+                        }
+                        #[cfg(target_arch = "wasm32")]
+                        {
+                            crate::widgets::nothing().any()
+                        }
+                    },
+                )),
+                // What the query answers, and the row it acts on.
+                column((
                     label(move || {
-                        crate::res::str::query_viewport_box(crate::res::str::QueryViewportBox {
-                            from: lat_min.get() as i64,
-                            to: (lat_min.get() + 15.0) as i64,
+                        crate::res::str::query_caption(crate::res::str::QueryCaption {
+                            count: count() as i64,
+                            total: TOTAL as i64,
                         })
                         .format()
                     })
+                    .font(Font::Headline)
                     .tabular()
+                    .id(day::id!(query_caption)),
+                    {
+                        #[cfg(not(target_arch = "wasm32"))]
+                        {
+                            label(move || {
+                                let _ = q.count(); // re-render alongside the set
+                                crate::res::str::query_resident(crate::res::str::QueryResident {
+                                    resident: q.resident.get() as i64,
+                                    total: TOTAL as i64,
+                                })
+                                .format()
+                            })
+                            .font(Font::Footnote)
+                            .secondary()
+                            .id(day::id!(query_evals))
+                            .any()
+                        }
+                        #[cfg(target_arch = "wasm32")]
+                        {
+                            crate::widgets::nothing().any()
+                        }
+                    },
+                    label(move || match selected.get() {
+                        Some(id) => store
+                            .elem(id)
+                            .title()
+                            .with(|t| t.cloned())
+                            .map(|t| crate::res::str::query_selected(t).format())
+                            .unwrap_or_else(|| crate::res::str::query_selected_none().format()),
+                        None => crate::res::str::query_selected_none().format(),
+                    })
                     .font(Font::Footnote)
-                    .id(day::id!(query_viewport_box)),
+                    .secondary()
+                    .id(day::id!(query_selected)),
+                    button(crate::res::str::query_star())
+                        .bordered()
+                        .action(move || {
+                            if let Some(id) = selected.get_untracked() {
+                                #[cfg(not(target_arch = "wasm32"))]
+                                engine::toggle(id);
+                                #[cfg(target_arch = "wasm32")]
+                                {
+                                    let s = store.elem(id).starred();
+                                    s.write(!s.peek());
+                                }
+                            }
+                        })
+                        .id(day::id!(query_star)),
                 ))
                 .spacing(Space::S)
-                .any()
-            }
-            #[cfg(target_arch = "wasm32")]
-            {
-                spacer().any()
-            }
-        },
-        label(move || {
-            crate::res::str::query_caption(crate::res::str::QueryCaption {
-                count: count() as i64,
-                total: TOTAL as i64,
-            })
-            .format()
-        })
-        .tabular()
-        .id(day::id!(query_caption)),
-        {
-            #[cfg(not(target_arch = "wasm32"))]
-            {
-                label(move || {
-                    let _ = q.count(); // re-render alongside the set
-                    crate::res::str::query_resident(crate::res::str::QueryResident {
-                        resident: q.resident.get() as i64,
-                        total: TOTAL as i64,
-                    })
-                    .format()
-                })
-                .font(Font::Footnote)
-                .id(day::id!(query_evals))
-                .any()
-            }
-            #[cfg(target_arch = "wasm32")]
-            {
-                spacer().any()
-            }
-        },
-        label(move || match selected.get() {
-            Some(id) => store
-                .elem(id)
-                .title()
-                .with(|t| t.cloned())
-                .map(|t| crate::res::str::query_selected(t).format())
-                .unwrap_or_else(|| crate::res::str::query_selected_none().format()),
-            None => crate::res::str::query_selected_none().format(),
-        })
-        .font(Font::Footnote)
-        .id(day::id!(query_selected)),
+                .align(HAlign::Leading)
+                .grow(Dimension::Width)
+                .card()
+                .any(),
+            ],
+        ),
         track_list,
-        button(crate::res::str::query_star())
-            .bordered()
-            .action(move || {
-                if let Some(id) = selected.get_untracked() {
-                    #[cfg(not(target_arch = "wasm32"))]
-                    engine::toggle(id);
-                    #[cfg(target_arch = "wasm32")]
-                    {
-                        let s = store.elem(id).starred();
-                        s.write(!s.peek());
-                    }
-                }
-            })
-            .id(day::id!(query_star)),
     ))
-    .spacing(10.0)
+    .spacing(Space::M)
     .align(HAlign::Leading)
-    .padding(Space::L)
+    .padding(20.0)
     .any()
 }
-
-// Reference `Op` under both cfgs, so the wasm build also compiles the one API difference.
-#[cfg(target_arch = "wasm32")]
-#[allow(dead_code)]
-fn _unused(_: Op) {}
-#[cfg(not(target_arch = "wasm32"))]
-#[allow(dead_code)]
-fn _unused(_: Op) {}

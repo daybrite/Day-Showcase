@@ -1,6 +1,9 @@
-# Local USB deployment test; Android coexists with its Google Play installation.
+# Local USB deployment test: a separate app beside the Google Play and TestFlight installations.
 [app]
-targets = ["android-material", "ios-uikit"]
-[app.android]
 id = "dev.daybrite.showcase.connected"
 title = "Day Showcase Dev"
+targets = ["android-material", "ios-uikit"]
+
+# The dev build is signed with the team's wildcard profile, which grants no push entitlement.
+[permissions]
+notifications = false

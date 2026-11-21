@@ -9,6 +9,7 @@ use day::prelude::*;
 
 mod commands;
 mod composition;
+mod gallery;
 mod pages;
 mod palette;
 pub(crate) mod support;
@@ -202,12 +203,16 @@ day::routes! {
         Controls => "controls",
         Dates => "dates",
         Focus => "focus",
+        Keyboard => "keyboard",
         Text => "text",
         TextAreas => "textareas",
         TextFields => "textfields",
         Toolbars => "toolbars",
         Localization => "localization",
         Canvas => "canvas",
+        Styles => "styles",
+        Images => "images",
+        Gestures => "gestures",
         Charts => "charts",
         Animation => "animation",
         Physics => "physics",
@@ -216,11 +221,13 @@ day::routes! {
         Layout => "layout",
         Split => "split",
         List => "list",
+        Feeds => "feeds",
         Tree => "tree",
         DragDrop => "drag-drop",
         Model => "model",
         Query => "query",
         Tabs => "tabs",
+        Pager => "pager",
         Stack => "stack",
         ContentList => "content-list",
         Media => "media",
@@ -254,6 +261,64 @@ const SOURCE_REPO: &str = "https://github.com/daybrite/Day-Showcase";
 const SOURCE_REF: &str = env!("DAY_SHOWCASE_SOURCE_REF");
 
 impl Section {
+    /// One line saying what the section's page shows, under its title in the page header.
+    /// Kept exhaustive by the compiler, so a new section must say what it shows.
+    fn detail(self) -> fn() -> day::LocalizedText {
+        match self {
+            Section::Controls => crate::res::str::detail_controls,
+            Section::Dates => crate::res::str::detail_dates,
+            Section::Focus => crate::res::str::detail_focus,
+            Section::Keyboard => crate::res::str::detail_keyboard,
+            Section::Text => crate::res::str::detail_text,
+            Section::TextAreas => crate::res::str::detail_text_areas,
+            Section::TextFields => crate::res::str::detail_text_fields,
+            Section::Toolbars => crate::res::str::detail_toolbars,
+            Section::Localization => crate::res::str::detail_localization,
+            Section::Canvas => crate::res::str::detail_canvas,
+            Section::Styles => crate::res::str::detail_styles,
+            Section::Images => crate::res::str::detail_images,
+            Section::Gestures => crate::res::str::detail_gestures,
+            Section::Charts => crate::res::str::detail_charts,
+            Section::Animation => crate::res::str::detail_animation,
+            Section::Physics => crate::res::str::detail_physics,
+            Section::Benchmark => crate::res::str::detail_benchmark,
+            Section::Grid => crate::res::str::detail_grid,
+            Section::Layout => crate::res::str::detail_layout,
+            Section::Split => crate::res::str::detail_split,
+            Section::List => crate::res::str::detail_list,
+            Section::Feeds => crate::res::str::detail_feeds,
+            Section::Tree => crate::res::str::detail_tree,
+            Section::DragDrop => crate::res::str::detail_drag_drop,
+            Section::Model => crate::res::str::detail_model,
+            Section::Query => crate::res::str::detail_query,
+            Section::Tabs => crate::res::str::detail_tabs,
+            Section::Pager => crate::res::str::detail_pager,
+            Section::Stack => crate::res::str::detail_stack,
+            Section::ContentList => crate::res::str::detail_content_list,
+            Section::Media => crate::res::str::detail_media,
+            Section::Lottie => crate::res::str::detail_lottie,
+            Section::Map => crate::res::str::detail_map,
+            Section::WebView => crate::res::str::detail_web_view,
+            Section::Menus => crate::res::str::detail_menus,
+            Section::System => crate::res::str::detail_system,
+            Section::Network => crate::res::str::detail_network,
+            Section::Notify => crate::res::str::detail_notify,
+            Section::Push => crate::res::str::detail_push,
+            Section::Speech => crate::res::str::detail_speech,
+            Section::Camera => crate::res::str::detail_camera,
+            Section::Cursors => crate::res::str::detail_cursors,
+            Section::Files => crate::res::str::detail_files,
+            Section::Security => crate::res::str::detail_security,
+            Section::SignIn => crate::res::str::detail_sign_in,
+            Section::Scripting => crate::res::str::detail_scripting,
+            Section::Resources => crate::res::str::detail_resources,
+            Section::Tweaks => crate::res::str::detail_tweaks,
+            Section::CrashReporting => crate::res::str::detail_crash_reporting,
+            Section::About => crate::res::str::detail_about,
+            Section::Settings => crate::res::str::detail_settings,
+        }
+    }
+
     /// The repo-relative source file whose page this section shows, the "Show Source" target.
     /// Kept exhaustive by the compiler, so a new section must name its file here.
     fn source_file(self) -> &'static str {
@@ -262,6 +327,9 @@ impl Section {
             // The settings declaration lives beside `root`, not on a page of its own.
             Section::Settings => "src/lib.rs",
             Section::Animation => "src/pages/animation.rs",
+            Section::Styles => "src/pages/styles.rs",
+            Section::Images => "src/pages/images.rs",
+            Section::Gestures => "src/pages/gestures.rs",
             Section::Physics => "src/pages/physics.rs",
             Section::Benchmark => "src/pages/benchmark.rs",
             Section::Canvas => "src/pages/canvas.rs",
@@ -272,10 +340,12 @@ impl Section {
             Section::CrashReporting => "src/pages/crash.rs",
             Section::Dates => "src/pages/dates.rs",
             Section::Focus => "src/pages/focus.rs",
+            Section::Keyboard => "src/pages/keyboard.rs",
             Section::Grid => "src/pages/grid.rs",
             Section::Layout => "src/pages/layout.rs",
             Section::Split => "src/pages/split.rs",
             Section::List => "src/pages/list.rs",
+            Section::Feeds => "src/pages/feeds.rs",
             Section::Model => "src/pages/model.rs",
             Section::Localization => "src/pages/localization.rs",
             Section::Media => "src/pages/media.rs",
@@ -296,6 +366,7 @@ impl Section {
             Section::Stack => "src/pages/stack.rs",
             Section::System => "src/pages/system.rs",
             Section::Tabs => "src/pages/tabs.rs",
+            Section::Pager => "src/pages/pager.rs",
             Section::Text => "src/pages/text.rs",
             Section::TextAreas => "src/pages/text_areas.rs",
             Section::TextFields => "src/pages/text_fields.rs",
@@ -362,9 +433,15 @@ pub fn root() -> impl Piece {
     // App menu's Settings…/⌘, and About items and their windows, before the menu installs so
     // its items lower live; on a phone it is the Settings section `destinations` lists.
     install_settings();
+    // The Files & storage page's launch count (pages/services.rs) counts launches, so it is
+    // taken here and not when its card is first built.
+    crate::pages::services::count_launch();
     // Write the bundled sample dayscripts into the app container on launch (absent-only), so the
     // Scripting page's dropdown demonstrates record/playback out of the box (pages/scripting.rs).
     crate::pages::scripting::seed_sample_scripts();
+    // Fixture mode (SHOWCASE_FIXTURES=1): the NASA pictures come from the bundle, before any
+    // page asks for one (gallery.rs `sky`).
+    crate::gallery::sky::install_fixtures();
     // File ▸ New Window / the macOS tab-bar "+" (docs/windows.md).
     day::register_new_window(|| window_root(false));
     // Lifecycle handlers (docs/lifecycle.md). On mobile this is the registration point; on desktop
@@ -372,6 +449,24 @@ pub fn root() -> impl Piece {
     // idempotent.
     install_lifecycle_handlers();
     window_root(true)
+}
+
+/// The simulation on the global HTTP session (docs/http.md "Programmatic interception"), which
+/// answers chosen addresses inside the app. The session holds one simulation, so the app keeps
+/// one and each user adds its routes to it: the Map page's sample island, and fixture mode's
+/// NASA pictures. It is not strict, so an address no route matches still reaches the network.
+/// The Network page runs a session of its own.
+pub(crate) fn http_simulation() -> day_part_http::simulation::Simulation {
+    use day_part_http::{Session, simulation::Simulation};
+    static SIMULATION: std::sync::OnceLock<Simulation> = std::sync::OnceLock::new();
+    SIMULATION
+        .get_or_init(|| {
+            let simulation = Simulation::new();
+            simulation.set_strict(false);
+            Session::global().set_simulation(Some(simulation.clone()));
+            simulation
+        })
+        .clone()
 }
 
 /// The installed settings handle. `root` installs it before any window builds, so a page
@@ -649,6 +744,13 @@ fn destinations() -> Vec<Dest> {
         ),
         d(
             Controls,
+            Section::Keyboard,
+            crate::res::str::nav_keyboard,
+            vectors::nav_keyboard,
+            keyboard_page,
+        ),
+        d(
+            Controls,
             Section::Cursors,
             crate::res::str::nav_cursors,
             vectors::nav_cursor,
@@ -691,6 +793,13 @@ fn destinations() -> Vec<Dest> {
         ),
         d(
             Navigation,
+            Section::Pager,
+            crate::res::str::nav_pager,
+            vectors::nav_pager,
+            pager_page,
+        ),
+        d(
+            Navigation,
             Section::Menus,
             crate::res::str::nav_menus,
             vectors::nav_menus,
@@ -716,6 +825,13 @@ fn destinations() -> Vec<Dest> {
             crate::res::str::nav_list,
             vectors::nav_list,
             list_page,
+        ),
+        d(
+            Data,
+            Section::Feeds,
+            crate::res::str::nav_feeds,
+            vectors::nav_feeds,
+            feeds_page,
         ),
         d(
             Data,
@@ -754,6 +870,13 @@ fn destinations() -> Vec<Dest> {
         ),
         d(
             Graphics,
+            Section::Styles,
+            crate::res::str::nav_styles,
+            vectors::nav_styles,
+            styles_page,
+        ),
+        d(
+            Graphics,
             Section::Charts,
             crate::res::str::nav_charts,
             vectors::nav_charts,
@@ -772,6 +895,20 @@ fn destinations() -> Vec<Dest> {
             crate::res::str::nav_physics,
             vectors::nav_physics,
             physics_page,
+        ),
+        d(
+            Graphics,
+            Section::Gestures,
+            crate::res::str::nav_gestures,
+            vectors::nav_gestures,
+            gestures_page,
+        ),
+        d(
+            Graphics,
+            Section::Images,
+            crate::res::str::nav_images,
+            vectors::nav_images,
+            images_page,
         ),
         d(
             Graphics,
@@ -1118,7 +1255,13 @@ fn window_body(primary: bool) -> impl Piece {
                     .into_iter()
                     .find(|d| d.section == sec)
                     .map(|d| {
-                        (d.page)()
+                        let info = gallery::PageInfo {
+                            detail: sec.detail(),
+                            icon: d.icon,
+                            group: d.group.title(),
+                            tint: d.group.tint(),
+                        };
+                        gallery::with_page(info, d.page)
                             .toolbar(move || pages::toolbars::page_commands(sec))
                             .any()
                     })

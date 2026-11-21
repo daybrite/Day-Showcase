@@ -3,12 +3,13 @@ description: Native frames animate 1–250 marbles under adjustable gravity, pau
 flow:
   - wait_for: { id: nav }
   - navigate: { route: physics }
+  # No frame has been delivered yet, so there are no rates. Changing gravity wakes the clock.
+  - assert_text: { id: frame_fps, text: "FPS · min — · max — · avg —" }
   # The page opens at zero-G; the timed settling below needs a pull to bring the marbles down.
   - assert_text: { id: physics_gravity_value, text: "0.00 m/s² (zero-G)" }
   - set_value: { id: physics_gravity_slider, value: 9.81 }
   - assert_visible: { id: frame_ball }
   - assert_text: { id: frame_status, text: Resting }
-  - assert_text: { id: frame_fps, text: "FPS · min — · max — · avg —" }
   - assert_text: { id: frame_ball_count, text: '20' }
   - set_value: { id: frame_ball_slider, value: 250 }
   - assert_text: { id: frame_ball_count, text: '250' }

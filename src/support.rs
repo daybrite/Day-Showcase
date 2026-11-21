@@ -85,6 +85,22 @@ pub(crate) fn battery() -> Support {
     unsupported_on(&["DOM"])
 }
 
+/// The system's now-playing surface and its remote commands (day-piece-media docs/media.md).
+///
+/// Declared: the piece publishes without reporting whether anything received it. Its GTK and Qt
+/// arms publish over MPRIS on the Linux session bus, so the macOS builds of those toolkits have
+/// no surface to publish to.
+pub(crate) fn now_playing() -> Support {
+    if cfg!(all(
+        any(feature = "gtk", feature = "qt"),
+        not(target_os = "linux")
+    )) {
+        Support::Unsupported
+    } else {
+        Support::Native
+    }
+}
+
 /// Motion sensors (docs/sensors.md).
 ///
 /// Declared: the part streams readings and reports absence as an empty stream, which is also what

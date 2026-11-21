@@ -8,8 +8,6 @@
 
 use day::prelude::*;
 
-use crate::widgets::page;
-
 /// The signals the main window's toolbar is bound to.
 #[derive(Clone, Copy)]
 pub(crate) struct ToolbarDemo {
@@ -213,18 +211,12 @@ fn note(s: ToolbarDemo, what: day::LocalizedText) {
 }
 
 pub(crate) fn toolbars_page() -> AnyPiece {
-    page(
+    crate::widgets::page_cards(
         crate::res::str::nav_toolbars(),
         day::id!(toolbars_title),
-        // These sections describe different things. A single shared label column lets the
-        // long control captions squeeze readouts and explanatory text on a phone.
-        column((
-            form((readout_section(),)),
-            form((controls_section(),)),
-            form((vocabulary_section(),)),
-        ))
-        .spacing(Space::L)
-        .any(),
+        // Each card keeps a label column of its own: the long control captions would otherwise
+        // squeeze the readouts on a phone.
+        crate::gallery::balanced(2, vec![readout_section().any(), controls_section().any()]),
     )
     .any()
 }
@@ -232,151 +224,128 @@ pub(crate) fn toolbars_page() -> AnyPiece {
 /// What the bar is doing right now: the two-way bindings, read from the page.
 fn readout_section() -> impl Piece {
     let s = state();
-    section((
-        // Where there is no toolbar the rest of the page has nothing to report on.
-        when(
-            || !available(),
-            || {
-                label(crate::res::str::toolbar_unsupported())
-                    .color(crate::palette::SLATE)
-                    .id(day::id!(toolbar_unsupported))
-            },
-        ),
-        labeled(
-            crate::res::str::toolbar_query_label(),
-            label(move || {
-                let q = s.query.get();
-                if q.is_empty() {
-                    crate::res::str::toolbar_query_empty().format()
-                } else {
-                    q
-                }
-            })
-            .id(day::id!(toolbar_query)),
-        ),
-        labeled(
-            crate::res::str::toolbar_star_label(),
-            // Read from the command, not from a mirror signal: the star button now belongs to
-            // the page it acts on, so there is no window-level copy of its state to read.
-            label(move || {
-                if crate::commands::star().is_checked().unwrap_or(false) {
-                    crate::res::str::toolbar_on().format()
-                } else {
-                    crate::res::str::toolbar_off().format()
-                }
-            })
-            .id(day::id!(toolbar_star_state)),
-        ),
-        // The appearance group's setting, and whether this toolkit acts on it; the three buttons
-        // lower disabled where it does not, and this says why.
-        labeled(
-            crate::res::str::toolbar_appearance_label(),
-            label(move || {
-                let mode =
-                    crate::commands::appearance_command(crate::commands::appearance()).label();
-                if crate::commands::appearance_supported() {
-                    mode
-                } else {
-                    crate::res::str::toolbar_appearance_ignored(mode).format()
-                }
-            })
-            .id(day::id!(toolbar_appearance)),
-        ),
-        // The recorder's transport, in one word: what the bar's Record and Play items are doing.
-        labeled(
-            crate::res::str::toolbar_transport_label(),
-            label(|| {
-                let s = if day::record::recording_signal().get() {
-                    crate::res::str::toolbar_transport_recording()
-                } else if day::record::playing_signal().get() {
-                    if day::record::paused_signal().get() {
-                        crate::res::str::toolbar_transport_paused()
+    crate::gallery::panel(
+        crate::res::str::toolbar_readout_title(),
+        (
+            // Where there is no toolbar the rest of the page has nothing to report on.
+            when(
+                || !available(),
+                || {
+                    label(crate::res::str::toolbar_unsupported())
+                        .color(crate::palette::SLATE)
+                        .id(day::id!(toolbar_unsupported))
+                },
+            ),
+            labeled(
+                crate::res::str::toolbar_query_label(),
+                label(move || {
+                    let q = s.query.get();
+                    if q.is_empty() {
+                        crate::res::str::toolbar_query_empty().format()
                     } else {
-                        crate::res::str::toolbar_transport_playing()
+                        q
                     }
-                } else {
-                    crate::res::str::toolbar_transport_idle()
-                };
-                s.format()
-            })
-            .id(day::id!(toolbar_transport)),
+                })
+                .id(day::id!(toolbar_query)),
+            ),
+            labeled(
+                crate::res::str::toolbar_star_label(),
+                // Read from the command, not from a mirror signal: the star button now belongs to
+                // the page it acts on, so there is no window-level copy of its state to read.
+                label(move || {
+                    if crate::commands::star().is_checked().unwrap_or(false) {
+                        crate::res::str::toolbar_on().format()
+                    } else {
+                        crate::res::str::toolbar_off().format()
+                    }
+                })
+                .id(day::id!(toolbar_star_state)),
+            ),
+            // The appearance group's setting, and whether this toolkit acts on it; the three buttons
+            // lower disabled where it does not, and this says why.
+            labeled(
+                crate::res::str::toolbar_appearance_label(),
+                label(move || {
+                    let mode =
+                        crate::commands::appearance_command(crate::commands::appearance()).label();
+                    if crate::commands::appearance_supported() {
+                        mode
+                    } else {
+                        crate::res::str::toolbar_appearance_ignored(mode).format()
+                    }
+                })
+                .id(day::id!(toolbar_appearance)),
+            ),
+            // The recorder's transport, in one word: what the bar's Record and Play items are doing.
+            labeled(
+                crate::res::str::toolbar_transport_label(),
+                label(|| {
+                    let s = if day::record::recording_signal().get() {
+                        crate::res::str::toolbar_transport_recording()
+                    } else if day::record::playing_signal().get() {
+                        if day::record::paused_signal().get() {
+                            crate::res::str::toolbar_transport_paused()
+                        } else {
+                            crate::res::str::toolbar_transport_playing()
+                        }
+                    } else {
+                        crate::res::str::toolbar_transport_idle()
+                    };
+                    s.format()
+                })
+                .id(day::id!(toolbar_transport)),
+            ),
+            labeled(
+                crate::res::str::toolbar_presses_label(),
+                label(move || crate::res::str::toolbar_presses(s.presses.get() as f64).format())
+                    .tabular()
+                    .id(day::id!(toolbar_presses)),
+            ),
+            labeled(
+                crate::res::str::toolbar_last_label(),
+                label(move || {
+                    let l = s.last.get();
+                    if l.is_empty() {
+                        crate::res::str::toolbar_last_none().format()
+                    } else {
+                        l
+                    }
+                })
+                .id(day::id!(toolbar_last)),
+            ),
         ),
-        labeled(
-            crate::res::str::toolbar_presses_label(),
-            label(move || crate::res::str::toolbar_presses(s.presses.get() as f64).format())
-                .tabular()
-                .id(day::id!(toolbar_presses)),
-        ),
-        labeled(
-            crate::res::str::toolbar_last_label(),
-            label(move || {
-                let l = s.last.get();
-                if l.is_empty() {
-                    crate::res::str::toolbar_last_none().format()
-                } else {
-                    l
-                }
-            })
-            .id(day::id!(toolbar_last)),
-        ),
-    ))
-    .title(crate::res::str::toolbar_readout_title())
+    )
 }
 
 /// Driving the bar from the content: add/remove an item, disable one, write a bound signal.
 fn controls_section() -> impl Piece {
     let s = state();
-    section((
-        labeled(
-            crate::res::str::toolbar_extra_label(),
-            toggle(s.extra).id(day::id!(toolbar_extra_switch)),
+    crate::gallery::panel(
+        crate::res::str::toolbar_controls_title(),
+        (
+            labeled(
+                crate::res::str::toolbar_extra_label(),
+                toggle(s.extra).id(day::id!(toolbar_extra_switch)),
+            ),
+            labeled(
+                crate::res::str::toolbar_enabled_label(),
+                toggle(s.source_enabled).id(day::id!(toolbar_enabled_switch)),
+            ),
+            // Mirrors the command's own state, not a window-level copy: the star button belongs to
+            // whichever page is showing now, and this switch drives the same command it does.
+            labeled(
+                crate::res::str::toolbar_star_label(),
+                toggle(s.star_switch).id(day::id!(toolbar_star_switch)),
+            ),
+            row((
+                button(crate::res::str::toolbar_clear_search())
+                    .action(move || s.query.set(String::new()))
+                    .id(day::id!(toolbar_clear_search)),
+                button(crate::res::str::toolbar_seed_search())
+                    .action(move || s.query.set(crate::res::str::toolbar_seed_text().format()))
+                    .id(day::id!(toolbar_seed_search)),
+            ))
+            .spacing(Space::S),
         ),
-        labeled(
-            crate::res::str::toolbar_enabled_label(),
-            toggle(s.source_enabled).id(day::id!(toolbar_enabled_switch)),
-        ),
-        // Mirrors the command's own state, not a window-level copy: the star button belongs to
-        // whichever page is showing now, and this switch drives the same command it does.
-        labeled(
-            crate::res::str::toolbar_star_label(),
-            toggle(s.star_switch).id(day::id!(toolbar_star_switch)),
-        ),
-        row((
-            button(crate::res::str::toolbar_clear_search())
-                .action(move || s.query.set(String::new()))
-                .id(day::id!(toolbar_clear_search)),
-            button(crate::res::str::toolbar_seed_search())
-                .action(move || s.query.set(crate::res::str::toolbar_seed_text().format()))
-                .id(day::id!(toolbar_seed_search)),
-        ))
-        .spacing(Space::S),
-    ))
-    .title(crate::res::str::toolbar_controls_title())
-}
-
-/// What is in the bar, so the page names each kind the vocabulary offers.
-fn vocabulary_section() -> impl Piece {
-    section((
-        labeled(
-            crate::res::str::toolbar_kind_button(),
-            label(crate::res::str::toolbar_kind_button_note()),
-        ),
-        labeled(
-            crate::res::str::toolbar_kind_toggle(),
-            label(crate::res::str::toolbar_kind_toggle_note()),
-        ),
-        labeled(
-            crate::res::str::toolbar_kind_menu(),
-            label(crate::res::str::toolbar_kind_menu_note()),
-        ),
-        labeled(
-            crate::res::str::toolbar_kind_search(),
-            label(crate::res::str::toolbar_kind_search_note()),
-        ),
-        labeled(
-            crate::res::str::toolbar_kind_space(),
-            label(crate::res::str::toolbar_kind_space_note()),
-        ),
-    ))
-    .title(crate::res::str::toolbar_vocabulary_title())
+    )
 }

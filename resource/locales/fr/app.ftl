@@ -18,6 +18,7 @@ ctl_tinted = Teinté
 ctl_destructive = Destructif
 ctl_disabled = Désactivé
 ctl_link = Lien
+ctl_composed = Composé
 ctl_link_text = daybrite.dev
 ctl_presses = Appuis
 ctl_switches = Interrupteurs et curseurs
@@ -53,7 +54,6 @@ ctl_divider = Séparateur
 ctl_state = État
 ctl_on = Activé
 ctl_off = Désactivé
-ctl_crates_note = Ces contrôles sont fournis par le cœur de Day ; le badge est composé localement dans Showcase.
 nav_menus = Menus et dialogues
 nav_text = Texte
 nav_battery = Batterie
@@ -96,11 +96,6 @@ group_graphics = Graphismes et médias
 group_platform = Plateforme
 group_app = Application et outils
 
-shapes_kinds = Types
-gradients_title = Dégradés
-gradient_angle = Angle
-shapes_angle = Angle
-
 picker_selected = Sélection
 picker_segmented = Segmenté
 picker_menu = Menu
@@ -119,12 +114,11 @@ date_bounded = En 2026
 date_picked = Date choisie
 time_picked = Heure choisie
 
-compose_caption = Pièces de pure composition — sans code natif, sans fonctionnalités cargo, sur tous les backends gratuitement.
 compose_card_title = Surface réutilisable
-compose_card_body = Marge + arrière-plan + coins arrondis, appliqués comme Modificateur.
+compose_card_body = Une marge intérieure, un fond et des coins arrondis.
 compose_env_value = Teinté par l'accent fourni
 list_add = Ajouter 100
-list_caption = { $count } lignes — seules les cellules visibles sont créées
+list_caption = { $count } lignes
 list_selection_none = Aucune ligne sélectionnée
 list_selection = { $count ->
     [one] Ligne sélectionnée : { $rows }
@@ -158,16 +152,29 @@ list_opt_editing = Mode édition
 list_opt_reorder = Glisser pour réordonner
 list_opt_swipe = Actions de balayage
 list_opt_delete = Balayer pour supprimer
-list_opt_gestures_footer = Avec les en-têtes de section, une ligne se déplace seulement dans sa section, et le balayage pour supprimer est désactivé, car supprimer la dernière ligne d’une section retirerait son en-tête.
+list_opt_gestures_footer = Avec les en-têtes de section, les lignes se déplacent dans leur section et le balayage pour supprimer est désactivé.
 list_section = Lignes { $first } à { $last }
 list_row_note = Une deuxième ligne de détail pour cette ligne
 list_row_note_long = Les lignes dimensionnées par leur contenu s’agrandissent pour un texte plus long, comme cette troisième ligne qui passe à la ligne dans une fenêtre étroite.
 list_swipe_select = Sélectionner
 list_swipe_deselect = Désélectionner
+list_align = Position d’arrivée
+list_align_nearest = Au plus près
+list_align_start = En haut
+list_align_center = Au milieu
+list_align_end = En bas
+list_insert = Insérer
+list_remove = Retirer
+list_remove_all = Tout retirer
+list_footer = Fin de la liste : { $count } lignes
+list_empty = Aucune ligne. Réinitialiser les rétablit.
+list_visible = Visibles : { $first }–{ $last }
+list_visible_first = Visibles à partir de { $first }
+list_visible_none = Aucune ligne visible
 
 nav_model = Modèle
-model_caption = { $count } lignes affichées — la liste est pilotée par le store
-model_cost = { $paths } chemins observés · { $nodes } nœuds internés — stable pendant le défilement
+model_caption = { $count } lignes affichées
+model_cost = { $paths } chemins observés · { $nodes } nœuds internés
 model_hide_done = Masquer les terminées
 model_selected = Sélection : { $title }
 model_selected_none = Aucune sélection
@@ -175,8 +182,8 @@ model_add = Ajouter une tâche
 model_delete = Supprimer la sélection
 model_undo = Annuler
 model_redo = Rétablir
-model_storage_file = Les lignes vivent dans { $file } — chaque modification devient du SQL en fin de tour
-model_storage_memory = Les lignes restent en mémoire sur cette cible
+model_storage_file = Stocké dans { $file }
+model_storage_memory = Stocké en mémoire sur cette plateforme
 nav_query = Requête
 query_caption = { $count } morceaux sur { $total } correspondent
 query_resident = { $resident } lignes sur { $total } dans le cache du processus de base de données
@@ -197,29 +204,23 @@ webview_reload = Recharger
 webview_js_hint = JavaScript à exécuter dans la page
 webview_js_run = Exécuter »
 webview_js_result_hint = Le résultat JSON s’affiche ici
-webview_note_iframe = Cette plateforme intègre la page dans une iframe. Le navigateur bloque l'historique et la lecture de l'URL entre origines : Précédent, Suivant et Arrêter sont indisponibles, et le champ ci-dessus ne suivra pas les liens ouverts dans la page.
+webview_note_iframe = Cette plateforme intègre la page dans une iframe : Précédent, Suivant et Arrêter sont indisponibles, et le champ ne suit pas les liens.
 webview_tab_remote = Distant
 webview_tab_embedded = Intégré
-webview_embedded_caption = Un site complet — pages, feuille de style, script, image — embarqué dans l'app sous resource/assets/web/minisite/, chargé sans réseau. Les liens relatifs restent dans le site ; les liens externes s'ouvrent hors de l'app ; les liens day-showcase:// sont interceptés et naviguent dans cette app.
 webview_embedded_unsupported = Aucun moteur web n'est disponible dans cette version du toolkit.
 webview_embedded_status_none = Aucun lien externe suivi pour l'instant.
 webview_embedded_opened = Ouvert hors de l'app : { $url }
 webview_embedded_intercepted = Intercepté — navigation dans l'app vers « { $route } ».
 
-stack_root_body = Une vraie pile push/pop. Son chemin est un signal de l'application.
 stack_push = Empiler un détail
 stack_detail_title = Niveau { $depth }
-stack_detail_body = Empilé sur le chemin. Le bouton retour natif réécrit le dépilement.
 stack_item_title = Élément { $id }
-stack_link_42 = Ouvrir item-42 avec un indice (route absolue)
+stack_link_42 = Ouvrir l'élément 42 par sa route
 stack_param_hint = Ouvert avec l'indice : {$hint}
 tab_one = Aperçu
 tab_two = Détails
 tab_three = Réglages
-tab_one_body = L'onglet aperçu. Chaque onglet conserve son propre état.
-tab_two_body = L'onglet détails, sélectionné par sa clé de route.
-tab_three_body = L'onglet réglages. Les liens profonds et dayscript choisissent les onglets par clé.
-tab_state_note = Changez d'onglet puis revenez — l'état de cet onglet est conservé.
+tab_state_note = Changez d'onglet puis revenez : le compteur est conservé.
 tab_detail_route = Clé de route
 tab_detail_link = Lien profond
 tab_set_badges = Afficher les badges
@@ -244,7 +245,6 @@ vanilla = vanille
 pistachio = pistache
 
 # Files playground (docs/files.md)
-files_caption = Sélecteurs de fichiers natifs. « Ouvrir » lit un fichier texte dans l'éditeur ; « Enregistrer » l'écrit.
 files_placeholder = Saisissez du texte à enregistrer…
 files_open = Ouvrir un fichier…
 files_save = Enregistrer le fichier…
@@ -267,7 +267,6 @@ sensor_waiting = en attente du premier échantillon…
 sensor_unavailable = indisponible sur cet appareil
 
 # Aire de jeu Presse-papiers (docs/clipboard.md)
-clipboard_caption = La part day-part-clipboard lit et écrit le presse-papiers système nativement.
 clipboard_placeholder = Saisissez un texte à copier
 clipboard_copy = Copier
 clipboard_paste = Coller
@@ -275,13 +274,13 @@ clipboard_idle = Presse-papiers intact
 clipboard_copied = Copié dans le presse-papiers système
 clipboard_copy_failed = Échec de la copie (pas d'API presse-papiers ici)
 clipboard_pasted = Collé depuis le presse-papiers système
-clipboard_empty = Presse-papiers vide (ou illisible en arrière-plan)
+clipboard_empty = Presse-papiers vide ou illisible
 
 # Aire de jeu Réseau (docs/network.md)
 network_refresh = Lire le réseau
 network_reading_online = En ligne · { $kind } · facturé : { $expensive }
 network_reading_offline = Hors ligne
-network_reading_none = Connectivité indisponible (aucune API de plateforme, ou la lecture a échoué)
+network_reading_none = Connectivité indisponible
 
 # Aire de jeu Média (docs/media.md)
 media_play = Lecture
@@ -291,7 +290,7 @@ media_load = Charger
 # --- Localization page (docs/localization.md) ---
 nav_localization = Localisation
 loc_locale_section = Locale en direct
-loc_live_note = La locale est un signal — changer de langue re-rend chaque chaîne instantanément. Le sens de lecture est fixé au lancement (lancez en ar pour l'interface miroir).
+loc_live_note = Le sens de la mise en page est fixé au lancement.
 loc_current_label = Actuelle
 loc_reset = Réinitialiser
 loc_numbers_section = Nombres
@@ -321,23 +320,19 @@ plural_items = { $count ->
 text_selectable_toggle = Sélectionnable
 text_styles_header = Styles
 text_weights_header = Graisses
-text_styling_header = Gras et italique
-text_colors_header = Couleur
+text_styling_header = Gras, italique et couleur
 text_custom_header = Tailles personnalisées
-text_custom_note = Font.System(pt) — mis à l'échelle par la taille de texte d'accessibilité (Dynamic Type).
 text_fonts_header = Polices embarquées
-text_fonts_note = Font.Custom("Famille", pt) — fichiers du dossier resource/fonts/ de l'application, embarqués par day build et résolus par nom de famille sur chaque plateforme.
 
 # Aire de jeu Menus
 menus_last = Dernière action
 menus_lifecycle = Cycle de vie
-menus_target = Clic droit ici (appui long sur mobile) pour un menu contextuel
-menus_shortcut_hint = Les raccourcis clavier (⌘/Ctrl + touche) apparaissent dans la barre de menus et fonctionnent quand l'application est active — p. ex. Nouveau (N), Enregistrer (S), Recharger (R).
+menus_target = Clic droit ou appui long ici
 
 # --- day-part-haptics ---
 nav_haptics = Haptique
-haptics_supported_yes = Moteur haptique disponible sur cette plateforme
-haptics_supported_no = Aucun moteur haptique sur cette plateforme (les boutons sont silencieux)
+haptics_supported_yes = Moteur haptique disponible
+haptics_supported_no = Aucun moteur haptique sur cette plateforme
 haptics_light = Léger
 haptics_medium = Moyen
 haptics_heavy = Fort
@@ -357,7 +352,7 @@ sound_error = Erreur
 sound_glass = Verre
 sound_card = Carte
 sound_jingle = Jingle
-sound_pan_caption = Le même son placé à gauche, au centre et à droite.
+sound_pan_caption = Panoramique stéréo
 sound_left = Gauche
 sound_center = Centre
 sound_right = Droite
@@ -365,7 +360,6 @@ sound_volume = Volume
 sound_last = Dernier joué
 sound_none = Rien joué pour l'instant
 sound_last_played = Joué : { $clip }
-sound_loop_caption = Un son qui se répète jusqu'à ce qu'on l'arrête.
 sound_loop = Bourdonnement en boucle
 sound_loop_volume = Volume de la boucle
 sound_looping = En boucle
@@ -374,27 +368,15 @@ sound_looping_clip = En boucle : { $clip }
 
 # --- day-part-preferences ---
 nav_prefs = Préférences
-prefs_caption = Conserver une chaîne entre les lancements avec day-part-preferences.
-prefs_placeholder = Valeur à mémoriser
-prefs_save = Enregistrer
-prefs_load = Charger
-prefs_clear = Effacer
-prefs_idle = Saisissez une valeur, puis Enregistrer.
+prefs_placeholder = Une note à mémoriser
 prefs_empty = (rien d'enregistré)
-prefs_saved = Enregistré.
-prefs_save_failed = Échec de l'enregistrement.
-prefs_loaded = Chargé depuis le stockage.
-prefs_missing = Rien d'enregistré pour l'instant.
-prefs_cleared = Effacé.
-prefs_value_label = Valeur enregistrée :
+prefs_value_label = Valeur enregistrée
 
 # --- bundled resources (§18.3) ---
 nav_resources = Ressources
 vectors_title = Vecteurs
-vectors_note = Les glyphes de la barre latérale, issus de resource/vectors/ — un SVG par icône, indépendant de la résolution sur chaque backend.
 vectors_tints = Teintes
 vectors_zoom = Zoom
-vectors_scene_note = Un SVG de 240 tracés, redessiné à partir du vecteur à chaque palier de zoom plutôt qu'agrandi — les contours restent nets à toute taille. Sur Android, il est livré en VectorDrawable, pas en image matricielle.
 vectors_weights = Graisses
 vectors_sizes = Tailles
 resources_numbers = numbers.bin : { $len } octets, byte[100] = { $byte }
@@ -422,27 +404,26 @@ nav_tweaks = Tweaks
 tweaks_stock = D'origine
 tweaks_tweaked = Ajustée
 tweaks_bezel_title = Biseau du bouton
-tweaks_bezel_caption = day-tweak-button-bezel — AppKit uniquement : les constantes NSBezelStyle sur le vrai NSButton.
+tweaks_bezel_caption = AppKit uniquement
 tweaks_selectable_title = Libellé sélectionnable
-tweaks_selectable_caption = Le modificateur .selectable() du cœur — la sélection de texte native sur un libellé, activable, là où la boîte à outils la prend en charge.
-tweaks_selectable_text = Le texte de ce libellé peut être sélectionné et copié — essayez.
+tweaks_selectable_text = Sélectionnez ce texte et copiez-le.
 tweaks_tooltip_title = Info-bulle
-tweaks_tooltip_caption = day-tweak-tooltip — AppKit, GTK, Android : une info-bulle native, un modificateur sur trois niveaux d'accès.
+tweaks_tooltip_caption = AppKit, GTK et Android. Survolez le bouton ou maintenez-le appuyé.
 tweaks_tooltip_label = Enregistrement auto
-tweaks_tooltip_hint = Votre travail est enregistré automatiquement. Survolez (ou appui long sur Android) pour les détails.
+tweaks_tooltip_hint = Votre travail est enregistré automatiquement.
 tweaks_ticks_title = Graduations du curseur
-tweaks_ticks_caption = day-tweak-slider-tick-marks — AppKit, GTK, Android, Qt, XAML, ArkUI : graduations natives, avec aimantation là où la plateforme la propose. Le curseur ajusté s'aimante ; celui d'origine glisse.
+tweaks_ticks_caption = AppKit, GTK, Android, Qt, XAML et ArkUI. Le curseur ajusté s'aimante sur ses graduations.
 tweaks_ref_title = Vivacité du NativeRef
-tweaks_ref_caption = Un NativeRef atteint le curseur ajusté après montage ; démontez-le et la référence se vide au lieu de pendre.
+tweaks_ref_caption = Monter le curseur
 tweaks_ref_live = réf : vivante
 tweaks_ref_cleared = réf : vidée
 tweaks_label_title = Ajuster un libellé
-tweaks_label_caption = Un ajustement direct (AppKit, UIKit) atténue ce libellé via sa vue native et rapporte la classe rencontrée. Sur iOS, « Sélectionnable » reconstruit le libellé en UITextView en lecture seule — l'ajustement s'applique après .selectable(), donc au widget réellement affiché.
+tweaks_label_caption = AppKit et UIKit. Sur iOS, Sélectionnable change la classe native.
 tweaks_label_sample = Ce libellé est atténué par un ajustement natif.
 tweaks_label_class = Classe native : { $class }
 
 # --- merged section pages (design overhaul) ---
-nav_canvas = Canevas et formes
+nav_canvas = Canevas
 nav_charts = Graphiques
 nav_system = Appareil et capteurs
 nav_network_http = Réseau et HTTP
@@ -451,8 +432,6 @@ nav_notify_badge = Notifications et badge
 nav_push = Notifications push
 nav_speech_haptics = Voix, sons et haptique
 nav_files_storage = Fichiers et stockage
-paths_title = Tracés, contours et découpe
-canvas_gauge = Jauge canevas
 gauge_value_label = Valeur
 canvas_text_title = Texte et polices
 canvas_anchors_title = Ancrages du texte
@@ -522,7 +501,6 @@ media_player_section = Vidéo
 
 # Sections de la page Ressources
 resources_image_section = Image embarquée
-resources_modes_note = Une image, trois modes — Ajuster préserve les proportions, Remplir rogne, Étirer déforme.
 image_mode_fit = Ajuster
 image_mode_fill = Remplir
 image_mode_stretch = Étirer
@@ -546,7 +524,6 @@ about_locale = Langue
 # Page Focus (docs/focus.md)
 nav_focus = Focus
 focus_group_section = Un signal, un formulaire
-focus_group_caption = Trois champs liés à un même signal optionnel. Cliquez ou tabulez de l’un à l’autre et l’indicateur suit ; Entrée passe au champ suivant.
 focus_name_label = Nom
 focus_email_label = E-mail
 focus_city_label = Ville
@@ -554,7 +531,6 @@ focus_current_label = Focus
 focus_next = Focus suivant
 focus_clear = Effacer le focus
 focus_bool_section = Un contrôle, un booléen
-focus_bool_caption = Le même champ lié à un signal booléen — les boutons l’écrivent ; entrer dans le champ ou en sortir l’écrit en retour.
 focus_bool_placeholder = Le focus arrive ici
 focus_focus_btn = Donner le focus
 focus_blur_btn = Retirer le focus
@@ -562,7 +538,7 @@ focus_state_label = État
 focus_state_on = avec focus
 focus_state_off = sans focus
 focus_probe_section = Au-delà des champs de texte
-focus_probe_caption = Les toolkits de bureau donnent aussi le focus aux boutons, interrupteurs et curseurs ; les plateformes tactiles le réservent surtout à la saisie de texte.
+focus_probe_caption = Les plateformes tactiles réservent le focus à la saisie de texte.
 focus_probe_toggle = Interrupteur
 focus_probe_slider = Curseur
 focus_probe_button = Bouton
@@ -668,18 +644,15 @@ text_font_pacifico_lg = Pacifico en 36 points
 text_links_section = Liens
 text_runs_section = Fragments stylés
 text_markdown_section = Markdown, analysé en direct
-text_markdown_caption = Saisissez ci-dessous. Le libellé sous le séparateur est réanalysé à chaque frappe, par le même chemin qu'une chaîne traduite ou une valeur venue du réseau.
 text_markdown_sample = Day analyse **gras**, *italique*, `code`, ~~barré~~ et [liens](https://daybrite.dev) à l'exécution. Un balisage inachevé comme ** reste littéral.
 text_markdown_opened = Ouvert : {$url}
 text_baseline_section = Alignement sur la ligne de base
-text_baseline_caption = Les lignes posent leur texte sur une même ligne de base au lieu de centrer des boîtes de hauteurs différentes. Désactivez l'option pour voir la différence : le texte du champ, l'étiquette à côté et l'unité qui suit se décalent.
 text_baseline_toggle = Aligner les lignes de base
 text_baseline_quantity = Quantité
 text_baseline_unit = articles
 text_baseline_total = Total
 text_baseline_currency = USD
 text_baseline_due = Échéance
-text_links_caption = Touchez un lien pour l'ouvrir dans le navigateur du système.
 text_link_icons_label = Material Symbols sur Google Fonts
 text_link_mail_label = Écrire à l'équipe
 
@@ -700,7 +673,7 @@ crash_contained = Panique (contenue)
 crash_contained_label = Interceptée par day, l'application survit
 crash_send = Envoyer le rapport
 crash_clear = Effacer les rapports
-crash_empty = Aucun rapport pour l'instant. Déclenchez un plantage, puis relancez pour le voir ici.
+crash_empty = Aucun rapport pour l'instant. Déclenchez un plantage, puis relancez.
 
 # Page Champs de texte (docs/textfield.md)
 nav_textfields = Champs de texte
@@ -780,15 +753,13 @@ location_unknown = —
 chart_axes = x rouge · y turquoise · z violet
 
 # Écran couvrant plein écran (docs/cover.md).
-stack_cover_button = Présenter un écran couvrant
+stack_cover_button = Couverture
 cover_title = Écran couvrant
-cover_body = Présenté au-dessus de toute la fenêtre par cover(signal). Natif sur iOS et Android, enfant au premier plan ailleurs.
 cover_dismiss = Fermer
 
 # Demi-feuille (docs/cover.md) : la moitié basse de la fenêtre, la page restant visible dessous.
-stack_half_button = Présenter une demi-feuille
+stack_half_button = Demi-feuille
 half_title = Demi-feuille
-half_body = Présentée sur la moitié basse par cover(signal).half_sheet(), la page restant visible. Une feuille à cran moyen sur iOS, une feuille du bas sur Android.
 half_level = Niveau
 half_readout = Niveau de la feuille : { $level }
 
@@ -803,7 +774,6 @@ tab_dynamic_remove = Retirer un onglet
 
 # Stockage de fichiers local (page services, docs/fs.md).
 storage_title = Fichiers locaux
-storage_caption = Le module day-part-filesystem stocke des fichiers privés de l'app sur chaque cible — de vrais fichiers en natif, OPFS dans le navigateur.
 storage_placeholder = Texte à stocker
 storage_save = Enregistrer le fichier
 storage_load = Charger
@@ -815,14 +785,13 @@ prefs_window_title = Préférences
 
 # --- Tree page (docs/tree.md) ---
 nav_tree = Arborescence
-tree_caption = Un plan hiérarchique sur des lignes détenues par l'application : dépliage, sélection, révélation, glisser-déplacer et menus contextuels par ligne.
 tree_expand_all = Tout déplier
 tree_collapse_all = Tout replier
 tree_reveal = Révéler tree.rs
 tree_add_file = Ajouter un fichier
 tree_multi = Sélection multiple
 tree_lock = Verrouiller docs
-tree_hint = Glissez une ligne sur un dossier pour la déplacer, ou passez par son menu contextuel — tant que le verrou est actif, docs refuse les dépôts.
+tree_hint = Faites glisser une ligne sur un dossier pour la déplacer. Tant que le verrou est actif, docs refuse les dépôts.
 tree_count = { $count ->
     [one] { $count } nœud
    *[other] { $count } nœuds
@@ -844,10 +813,9 @@ tree_ctx_delete = Supprimer
 
 # --- Toolbars page (docs/toolbars.md) ---
 nav_toolbars = Barres d'outils
-toolbar_unsupported = Cette boîte à outils n'a pas de barre d'outils de fenêtre ; rien n'a donc été installé. Sur téléphone, ces commandes vont dans le contenu.
+toolbar_unsupported = Cette boîte à outils n'a pas de barre d'outils de fenêtre.
 toolbar_readout_title = Ce que fait la barre d'outils
 toolbar_controls_title = La piloter depuis ici
-toolbar_vocabulary_title = Le vocabulaire des éléments
 # Item labels: these appear in the toolbar, so they stay short.
 toolbar_new = Nouvelle fenêtre
 toolbar_menu_open_scripting = Ouvrir la page Scripts
@@ -884,23 +852,12 @@ toolbar_enabled_label = Afficher la source activé
 toolbar_clear_search = Effacer la recherche
 toolbar_seed_search = Remplir la recherche
 toolbar_seed_text = barres d'outils
-# One line per item kind.
-toolbar_kind_button = Bouton
-toolbar_kind_button_note = Exécute une commande, et peut partager son action avec un élément de menu.
-toolbar_kind_toggle = Interrupteur
-toolbar_kind_toggle_note = Lié en double sens à un signal, donc l'interrupteur ci-dessus et le bouton s'accordent.
-toolbar_kind_menu = Menu
-toolbar_kind_menu_note = Un menu déroulant construit à partir des mêmes entrées que la barre de menus.
-toolbar_kind_search = Recherche
-toolbar_kind_search_note = Le champ de recherche de la plateforme, lié en double sens à un signal.
-toolbar_kind_space = Espaceurs
-toolbar_kind_space_note = Un espace flexible sépare les éléments de tête de ceux de fin.
 # --- day-part-local-notify (docs/notify.md) ---
 nav_notify = Notifications
-notify_caps_post = Publication prise en charge sur cette plateforme
-notify_caps_unsupported = Notifications locales indisponibles dans cette version (sur macOS elles exigent une app signée — utilisez day pack)
+notify_caps_post = Publication prise en charge
+notify_caps_unsupported = Indisponibles dans cette version. Sur macOS, les notifications exigent une app signée (day pack).
 notify_caps_schedule_os = Les notifications programmées survivent à la fermeture de l'application
-notify_caps_schedule_process = Les notifications programmées reposent sur une minuterie interne et sont perdues si l'application se ferme
+notify_caps_schedule_process = Les notifications programmées sont perdues si l'app se ferme
 notify_title_label = Titre
 notify_title_placeholder = Titre de la notification
 notify_title_default = Bonjour de Day
@@ -928,9 +885,9 @@ notify_status_cancelled = Toutes les notifications ont été annulées
 notify_status_failed = Publication impossible
 notify_last = Dernier résultat
 notify_perm_granted = Autorisation de notification accordée
-notify_perm_missing = Autorisation de notification refusée — les envois seront ignorés
+notify_perm_missing = Autorisation non accordée : les notifications sont ignorées
 notify_perm_request = Demander l'autorisation
-haptics_songs_caption = Séquences plus longues — les silences portent le rythme autant que les impulsions.
+haptics_songs_caption = Séquences
 haptics_song_celebration = Célébration
 haptics_song_levelup = Niveau supérieur
 haptics_song_heartbeat = Battement
@@ -953,10 +910,10 @@ scripting_saved = Enregistré
 
 # --- app badge (docs/badge.md) ---
 nav_badge = Pastille d'application
-badge_caps_native = Cette plateforme affiche une pastille sur l'icône
-badge_caps_emulated = La pastille est envoyée, mais son affichage dépend du shell ou de l'installation de l'application
-badge_caps_none = Cette plateforme n'a pas d'API de pastille
-badge_android_note = Android n'a aucune API pour définir une pastille : les lanceurs déduisent le point des notifications publiées ; utilisez le compteur d'une notification.
+badge_caps_native = L'icône de l'app affiche une pastille
+badge_caps_emulated = Envoyée ; le shell décide de l'afficher ou non
+badge_caps_none = Aucune API de pastille sur cette plateforme
+badge_android_note = Android déduit la pastille des notifications publiées : utilisez plutôt le compteur d'une notification.
 badge_count_label = Nombre
 badge_minus = −
 badge_plus = +
@@ -976,13 +933,11 @@ voice_search_placeholder = Filtrer les parfums…
 # Context-menu demos (menus page): the message-list rows and the media card.
 menu_reply = Répondre
 menu_forward = Transférer
-menu_archive = Archiver
 menu_share = Partager…
 menu_copy_image = Copier l’image
 menu_save_image = Enregistrer dans Photos
 menu_get_info = Lire les informations
 menus_messages_section = Une liste de messages
-menus_messages_hint = Chaque ligne porte son propre menu — l’action nomme le message d’origine.
 menus_photo_section = Une carte média
 msg_subject_one = Chiffres trimestriels, première passe
 msg_subject_two = Plan du week-end, réponse définitive
@@ -1009,7 +964,6 @@ cmd_toggle_pseudo_locale = Basculer la pseudo-locale
 
 # Speech (day-part-speech) : la référence daybridge. Une API, un langage par plateforme.
 speech_title = Synthèse vocale
-speech_caption = Une seule API Rust ; la voix native en dessous — Swift sur Apple, Java sur Android, ArkTS sur HarmonyOS, JavaScript sur le web, C++ sur Windows.
 speech_phrase = Une journée claire, avec un risque de pluie plus tard.
 speech_speak = Parler
 speech_stop = Arrêter
@@ -1028,7 +982,7 @@ vectors_live_tint = Teinte dynamique
 vectors_cycle_tint = Changer
 
 # Layout page (docs/size-classes.md "Row fit policies")
-layout_note = Choisissez une politique, puis ajoutez des composants jusqu'à ce que la rangée manque de place. Rognage laisse la fin sortir de l'écran (les builds de débogage le signalent), Retour à la ligne passe à la ligne à la largeur de chaque bouton, Colonnes égales aligne ces lignes en grille, Colonne empile en largeur compacte, Défilement garde une seule ligne à faire glisser. Sur un ordinateur, rétrécissez la fenêtre pour voir Colonne s'activer.
+layout_note = Choisissez une politique, puis ajoutez des composants jusqu'à ce que la rangée manque de place.
 layout_row_section = Ajustement de rangée
 layout_fit_label = Politique
 layout_fit_clip = Rognage
@@ -1040,9 +994,8 @@ layout_count_label = Composants
 layout_item = Élément { $n }
 layout_item_wide = Élément { $n } (plus large)
 
-vectors_alias_note = Un SVG simple auquel on demande la graisse Grasse : il n'a pas d'axe de graisse, donc l'alias revient au glyphe de base au lieu de ne rien dessiner.
+vectors_alias_note = Pas de variante grasse : le glyphe de base est dessiné
 vectors_pick_tint = Choisir une teinte
-vectors_tint_idioms = Deux sélecteurs de couleur, une seule couleur liée : le premier ouvre le sélecteur de la plateforme, le second ouvre le panneau que Day dessine lui-même — le même sélecteur sur chaque cible.
 
 # La page Liste de contenu (src/pages/content_list) : la liste et l'éditeur du modèle `day new`,
 # donc les clés ci-dessous sont celles du modèle, telles quelles ; le code copié les lit par nom.
@@ -1064,7 +1017,7 @@ split_support_title = Sur cette boîte à outils
 split_support_label = Séparateur dessiné par
 split_native = Le séparateur natif de la boîte à outils
 split_composed = Day (cette boîte à outils n'a pas de séparateur)
-split_hint = Faites glisser le séparateur : le curseur de part le suit, et le curseur déplace le séparateur. Le formulaire d'un côté et le dessin de l'autre lisent le même état.
+split_hint = Faites glisser le séparateur ou déplacez le curseur de part.
 split_arrangement_title = Disposition
 split_stacked = Empilés
 split_share = Part du formulaire
@@ -1087,16 +1040,14 @@ cursors_support_label = Prise en charge ici
 cursors_native = Native
 cursors_emulated = Émulée (formes les plus proches)
 cursors_unsupported = Non prise en charge sur cette cible
-cursors_hint = Passez le pointeur sur une tuile et il prend cette forme. Un écran tactile n'en montre aucune, ce qui est normal.
+cursors_hint = Passez le pointeur sur une tuile.
 cursors_shapes_title = Formes du pointeur
 cursors_drag_title = Glisser-déposer
 cursors_resize_title = Redimensionner et zoomer
 cursors_busy_title = Occupé
 cursors_reactive_title = Une boîte, plusieurs formes
-cursors_reactive_caption = La boîte reçoit `cursor(fermeture)` : choisissez une forme et le pointeur change sans rien reconstruire.
 cursors_reactive_pick = Forme
 cursors_nested_title = L'ancêtre le plus proche l'emporte
-cursors_nested_caption = La boîte extérieure demande un réticule, la tuile intérieure une main ; en quittant la tuile, le réticule revient.
 cursors_nested_outer = Un réticule ici
 cursors_nested_inner = Une main ici
 cursors_native_title = Propres à cette boîte à outils
@@ -1128,7 +1079,7 @@ ctl_icon_only = Icône seule
 ctl_image = Image intégrée
 
 nav_drag_drop = Glisser-déposer
-dnd_hint = Glissez une image, un fichier ou des données vers une autre case ou fenêtre. Les cercles marqués d’un X refusent les dépôts. Déplacement sur cette page, copie entre fenêtres.
+dnd_hint = Faites glisser une tuile sur une autre tuile ou une autre fenêtre de Showcase. Les cercles marqués d'un X refusent les dépôts.
 dnd_ready = Prêt à recevoir un dépôt.
 dnd_empty = Déposer ici
 dnd_new_window = Nouvelle fenêtre
@@ -1143,29 +1094,26 @@ files_bookmark_failed = Impossible de rétablir l’accès au fichier enregistr�
 dnd_disallowed = Ajouter des zones interdites
 
 # Native display frame demo
-frame_hint = Touchez n’importe où pour lancer toutes les billes vers ce point. Faites glisser une bille pour la déplacer et la projeter ; touchez-en une pour lui donner une pichenette. Augmentez leur nombre pour tester les performances.
+frame_hint = Touchez pour lancer les billes. Faites-en glisser une pour la projeter.
 frame_bounce = Rebondir
 frame_shuffle = Mélanger
-frame_pause = Pause / reprendre
+frame_pause = Pause
 frame_waiting = En attente d’une image
 frame_running = En mouvement
 frame_paused = En pause
 frame_resting = Au repos
-frame_explanation = Les FPS couvrent les 2 dernières secondes de callbacks d’affichage, hors pauses. Chaque rebond lance une nouvelle mesure.
-frame_native_title = Animations des composants natifs
 frame_balls_label = Billes
 frame_fps = FPS · min { $min } · max { $max } · moy { $avg }
 
 commands_title = Commandes réutilisables
 commands_add = Ajouter un
-commands_hint = Les boutons, la barre d’outils et le menu contextuel partagent les mêmes actions. Ajoutez jusqu’à trois, puis réinitialisez ; leur disponibilité reste synchronisée.
 
 # The Physics page (src/pages/physics.rs): the ball mass and planetary gravity sliders, and the
 # bodies the gravity readout names.
-physics_gravity_label = Gravité planétaire
+physics_gravity_label = Gravité
 physics_gravity = { $value } m/s²
 physics_gravity_named = { $value } m/s² ({ $body })
-physics_mass_label = Masse des billes
+physics_mass_label = Masse
 physics_mass = { $value } Mt
 physics_elasticity_label = Élasticité
 physics_elasticity = { $value } %
@@ -1183,10 +1131,9 @@ net_provider = Fournisseur HTTP
 net_native = Natif
 net_reqwest = reqwest
 net_native_only = Cette cible utilise le fournisseur natif.
-net_provider_note = Le changement concerne les nouvelles requêtes et connexions. Les transferts en cours conservent leur fournisseur.
+net_provider_note = S’applique aux nouvelles requêtes et aux nouveaux sockets.
 net_simulation = Simulation réseau
 net_intercept = Intercepter les requêtes
-net_sim_note = Les mêmes commandes utilisent des gestionnaires locaux quand l’interception est active. Graine : 42. Débit et échecs concernent le trafic simulé.
 net_speed = Débit
 net_speed_value = { $speed } Kio/s par transfert
 net_failures = Taux d’échec
@@ -1203,7 +1150,7 @@ net_upload_preset = Préréglage envoi
 net_received = { $bytes } octets reçus
 net_error = Échec de la requête : { $error }
 net_request = Requête HTTP
-net_ws_note = Les cibles natives utilisent le serveur d’écho local. Dans le navigateur, saisissez une URL WebSocket réelle ou activez l’interception pour l’écho simulé.
+net_ws_note = Saisissez une URL WebSocket réelle, ou activez l’interception pour l’écho simulé.
 net_message = Message
 net_connected = Connecté
 net_closed = Fermé
@@ -1216,7 +1163,6 @@ net_rate = Kio/s
 net_series = Trafic
 net_totals = Envoyé { $sent } octets · reçu { $received } octets · actifs { $active } · échecs { $failed }
 net_average = Moyenne de session : envoi { $upload } Kio/s · réception { $download } Kio/s
-net_stats_note = Octets utiles de la session day-part-http de cette page uniquement. Autres frameworks et surcoût protocolaire exclus. Les moyennes incluent les pauses ; le graphique couvre les 30 dernières secondes.
 net_statistics = Trafic en direct
 net_send_request = Envoyer la requête
 net_options = Options de requête
@@ -1231,7 +1177,7 @@ sensor_unit_magnetic = µT
 
 sensor_live = Mesures en direct
 sensor_compass = Boussole magnétique
-sensor_compass_hint = Tenez le téléphone à plat en orientation portrait. Le rouge indique le nord magnétique ; les métaux à proximité peuvent fausser la mesure. En attente de mesure, faites tourner doucement le téléphone pour le calibrer.
+sensor_compass_hint = Tenez le téléphone à plat. Le rouge indique le nord magnétique.
 sensor_north = N
 sensor_east = E
 sensor_south = S
@@ -1240,10 +1186,10 @@ sensor_heading = Cap magnétique : { $degrees }°
 
 sensor_calibrated = Calibré
 sensor_tilt = Niveau d’accélération X/Y
-sensor_tilt_hint = La bulle suit l’accélération X/Y : un g au bord. Restez immobile pour observer l’inclinaison ; les mouvements influencent aussi la bulle.
+sensor_tilt_hint = La bulle suit l'accélération X/Y, un g au bord.
 sensor_rotation = Indicateurs de vitesse de rotation
-sensor_rotation_hint = Vitesse angulaire X, Y et Z ; ±π rad/s aux extrémités de chaque échelle. Ces indicateurs montrent la vitesse de rotation, pas l’orientation.
-sensor_uncalibrated_hint = Les mesures non calibrées incluent le biais de l’appareil. L’aiguille montre le champ mesuré et peut ne pas indiquer le nord.
+sensor_rotation_hint = Vitesse de rotation par axe, ±π rad/s aux extrémités.
+sensor_uncalibrated_hint = Non calibré : l'aiguille peut ne pas indiquer le nord.
 sensor_axis_x = X
 sensor_axis_y = Y
 sensor_axis_z = Z
@@ -1251,7 +1197,6 @@ sensor_axis_z = Z
 # --- Sécurité : le trousseau et l'invite biométrique (docs/keychain.md, docs/biometrics.md) ---
 nav_security = Sécurité
 keychain_title = Trousseau
-keychain_caption = Une API Rust au-dessus du coffre sécurisé de chaque plateforme : le trousseau sur iOS et macOS, le Keystore Android, DPAPI sur Windows, le Secret Service sur Linux, l'Universal Keystore sur HarmonyOS.
 keychain_support_label = Coffre ici
 keychain_backend_label = Moteur
 keychain_key_label = Clé
@@ -1274,7 +1219,6 @@ keychain_entries_label = Clés enregistrées
 keychain_entries_none = Aucune
 keychain_presence_reason = Lire le secret enregistré par la page Sécurité.
 biometrics_title = Biométrie
-biometrics_caption = L'invite de la plateforme elle-même : Touch ID ou Face ID, l'invite biométrique d'Android, Windows Hello, l'authentification HarmonyOS. Le code de l'appareil reste une issue quand un doigt est mouillé.
 biometrics_support_label = Prise en charge ici
 biometrics_availability_label = Disponibilité
 biometrics_biometry_label = Capteur
@@ -1289,10 +1233,7 @@ permission_biometrics = Confirmez votre identité sur la page Sécurité.
 
 # --- Connexion : day-part-auth (navigateur d'authentification, OpenID Connect, clés d'accès, Apple, Google) ---
 nav_signin = Connexion
-signin_info = À propos de la connexion
-signin_info_intro = La connexion par les portes de la plateforme. Chaque demande porte PKCE, un state et un nonce, et le jeton d'identité est vérifié avec les clés du fournisseur avant d'être affiché. Rien n'est conservé : les jetons vivent sur cette page jusqu'à la déconnexion.
 signin_oidc_title = OpenID Connect
-signin_caption = Le navigateur de connexion du système, une demande d'autorisation avec PKCE, state et nonce, et un jeton d'identité vérifié avec les clés du fournisseur avant de vous être montré. Le fournisseur de démonstration tourne dans cette application sur l'interface locale et connecte deux comptes de démonstration ; Google, Apple et tout émetteur par découverte prennent l'identifiant client que vous avez enregistré.
 signin_provider_demo = Fournisseur de démonstration (intégré)
 signin_provider_google = Google
 signin_provider_apple = Apple (flux web)
@@ -1321,7 +1262,6 @@ signin_userinfo_ok = Userinfo a répondu pour { $sub }
 signin_revoked = Le jeton d'accès a été révoqué
 signin_signed_out = Déconnecté
 passkeys_title = Clés d'accès
-passkeys_caption = WebAuthn par l'authentificateur de la plateforme : le JSON d'options qu'un serveur enverrait, le JSON d'identifiant qu'il reçoit en retour. La partie utilisatrice doit être un domaine associé à cette application ; sinon la feuille le dit dans ses propres mots.
 passkeys_available_yes = Authentificateur de la plateforme disponible
 passkeys_available_no = Aucun authentificateur de plateforme sur cet appareil
 passkeys_create = Créer une clé d'accès
@@ -1331,11 +1271,9 @@ passkeys_prompting = En attente de l'authentificateur…
 passkeys_created = Identifiant créé { $id }
 passkeys_asserted = Connecté avec l'identifiant { $id }
 apple_title = Se connecter avec Apple
-apple_caption = La feuille du système sur iOS et macOS, avec Face ID, Touch ID ou le code. L'application a besoin de la capacité Se connecter avec Apple sur son identifiant ; sans elle, la feuille signale une erreur, affichée ici.
 apple_sign_in = Se connecter avec Apple
 apple_signed_in = Utilisateur Apple { $user }
 google_title = Google
-google_caption = Sur Android, Credential Manager liste les comptes Google de l'appareil et renvoie un jeton d'identité pour celui choisi, sans navigateur. Collez l'identifiant client OAuth de type application web que votre serveur possède. Ailleurs, Google est un fournisseur de la section ci-dessus.
 google_client_placeholder = Identifiant client du serveur
 google_sign_in = Se connecter avec Google
 google_signed_in = Compte Google { $id }
@@ -1396,7 +1334,6 @@ map_locate_failed = { $why ->
 
 # Interactive layout sizing and translation.
 layout_reactive_title = Dimensions réactives
-layout_reactive_note = Redimensionnez la forme ou déplacez-la dans l’aperçu. La forme reste en place pendant que les curseurs modifient ses dimensions et son décalage.
 layout_reactive_width = Largeur
 layout_reactive_height = Hauteur
 layout_reactive_horizontal = Décalage horizontal
@@ -1405,14 +1342,14 @@ layout_reactive_reset = Réinitialiser
 layout_reactive_points = { NUMBER($value, maximumFractionDigits: 0) } pt
 layout_reactive_shape = Forme : { NUMBER($width, maximumFractionDigits: 0) } sur { NUMBER($height, maximumFractionDigits: 0) } points
 
-push_caption = Envoyez une notification push à cet appareil par le relais Day. Utilisez l'envoi différé, puis quittez l'app ou verrouillez l'appareil pour voir comment elle arrive.
+push_caption = Envoyez une notification push de test à cet appareil par le relais Day.
 push_unavailable = Les notifications push ne sont pas disponibles dans cette version.
 push_send_now = Envoyer maintenant
 push_send_later = { $seconds ->
     [one] Envoyer dans 1 seconde
    *[other] Envoyer dans { $seconds } secondes
 }
-push_hint = Le premier envoi demande l'autorisation et inscrit cet appareil auprès du relais.
+push_hint = Le premier envoi demande l'autorisation.
 push_sending = Envoi…
 push_requested = En attente du jeton de l'appareil fourni par le service push…
 push_no_token = Le service push n'a pas fourni de jeton. Réessayez dans un instant.
@@ -1443,20 +1380,19 @@ push_error = Échec de l'envoi push : { $error }
 list_opt_inset_grouped = Groupes en retrait
 list_opt_inset_hint = Lignes en retrait sur macOS et groupes arrondis sur iOS. Les autres plateformes conservent leur liste habituelle.
 share_demo_title = Partage
-share_demo_native = Choisissez une action personnalisée dans le menu de partage pour mettre à jour la dernière action ci-dessus.
-share_demo_fallback = Cette plateforme n’affiche pas les actions de partage personnalisées. Essayez les mêmes actions ci-dessous.
+share_demo_fallback = Cette plateforme n’affiche pas d’actions de partage personnalisées. Utilisez les boutons ci-dessous.
 share_demo_open = Partager le site Day…
 share_demo_remember = Retenir le lien
 share_demo_clear = Effacer le résultat
 share_demo_remembered = Action « Retenir le lien » sélectionnée
 share_demo_cleared = Résultat du partage effacé
 share_demo_failed = Impossible d’ouvrir le menu de partage.
-share_demo_receive_hint = Sur Android, partagez du texte ou un lien vers Day Showcase depuis une autre application. Il apparaît ici.
+share_demo_receive_hint = Partagez un texte ou un lien vers Day Showcase depuis une autre app.
 share_demo_none = Aucun contenu reçu.
 system_back_status = Retour de l’application : { $remaining } restants, { $handled } traités
 system_back_press = Retour
 system_back_stop = Désactiver
-system_back_hint = Activez trois retours au niveau de l’application. Les pages empilées et les fenêtres modales traitent le retour en premier ; le compteur change une fois la navigation terminée. La barre de test reste visible hors de cette page.
+system_back_hint = Les pages empilées et les couvertures traitent Retour avant l'app.
 system_back_arm = Activer 3 retours
 
 # Map provider selection and setup.
@@ -1468,3 +1404,56 @@ map_play_services_unavailable = Google Maps nécessite les services Google Play.
 map_load_failed = Impossible de charger la carte. Vérifiez la connexion et la configuration du fournisseur.
 
 resources_missing = Ressource intégrée indisponible : { $name }
+
+# The gallery pages added with the card layout, and the line under every page's title.
+nav_styles = Styles
+nav_images = Images
+nav_gestures = Gestes
+detail_controls = Boutons, interrupteurs, curseurs, incrémenteurs, sélecteurs et progression
+detail_dates = Sélecteurs de date et d’heure, dans le calendrier de la plateforme
+detail_focus = Le focus clavier comme état de l’application
+detail_text = Polices, segments stylés, Markdown, sélection et troncature
+detail_text_areas = Édition multiligne, modes code et Markdown en direct
+detail_text_fields = Saisie sur une ligne, claviers, saisie sécurisée et recherche
+detail_toolbars = Commandes de fenêtre et de page dans les barres de la plateforme
+detail_localization = Quatre langues, pluriels et disposition de droite à gauche
+detail_canvas = Tracés, dégradés, texte et images dessinés à chaque image
+detail_styles = Coins, bordures, ombres, découpe et transformations
+detail_images = Modes d’ajustement, coins, images distantes, images d’attente et fondus
+detail_gestures = Glisser, pincer, pivoter, appuyer et survoler sur n’importe quelle vue
+detail_charts = Une grammaire de marques : lignes, barres, aires et sélections
+detail_animation = Animations de la plateforme, interpolations, courbes et ressorts
+detail_physics = Des billes et un ressort sur l’horloge d’images
+detail_benchmark = Un patchwork de vues vivantes, chronométré face à SwiftUI
+detail_grid = Colonnes fixes, fusions, alignement et dimensions
+detail_layout = Rangées, colonnes, couches, retour à la ligne et classes de taille
+detail_split = Volets redimensionnables avec les séparateurs de la plateforme
+detail_list = Lignes recyclées, sections, balayages, réordonnancement et sélection
+detail_tree = Des arborescences qui se déplient, se sélectionnent, se réordonnent et se chargent à la demande
+detail_drag_drop = Texte, fichiers et images glissés entre vues et applications
+detail_model = Stores typés, valeurs dérivées et annulation
+detail_query = Une base de données interrogée en direct, avec recherche et tri
+detail_tabs = Barres d’onglets et pages segmentées, chacune avec son état
+detail_stack = Pages empilées, un chemin qui vous appartient et le geste de retour
+detail_content_list = Une liste, ses éléments et un détail en trois colonnes
+detail_media = Un lecteur vidéo natif avec ses commandes de lecture
+detail_lottie = Des animations vectorielles à lire, mettre en pause et parcourir
+detail_map = Tuiles vectorielles sur le canevas, à côté des cartes de la plateforme
+detail_web_view = Un site embarqué et le web en direct, avec JavaScript dans les deux sens
+detail_menus = Menus, menus contextuels, alertes, feuilles et invites
+detail_system = Batterie, capteurs, localisation, infos sur l’appareil et apparence
+detail_network = Requêtes, envois, téléchargements, proxys et connectivité
+detail_notify = Notifications locales et pastille de l’application
+detail_push = Notifications distantes via un relais à essayer
+detail_speech = Voix, effets sonores et haptique
+detail_camera = Aperçu en direct, prise de vue et la photo obtenue
+detail_cursors = Toutes les formes de pointeur que propose la plateforme
+detail_files = Presse-papiers, préférences, sélecteurs de fichiers et stockage de l’application
+detail_security = Le trousseau et la biométrie
+detail_sign_in = Connexion avec Apple, Google, une clé d’accès ou tout fournisseur OpenID
+detail_scripting = Les scripts qui pilotent cette application et en font des captures d’écran
+detail_resources = Images embarquées, glyphes vectoriels, polices et fichiers de données
+detail_tweaks = Ajustements des vues natives, propres à chaque boîte à outils
+detail_crash_reporting = Plantages capturés et signalés au lancement suivant
+detail_about = Ce qu’est Day, et ce que montre cette application
+detail_settings = Apparence, langue et préférences de l’application

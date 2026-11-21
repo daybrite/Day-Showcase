@@ -6,20 +6,17 @@ use day_part_haptics::Haptic;
 use day_part_local_notify::{Channel, Importance, Notification, Trigger};
 use day_part_sound::{AssetName, Play};
 
-use crate::widgets::page;
+// Platform services (docs/clipboard.md, docs/prefs.md, docs/sound.md, docs/haptics.md,
+// docs/files.md, docs/notify.md, docs/bridge.md): the headless parts that do something with the
+// OS, one card each, on three pages.
 
-/// Platform services (docs/http.md, docs/clipboard.md, docs/prefs.md, docs/sound.md,
-/// docs/haptics.md, docs/files.md, docs/notify.md, docs/bridge.md): the headless "do something
-/// with the OS" parts, one grouped form section each: text to speech (first: it is the daybridge
-/// reference), an HTTP fetch, clipboard round-trip, persisted preferences, sound effects, haptic
-/// feedback, local notifications, and the native file pickers.
 /// Notifications & badge: a local notification through the OS, its permission, and the app
 /// icon's badge.
 pub(crate) fn notify_page() -> AnyPiece {
-    page(
+    crate::widgets::page_cards(
         crate::res::str::nav_notify_badge(),
         day::id!(notify_page_title),
-        form((notify_section(), badge_section())).any(),
+        crate::gallery::deck(2, vec![notify_section().any(), badge_section().any()]).any(),
     )
     .any()
 }
@@ -27,10 +24,18 @@ pub(crate) fn notify_page() -> AnyPiece {
 /// Speech, sound & haptics: the parts that talk to the person, meaning the platform's voice, its
 /// sound engine, and its haptic engine.
 pub(crate) fn speech_page() -> AnyPiece {
-    page(
+    crate::widgets::page_cards(
         crate::res::str::nav_speech_haptics(),
         day::id!(speech_title),
-        form((speech_section(), sound_section(), haptics_section())).any(),
+        crate::gallery::balanced(
+            2,
+            vec![
+                speech_section().any(),
+                sound_section().any(),
+                haptics_section().any(),
+            ],
+        )
+        .any(),
     )
     .any()
 }
@@ -38,15 +43,18 @@ pub(crate) fn speech_page() -> AnyPiece {
 /// Files & storage: the clipboard, key-value preferences, the native file pickers, and the
 /// app-local file store (OPFS on the web).
 pub(crate) fn files_page() -> AnyPiece {
-    page(
+    crate::widgets::page_cards(
         crate::res::str::nav_files_storage(),
         day::id!(files_title),
-        form((
-            clipboard_section(),
-            prefs_section(),
-            files_section(),
-            storage_section(),
-        ))
+        crate::gallery::balanced(
+            2,
+            vec![
+                clipboard_section().any(),
+                prefs_section(),
+                files_section().any(),
+                storage_section().any(),
+            ],
+        )
         .any(),
     )
     .any()
@@ -76,152 +84,190 @@ fn speech_section() -> impl Piece {
         Support::Unsupported => crate::res::str::speech_unsupported(),
     };
 
-    section((
-        crate::widgets::support_note(support),
-        label(crate::res::str::speech_caption()).font(Font::Footnote),
-        labeled(
-            crate::res::str::speech_support_label(),
-            label(support_text).id(day::id!(speech_support)),
-        ),
-        text_field(phrase)
-            .placeholder(crate::res::str::speech_phrase())
-            .id(day::id!(speech_text)),
-        row((
-            button(crate::res::str::speech_speak())
-                .action(move || {
-                    let typed = phrase.with(|t| t.trim().to_string());
-                    let text = if typed.is_empty() {
-                        crate::res::str::speech_phrase().format()
-                    } else {
-                        typed
-                    };
-                    // The future starts the utterance at once and resumes on the UI thread
-                    // when the engine reports its end (docs/async.md), so the state is a plain
-                    // signal write on both sides of the await. An `Unsupported` here is the
-                    // fallback arm answering, which the support label above already said.
-                    state.set(crate::res::str::speech_state_speaking().format());
-                    day::task(async move {
-                        let ended = day_part_speech::speak_future(&text).await;
-                        state.set(match ended {
-                            Ok(day_part_speech::SpeechEnd::Finished)
-                            | Ok(day_part_speech::SpeechEnd::Unobserved) => {
-                                crate::res::str::speech_state_finished().format()
-                            }
-                            Ok(day_part_speech::SpeechEnd::Stopped) => {
-                                crate::res::str::speech_state_stopped().format()
-                            }
-                            Err(e) => e.to_string(),
+    crate::gallery::panel(
+        crate::res::str::speech_title(),
+        (
+            crate::widgets::support_banner(support),
+            labeled(
+                crate::res::str::speech_support_label(),
+                label(support_text).id(day::id!(speech_support)),
+            ),
+            text_field(phrase)
+                .placeholder(crate::res::str::speech_phrase())
+                .id(day::id!(speech_text)),
+            row((
+                button(crate::res::str::speech_speak())
+                    .action(move || {
+                        let typed = phrase.with(|t| t.trim().to_string());
+                        let text = if typed.is_empty() {
+                            crate::res::str::speech_phrase().format()
+                        } else {
+                            typed
+                        };
+                        // The future starts the utterance at once and resumes on the UI thread
+                        // when the engine reports its end (docs/async.md), so the state is a plain
+                        // signal write on both sides of the await. An `Unsupported` here is the
+                        // fallback arm answering, which the support label above already said.
+                        state.set(crate::res::str::speech_state_speaking().format());
+                        day::task(async move {
+                            let ended = day_part_speech::speak_future(&text).await;
+                            state.set(match ended {
+                                Ok(day_part_speech::SpeechEnd::Finished)
+                                | Ok(day_part_speech::SpeechEnd::Unobserved) => {
+                                    crate::res::str::speech_state_finished().format()
+                                }
+                                Ok(day_part_speech::SpeechEnd::Stopped) => {
+                                    crate::res::str::speech_state_stopped().format()
+                                }
+                                Err(e) => e.to_string(),
+                            });
                         });
-                    });
-                })
-                .tint(crate::widgets::primary())
-                .id(day::id!(speech_speak)),
-            button(crate::res::str::speech_stop())
-                .bordered()
-                .action(day_part_speech::stop)
-                .id(day::id!(speech_stop)),
-        ))
-        .spacing(Space::S),
-        label(move || state.get())
-            .font(Font::Footnote)
-            .id(day::id!(speech_state)),
-    ))
-    .title(crate::res::str::speech_title())
+                    })
+                    .tint(crate::widgets::primary())
+                    .id(day::id!(speech_speak)),
+                button(crate::res::str::speech_stop())
+                    .bordered()
+                    .action(day_part_speech::stop)
+                    .id(day::id!(speech_stop)),
+            ))
+            .spacing(Space::S),
+            label(move || state.get())
+                .font(Font::Footnote)
+                .id(day::id!(speech_state)),
+        ),
+    )
 }
 
 fn clipboard_section() -> impl Piece {
     let draft = Signal::new(String::new());
     let pasted = Signal::new(String::new());
     let status = Signal::new(crate::res::str::clipboard_idle().format());
-    section((
-        label(crate::res::str::clipboard_caption()).font(Font::Footnote),
-        text_field(draft)
-            .placeholder(crate::res::str::clipboard_placeholder())
-            .id(day::id!(clipboard_field)),
-        row((
-            button(crate::res::str::clipboard_copy())
-                .action(move || {
-                    let ok = draft.with(|t| day_part_clipboard::set_text(t));
-                    let msg = if ok {
-                        crate::res::str::clipboard_copied()
-                    } else {
-                        crate::res::str::clipboard_copy_failed()
-                    };
-                    status.set(msg.format());
-                })
-                .tint(crate::widgets::primary())
-                .id(day::id!(clipboard_copy)),
-            button(crate::res::str::clipboard_paste())
-                .bordered()
-                .action(move || match day_part_clipboard::get_text() {
-                    Some(text) => {
-                        pasted.set(text);
-                        status.set(crate::res::str::clipboard_pasted().format());
-                    }
-                    None => status.set(crate::res::str::clipboard_empty().format()),
-                })
-                .id(day::id!(clipboard_paste)),
-            label(move || status.get()).id(day::id!(clipboard_status)),
-        ))
-        .spacing(Space::S),
-        label(move || pasted.get()).id(day::id!(clipboard_pasted)),
-    ))
-    .title(crate::res::str::nav_clipboard())
+    crate::gallery::panel(
+        crate::res::str::nav_clipboard(),
+        (
+            text_field(draft)
+                .placeholder(crate::res::str::clipboard_placeholder())
+                .id(day::id!(clipboard_field)),
+            row((
+                button(crate::res::str::clipboard_copy())
+                    .action(move || {
+                        let ok = draft.with(|t| day_part_clipboard::set_text(t));
+                        let msg = if ok {
+                            crate::res::str::clipboard_copied()
+                        } else {
+                            crate::res::str::clipboard_copy_failed()
+                        };
+                        status.set(msg.format());
+                    })
+                    .tint(crate::widgets::primary())
+                    .id(day::id!(clipboard_copy)),
+                button(crate::res::str::clipboard_paste())
+                    .bordered()
+                    .action(move || match day_part_clipboard::get_text() {
+                        Some(text) => {
+                            pasted.set(text);
+                            status.set(crate::res::str::clipboard_pasted().format());
+                        }
+                        None => status.set(crate::res::str::clipboard_empty().format()),
+                    })
+                    .id(day::id!(clipboard_paste)),
+                label(move || status.get()).id(day::id!(clipboard_status)),
+            ))
+            .spacing(Space::S),
+            label(move || pasted.get()).id(day::id!(clipboard_pasted)),
+        ),
+    )
 }
 
-fn prefs_section() -> impl Piece {
-    const KEY: &str = "showcase.remembered";
-    let field = Signal::new(String::new());
-    let value = Signal::new(crate::res::str::prefs_empty().format());
-    let status = Signal::new(crate::res::str::prefs_idle().format());
-    section((
-        label(crate::res::str::prefs_caption()).font(Font::Footnote),
-        text_field(field)
-            .placeholder(crate::res::str::prefs_placeholder())
-            .id(day::id!(prefs_field)),
-        row((
-            button(crate::res::str::prefs_save())
-                .action(move || {
-                    let ok = field.with(|t| day::prefs::set(KEY, t));
-                    let msg = if ok {
-                        crate::res::str::prefs_saved()
-                    } else {
-                        crate::res::str::prefs_save_failed()
-                    };
-                    status.set(msg.format());
+/// The store key of the card's switch, which `day::prefs::bind` reads and writes.
+const TRACKING_KEY: &str = "showcase.prefs.tracking";
+
+/// The card's note. A `Pref` persists every write to its signal, so the field bound to it
+/// saves on each keystroke.
+static NOTE: day::prefs::Pref<String> = day::prefs::Pref::new("showcase.prefs.note", String::new);
+
+/// How many times the app has been launched, this launch included.
+static LAUNCHES: day::prefs::Pref<u64> = day::prefs::Pref::new("showcase.prefs.launches", || 0);
+
+/// Counts this launch in [`LAUNCHES`], once per process however often it is called. The app's
+/// root calls it, so every launch counts whether or not the page is opened.
+pub(crate) fn count_launch() {
+    static COUNTED: std::sync::Once = std::sync::Once::new();
+    COUNTED.call_once(|| LAUNCHES.set(LAUNCHES.get_untracked() + 1));
+}
+
+/// Preferences (docs/prefs.md): a switch bound to the store with `bind`, a note held by a typed
+/// `Pref<String>`, and a launch count held by a `Pref<u64>`.
+///
+/// The three values persist on every target, since surviving a relaunch is what the card shows.
+/// That differs from the Controls page, whose state persists on the web only so that a native run
+/// starts fresh. A script stays independent of earlier runs by tapping Reset first: it returns
+/// the switch and the note to their defaults and starts the count again at this launch.
+fn prefs_section() -> AnyPiece {
+    count_launch();
+    let tracking = Signal::new(false);
+    day::prefs::bind(TRACKING_KEY, tracking);
+    let note = NOTE.signal();
+    // What the store holds for the note. The read runs in a task, after the write that the
+    // note's change triggers, so the readout is the store's answer and not the signal's.
+    let stored = Signal::new(day::prefs::get(NOTE.key()));
+    // The pending read stops with the page, so it never writes a disposed signal.
+    let reading: Rc<RefCell<Option<day::TaskHandle>>> = Rc::default();
+    watch(move || note.get(), {
+        let reading = reading.clone();
+        move |_, _| {
+            let read = day::task(async move { stored.set(day::prefs::get(NOTE.key())) });
+            if let Some(earlier) = reading.borrow_mut().replace(read) {
+                earlier.abort();
+            }
+        }
+    });
+    Scope::current().on_cleanup(move || {
+        if let Some(read) = reading.borrow_mut().take() {
+            read.abort();
+        }
+    });
+    crate::gallery::panel(
+        crate::res::str::nav_prefs(),
+        (
+            labeled(
+                crate::res::str::prefs_tracking(),
+                toggle(tracking).id(day::id!(prefs_toggle)),
+            ),
+            labeled(
+                crate::res::str::prefs_note_label(),
+                text_field(note)
+                    .placeholder(crate::res::str::prefs_placeholder())
+                    .id(day::id!(prefs_field)),
+            ),
+            labeled(
+                crate::res::str::prefs_value_label(),
+                label(move || {
+                    stored
+                        .get()
+                        .unwrap_or_else(|| crate::res::str::prefs_empty().format())
                 })
-                .tint(crate::widgets::primary())
-                .id(day::id!(prefs_save)),
-            button(crate::res::str::prefs_load())
-                .bordered()
-                .action(move || match day::prefs::get(KEY) {
-                    Some(v) => {
-                        value.set(v);
-                        status.set(crate::res::str::prefs_loaded().format());
-                    }
-                    None => {
-                        value.set(crate::res::str::prefs_empty().format());
-                        status.set(crate::res::str::prefs_missing().format());
-                    }
-                })
-                .id(day::id!(prefs_load)),
-            button(crate::res::str::prefs_clear())
+                .id(day::id!(prefs_value)),
+            ),
+            labeled(
+                crate::res::str::prefs_launches(),
+                label(|| LAUNCHES.get().to_string())
+                    .tabular()
+                    .id(day::id!(prefs_launches)),
+            ),
+            button(crate::res::str::prefs_reset())
                 .action(move || {
-                    day::prefs::remove(KEY);
-                    value.set(crate::res::str::prefs_empty().format());
-                    status.set(crate::res::str::prefs_cleared().format());
+                    tracking.set(false);
+                    day::prefs::remove(TRACKING_KEY);
+                    NOTE.reset();
+                    LAUNCHES.set(1);
                 })
                 .tint(crate::widgets::danger())
-                .id(day::id!(prefs_clear)),
-            label(move || status.get()).id(day::id!(prefs_status)),
-        ))
-        .spacing(Space::S),
-        labeled(
-            crate::res::str::prefs_value_label(),
-            label(move || value.get()).id(day::id!(prefs_value)),
+                .id(day::id!(prefs_reset)),
         ),
-    ))
-    .title(crate::res::str::nav_prefs())
+    )
+    .id(day::id!(prefs_card))
+    .any()
 }
 
 /// One button that plays a bundled clip at `pan` and shows the part's record of the play in
@@ -307,78 +353,79 @@ fn sound_section() -> impl Piece {
     Scope::current().on_cleanup(move || drop(hum.borrow_mut().take()));
     let clip = |id, title, clip| sound_button(id, title, clip, 0.0, last);
     let panned = |id, title, pan| sound_button(id, title, sounds::glass_wav, pan, last);
-    section((
-        crate::widgets::support_note(crate::support::sound()),
-        // Equal-width cells, as in the haptics grid below.
-        grid((
-            grid_row((
-                clip(
-                    day::id!(sound_click),
-                    crate::res::str::sound_click(),
-                    sounds::click_wav,
-                ),
-                clip(
-                    day::id!(sound_confirm),
-                    crate::res::str::sound_confirm(),
-                    sounds::confirm_wav,
-                ),
-                clip(
-                    day::id!(sound_error),
-                    crate::res::str::sound_error(),
-                    sounds::error_wav,
-                ),
-            )),
-            grid_row((
-                clip(
-                    day::id!(sound_glass),
-                    crate::res::str::sound_glass(),
-                    sounds::glass_wav,
-                ),
-                clip(
-                    day::id!(sound_card),
-                    crate::res::str::sound_card(),
-                    sounds::card_wav,
-                ),
-                clip(
-                    day::id!(sound_jingle),
-                    crate::res::str::sound_jingle(),
-                    sounds::jingle_wav,
-                ),
-            )),
-        ))
-        .spacing(Space::S),
-        label(crate::res::str::sound_pan_caption()).font(Font::Footnote),
-        grid((grid_row((
-            panned(day::id!(sound_left), crate::res::str::sound_left(), -1.0),
-            panned(day::id!(sound_center), crate::res::str::sound_center(), 0.0),
-            panned(day::id!(sound_right), crate::res::str::sound_right(), 1.0),
-        )),))
-        .spacing(Space::S),
-        labeled(
-            crate::res::str::sound_volume(),
-            slider(volume).range(0.0..=1.0).id(day::id!(sound_volume)),
+    crate::gallery::panel(
+        crate::res::str::nav_sound(),
+        (
+            crate::widgets::support_banner(crate::support::sound()),
+            // Equal-width cells, as in the haptics grid below.
+            grid((
+                grid_row((
+                    clip(
+                        day::id!(sound_click),
+                        crate::res::str::sound_click(),
+                        sounds::click_wav,
+                    ),
+                    clip(
+                        day::id!(sound_confirm),
+                        crate::res::str::sound_confirm(),
+                        sounds::confirm_wav,
+                    ),
+                    clip(
+                        day::id!(sound_error),
+                        crate::res::str::sound_error(),
+                        sounds::error_wav,
+                    ),
+                )),
+                grid_row((
+                    clip(
+                        day::id!(sound_glass),
+                        crate::res::str::sound_glass(),
+                        sounds::glass_wav,
+                    ),
+                    clip(
+                        day::id!(sound_card),
+                        crate::res::str::sound_card(),
+                        sounds::card_wav,
+                    ),
+                    clip(
+                        day::id!(sound_jingle),
+                        crate::res::str::sound_jingle(),
+                        sounds::jingle_wav,
+                    ),
+                )),
+            ))
+            .spacing(Space::S),
+            crate::gallery::note(crate::res::str::sound_pan_caption()),
+            grid((grid_row((
+                panned(day::id!(sound_left), crate::res::str::sound_left(), -1.0),
+                panned(day::id!(sound_center), crate::res::str::sound_center(), 0.0),
+                panned(day::id!(sound_right), crate::res::str::sound_right(), 1.0),
+            )),))
+            .spacing(Space::S),
+            labeled(
+                crate::res::str::sound_volume(),
+                slider(volume).range(0.0..=1.0).id(day::id!(sound_volume)),
+            ),
+            labeled(
+                crate::res::str::sound_last(),
+                label(move || last.get()).id(day::id!(sound_last_played)),
+            ),
+            labeled(
+                crate::res::str::sound_loop(),
+                toggle(looping).id(day::id!(sound_loop)),
+            ),
+            labeled(
+                crate::res::str::sound_loop_volume(),
+                slider(loop_volume)
+                    .range(0.0..=1.0)
+                    .id(day::id!(sound_loop_volume)),
+            ),
+            labeled(
+                crate::res::str::sound_looping(),
+                label(move || looping_now.get()).id(day::id!(sound_looping)),
+            ),
         ),
-        labeled(
-            crate::res::str::sound_last(),
-            label(move || last.get()).id(day::id!(sound_last_played)),
-        ),
-        label(crate::res::str::sound_loop_caption()).font(Font::Footnote),
-        labeled(
-            crate::res::str::sound_loop(),
-            toggle(looping).id(day::id!(sound_loop)),
-        ),
-        labeled(
-            crate::res::str::sound_loop_volume(),
-            slider(loop_volume)
-                .range(0.0..=1.0)
-                .id(day::id!(sound_loop_volume)),
-        ),
-        labeled(
-            crate::res::str::sound_looping(),
-            label(move || looping_now.get()).id(day::id!(sound_looping)),
-        ),
-    ))
-    .title(crate::res::str::nav_sound())
+    )
 }
 
 /// One button that plays a haptic and records the style name into `#haptics-last-played`.
@@ -638,139 +685,154 @@ fn haptics_section() -> impl Piece {
     } else {
         crate::res::str::haptics_supported_no()
     };
-    section((
-        crate::widgets::support_note(crate::support::haptics()),
-        label(supported)
-            .font(Font::Footnote)
-            .id(day::id!(haptics_supported)),
-        // A grid, not rows: every cell is `grow_w`, so all three columns are flexible and the
-        // layout divides the width evenly between them. Buttons stay the same size and none can
-        // overflow, whatever the label or the screen. The trailing `spacer()`s are inert cells that
-        // hold the last row's columns open so its buttons match the rows above.
-        grid((
-            grid_row((
-                haptic_button(
-                    day::id!(haptics_light),
-                    crate::res::str::haptics_light(),
-                    Haptic::Light,
-                    playing,
-                    last,
-                ),
-                haptic_button(
-                    day::id!(haptics_medium),
-                    crate::res::str::haptics_medium(),
-                    Haptic::Medium,
-                    playing,
-                    last,
-                ),
-                haptic_button(
-                    day::id!(haptics_heavy),
-                    crate::res::str::haptics_heavy(),
-                    Haptic::Heavy,
-                    playing,
-                    last,
-                ),
-            )),
-            grid_row((
-                haptic_button(
-                    day::id!(haptics_success),
-                    crate::res::str::haptics_success(),
-                    Haptic::Success,
-                    playing,
-                    last,
-                ),
-                haptic_button(
-                    day::id!(haptics_warning),
-                    crate::res::str::haptics_warning(),
-                    Haptic::Warning,
-                    playing,
-                    last,
-                ),
-                haptic_button(
-                    day::id!(haptics_error),
-                    crate::res::str::haptics_error(),
-                    Haptic::Error,
-                    playing,
-                    last,
-                ),
-            )),
-            grid_row((
-                haptic_button(
-                    day::id!(haptics_selection),
-                    crate::res::str::haptics_selection(),
-                    Haptic::Selection,
-                    playing,
-                    last,
-                ),
-                spacer(),
-                spacer(),
-            )),
-        ))
-        .spacing(Space::S),
-        label(crate::res::str::haptics_songs_caption()).font(Font::Footnote),
-        // The songs get filled colors so they read as a different kind of control from the single
-        // taps above. Each fill picks its own label color: the three saturated ones take white,
-        // and `AMBER` takes `tinted_pale`, which swaps in `INK` text; white on a pale fill is the
-        // contrast case that variant exists for.
-        grid((
-            grid_row((
-                song_button(
-                    day::id!(haptics_song_celebration),
-                    crate::res::str::haptics_song_celebration(),
-                    "Celebration",
-                    CELEBRATION,
-                    crate::widgets::tinted(crate::palette::TEAL),
-                    playing,
-                    last,
-                ),
-                song_button(
-                    day::id!(haptics_song_levelup),
-                    crate::res::str::haptics_song_levelup(),
-                    "Level up",
-                    LEVEL_UP,
-                    crate::widgets::tinted(crate::palette::VIOLET),
-                    playing,
-                    last,
-                ),
-            )),
-            grid_row((
-                song_button(
-                    day::id!(haptics_song_heartbeat),
-                    crate::res::str::haptics_song_heartbeat(),
-                    "Heartbeat",
-                    HEARTBEAT,
-                    crate::widgets::tinted(crate::palette::CORAL),
-                    playing,
-                    last,
-                ),
-                song_button(
-                    day::id!(haptics_song_cascade),
-                    crate::res::str::haptics_song_cascade(),
-                    "Cascade",
-                    CASCADE,
-                    crate::widgets::tinted(crate::palette::AMBER),
-                    playing,
-                    last,
-                ),
-            )),
-        ))
-        .spacing(Space::S),
-        labeled(
-            crate::res::str::haptics_last(),
-            label(move || last.get()).id(day::id!(haptics_last_played)),
+    crate::gallery::panel(
+        crate::res::str::nav_haptics(),
+        (
+            crate::widgets::support_banner(crate::support::haptics()),
+            label(supported)
+                .font(Font::Footnote)
+                .id(day::id!(haptics_supported)),
+            // A grid, not rows: every cell is `grow_w`, so all three columns are flexible and the
+            // layout divides the width evenly between them. Buttons stay the same size and none can
+            // overflow, whatever the label or the screen. The trailing `spacer()`s are inert cells that
+            // hold the last row's columns open so its buttons match the rows above.
+            grid((
+                grid_row((
+                    haptic_button(
+                        day::id!(haptics_light),
+                        crate::res::str::haptics_light(),
+                        Haptic::Light,
+                        playing,
+                        last,
+                    ),
+                    haptic_button(
+                        day::id!(haptics_medium),
+                        crate::res::str::haptics_medium(),
+                        Haptic::Medium,
+                        playing,
+                        last,
+                    ),
+                    haptic_button(
+                        day::id!(haptics_heavy),
+                        crate::res::str::haptics_heavy(),
+                        Haptic::Heavy,
+                        playing,
+                        last,
+                    ),
+                )),
+                grid_row((
+                    haptic_button(
+                        day::id!(haptics_success),
+                        crate::res::str::haptics_success(),
+                        Haptic::Success,
+                        playing,
+                        last,
+                    ),
+                    haptic_button(
+                        day::id!(haptics_warning),
+                        crate::res::str::haptics_warning(),
+                        Haptic::Warning,
+                        playing,
+                        last,
+                    ),
+                    haptic_button(
+                        day::id!(haptics_error),
+                        crate::res::str::haptics_error(),
+                        Haptic::Error,
+                        playing,
+                        last,
+                    ),
+                )),
+                grid_row((
+                    haptic_button(
+                        day::id!(haptics_selection),
+                        crate::res::str::haptics_selection(),
+                        Haptic::Selection,
+                        playing,
+                        last,
+                    ),
+                    spacer(),
+                    spacer(),
+                )),
+            ))
+            .spacing(Space::S),
+            crate::gallery::note(crate::res::str::haptics_songs_caption()),
+            // The songs get filled colors so they read as a different kind of control from the single
+            // taps above. Each fill picks its own label color: the three saturated ones take white,
+            // and `AMBER` takes `tinted_pale`, which swaps in `INK` text; white on a pale fill is the
+            // contrast case that variant exists for.
+            grid((
+                grid_row((
+                    song_button(
+                        day::id!(haptics_song_celebration),
+                        crate::res::str::haptics_song_celebration(),
+                        Song {
+                            name: "Celebration",
+                            beats: CELEBRATION,
+                            tint: crate::palette::TEAL,
+                        },
+                        playing,
+                        last,
+                    ),
+                    song_button(
+                        day::id!(haptics_song_levelup),
+                        crate::res::str::haptics_song_levelup(),
+                        Song {
+                            name: "Level up",
+                            beats: LEVEL_UP,
+                            tint: crate::palette::VIOLET,
+                        },
+                        playing,
+                        last,
+                    ),
+                )),
+                grid_row((
+                    song_button(
+                        day::id!(haptics_song_heartbeat),
+                        crate::res::str::haptics_song_heartbeat(),
+                        Song {
+                            name: "Heartbeat",
+                            beats: HEARTBEAT,
+                            tint: crate::palette::CORAL,
+                        },
+                        playing,
+                        last,
+                    ),
+                    song_button(
+                        day::id!(haptics_song_cascade),
+                        crate::res::str::haptics_song_cascade(),
+                        Song {
+                            name: "Cascade",
+                            beats: CASCADE,
+                            tint: crate::palette::AMBER,
+                        },
+                        playing,
+                        last,
+                    ),
+                )),
+            ))
+            .spacing(Space::S),
+            labeled(
+                crate::res::str::haptics_last(),
+                label(move || last.get()).id(day::id!(haptics_last_played)),
+            ),
         ),
-    ))
-    .title(crate::res::str::nav_haptics())
+    )
 }
 
-/// A colored button that plays one haptic song.
-#[allow(clippy::too_many_arguments)]
-fn song_button(
-    id: day::ElementId,
-    title: LocalizedText,
+/// A haptic song: the name its readout shows, its beats, and the color of its button.
+#[derive(Clone, Copy)]
+struct Song {
     name: &'static str,
     beats: &'static [Beat],
     tint: Color,
+}
+
+/// A colored button that plays one haptic song.
+fn song_button(
+    id: day::ElementId,
+    title: LocalizedText,
+    song: Song,
     playing: Signal<bool>,
     last: Signal<String>,
 ) -> impl Piece + use<> {
@@ -778,8 +840,8 @@ fn song_button(
     // goes last, per docs/grid.md's ordering rule.
     button(title)
         .enabled(move || !playing.get())
-        .action(move || play_song(name, beats, playing, last))
-        .tint(tint)
+        .action(move || play_song(song.name, song.beats, playing, last))
+        .tint(song.tint)
         .id(id)
         .grow(Dimension::Width)
 }
@@ -847,196 +909,198 @@ fn notify_section() -> impl Piece {
         crate::res::str::notify_caps_schedule_process()
     };
 
-    section((
-        crate::widgets::support_note(crate::support::notifications()),
-        label(supported)
-            .font(Font::Footnote)
-            .id(day::id!(notify_supported)),
-        label(scheduling)
-            .font(Font::Footnote)
-            .id(day::id!(notify_scheduling)),
-        labeled(
-            crate::res::str::notify_title_label(),
-            text_field(title)
-                .placeholder(crate::res::str::notify_title_placeholder())
-                .id(day::id!(notify_title)),
-        ),
-        labeled(
-            crate::res::str::notify_body_label(),
-            text_field(body)
-                .placeholder(crate::res::str::notify_body_placeholder())
-                .id(day::id!(notify_body)),
-        ),
-        labeled(
-            crate::res::str::notify_delay(),
-            picker(
-                delay,
-                [
-                    (0, crate::res::str::notify_delay_now()),
-                    (5, crate::res::str::notify_delay_5s()),
-                    (15, crate::res::str::notify_delay_15s()),
-                    (60, crate::res::str::notify_delay_60s()),
-                ],
-            )
-            .id(day::id!(notify_delay)),
-        ),
-        labeled(
-            crate::res::str::notify_importance(),
-            picker(
-                level_idx,
-                [
-                    (0, crate::res::str::notify_importance_low()),
-                    (1, crate::res::str::notify_importance_default()),
-                    (2, crate::res::str::notify_importance_high()),
-                    (3, crate::res::str::notify_importance_urgent()),
-                ],
-            )
-            .id(day::id!(notify_importance)),
-        ),
-        labeled(
-            crate::res::str::notify_sound(),
-            toggle(sound).id(day::id!(notify_sound)),
-        ),
-        // Badge is Apple-only among the wired backends. Day's Decorate trait has no `disabled`,
-        // so the control is omitted where it would do nothing rather than shown doing nothing.
-        when(
-            move || caps.badge,
-            move || {
-                labeled(
-                    crate::res::str::notify_badge(),
-                    slider(badge)
-                        .range(0.0..=9.0)
-                        .step(1.0)
-                        .id(day::id!(notify_badge)),
+    crate::gallery::panel(
+        crate::res::str::nav_notify(),
+        (
+            crate::widgets::support_banner(crate::support::notifications()),
+            label(supported)
+                .font(Font::Footnote)
+                .id(day::id!(notify_supported)),
+            label(scheduling)
+                .font(Font::Footnote)
+                .id(day::id!(notify_scheduling)),
+            labeled(
+                crate::res::str::notify_title_label(),
+                text_field(title)
+                    .placeholder(crate::res::str::notify_title_placeholder())
+                    .id(day::id!(notify_title)),
+            ),
+            labeled(
+                crate::res::str::notify_body_label(),
+                text_field(body)
+                    .placeholder(crate::res::str::notify_body_placeholder())
+                    .id(day::id!(notify_body)),
+            ),
+            labeled(
+                crate::res::str::notify_delay(),
+                picker(
+                    delay,
+                    [
+                        (0, crate::res::str::notify_delay_now()),
+                        (5, crate::res::str::notify_delay_5s()),
+                        (15, crate::res::str::notify_delay_15s()),
+                        (60, crate::res::str::notify_delay_60s()),
+                    ],
                 )
-            },
-        ),
-        // The consent line, ahead of the controls: on Apple an unauthorized post is accepted and
-        // then dropped by the system with no error, so without this the page would look broken.
-        //
-        // What is offered depends on what the platform actually does about this permission
-        // (docs/permissions.md). `Gate::Absent`/`Ungated` mean no consent record exists (desktop
-        // Linux and Windows have no database to ask), so a Request button there would be a
-        // control that provably does nothing, and none is shown. Where the OS does prompt, the
-        // affordance still changes: once the answer is final, `request` no longer puts a dialog
-        // on screen and Settings is the only remedy, which is why `can_prompt` picks the label
-        // and the action.
-        when(
-            move || prompts,
-            move || {
-                // A column, not a row: the status sentence is long enough that sharing a line
-                // squeezed the button off the edge of a phone screen.
-                column((
-                    label(move || {
-                        if granted.get() {
-                            crate::res::str::notify_perm_granted().format()
-                        } else {
-                            crate::res::str::notify_perm_missing().format()
-                        }
-                    })
-                    .font(Font::Footnote)
-                    .id(day::id!(notify_perm)),
-                    when(
-                        move || !granted.get(),
-                        move || {
-                            button(move || {
-                                if can_prompt.get() {
-                                    crate::res::str::notify_perm_request().format()
-                                } else {
-                                    crate::res::str::perm_open_settings().format()
-                                }
-                            })
-                            .bordered()
-                            .action(move || {
-                                if can_prompt.get() {
-                                    // The callback can land on another thread, and Signal is
-                                    // !Send; a Setter is the sanctioned cross-thread door
-                                    // (DESIGN.md §3.3).
-                                    let set = granted.setter();
-                                    let still = can_prompt.setter();
-                                    day_part_permissions::request(
-                                        day_part_permissions::Permission::Notifications,
-                                        move |s| {
-                                            set.set(s == day_part_permissions::Status::Granted);
-                                            // A denial usually makes the answer final, so the
-                                            // button has to become Open Settings.
-                                            still.set(day_part_permissions::can_prompt(
-                                                day_part_permissions::Permission::Notifications,
-                                            ));
-                                        },
-                                    );
-                                } else {
-                                    day_part_permissions::open_settings(
-                                        day_part_permissions::Permission::Notifications,
-                                    );
-                                }
-                            })
-                            .id(day::id!(notify_perm_request))
-                        },
-                    ),
-                ))
-                .spacing(6.0)
-                .align(HAlign::Leading)
-            },
-        ),
-        row((
-            button(crate::res::str::notify_post())
-                .prominent()
-                .action(move || {
-                    let level = levels[level_idx.get().min(levels.len() - 1)];
-                    // Re-register on every post so the sound toggle takes effect; registration is
-                    // idempotent, and each level keeps its own channel id.
-                    let chan = format!("showcase-{}", level.as_str());
-                    Channel::new(chan.clone(), level)
-                        .sound(sound.get())
-                        .register();
-                    let secs = delay.get();
-                    let trigger = if secs == 0 {
-                        Trigger::Now
-                    } else {
-                        Trigger::In(std::time::Duration::from_secs(secs))
-                    };
-                    let mut n = Notification::new(title.get())
-                        .body(body.get())
-                        .channel(chan)
-                        .route("notify")
-                        .trigger(trigger);
-                    let count = badge.get() as u32;
-                    if count > 0 {
-                        n = n.badge(count);
-                    }
-                    let msg = match n.post() {
-                        Ok(id) => {
-                            let head = if secs == 0 {
-                                crate::res::str::notify_status_posted()
+                .id(day::id!(notify_delay)),
+            ),
+            labeled(
+                crate::res::str::notify_importance(),
+                picker(
+                    level_idx,
+                    [
+                        (0, crate::res::str::notify_importance_low()),
+                        (1, crate::res::str::notify_importance_default()),
+                        (2, crate::res::str::notify_importance_high()),
+                        (3, crate::res::str::notify_importance_urgent()),
+                    ],
+                )
+                .id(day::id!(notify_importance)),
+            ),
+            labeled(
+                crate::res::str::notify_sound(),
+                toggle(sound).id(day::id!(notify_sound)),
+            ),
+            // Badge is Apple-only among the wired backends. Day's Decorate trait has no `disabled`,
+            // so the control is omitted where it would do nothing rather than shown doing nothing.
+            when(
+                move || caps.badge,
+                move || {
+                    labeled(
+                        crate::res::str::notify_badge(),
+                        slider(badge)
+                            .range(0.0..=9.0)
+                            .step(1.0)
+                            .id(day::id!(notify_badge)),
+                    )
+                },
+            ),
+            // The consent line, ahead of the controls: on Apple an unauthorized post is accepted and
+            // then dropped by the system with no error, so without this the page would look broken.
+            //
+            // What is offered depends on what the platform actually does about this permission
+            // (docs/permissions.md). `Gate::Absent`/`Ungated` mean no consent record exists (desktop
+            // Linux and Windows have no database to ask), so a Request button there would be a
+            // control that provably does nothing, and none is shown. Where the OS does prompt, the
+            // affordance still changes: once the answer is final, `request` no longer puts a dialog
+            // on screen and Settings is the only remedy, which is why `can_prompt` picks the label
+            // and the action.
+            when(
+                move || prompts,
+                move || {
+                    // A column, not a row: the status sentence is long enough that sharing a line
+                    // squeezed the button off the edge of a phone screen.
+                    column((
+                        label(move || {
+                            if granted.get() {
+                                crate::res::str::notify_perm_granted().format()
                             } else {
-                                crate::res::str::notify_status_scheduled()
-                            };
-                            format!("{} (#{})", head.format(), id.0)
+                                crate::res::str::notify_perm_missing().format()
+                            }
+                        })
+                        .font(Font::Footnote)
+                        .id(day::id!(notify_perm)),
+                        when(
+                            move || !granted.get(),
+                            move || {
+                                button(move || {
+                                    if can_prompt.get() {
+                                        crate::res::str::notify_perm_request().format()
+                                    } else {
+                                        crate::res::str::perm_open_settings().format()
+                                    }
+                                })
+                                .bordered()
+                                .action(move || {
+                                    if can_prompt.get() {
+                                        // The callback can land on another thread, and Signal is
+                                        // !Send; a Setter is the sanctioned cross-thread door
+                                        // (DESIGN.md §3.3).
+                                        let set = granted.setter();
+                                        let still = can_prompt.setter();
+                                        day_part_permissions::request(
+                                            day_part_permissions::Permission::Notifications,
+                                            move |s| {
+                                                set.set(s == day_part_permissions::Status::Granted);
+                                                // A denial usually makes the answer final, so the
+                                                // button has to become Open Settings.
+                                                still.set(day_part_permissions::can_prompt(
+                                                    day_part_permissions::Permission::Notifications,
+                                                ));
+                                            },
+                                        );
+                                    } else {
+                                        day_part_permissions::open_settings(
+                                            day_part_permissions::Permission::Notifications,
+                                        );
+                                    }
+                                })
+                                .id(day::id!(notify_perm_request))
+                            },
+                        ),
+                    ))
+                    .spacing(6.0)
+                    .align(HAlign::Leading)
+                },
+            ),
+            row((
+                button(crate::res::str::notify_post())
+                    .prominent()
+                    .action(move || {
+                        let level = levels[level_idx.get().min(levels.len() - 1)];
+                        // Re-register on every post so the sound toggle takes effect; registration is
+                        // idempotent, and each level keeps its own channel id.
+                        let chan = format!("showcase-{}", level.as_str());
+                        Channel::new(chan.clone(), level)
+                            .sound(sound.get())
+                            .register();
+                        let secs = delay.get();
+                        let trigger = if secs == 0 {
+                            Trigger::Now
+                        } else {
+                            Trigger::In(std::time::Duration::from_secs(secs))
+                        };
+                        let mut n = Notification::new(title.get())
+                            .body(body.get())
+                            .channel(chan)
+                            .route("notify")
+                            .trigger(trigger);
+                        let count = badge.get() as u32;
+                        if count > 0 {
+                            n = n.badge(count);
                         }
-                        Err(e) => {
-                            format!("{}: {e}", crate::res::str::notify_status_failed().format())
-                        }
-                    };
-                    status.set(msg);
-                })
-                .tint(crate::widgets::primary())
-                .id(day::id!(notify_post)),
-            button(crate::res::str::notify_cancel())
-                .bordered()
-                .action(move || {
-                    day_part_local_notify::cancel_all();
-                    status.set(crate::res::str::notify_status_cancelled().format());
-                })
-                .id(day::id!(notify_cancel)),
-        ))
-        .spacing(Space::S),
-        labeled(
-            crate::res::str::notify_last(),
-            label(move || status.get()).id(day::id!(notify_status)),
+                        let msg = match n.post() {
+                            Ok(id) => {
+                                let head = if secs == 0 {
+                                    crate::res::str::notify_status_posted()
+                                } else {
+                                    crate::res::str::notify_status_scheduled()
+                                };
+                                format!("{} (#{})", head.format(), id.0)
+                            }
+                            Err(e) => {
+                                format!("{}: {e}", crate::res::str::notify_status_failed().format())
+                            }
+                        };
+                        status.set(msg);
+                    })
+                    .tint(crate::widgets::primary())
+                    .id(day::id!(notify_post)),
+                button(crate::res::str::notify_cancel())
+                    .bordered()
+                    .action(move || {
+                        day_part_local_notify::cancel_all();
+                        status.set(crate::res::str::notify_status_cancelled().format());
+                    })
+                    .id(day::id!(notify_cancel)),
+            ))
+            .spacing(Space::S),
+            labeled(
+                crate::res::str::notify_last(),
+                label(move || status.get()).id(day::id!(notify_status)),
+            ),
         ),
-    ))
-    .title(crate::res::str::nav_notify())
+    )
 }
 
 /// App-icon badge (docs/badge.md). The capability line comes first because this is the feature
@@ -1058,79 +1122,81 @@ fn badge_section() -> impl Piece {
         Support::Unsupported => crate::res::str::badge_caps_none(),
     };
 
-    section((
-        crate::widgets::support_note(crate::support::cap(Cap::AppBadgeCount)),
-        label(caps_line)
-            .font(Font::Footnote)
-            .id(day::id!(badge_supported)),
-        // Named so a user on Android reads why rather than assuming it is broken.
-        when(
-            move || !supported,
-            move || {
-                label(crate::res::str::badge_android_note())
-                    .font(Font::Footnote)
-                    .id(day::id!(badge_unsupported_why))
-            },
-        ),
-        labeled(
-            crate::res::str::badge_count_label(),
-            row((
-                button(crate::res::str::badge_minus())
-                    .bordered()
-                    .enabled(move || supported && count.get() > 0.0)
-                    .action(move || count.set((count.get() - 1.0).max(0.0)))
-                    .id(day::id!(badge_minus)),
-                label(move || format!("{}", count.get() as u32))
-                    .tabular()
-                    .id(day::id!(badge_value)),
-                button(crate::res::str::badge_plus())
-                    .bordered()
-                    .enabled(move || supported && count.get() < 99.0)
-                    .action(move || count.set((count.get() + 1.0).min(99.0)))
-                    .id(day::id!(badge_plus)),
-            ))
-            .spacing(Space::S),
-        ),
-        row((
-            button(crate::res::str::badge_set())
-                .prominent()
-                .enabled(supported)
-                .action(move || {
-                    let n = count.get() as u32;
-                    day::set_app_badge(&day::AppBadge::Count(n));
-                    status.set(crate::res::str::badge_status_set(n.to_string()).format());
-                })
-                .id(day::id!(badge_set)),
-            button(crate::res::str::badge_clear())
-                .bordered()
-                .enabled(supported)
-                .action(move || {
-                    day::set_app_badge(&day::AppBadge::None);
-                    status.set(crate::res::str::badge_status_cleared().format());
-                })
-                .id(day::id!(badge_clear)),
-            // Text is macOS-only, so the control is not offered elsewhere rather than
-            // sitting there doing nothing.
+    crate::gallery::panel(
+        crate::res::str::nav_badge(),
+        (
+            crate::widgets::support_banner(crate::support::cap(Cap::AppBadgeCount)),
+            label(caps_line)
+                .font(Font::Footnote)
+                .id(day::id!(badge_supported)),
+            // Named so a user on Android reads why rather than assuming it is broken.
             when(
-                move || can_text,
+                move || !supported,
                 move || {
-                    button(crate::res::str::badge_set_text())
-                        .bordered()
-                        .action(move || {
-                            day::set_app_badge(&day::AppBadge::Text("beta".into()));
-                            status.set(crate::res::str::badge_status_text().format());
-                        })
-                        .id(day::id!(badge_set_text))
+                    label(crate::res::str::badge_android_note())
+                        .font(Font::Footnote)
+                        .id(day::id!(badge_unsupported_why))
                 },
             ),
-        ))
-        .spacing(Space::S),
-        labeled(
-            crate::res::str::badge_last(),
-            label(move || status.get()).id(day::id!(badge_status)),
+            labeled(
+                crate::res::str::badge_count_label(),
+                row((
+                    button(crate::res::str::badge_minus())
+                        .bordered()
+                        .enabled(move || supported && count.get() > 0.0)
+                        .action(move || count.set((count.get() - 1.0).max(0.0)))
+                        .id(day::id!(badge_minus)),
+                    label(move || format!("{}", count.get() as u32))
+                        .tabular()
+                        .id(day::id!(badge_value)),
+                    button(crate::res::str::badge_plus())
+                        .bordered()
+                        .enabled(move || supported && count.get() < 99.0)
+                        .action(move || count.set((count.get() + 1.0).min(99.0)))
+                        .id(day::id!(badge_plus)),
+                ))
+                .spacing(Space::S),
+            ),
+            row((
+                button(crate::res::str::badge_set())
+                    .prominent()
+                    .enabled(supported)
+                    .action(move || {
+                        let n = count.get() as u32;
+                        day::set_app_badge(&day::AppBadge::Count(n));
+                        status.set(crate::res::str::badge_status_set(n.to_string()).format());
+                    })
+                    .id(day::id!(badge_set)),
+                button(crate::res::str::badge_clear())
+                    .bordered()
+                    .enabled(supported)
+                    .action(move || {
+                        day::set_app_badge(&day::AppBadge::None);
+                        status.set(crate::res::str::badge_status_cleared().format());
+                    })
+                    .id(day::id!(badge_clear)),
+                // Text is macOS-only, so the control is not offered elsewhere rather than
+                // sitting there doing nothing.
+                when(
+                    move || can_text,
+                    move || {
+                        button(crate::res::str::badge_set_text())
+                            .bordered()
+                            .action(move || {
+                                day::set_app_badge(&day::AppBadge::Text("beta".into()));
+                                status.set(crate::res::str::badge_status_text().format());
+                            })
+                            .id(day::id!(badge_set_text))
+                    },
+                ),
+            ))
+            .spacing(Space::S),
+            labeled(
+                crate::res::str::badge_last(),
+                label(move || status.get()).id(day::id!(badge_status)),
+            ),
         ),
-    ))
-    .title(crate::res::str::nav_badge())
+    )
 }
 
 fn files_section() -> impl Piece {
@@ -1140,99 +1206,102 @@ fn files_section() -> impl Piece {
     let status = Signal::new(String::new());
     let opened = Signal::new(String::new());
     let remembered = Signal::new(day::prefs::get(BOOKMARK).is_some());
-    section((
-        crate::widgets::support_note(crate::support::cap(Cap::FileDialogs)),
-        label(crate::res::str::files_caption()).font(Font::Footnote),
-        text_field(content)
-            .placeholder(crate::res::str::files_placeholder())
-            .id(day::id!(files_content)),
-        row((
-            button(crate::res::str::files_open())
-                .action(move || {
-                    day::task(async move {
-                        match open_file()
-                            .title(crate::res::str::files_open())
-                            .filter("Text", &["txt", "md"])
-                            .await
-                        {
-                            Some(file) => match file.read_to_string() {
-                                Ok(text) => {
-                                    content.set(text);
-                                    opened.set(file.file_name().unwrap_or_default());
-                                    status.set("opened".into());
-                                    if let Ok(bytes) = file.bookmark(true)
-                                        && let Ok(saved) = serde_json::to_string(&bytes)
-                                        && day::prefs::set(BOOKMARK, &saved)
-                                    {
-                                        remembered.set(true);
+    crate::gallery::panel(
+        crate::res::str::nav_files(),
+        (
+            crate::widgets::support_banner(crate::support::cap(Cap::FileDialogs)),
+            text_field(content)
+                .placeholder(crate::res::str::files_placeholder())
+                .id(day::id!(files_content)),
+            row((
+                button(crate::res::str::files_open())
+                    .action(move || {
+                        day::task(async move {
+                            match open_file()
+                                .title(crate::res::str::files_open())
+                                .filter("Text", &["txt", "md"])
+                                .await
+                            {
+                                Some(file) => match file.read_to_string() {
+                                    Ok(text) => {
+                                        content.set(text);
+                                        opened.set(file.file_name().unwrap_or_default());
+                                        status.set("opened".into());
+                                        if let Ok(bytes) = file.bookmark(true)
+                                            && let Ok(saved) = serde_json::to_string(&bytes)
+                                            && day::prefs::set(BOOKMARK, &saved)
+                                        {
+                                            remembered.set(true);
+                                        }
                                     }
-                                }
-                                Err(_) => status.set("open-error".into()),
-                            },
-                            None => status.set("open-cancel".into()),
-                        }
-                    });
-                })
-                .tint(crate::widgets::primary())
-                .id(day::id!(btn_open_file)),
-            button(crate::res::str::files_save())
-                .bordered()
-                .action(move || {
-                    day::task(async move {
-                        let data = content.get_untracked().into_bytes();
-                        match save_file(data)
-                            .title(crate::res::str::files_save())
-                            .suggested_name("day-notes.txt")
-                            .filter("Text", &["txt"])
-                            .await
-                        {
-                            Some(dest) => status
-                                .set(format!("saved:{}", dest.file_name().unwrap_or_default())),
-                            None => status.set("save-cancel".into()),
-                        }
-                    });
-                })
-                .id(day::id!(btn_save_file)),
+                                    Err(_) => status.set("open-error".into()),
+                                },
+                                None => status.set("open-cancel".into()),
+                            }
+                        });
+                    })
+                    .tint(crate::widgets::primary())
+                    .id(day::id!(btn_open_file)),
+                button(crate::res::str::files_save())
+                    .bordered()
+                    .action(move || {
+                        day::task(async move {
+                            let data = content.get_untracked().into_bytes();
+                            match save_file(data)
+                                .title(crate::res::str::files_save())
+                                .suggested_name("day-notes.txt")
+                                .filter("Text", &["txt"])
+                                .await
+                            {
+                                Some(dest) => status
+                                    .set(format!("saved:{}", dest.file_name().unwrap_or_default())),
+                                None => status.set("save-cancel".into()),
+                            }
+                        });
+                    })
+                    .id(day::id!(btn_save_file)),
+                when(
+                    || cfg!(target_os = "macos"),
+                    move || {
+                        button(crate::res::str::files_reopen())
+                            .enabled(move || remembered.get())
+                            .action(move || {
+                                // Keep the access guard alive through reading and bookmark renewal.
+                                let restored = (|| {
+                                    let saved = day::prefs::get(BOOKMARK)?;
+                                    let bytes: Vec<u8> = serde_json::from_str(&saved).ok()?;
+                                    let access = FileUrl::resolve_bookmark(&bytes).ok()?;
+                                    let text = access.file().read_to_string().ok()?;
+                                    if access.was_stale()
+                                        && let Ok(bytes) = access.file().bookmark(true)
+                                        && let Ok(saved) = serde_json::to_string(&bytes)
+                                    {
+                                        day::prefs::set(BOOKMARK, &saved);
+                                    }
+                                    content.set(text);
+                                    opened.set(access.file().file_name().unwrap_or_default());
+                                    Some(())
+                                })();
+                                status.set(if restored.is_some() {
+                                    "opened".into()
+                                } else {
+                                    crate::res::str::files_bookmark_failed().format()
+                                });
+                            })
+                            .id(day::id!(btn_reopen_file))
+                    },
+                ),
+                label(move || status.get()).id(day::id!(files_status)),
+            ))
+            .spacing(Space::S),
             when(
-                || cfg!(target_os = "macos"),
+                move || !opened.with(|s| s.is_empty()),
                 move || {
-                    button(crate::res::str::files_reopen())
-                        .enabled(move || remembered.get())
-                        .action(move || {
-                            // Keep the access guard alive through reading and bookmark renewal.
-                            let restored = (|| {
-                                let saved = day::prefs::get(BOOKMARK)?;
-                                let bytes: Vec<u8> = serde_json::from_str(&saved).ok()?;
-                                let access = FileUrl::resolve_bookmark(&bytes).ok()?;
-                                let text = access.file().read_to_string().ok()?;
-                                if access.was_stale()
-                                    && let Ok(bytes) = access.file().bookmark(true)
-                                    && let Ok(saved) = serde_json::to_string(&bytes)
-                                {
-                                    day::prefs::set(BOOKMARK, &saved);
-                                }
-                                content.set(text);
-                                opened.set(access.file().file_name().unwrap_or_default());
-                                Some(())
-                            })();
-                            status.set(if restored.is_some() {
-                                "opened".into()
-                            } else {
-                                crate::res::str::files_bookmark_failed().format()
-                            });
-                        })
-                        .id(day::id!(btn_reopen_file))
+                    label(crate::res::str::files_opened(opened)).id(day::id!(files_opened_name))
                 },
             ),
-            label(move || status.get()).id(day::id!(files_status)),
-        ))
-        .spacing(Space::S),
-        when(
-            move || !opened.with(|s| s.is_empty()),
-            move || label(crate::res::str::files_opened(opened)).id(day::id!(files_opened_name)),
         ),
-    ))
-    .title(crate::res::str::nav_files())
+    )
 }
 
 fn storage_section() -> impl Piece {
@@ -1253,78 +1322,81 @@ fn storage_section() -> impl Piece {
     };
     refresh();
 
-    section((
-        label(crate::res::str::storage_caption()).font(Font::Footnote),
-        text_field(note)
-            .placeholder(crate::res::str::storage_placeholder())
-            .id(day::id!(fs_note)),
-        row((
-            button(crate::res::str::storage_save())
-                .action(move || {
-                    let data = note.get_untracked().into_bytes();
-                    day::task(async move {
-                        let text = match day_part_filesystem::write_future(FILE, data).await {
-                            Ok(()) => "saved".to_string(),
-                            Err(e) => format!("error: {e}"),
-                        };
-                        status.set(text);
-                        refresh();
-                    });
-                })
-                .tint(crate::widgets::primary())
-                .id(day::id!(fs_save)),
-            button(crate::res::str::storage_load())
-                .bordered()
-                .action(move || {
-                    day::task(async move {
-                        let text = match day_part_filesystem::read_future(FILE).await {
-                            Ok(bytes) => {
-                                format!("loaded:{}", String::from_utf8_lossy(&bytes))
-                            }
-                            Err(e) => format!("error: {e}"),
-                        };
-                        status.set(text);
-                    });
-                })
-                .id(day::id!(fs_load)),
-            button(crate::res::str::storage_delete())
-                .action(move || {
-                    day::task(async move {
-                        let text = match day_part_filesystem::remove_future(FILE).await {
-                            Ok(()) => "deleted".to_string(),
-                            Err(e) => format!("error: {e}"),
-                        };
-                        status.set(text);
-                        refresh();
-                    });
-                })
-                .tint(crate::widgets::danger())
-                .id(day::id!(fs_delete)),
-            label(move || status.get()).id(day::id!(fs_status)),
-        ))
-        .spacing(Space::S),
-        labeled(
-            crate::res::str::storage_files_label(),
-            label(move || files.get())
-                .font(Font::Footnote)
-                .id(day::id!(fs_list)),
+    crate::gallery::panel(
+        crate::res::str::storage_title(),
+        (
+            text_field(note)
+                .placeholder(crate::res::str::storage_placeholder())
+                .id(day::id!(fs_note)),
+            row((
+                button(crate::res::str::storage_save())
+                    .action(move || {
+                        let data = note.get_untracked().into_bytes();
+                        day::task(async move {
+                            let text = match day_part_filesystem::write_future(FILE, data).await {
+                                Ok(()) => "saved".to_string(),
+                                Err(e) => format!("error: {e}"),
+                            };
+                            status.set(text);
+                            refresh();
+                        });
+                    })
+                    .tint(crate::widgets::primary())
+                    .id(day::id!(fs_save)),
+                button(crate::res::str::storage_load())
+                    .bordered()
+                    .action(move || {
+                        day::task(async move {
+                            let text = match day_part_filesystem::read_future(FILE).await {
+                                Ok(bytes) => {
+                                    format!("loaded:{}", String::from_utf8_lossy(&bytes))
+                                }
+                                Err(e) => format!("error: {e}"),
+                            };
+                            status.set(text);
+                        });
+                    })
+                    .id(day::id!(fs_load)),
+                button(crate::res::str::storage_delete())
+                    .action(move || {
+                        day::task(async move {
+                            let text = match day_part_filesystem::remove_future(FILE).await {
+                                Ok(()) => "deleted".to_string(),
+                                Err(e) => format!("error: {e}"),
+                            };
+                            status.set(text);
+                            refresh();
+                        });
+                    })
+                    .tint(crate::widgets::danger())
+                    .id(day::id!(fs_delete)),
+                label(move || status.get()).id(day::id!(fs_status)),
+            ))
+            .spacing(Space::S),
+            labeled(
+                crate::res::str::storage_files_label(),
+                label(move || files.get())
+                    .font(Font::Footnote)
+                    .id(day::id!(fs_list)),
+            ),
         ),
-    ))
-    .title(crate::res::str::storage_title())
+    )
 }
 
 /// Connectivity (docs/network.md): online, metered, and the interface kind, read on demand.
 pub(super) fn network_section() -> impl Piece {
     let reading = Signal::new(network_line().format());
-    section((row((
-        button(crate::res::str::network_refresh())
-            .bordered()
-            .action(move || reading.set(network_line().format()))
-            .id(day::id!(network_refresh)),
-        label(move || reading.get()).id(day::id!(network_reading)),
-    ))
-    .spacing(Space::S),))
-    .title(crate::res::str::network_status_section())
+    crate::gallery::panel(
+        crate::res::str::network_status_section(),
+        (row((
+            button(crate::res::str::network_refresh())
+                .bordered()
+                .action(move || reading.set(network_line().format()))
+                .id(day::id!(network_refresh)),
+            label(move || reading.get()).id(day::id!(network_reading)),
+        ))
+        .spacing(Space::S),),
+    )
 }
 
 /// The current connectivity snapshot as a localized line (Fluent; kind stays the API's enum

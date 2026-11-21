@@ -21,6 +21,7 @@ ctl_tinted = ملوّن
 ctl_destructive = تدميري
 ctl_disabled = معطّل
 ctl_link = رابط
+ctl_composed = مركّب
 ctl_link_text = daybrite.dev
 ctl_presses = الضغطات
 ctl_switches = المفاتيح والمنزلقات
@@ -56,7 +57,6 @@ ctl_divider = الفاصل
 ctl_state = الحالة
 ctl_on = مفعّل
 ctl_off = معطّل
-ctl_crates_note = يوفر قلب Day هذه العناصر؛ وتُركَّب الشارة محليًا في Showcase.
 nav_menus = القوائم والحوارات
 nav_text = النص
 nav_battery = البطارية
@@ -99,11 +99,6 @@ group_graphics = الرسوميات والوسائط
 group_platform = المنصة
 group_app = التطبيق والأدوات
 
-shapes_kinds = الأنواع
-gradients_title = التدرجات اللونية
-gradient_angle = الزاوية
-shapes_angle = الزاوية
-
 picker_selected = المحدد
 picker_segmented = مقسّم
 picker_menu = قائمة
@@ -122,12 +117,11 @@ date_bounded = ضمن 2026
 date_picked = التاريخ المختار
 time_picked = الوقت المختار
 
-compose_caption = قطع تركيبية بحتة — بلا شيفرة أصلية ولا ميزات cargo، وتعمل على كل واجهة خلفية مباشرة.
 compose_card_title = سطح قابل لإعادة الاستخدام
-compose_card_body = حشوة + خلفية + زوايا مستديرة، تُطبَّق كمُعدِّل.
+compose_card_body = حشوة وخلفية وزوايا مستديرة.
 compose_env_value = ملوَّن باللون المميّز المُمرَّر
 list_add = أضف ١٠٠
-list_caption = { $count } صف — تُبنى الخلايا المرئية فقط
+list_caption = الصفوف: { $count }
 list_selection_none = لم يتم تحديد أي صف
 list_selection = { $count ->
     [one] الصف المحدد: { $rows }
@@ -162,16 +156,29 @@ list_opt_editing = وضع التحرير
 list_opt_reorder = اسحب لإعادة الترتيب
 list_opt_swipe = إجراءات السحب
 list_opt_delete = اسحب للحذف
-list_opt_gestures_footer = مع عناوين الأقسام، تُسحب الصفوف داخل قسمها فقط، ويتعطّل السحب للحذف، لأن حذف آخر صف في قسم يزيل عنوانه.
+list_opt_gestures_footer = مع عناوين الأقسام، تُسحب الصفوف داخل قسمها ويتوقف التمرير للحذف.
 list_section = الصفوف { $first }–{ $last }
 list_row_note = سطر ثانٍ من التفاصيل لهذا الصف
 list_row_note_long = تتّسع الصفوف التي يحدّد محتواها ارتفاعَها لتستوعب نصًا أطول، مثل هذا السطر الثالث الذي يلتفّ في النافذة الضيقة.
 list_swipe_select = تحديد
 list_swipe_deselect = إلغاء التحديد
+list_align = موضع الانتقال
+list_align_nearest = الأقرب
+list_align_start = الأعلى
+list_align_center = الوسط
+list_align_end = الأسفل
+list_insert = إدراج
+list_remove = إزالة
+list_remove_all = إزالة الكل
+list_footer = نهاية القائمة: الصفوف { $count }
+list_empty = لا صفوف. «إعادة الضبط» تعيدها.
+list_visible = المعروض: { $first }–{ $last }
+list_visible_first = المعروض بدءًا من { $first }
+list_visible_none = لا صفوف معروضة
 
 nav_model = النموذج
-model_caption = { $count } صفوف معروضة — القائمة تعمل مباشرة من المخزن
-model_cost = { $paths } مسارات مراقبة · { $nodes } عقد محفوظة — ثابتة أثناء التمرير
+model_caption = الصفوف المعروضة: { $count }
+model_cost = المسارات المرصودة: { $paths } · العُقد المخزّنة: { $nodes }
 model_hide_done = إخفاء المنجزة
 model_selected = المحدد: { $title }
 model_selected_none = لا شيء محدد
@@ -179,8 +186,8 @@ model_add = إضافة مهمة
 model_delete = حذف المحدد
 model_undo = تراجع
 model_redo = إعادة
-model_storage_file = تعيش الصفوف في { $file } — كل تعديل يتحول إلى SQL في نهاية الدورة
-model_storage_memory = تبقى الصفوف في الذاكرة على هذه المنصة
+model_storage_file = مخزّنة في { $file }
+model_storage_memory = مخزّنة في الذاكرة على هذه المنصة
 nav_query = الاستعلام
 query_caption = { $count } من { $total } مقطوعة مطابقة
 query_resident = { $resident } من { $total } صفوف مخزنة مؤقتًا لدى عامل قاعدة البيانات
@@ -201,29 +208,23 @@ webview_reload = إعادة تحميل
 webview_js_hint = كود JavaScript لتشغيله داخل الصفحة
 webview_js_run = تشغيل »
 webview_js_result_hint = تظهر نتيجة JSON هنا
-webview_note_iframe = تضمّن هذه المنصة الصفحة داخل إطار iframe. يمنع المتصفّح الوصول إلى السجل وقراءة العنوان عبر الأصول المختلفة، لذا تتعطّل أزرار رجوع وتقدّم وإيقاف، ولن يتابع الحقل أعلاه الروابط المفتوحة داخل الصفحة.
+webview_note_iframe = تضمّن هذه المنصة الصفحة داخل إطار iframe، لذا تتعطّل أزرار رجوع وتقدّم وإيقاف، ولا يتابع الحقل الروابط.
 webview_tab_remote = بعيد
 webview_tab_embedded = مضمّن
-webview_embedded_caption = موقع كامل — صفحات وأنماط وسكربت وصورة — مضمّن داخل التطبيق تحت resource/assets/web/minisite/ ويُحمَّل دون شبكة. تبقى الروابط النسبية داخل الموقع؛ وتُفتح الروابط الخارجية خارج التطبيق؛ وتُعترض روابط day-showcase:// وتنقل التنقل إلى هذا التطبيق.
 webview_embedded_unsupported = لا يتوفر محرك ويب في نسخة التولكيت هذه.
 webview_embedded_status_none = لم يُتبع أي رابط خارجي بعد.
 webview_embedded_opened = فُتح خارج التطبيق: { $url }
 webview_embedded_intercepted = اعتُرض — انتقل التطبيق إلى "{ $route }".
 
-stack_root_body = مكدّس دفع/سحب حقيقي. مساره إشارة يملكها التطبيق.
 stack_push = ادفع صفحة تفاصيل
 stack_detail_title = المستوى { $depth }
-stack_detail_body = دُفع إلى المسار. زر الرجوع الأصلي يكتب السحب مرة أخرى.
 stack_item_title = العنصر { $id }
-stack_link_42 = افتح item-42 مع تلميح (مسار مطلق)
+stack_link_42 = فتح العنصر 42 عبر المسار
 stack_param_hint = فُتح مع تلميح: {$hint}
 tab_one = نظرة عامة
 tab_two = التفاصيل
 tab_three = الإعدادات
-tab_one_body = علامة تبويب النظرة العامة. تحتفظ كل علامة تبويب بحالتها الخاصة.
-tab_two_body = علامة تبويب التفاصيل، تُحدَّد بمفتاح مسارها.
-tab_three_body = علامة تبويب الإعدادات. الروابط العميقة وdayscript يحدّدان علامات التبويب بالمفتاح.
-tab_state_note = انتقل إلى تبويب آخر ثم عد — تبقى حالة هذا التبويب محفوظة.
+tab_state_note = بدّل التبويب ثم عُد: العدّاد باقٍ.
 tab_detail_route = مفتاح المسار
 tab_detail_link = رابط عميق
 tab_set_badges = إظهار الشارات
@@ -248,7 +249,6 @@ vanilla = فانيليا
 pistachio = فستق
 
 # Files playground (docs/files.md)
-files_caption = منتقيات فتح/حفظ الملفات الأصلية. «فتح» يقرأ ملفًا نصيًا إلى المحرّر؛ و«حفظ» يكتبه مرة أخرى.
 files_placeholder = اكتب شيئًا لحفظه…
 files_open = فتح ملف…
 files_save = حفظ الملف…
@@ -271,7 +271,6 @@ sensor_waiting = في انتظار أول عيّنة…
 sensor_unavailable = غير متوفر على هذا الجهاز
 
 # Clipboard playground (docs/clipboard.md)
-clipboard_caption = قطعة day-part-clipboard تقرأ الحافظة النظامية وتكتب فيها بشكل أصلي.
 clipboard_placeholder = اكتب شيئًا لنسخه
 clipboard_copy = نسخ
 clipboard_paste = لصق
@@ -279,13 +278,13 @@ clipboard_idle = الحافظة لم تُمسّ
 clipboard_copied = نُسخ إلى الحافظة النظامية
 clipboard_copy_failed = فشل النسخ (لا توجد واجهة حافظة هنا)
 clipboard_pasted = لُصق من الحافظة النظامية
-clipboard_empty = الحافظة فارغة (أو غير قابلة للقراءة في الخلفية)
+clipboard_empty = الحافظة فارغة أو تتعذّر قراءتها
 
 # Network playground (docs/network.md)
 network_refresh = قراءة الشبكة
 network_reading_online = متصل · { $kind } · مقنَّن: { $expensive }
 network_reading_offline = غير متصل
-network_reading_none = حالة الاتصال غير متاحة (لا توجد واجهة على هذه المنصة، أو فشلت القراءة)
+network_reading_none = حالة الاتصال غير متاحة
 
 # Media playground (docs/media.md)
 media_play = تشغيل
@@ -295,7 +294,7 @@ media_load = تحميل
 # --- Localization page (docs/localization.md) ---
 nav_localization = التوطين
 loc_locale_section = اللغة الحية
-loc_live_note = اللغة إشارة — تبديلها يعيد عرض كل النصوص فورًا. اتجاه التخطيط يثبت عند الإطلاق (أطلق بالعربية لواجهة معكوسة).
+loc_live_note = اتجاه التخطيط يُحدَّد عند التشغيل.
 loc_current_label = الحالية
 loc_reset = إعادة الضبط
 loc_numbers_section = الأرقام
@@ -328,23 +327,19 @@ plural_items = { $count ->
 text_selectable_toggle = قابل للتحديد
 text_styles_header = الأنماط
 text_weights_header = الأوزان
-text_styling_header = عريض ومائل
-text_colors_header = اللون
+text_styling_header = عريض ومائل وملوّن
 text_custom_header = أحجام مخصّصة
-text_custom_note = ‏Font.System(pt) — لا يزال يُكبَّر وفق حجم نص إمكانية الوصول (الخط الديناميكي / مقياس الخط).
 text_fonts_header = الخطوط المضمّنة
-text_fonts_note = ‏Font.Custom("Family", pt) — ملفات من مجلد resource/fonts/ في التطبيق، يضمّها day build وتُحلّ باسم العائلة على كل منصة.
 
 # Menus playground
 menus_last = آخر إجراء
 menus_lifecycle = دورة الحياة
-menus_target = انقر بزر الفأرة الأيمن هنا (ضغطة مطوّلة على الجوال) لقائمة سياق
-menus_shortcut_hint = اختصارات لوحة المفاتيح (⌘/Ctrl + مفتاح) تظهر في شريط القوائم وتعمل أثناء تركيز التطبيق — مثل جديد (N)، حفظ (S)، إعادة تحميل (R)، حفظ باسم (⇧/Shift + S).
+menus_target = انقر بالزر الأيمن أو اضغط مطولًا هنا
 
 # --- day-part-haptics ---
 nav_haptics = الاهتزاز اللمسي
-haptics_supported_yes = محرك الاهتزاز اللمسي متوفر على هذه المنصة
-haptics_supported_no = لا يوجد محرك اهتزاز لمسي على هذه المنصة (الأزرار صامتة)
+haptics_supported_yes = محرّك اللمس متوفّر
+haptics_supported_no = لا يوجد محرّك لمس على هذه المنصة
 haptics_light = خفيف
 haptics_medium = متوسط
 haptics_heavy = قوي
@@ -364,7 +359,7 @@ sound_error = خطأ
 sound_glass = زجاج
 sound_card = بطاقة
 sound_jingle = لحن قصير
-sound_pan_caption = المقطع نفسه على اليسار وفي الوسط وعلى اليمين.
+sound_pan_caption = التوزيع المجسّم
 sound_left = يسار
 sound_center = وسط
 sound_right = يمين
@@ -372,7 +367,6 @@ sound_volume = مستوى الصوت
 sound_last = آخر تشغيل
 sound_none = لم يُشغَّل شيء بعد
 sound_last_played = شُغِّل: { $clip }
-sound_loop_caption = مقطع يتكرر إلى أن يُوقَف.
 sound_loop = تكرار طنين
 sound_loop_volume = مستوى صوت التكرار
 sound_looping = قيد التكرار
@@ -381,27 +375,15 @@ sound_looping_clip = يتكرر: { $clip }
 
 # --- day-part-preferences ---
 nav_prefs = التفضيلات
-prefs_caption = احفظ سلسلة نصية عبر عمليات التشغيل باستخدام day-part-preferences.
-prefs_placeholder = القيمة المراد تذكّرها
-prefs_save = حفظ
-prefs_load = قراءة
-prefs_clear = مسح
-prefs_idle = اكتب قيمة ثم احفظ.
+prefs_placeholder = ملاحظة للتذكّر
 prefs_empty = (لا شيء مخزَّن)
-prefs_saved = حُفظ.
-prefs_save_failed = فشل الحفظ.
-prefs_loaded = قُرئ من التخزين.
-prefs_missing = لا شيء مخزَّن بعد.
-prefs_cleared = مُسح.
-prefs_value_label = القيمة المخزَّنة:
+prefs_value_label = القيمة المخزَّنة
 
 # --- bundled resources (§18.3) ---
 nav_resources = الموارد
 vectors_title = المتجهات
-vectors_note = رموز الشريط الجانبي من resource/vectors/ — ملف SVG لكل أيقونة، مستقل عن الدقة على كل واجهة خلفية.
 vectors_tints = التلوين
 vectors_zoom = التكبير
-vectors_scene_note = ملف SVG واحد من 240 مسارًا، يُعاد رسمه من المتجه عند كل درجة تكبير بدل تكبيره — تبقى الحواف حادة عند أي حجم. على أندرويد يُشحن بصيغة VectorDrawable لا كصورة نقطية.
 vectors_weights = الأوزان
 vectors_sizes = الأحجام
 resources_numbers = ‏numbers.bin: { $len } بايت، byte[100] = { $byte }
@@ -429,27 +411,26 @@ nav_tweaks = التوليفات
 tweaks_stock = قياسي
 tweaks_tweaked = مولَّف
 tweaks_bezel_title = إطار الزر
-tweaks_bezel_caption = ‏day-tweak-button-bezel — ‏AppKit فقط: ثوابت NSBezelStyle على NSButton الحقيقي.
+tweaks_bezel_caption = AppKit فقط
 tweaks_selectable_title = تسمية قابلة للتحديد
-tweaks_selectable_caption = ‏المعدّل الأساسي ‎.selectable()‎ — تحديد النص الأصلي على تسمية، اختياري، حيث تدعمه مجموعة الأدوات.
-tweaks_selectable_text = يمكن تحديد نص هذه التسمية ونسخه — جرّب ذلك.
+tweaks_selectable_text = حدّد هذا النص وانسخه.
 tweaks_tooltip_title = تلميح
-tweaks_tooltip_caption = ‏day-tweak-tooltip — ‏AppKit وGTK وAndroid: تلميح أصلي، معدّل واحد عبر ثلاثة مستويات وصول.
+tweaks_tooltip_caption = ‏AppKit وGTK وAndroid. مرّر المؤشر فوق الزر أو اضغط عليه مطولًا.
 tweaks_tooltip_label = حفظ تلقائي
-tweaks_tooltip_hint = يُحفظ عملك تلقائيًا. مرّر المؤشر (أو اضغط مطولًا على Android) للتفاصيل.
+tweaks_tooltip_hint = يُحفظ عملك تلقائيًا.
 tweaks_ticks_title = علامات تدرّج المنزلق
-tweaks_ticks_caption = ‏day-tweak-slider-tick-marks — ‏AppKit وGTK وAndroid وQt وXAML وArkUI: علامات أصلية، مع الالتصاق حيث تدعمه المنصة. المنزلق المولَّف يلتصق؛ والقياسي ينزلق بسلاسة.
+tweaks_ticks_caption = ‏AppKit وGTK وAndroid وQt وXAML وArkUI. المنزلق المولَّف يلتصق بعلاماته.
 tweaks_ref_title = حيوية NativeRef
-tweaks_ref_caption = يصل NativeRef إلى المنزلق المولَّف بعد التركيب؛ وعند إزالته يُمسح المرجع بدلًا من أن يبقى معلّقًا.
+tweaks_ref_caption = تركيب المنزلق
 tweaks_ref_live = المرجع: حي
 tweaks_ref_cleared = المرجع: ممسوح
 tweaks_label_title = تعديل تسمية نصية
-tweaks_label_caption = تعديل مباشر (AppKit وUIKit) يخفّف هذه التسمية عبر عرضها الأصلي ويبلّغ عن الفئة التي وجدها. على iOS يعيد مفتاح «قابل للتحديد» بناء التسمية كـ UITextView للقراءة فقط — يعمل التعديل بعد .selectable()‎ فيصل إلى الودجة المعروضة فعلًا.
+tweaks_label_caption = ‏AppKit وUIKit. على iOS، خيار «قابل للتحديد» يبدّل الصنف الأصلي.
 tweaks_label_sample = هذه التسمية مخفّفة بتعديل أصلي.
 tweaks_label_class = الفئة الأصلية: { $class }
 
 # --- merged section pages (design overhaul) ---
-nav_canvas = اللوحة والأشكال
+nav_canvas = اللوحة
 nav_charts = المخططات
 nav_system = الجهاز والمستشعرات
 nav_network_http = الشبكة وHTTP
@@ -458,8 +439,6 @@ nav_notify_badge = الإشعارات والشارة
 nav_push = الإشعارات الفورية
 nav_speech_haptics = الكلام والصوت واللمس
 nav_files_storage = الملفات والتخزين
-paths_title = المسارات والحدود والاقتصاص
-canvas_gauge = مقياس اللوحة
 gauge_value_label = القيمة
 canvas_text_title = النص والخطوط
 canvas_anchors_title = مراسي النص
@@ -529,7 +508,6 @@ media_player_section = الفيديو
 
 # أقسام صفحة الموارد
 resources_image_section = صورة مضمّنة
-resources_modes_note = صورة واحدة بثلاثة أوضاع — الملاءمة تحفظ النسب، والملء يقص، والتمديد يشوّه.
 image_mode_fit = ملاءمة
 image_mode_fill = ملء
 image_mode_stretch = تمديد
@@ -553,7 +531,6 @@ about_locale = اللغة
 # صفحة التركيز (docs/focus.md)
 nav_focus = التركيز
 focus_group_section = إشارة واحدة، نموذج واحد
-focus_group_caption = ثلاثة حقول مرتبطة بإشارة اختيارية واحدة. انقر أو تنقّل بينها فيتبعها المؤشر؛ وزر الإدخال ينتقل إلى الحقل التالي.
 focus_name_label = الاسم
 focus_email_label = البريد الإلكتروني
 focus_city_label = المدينة
@@ -561,7 +538,6 @@ focus_current_label = التركيز
 focus_next = التركيز التالي
 focus_clear = مسح التركيز
 focus_bool_section = عنصر واحد، قيمة منطقية واحدة
-focus_bool_caption = الحقل نفسه مرتبط بإشارة منطقية — الأزرار تكتبها، والدخول إلى الحقل والخروج منه يكتبها بدوره.
 focus_bool_placeholder = التركيز يصل هنا
 focus_focus_btn = تركيز
 focus_blur_btn = إزالة التركيز
@@ -569,7 +545,7 @@ focus_state_label = الحالة
 focus_state_on = مركّز
 focus_state_off = غير مركّز
 focus_probe_section = ما بعد حقول النص
-focus_probe_caption = تمنح أدوات سطح المكتب التركيز أيضًا للأزرار والمفاتيح وأشرطة التمرير؛ أما المنصات اللمسية فتخصصه غالبًا لإدخال النص.
+focus_probe_caption = المنصات اللمسية تخصّص التركيز لإدخال النص.
 focus_probe_toggle = مفتاح
 focus_probe_slider = شريط تمرير
 focus_probe_button = زر
@@ -678,18 +654,15 @@ text_font_pacifico_lg = Pacifico بحجم 36 نقطة
 text_links_section = روابط
 text_runs_section = مقاطع منسّقة
 text_markdown_section = ماركداون، يُحلَّل مباشرة
-text_markdown_caption = اكتب أدناه. تُعاد قراءة التسمية أسفل الفاصل مع كل ضغطة مفتاح، بالمسار نفسه الذي تسلكه سلسلة مترجمة أو قيمة من الشبكة.
 text_markdown_sample = يحلّل Day **العريض** و*المائل* و`الشفرة` و~~المشطوب~~ و[الروابط](https://daybrite.dev) أثناء التشغيل. أما الترميز غير المكتمل مثل ** فيبقى كما هو.
 text_markdown_opened = فُتح: {$url}
 text_baseline_section = المحاذاة على خط الأساس
-text_baseline_caption = تضع الصفوف نصّها على خط أساس واحد بدل توسيط صناديق بارتفاعات مختلفة. أوقف الخيار لترى الفرق: نص الحقل والتسمية المجاورة له ووحدة القياس تتباعد.
 text_baseline_toggle = محاذاة خطوط الأساس
 text_baseline_quantity = الكمية
 text_baseline_unit = عنصرًا
 text_baseline_total = الإجمالي
 text_baseline_currency = دولار
 text_baseline_due = تاريخ الاستحقاق
-text_links_caption = انقر رابطًا لفتحه في متصفح النظام.
 text_link_icons_label = رموز Material على Google Fonts
 text_link_mail_label = راسل الفريق
 
@@ -710,7 +683,7 @@ crash_contained = ذعر (محتوى)
 crash_contained_label = يلتقطه day، ويبقى التطبيق
 crash_send = إرسال التقرير
 crash_clear = مسح التقارير
-crash_empty = لا يوجد تقرير عطل بعد. أحدِث عطلاً ثم أعِد التشغيل لرؤيته هنا.
+crash_empty = لا يوجد تقرير عطل بعد. أحدِث عطلاً ثم أعِد التشغيل.
 
 # صفحة حقول النص (docs/textfield.md)
 nav_textfields = حقول النص
@@ -790,15 +763,13 @@ location_unknown = —
 chart_axes = س أحمر · ص فيروزي · ع بنفسجي
 
 # غطاء بملء الشاشة (docs/cover.md).
-stack_cover_button = عرض غطاء
+stack_cover_button = غطاء
 cover_title = غطاء بملء الشاشة
-cover_body = يُعرض فوق النافذة كاملة عبر cover(signal). أصلي على iOS وأندرويد، وعنصر علوي في الأنظمة الأخرى.
 cover_dismiss = إغلاق
 
 # نصف ورقة (docs/cover.md): النصف السفلي من النافذة مع بقاء الصفحة ظاهرة تحتها.
-stack_half_button = عرض نصف ورقة
+stack_half_button = نصف ورقة
 half_title = نصف ورقة
-half_body = تُعرض فوق النصف السفلي عبر cover(signal).half_sheet() مع بقاء الصفحة ظاهرة. ورقة بارتفاع متوسط على iOS، وورقة سفلية على أندرويد.
 half_level = المستوى
 half_readout = مستوى الورقة: { $level }
 
@@ -813,7 +784,6 @@ tab_dynamic_remove = إزالة علامة تبويب
 
 # تخزين الملفات المحلي (صفحة الخدمات، docs/fs.md).
 storage_title = الملفات المحلية
-storage_caption = يخزّن day-part-filesystem ملفات خاصة بالتطبيق على كل منصة — ملفات حقيقية محليًا وOPFS في المتصفح.
 storage_placeholder = نص للتخزين
 storage_save = حفظ الملف
 storage_load = تحميل
@@ -825,14 +795,13 @@ prefs_window_title = الإعدادات
 
 # --- Tree page (docs/tree.md) ---
 nav_tree = شجرة
-tree_caption = مخطط هرمي فوق صفوف يملكها التطبيق: توسيع، وتحديد، وكشف، وسحب للنقل، وقوائم سياقية لكل صف.
 tree_expand_all = توسيع الكل
 tree_collapse_all = طي الكل
 tree_reveal = إظهار tree.rs
 tree_add_file = إضافة ملف
 tree_multi = تحديد متعدد
 tree_lock = قفل docs
-tree_hint = اسحب صفًا إلى مجلد لنقله، أو استخدم قائمته السياقية — ما دام القفل مفعّلًا يرفض docs الإفلات.
+tree_hint = اسحب صفًا إلى مجلد لنقله. ما دام القفل مفعّلًا يرفض docs الإفلات.
 tree_count = { $count ->
     [one] عقدة واحدة
     [two] عقدتان
@@ -857,10 +826,9 @@ tree_ctx_delete = حذف
 
 # --- Toolbars page (docs/toolbars.md) ---
 nav_toolbars = أشرطة الأدوات
-toolbar_unsupported = لا تملك مجموعة الأدوات هذه شريط أدوات للنافذة، لذا لم يُثبَّت شيء. الهاتف يضع هذه الأوامر داخل المحتوى بدلًا من ذلك.
+toolbar_unsupported = لا تملك مجموعة الأدوات هذه شريط أدوات للنافذة.
 toolbar_readout_title = ما الذي يفعله شريط الأدوات
 toolbar_controls_title = قيادته من هنا
-toolbar_vocabulary_title = مفردات العناصر
 # Item labels: these appear in the toolbar, so they stay short.
 toolbar_new = نافذة جديدة
 toolbar_menu_open_scripting = فتح صفحة البرمجة النصية
@@ -901,23 +869,12 @@ toolbar_enabled_label = عرض المصدر مفعّل
 toolbar_clear_search = مسح البحث
 toolbar_seed_search = تعبئة البحث
 toolbar_seed_text = أشرطة الأدوات
-# One line per item kind.
-toolbar_kind_button = زر
-toolbar_kind_button_note = ينفّذ أمرًا، ويمكنه مشاركة إجرائه مع عنصر قائمة.
-toolbar_kind_toggle = مفتاح
-toolbar_kind_toggle_note = مرتبط باتجاهين بإشارة، فيتفق المفتاح أعلاه مع الزر.
-toolbar_kind_menu = قائمة
-toolbar_kind_menu_note = قائمة منسدلة مبنية من المدخلات نفسها التي يأخذها شريط القوائم.
-toolbar_kind_search = بحث
-toolbar_kind_search_note = عنصر البحث الأصلي للمنصة، مرتبط باتجاهين بإشارة.
-toolbar_kind_space = المسافات
-toolbar_kind_space_note = مسافة مرنة تفصل عناصر البداية عن عناصر النهاية.
 # --- day-part-local-notify (docs/notify.md) ---
 nav_notify = الإشعارات
-notify_caps_post = النشر مدعوم على هذه المنصة
-notify_caps_unsupported = الإشعارات المحلية غير متاحة في هذه النسخة (على macOS تتطلب حزمة تطبيق موقّعة — استخدم day pack)
+notify_caps_post = النشر مدعوم
+notify_caps_unsupported = غير متاحة في هذه النسخة. على macOS تتطلب الإشعارات حزمة تطبيق موقّعة (day pack).
 notify_caps_schedule_os = تبقى الإشعارات المجدولة بعد إغلاق التطبيق
-notify_caps_schedule_process = الإشعارات المجدولة مؤقّت داخل العملية وتُفقد إذا أُغلق التطبيق
+notify_caps_schedule_process = تُفقد الإشعارات المجدولة إذا أُغلق التطبيق
 notify_title_label = العنوان
 notify_title_placeholder = عنوان الإشعار
 notify_title_default = مرحبًا من Day
@@ -945,9 +902,9 @@ notify_status_cancelled = أُلغيت جميع الإشعارات
 notify_status_failed = تعذّر النشر
 notify_last = آخر نتيجة
 notify_perm_granted = تم منح إذن الإشعارات
-notify_perm_missing = لم يُمنح إذن الإشعارات — سيتم تجاهل الإرسال
+notify_perm_missing = الإذن غير ممنوح: تُهمَل الإشعارات
 notify_perm_request = طلب الإذن
-haptics_songs_caption = تسلسلات أطول — الفواصل تحمل الإيقاع بقدر ما تحمله النبضات.
+haptics_songs_caption = تسلسلات
 haptics_song_celebration = احتفال
 haptics_song_levelup = ترقية المستوى
 haptics_song_heartbeat = نبض القلب
@@ -970,10 +927,10 @@ scripting_saved = تم الحفظ
 
 # --- app badge (docs/badge.md) ---
 nav_badge = شارة التطبيق
-badge_caps_native = تعرض هذه المنصة شارة على أيقونة التطبيق
-badge_caps_emulated = تُرسل الشارة، لكن ظهورها يعتمد على الصدفة أو على تثبيت التطبيق
-badge_caps_none = لا تملك هذه المنصة واجهة لشارة التطبيق
-badge_android_note = لا تملك أندرويد واجهة لتعيين شارة: تستنتج المشغّلات النقطة من الإشعارات المنشورة، فاستخدم عدّاد الإشعار بدلًا من ذلك.
+badge_caps_native = أيقونة التطبيق تعرض شارة
+badge_caps_emulated = تُرسل الشارة، والصدفة تقرّر إظهارها
+badge_caps_none = لا توجد واجهة لشارة التطبيق على هذه المنصة
+badge_android_note = يستنتج Android الشارة من الإشعارات المنشورة: استخدم عدّاد شارة الإشعار بدلًا من ذلك.
 badge_count_label = العدد
 badge_minus = −
 badge_plus = +
@@ -993,13 +950,11 @@ voice_search_placeholder = تصفية النكهات…
 # Context-menu demos (menus page): the message-list rows and the media card.
 menu_reply = رد
 menu_forward = إعادة توجيه
-menu_archive = أرشفة
 menu_share = مشاركة…
 menu_copy_image = نسخ الصورة
 menu_save_image = حفظ في الصور
 menu_get_info = عرض المعلومات
 menus_messages_section = قائمة رسائل
-menus_messages_hint = كل صف يحمل قائمته الخاصة — يذكر الإجراء الرسالة التي جاء منها.
 menus_photo_section = بطاقة وسائط
 msg_subject_one = أرقام الربع، مسودة أولى
 msg_subject_two = خطة عطلة نهاية الأسبوع، الجواب النهائي
@@ -1026,7 +981,6 @@ cmd_toggle_pseudo_locale = تبديل اللغة الزائفة
 
 # النطق (day-part-speech): مرجع daybridge. واجهة واحدة، ولغة مختلفة لكل منصة.
 speech_title = تحويل النص إلى كلام
-speech_caption = واجهة Rust واحدة؛ وصوت المنصة نفسه تحتها — Swift على أبل، وJava على أندرويد، وArkTS على HarmonyOS، وJavaScript على الويب، وC++ على ويندوز.
 speech_phrase = يوم صافٍ، مع احتمال هطول المطر لاحقًا.
 speech_speak = انطق
 speech_stop = أوقف
@@ -1045,7 +999,7 @@ vectors_live_tint = تلوين حي
 vectors_cycle_tint = تبديل
 
 # Layout page (docs/size-classes.md "Row fit policies")
-layout_note = اختر سياسة ثم أضف مكوّنات حتى يضيق الصف بها. «قصّ» يترك البقية خارج الشاشة (وتسجّلها إصدارات التصحيح)، و«التفاف» ينتقل إلى أسطر جديدة بعرض كل زر، و«أعمدة متساوية» تحاذي تلك الأسطر في شبكة، و«عمود» يكدّس عموديًا عند العرض المضغوط، و«تمرير» يبقي سطرًا واحدًا قابلًا للسحب. على سطح المكتب، ضيّق النافذة لترى «عمود» يعمل.
+layout_note = اختر سياسة، ثم أضف مكوّنات حتى يضيق الصف.
 layout_row_section = ملاءمة الصف
 layout_fit_label = السياسة
 layout_fit_clip = قصّ
@@ -1057,9 +1011,8 @@ layout_count_label = المكوّنات
 layout_item = عنصر { $n }
 layout_item_wide = عنصر { $n } (أعرض)
 
-vectors_alias_note = ملف SVG عادي طُلب منه الوزن العريض: لا يملك محور أوزان، لذا يعود الاسم البديل إلى الرمز الأساسي بدل ألا يرسم شيئًا.
+vectors_alias_note = لا توجد نسخة عريضة: يُرسَم الرمز الأساسي
 vectors_pick_tint = اختر لونًا
-vectors_tint_idioms = أداتا اختيار لون ولون واحد مرتبط: الأولى تفتح أداة النظام، والثانية تفتح اللوحة التي يرسمها Day بنفسه — نفس الأداة على كل هدف.
 
 # صفحة قائمة المحتوى (src/pages/content_list): قائمة العناصر والمحرّر من قالب `day new` نفسه،
 # لذا فالمفاتيح أدناه هي مفاتيح القالب كما هي؛ الكود المنسوخ يقرأها بالاسم.
@@ -1081,7 +1034,7 @@ split_support_title = في هذه المجموعة
 split_support_label = يرسم الفاصل
 split_native = فاصل المجموعة نفسها
 split_composed = Day (لا فاصل لهذه المجموعة)
-split_hint = اسحب الفاصل: يتبعه منزلق الحصة، ويحرّك المنزلق الفاصل. النموذج في جهة والرسم في الأخرى يقرآن الحالة نفسها.
+split_hint = اسحب الفاصل أو حرّك شريط الحصة.
 split_arrangement_title = الترتيب
 split_stacked = متراكبان
 split_share = حصة النموذج
@@ -1104,16 +1057,14 @@ cursors_support_label = الدعم هنا
 cursors_native = أصلي
 cursors_emulated = محاكى (أقرب الأشكال)
 cursors_unsupported = غير مدعوم على هذا الهدف
-cursors_hint = حرّك المؤشّر فوق بلاطة فيتّخذ شكلها. شاشة اللمس لا تُظهر شيئًا، وهذا صحيح.
+cursors_hint = حرّك المؤشّر فوق بلاطة.
 cursors_shapes_title = أشكال المؤشّر
 cursors_drag_title = السحب والإفلات
 cursors_resize_title = تغيير الحجم والتكبير
 cursors_busy_title = مشغول
 cursors_reactive_title = صندوق واحد، أشكال كثيرة
-cursors_reactive_caption = يتلقّى الصندوق `cursor(closure)`: اختر شكلًا فيتغيّر المؤشّر فوقه دون إعادة بناء أي شيء.
 cursors_reactive_pick = الشكل
 cursors_nested_title = الأقرب من الأسلاف يفوز
-cursors_nested_caption = الصندوق الخارجي يطلب علامة تصويب، والبلاطة الداخلية يدًا؛ ومغادرة البلاطة تعيد علامة التصويب.
 cursors_nested_outer = علامة تصويب هنا
 cursors_nested_inner = يد هنا
 cursors_native_title = الخاصّة بمجموعة الأدوات هذه
@@ -1145,7 +1096,7 @@ ctl_icon_only = أيقونة فقط
 ctl_image = صورة مضمّنة
 
 nav_drag_drop = السحب والإفلات
-dnd_hint = اسحب الصورة أو ملفًا أو بيانات إلى مربع أو نافذة أخرى. ترفض الدوائر التي تحمل علامة X الإفلات. تُنقل العناصر داخل الصفحة وتُنسخ بين النوافذ.
+dnd_hint = اسحب بلاطة إلى بلاطة أخرى أو إلى نافذة Showcase أخرى. الدوائر التي عليها X ترفض الإفلات.
 dnd_ready = جاهز لاستقبال عنصر.
 dnd_empty = أفلت هنا
 dnd_new_window = نافذة جديدة
@@ -1160,29 +1111,26 @@ files_bookmark_failed = تعذرت استعادة الوصول إلى الملف
 dnd_disallowed = إضافة مناطق محظورة
 
 # Native display frame demo
-frame_hint = المس أي مكان لقذف كل الكرات نحو تلك النقطة. اسحب كرة لتحريكها وقذفها، أو انقر عليها لنقرها. زِد العدد لاختبار الأداء.
+frame_hint = انقر لقذف الكرات. اسحب كرة لقذفها.
 frame_bounce = ارتداد
 frame_shuffle = خلط
-frame_pause = إيقاف / استئناف
+frame_pause = إيقاف مؤقت
 frame_waiting = بانتظار إطار
 frame_running = تتحرك
 frame_paused = متوقفة مؤقتًا
 frame_resting = ساكنة
-frame_explanation = يعرض معدل الإطارات آخر ثانيتين من إشارات العرض، باستثناء التوقفات. يبدأ كل ارتداد قياسًا جديدًا.
-frame_native_title = حركات عناصر الواجهة الأصلية
 frame_balls_label = الكرات
 frame_fps = إطار/ث · الأدنى { $min } · الأقصى { $max } · المتوسط { $avg }
 
 commands_title = أوامر قابلة لإعادة الاستخدام
 commands_add = إضافة واحد
-commands_hint = تستخدم الأزرار وشريط الأدوات والقائمة السياقية الإجراءات نفسها. أضف حتى ثلاثة ثم أعد الضبط؛ تظل حالة الإتاحة متزامنة.
 
 # The Physics page (src/pages/physics.rs): the ball mass and planetary gravity sliders, and the
 # bodies the gravity readout names.
-physics_gravity_label = الجاذبية الكوكبية
+physics_gravity_label = الجاذبية
 physics_gravity = { $value } م/ث²
 physics_gravity_named = { $value } م/ث² ({ $body })
-physics_mass_label = كتلة الكرة
+physics_mass_label = الكتلة
 physics_mass = { $value } ميغاطن
 physics_elasticity_label = المرونة
 physics_elasticity = { $value }٪
@@ -1200,10 +1148,9 @@ net_provider = موفر HTTP
 net_native = الأصلي
 net_reqwest = reqwest
 net_native_only = يستخدم هذا الهدف الموفر الأصلي.
-net_provider_note = تُطبَّق التغييرات على الطلبات والاتصالات الجديدة. تحتفظ عمليات النقل الحالية بموفرها.
+net_provider_note = يسري على الطلبات والمقابس الجديدة.
 net_simulation = محاكاة الشبكة
 net_intercept = اعتراض الطلبات
-net_sim_note = تستخدم عناصر التحكم نفسها معالجات محلية عند تفعيل الاعتراض. البذرة: 42. تُطبَّق السرعة والأعطال على الحركة المحاكاة.
 net_speed = سرعة النقل
 net_speed_value = { $speed } كيبيبايت/ث لكل عملية نقل
 net_failures = معدل الفشل
@@ -1220,7 +1167,7 @@ net_upload_preset = إعداد رفع
 net_received = استُلم { $bytes } بايت
 net_error = فشل الطلب: { $error }
 net_request = طلب HTTP
-net_ws_note = تستخدم الأهداف الأصلية خادم الصدى المحلي. في المتصفح، أدخل رابط WebSocket مباشرًا أو فعّل الاعتراض للصدى المحاكى.
+net_ws_note = أدخل رابط WebSocket مباشرًا، أو فعّل الاعتراض للصدى المحاكى.
 net_message = الرسالة
 net_connected = متصل
 net_closed = مغلق
@@ -1233,7 +1180,6 @@ net_rate = كيبيبايت/ث
 net_series = حركة البيانات
 net_totals = أُرسل { $sent } بايت · استُلم { $received } بايت · نشط { $active } · فشل { $failed }
 net_average = متوسط الجلسة: رفع { $upload } كيبيبايت/ث · تنزيل { $download } كيبيبايت/ث
-net_stats_note = بايتات المحتوى عبر جلسة day-part-http لهذه الصفحة فقط. لا تشمل الأطر الأخرى أو حمل البروتوكول. تشمل المتوسطات وقت الخمول؛ يعرض الرسم آخر 30 ثانية.
 net_statistics = حركة البيانات المباشرة
 net_send_request = إرسال الطلب
 net_options = خيارات الطلب
@@ -1248,7 +1194,7 @@ sensor_unit_magnetic = µT
 
 sensor_live = قراءات مباشرة
 sensor_compass = بوصلة مغناطيسية
-sensor_compass_hint = أمسك الهاتف بشكل مسطح وفي الاتجاه الرأسي. يشير الأحمر إلى الشمال المغناطيسي؛ قد تؤثر المعادن القريبة على القراءة. إذا كنت تنتظر قراءة، فدوّر الهاتف برفق لمعايرته.
+sensor_compass_hint = أمسك الهاتف بشكل مسطّح. يشير الأحمر إلى الشمال المغناطيسي.
 sensor_north = ش
 sensor_east = ق
 sensor_south = ج
@@ -1257,10 +1203,10 @@ sensor_heading = الاتجاه المغناطيسي: { $degrees }°
 
 sensor_calibrated = معاير
 sensor_tilt = مستوى التسارع X/Y
-sensor_tilt_hint = تتبع الفقاعة التسارع X/Y؛ تسارع الجاذبية عند الحافة. ثبّت الجهاز لملاحظة الميل؛ تؤثر الحركة أيضاً عليها.
+sensor_tilt_hint = تتبع الفقاعة التسارع على X/Y، وعند الحافة 1 g.
 sensor_rotation = مؤشرات سرعة الدوران
-sensor_rotation_hint = السرعة الزاوية حول X وY وZ؛ ±π راديان/ثانية عند طرفي كل مقياس. تُظهر سرعة الدوران، وليس الاتجاه.
-sensor_uncalibrated_hint = تتضمن القراءات غير المعايرة انحياز الجهاز. تُظهر الإبرة المجال المقاس وقد لا تشير إلى الشمال.
+sensor_rotation_hint = سرعة الدوران لكل محور، و±π rad/s عند الطرفين.
+sensor_uncalibrated_hint = غير معايَر: قد لا تشير الإبرة إلى الشمال.
 sensor_axis_x = X
 sensor_axis_y = Y
 sensor_axis_z = Z
@@ -1268,7 +1214,6 @@ sensor_axis_z = Z
 # --- الأمان: سلسلة المفاتيح وطلب التحقق البيومتري (docs/keychain.md, docs/biometrics.md) ---
 nav_security = الأمان
 keychain_title = سلسلة المفاتيح
-keychain_caption = واجهة Rust واحدة فوق المخزن الآمن لكل منصة: سلسلة المفاتيح على iOS وmacOS، وAndroid Keystore، وDPAPI على Windows، وSecret Service على Linux، وUniversal Keystore على HarmonyOS.
 keychain_support_label = المخزن هنا
 keychain_backend_label = المحرّك
 keychain_key_label = المفتاح
@@ -1291,7 +1236,6 @@ keychain_entries_label = المفاتيح المحفوظة
 keychain_entries_none = لا شيء
 keychain_presence_reason = قراءة السر الذي حفظته صفحة الأمان.
 biometrics_title = القياسات البيومترية
-biometrics_caption = طلب المنصة نفسها: Touch ID أو Face ID، وطلب Android البيومتري، وWindows Hello، ومصادقة HarmonyOS. رمز الجهاز هو المخرج حين يكون الإصبع مبللًا.
 biometrics_support_label = الدعم هنا
 biometrics_availability_label = التوفر
 biometrics_biometry_label = المستشعر
@@ -1306,10 +1250,7 @@ permission_biometrics = أكّد هويتك في صفحة الأمان.
 
 # --- تسجيل الدخول: day-part-auth (متصفح المصادقة، OpenID Connect، مفاتيح المرور، Apple، Google) ---
 nav_signin = تسجيل الدخول
-signin_info = حول تسجيل الدخول
-signin_info_intro = تسجيل الدخول عبر أبواب المنصة نفسها. يحمل كل طلب PKCE وstate وnonce، ويُتحقق من رمز الهوية بمفاتيح المزوّد قبل عرضه. لا يُحفظ شيء: تبقى الرموز في هذه الصفحة حتى تسجيل الخروج.
 signin_oidc_title = OpenID Connect
-signin_caption = متصفح تسجيل الدخول الخاص بالنظام، وطلب تفويض مع PKCE وstate وnonce، ورمز هوية يُتحقق منه بمفاتيح المزوّد قبل أن تراه. يعمل مزوّد العرض داخل هذا التطبيق على الواجهة المحلية ويسجّل دخول حسابَي عرض؛ أما Google وApple وأي مُصدِر عبر الاستكشاف فتأخذ معرّف العميل الذي سجّلته.
 signin_provider_demo = مزوّد العرض (مدمج)
 signin_provider_google = Google
 signin_provider_apple = Apple (تدفق الويب)
@@ -1338,7 +1279,6 @@ signin_userinfo_ok = أجاب Userinfo عن { $sub }
 signin_revoked = تم إبطال رمز الوصول
 signin_signed_out = تم تسجيل الخروج
 passkeys_title = مفاتيح المرور
-passkeys_caption = WebAuthn عبر مُصادِق المنصة: JSON الخيارات الذي يرسله الخادم، وJSON بيانات الاعتماد الذي يستلمه. يجب أن يكون الطرف المعتمِد نطاقًا مرتبطًا بهذا التطبيق؛ وإلا تقول الورقة ذلك بكلماتها.
 passkeys_available_yes = مُصادِق المنصة متاح
 passkeys_available_no = لا مُصادِق منصة على هذا الجهاز
 passkeys_create = إنشاء مفتاح مرور
@@ -1348,11 +1288,9 @@ passkeys_prompting = في انتظار المُصادِق…
 passkeys_created = أُنشئت بيانات الاعتماد { $id }
 passkeys_asserted = تم تسجيل الدخول ببيانات الاعتماد { $id }
 apple_title = تسجيل الدخول باستخدام Apple
-apple_caption = ورقة النظام على iOS وmacOS، بـ Face ID أو Touch ID أو رمز المرور. يحتاج التطبيق إلى إمكانية تسجيل الدخول باستخدام Apple على معرّفه؛ ومن دونها تُبلغ الورقة عن خطأ يُعرض هنا.
 apple_sign_in = تسجيل الدخول باستخدام Apple
 apple_signed_in = مستخدم Apple { $user }
 google_title = Google
-google_caption = على Android يعرض Credential Manager حسابات Google على الجهاز ويعيد رمز هوية للحساب المختار من دون متصفح. الصق معرّف عميل OAuth من نوع تطبيق الويب الذي يملكه خادمك. وفي غير ذلك، Google مزوّد في القسم أعلاه.
 google_client_placeholder = معرّف عميل الخادم
 google_sign_in = تسجيل الدخول باستخدام Google
 google_signed_in = حساب Google { $id }
@@ -1413,7 +1351,6 @@ map_locate_failed = { $why ->
 
 # Interactive layout sizing and translation.
 layout_reactive_title = تحجيم تفاعلي
-layout_reactive_note = غيّر حجم الشكل أو حرّكه داخل المعاينة. يبقى الشكل نفسه أثناء تحديث أبعاده وإزاحته باستخدام أشرطة التمرير.
 layout_reactive_width = العرض
 layout_reactive_height = الارتفاع
 layout_reactive_horizontal = الإزاحة الأفقية
@@ -1422,7 +1359,7 @@ layout_reactive_reset = إعادة الضبط
 layout_reactive_points = { NUMBER($value, maximumFractionDigits: 0) } نقطة
 layout_reactive_shape = شكل بعرض { NUMBER($width, maximumFractionDigits: 0) } وارتفاع { NUMBER($height, maximumFractionDigits: 0) } نقطة
 
-push_caption = أرسل إشعارًا فوريًا إلى هذا الجهاز عبر خدمة ترحيل Day. استخدم الإرسال المؤجل، ثم غادر التطبيق أو اقفل الجهاز لترى كيف يصل.
+push_caption = أرسل إشعارًا فوريًا تجريبيًا إلى هذا الجهاز عبر خدمة ترحيل Day.
 push_unavailable = الإشعارات الفورية غير متاحة في هذا الإصدار.
 push_send_now = إرسال الآن
 push_send_later = { $seconds ->
@@ -1431,7 +1368,7 @@ push_send_later = { $seconds ->
     [few] إرسال بعد { $seconds } ثوانٍ
    *[other] إرسال بعد { $seconds } ثانية
 }
-push_hint = يطلب أول إرسال الإذن ويسجّل هذا الجهاز في خدمة الترحيل.
+push_hint = الإرسال الأول يطلب الإذن.
 push_sending = جارٍ الإرسال…
 push_requested = بانتظار رمز الجهاز من خدمة الإشعارات…
 push_no_token = لم تقدّم خدمة الإشعارات رمزًا للجهاز. حاول مرة أخرى بعد قليل.
@@ -1464,20 +1401,19 @@ push_error = فشل الإشعار الفوري: { $error }
 list_opt_inset_grouped = مجموعات بهوامش
 list_opt_inset_hint = صفوف بهوامش على macOS ومجموعات مستديرة على iOS. تحتفظ المنصات الأخرى بقوائمها العادية.
 share_demo_title = المشاركة
-share_demo_native = اختر إجراءً مخصصًا من قائمة المشاركة لتحديث آخر إجراء أعلاه.
-share_demo_fallback = لا تعرض هذه المنصة إجراءات المشاركة المخصصة. جرّب الإجراءات نفسها أدناه.
+share_demo_fallback = لا تعرض هذه المنصة إجراءات مشاركة مخصّصة. استخدم الأزرار أدناه.
 share_demo_open = مشاركة موقع Day…
 share_demo_remember = تذكّر الرابط
 share_demo_clear = مسح النتيجة
 share_demo_remembered = تم اختيار إجراء تذكّر الرابط
 share_demo_cleared = تم مسح نتيجة المشاركة
 share_demo_failed = تعذّر فتح قائمة المشاركة.
-share_demo_receive_hint = على Android، شارك نصًا أو رابطًا مع Day Showcase من تطبيق آخر. سيظهر هنا.
+share_demo_receive_hint = شارك نصًا أو رابطًا إلى Day Showcase من تطبيق آخر.
 share_demo_none = لم يتم استلام شيء بعد.
 system_back_status = رجوع التطبيق: المتبقي { $remaining }، المنفّذ { $handled }
 system_back_press = رجوع
 system_back_stop = تعطيل
-system_back_hint = فعّل ثلاث ضغطات رجوع على مستوى التطبيق. تتعامل الصفحات المتراكبة والنوافذ المنبثقة مع الرجوع أولًا؛ يتغير عدّاد التطبيق بعد انتهاء التنقل. يظل شريط الاختبار ظاهرًا خارج هذه الصفحة.
+system_back_hint = الصفحات المدفوعة والأغطية تعالج الرجوع قبل التطبيق.
 system_back_arm = تفعيل 3 ضغطات رجوع
 
 # Map provider selection and setup.
@@ -1489,3 +1425,56 @@ map_play_services_unavailable = تتطلب خرائط Google خدمات Google P
 map_load_failed = تعذر تحميل الخريطة. تحقق من الاتصال وإعدادات مزود الخدمة.
 
 resources_missing = المورد المضمّن غير متاح: { $name }
+
+# The gallery pages added with the card layout, and the line under every page's title.
+nav_styles = الأنماط
+nav_images = الصور
+nav_gestures = الإيماءات
+detail_controls = أزرار ومفاتيح ومنزلقات وعدّادات ومنتقيات ومؤشّرات تقدّم
+detail_dates = منتقيات التاريخ والوقت، بتقويم المنصة
+detail_focus = تركيز لوحة المفاتيح كحالة في التطبيق
+detail_text = خطوط ومقاطع منسّقة وماركداون وتحديد واقتطاع
+detail_text_areas = تحرير متعدد الأسطر وأوضاع الشيفرة وماركداون حيّ
+detail_text_fields = إدخال من سطر واحد ولوحات مفاتيح وإدخال آمن وبحث
+detail_toolbars = أوامر النافذة والصفحة في أشرطة المنصة
+detail_localization = أربع لغات وصيغ الجمع وتخطيط من اليمين إلى اليسار
+detail_canvas = مسارات وتدرّجات لونية ونصوص وصور تُرسم في كل إطار
+detail_styles = زوايا وحدود وظلال وقصّ وتحويلات
+detail_images = أوضاع الملاءمة والزوايا والصور البعيدة والعناصر النائبة والتلاشي
+detail_gestures = سحب وقرص وتدوير وضغط وتمرير للمؤشّر على أي عرض
+detail_charts = قواعد للعلامات: خطوط وأعمدة ومساحات وتحديدات
+detail_animation = تحريك المنصّة والقيم المتدرّجة ومنحنيات التوقيت والنوابض
+detail_physics = كرات ونابض على ساعة الإطارات
+detail_benchmark = رقعة من العروض الحيّة، يُقاس زمنها مقابل SwiftUI
+detail_grid = أعمدة ثابتة وامتدادات ومحاذاة وأحجام
+detail_layout = صفوف وأعمدة وطبقات والتفاف وفئات الحجم
+detail_split = ألواح قابلة لتغيير الحجم بفواصل المنصة نفسها
+detail_list = صفوف معاد استخدامها وأقسام وسحب جانبي وإعادة ترتيب وتحديد
+detail_tree = مخططات هرمية تتوسّع وتُحدَّد ويُعاد ترتيبها وتُحمَّل عند الحاجة
+detail_drag_drop = نصوص وملفات وصور تُسحب بين العروض والتطبيقات
+detail_model = مخازن محدّدة الأنواع وقيم مشتقّة وتراجع
+detail_query = قاعدة بيانات تُستعلم مباشرةً، مع بحث وفرز
+detail_tabs = أشرطة تبويب وصفحات مقسّمة، لكلٍّ منها حالتها
+detail_stack = صفحات مدفوعة، ومسار تملكه، وإيماءة الرجوع
+detail_content_list = قائمة وعناصرها وتفاصيل في ثلاثة أعمدة
+detail_media = مشغّل فيديو أصلي بعناصر تحكّمه في التشغيل
+detail_lottie = رسوم متحركة متجهية تُشغَّل وتُوقَف مؤقتًا ويُتنقَّل فيها
+detail_map = بلاطات متجهية على اللوحة بجانب خرائط المنصة
+detail_web_view = موقع مضمَّن والويب الحي، مع JavaScript في الاتجاهين
+detail_menus = قوائم وقوائم سياق وتنبيهات وأوراق وطلبات إدخال
+detail_system = البطارية والمستشعرات والموقع ومعلومات الجهاز والمظهر
+detail_network = طلبات ورفع وتنزيل ووسطاء واتصال
+detail_notify = الإشعارات المحلية وشارة التطبيق
+detail_push = إشعارات عن بُعد عبر خدمة ترحيل يمكنك تجربتها
+detail_speech = الكلام والمؤثرات الصوتية والاهتزاز اللمسي
+detail_camera = معاينة حيّة والتقاط والصورة الناتجة
+detail_cursors = كل أشكال المؤشّر التي تتيحها المنصة
+detail_files = الحافظة والتفضيلات ومنتقيات الملفات وتخزين التطبيق
+detail_security = سلسلة المفاتيح والقياسات البيومترية
+detail_sign_in = تسجيل الدخول عبر Apple أو Google أو مفتاح مرور أو أي مزوّد OpenID
+detail_scripting = النصوص البرمجية التي تشغّل هذا التطبيق وتلتقط صور شاشته
+detail_resources = صور مضمَّنة ومحارف متجهية وخطوط وملفات بيانات
+detail_tweaks = تعديلات على العروض الأصلية خاصة بكل مجموعة أدوات
+detail_crash_reporting = أعطال تُلتقط ويُبلَّغ عنها عند التشغيل التالي
+detail_about = ما هو Day، وما يعرضه هذا التطبيق
+detail_settings = المظهر واللغة وتفضيلات التطبيق

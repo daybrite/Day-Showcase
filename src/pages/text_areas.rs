@@ -3,7 +3,8 @@ use day::prelude::*;
 use day_piece_text_editor::highlight::{Language, Palette, highlight};
 use day_piece_text_editor::text_editor;
 
-use crate::widgets::page;
+use crate::gallery;
+use crate::widgets::page_cards;
 
 // Demo filler for the seed buttons: sample documents rather than interface text, so the two long
 // ones stay in English on every locale, the way a document a user opened would. The short one is
@@ -72,14 +73,25 @@ enum Doc {
 }
 
 pub(crate) fn text_areas_page() -> AnyPiece {
-    page(
+    page_cards(
         crate::res::str::nav_textareas(),
         day::id!(textareas_title),
         {
             // The styled editor leads: it is what the page is now about, and the plain
             // `text_area` below it is the simpler control it grew out of.
             let (editor, seed, attrs) = plain_sections();
-            form((styled_sections(), editor, seed, attrs)).any()
+            let (toolbar, styled, export) = styled_sections();
+            gallery::balanced(
+                2,
+                vec![
+                    toolbar,
+                    styled,
+                    export,
+                    editor.any(),
+                    seed.any(),
+                    attrs.any(),
+                ],
+            )
         },
     )
     .any()
@@ -119,54 +131,61 @@ fn plain_sections() -> (impl Piece, impl Piece, impl Piece) {
 
     // A fixed five-line editor: it scrolls internally, so seeding short vs. long text never changes
     // its height.
-    let editor = section((text_area(content)
-        .editable(editable)
-        .selectable(selectable)
-        .spellcheck(spellcheck)
-        .min_lines(5)
-        .max_lines(5)
-        .id(day::id!(textareas_editor)),))
-    .title(crate::res::str::textareas_editor_section());
+    let editor = crate::gallery::panel(
+        crate::res::str::textareas_editor_section(),
+        (text_area(content)
+            .editable(editable)
+            .selectable(selectable)
+            .spellcheck(spellcheck)
+            .min_lines(5)
+            .max_lines(5)
+            .id(day::id!(textareas_editor)),),
+    );
 
-    let seed = section((row((
-        button(crate::res::str::textareas_seed_short())
-            .action(move || content.set(crate::res::str::textareas_sample_short().format()))
-            .id(day::id!(ta_seed_short)),
-        button(crate::res::str::textareas_seed_long())
-            .action(move || content.set(LONG.into()))
-            .id(day::id!(ta_seed_long)),
-        button(crate::res::str::textareas_seed_markdown())
-            .action(move || content.set(MARKDOWN.into()))
-            .tint(crate::widgets::primary())
-            .id(day::id!(ta_seed_markdown)),
-    ))
-    .spacing(Space::S),))
-    .title(crate::res::str::textareas_seed_section());
+    let seed = crate::gallery::panel(
+        crate::res::str::textareas_seed_section(),
+        (row((
+            button(crate::res::str::textareas_seed_short())
+                .action(move || content.set(crate::res::str::textareas_sample_short().format()))
+                .id(day::id!(ta_seed_short)),
+            button(crate::res::str::textareas_seed_long())
+                .action(move || content.set(LONG.into()))
+                .id(day::id!(ta_seed_long)),
+            button(crate::res::str::textareas_seed_markdown())
+                .action(move || content.set(MARKDOWN.into()))
+                .tint(crate::widgets::primary())
+                .id(day::id!(ta_seed_markdown)),
+        ))
+        .spacing(Space::S)
+        .fit(RowFit::Wrap { run_spacing: 8.0 }),),
+    );
 
     // Each toggle is disabled where the running toolkit can't honor the attribute (GTK can't stop
     // selection; GTK/Qt/ArkUI have no spell-check): the `capability()` gating idiom. Editable also
     // disables whenever Selectable is off, since editing without selection is not a valid state.
-    let attrs = section((
-        labeled(
-            crate::res::str::textareas_editable(),
-            toggle(editable)
-                .enabled(move || cap_editable && selectable.get())
-                .id(day::id!(ta_editable)),
+    let attrs = crate::gallery::panel(
+        crate::res::str::textareas_attrs_section(),
+        (
+            labeled(
+                crate::res::str::textareas_editable(),
+                toggle(editable)
+                    .enabled(move || cap_editable && selectable.get())
+                    .id(day::id!(ta_editable)),
+            ),
+            labeled(
+                crate::res::str::textareas_selectable(),
+                toggle(selectable)
+                    .enabled(cap_selectable)
+                    .id(day::id!(ta_selectable)),
+            ),
+            labeled(
+                crate::res::str::textareas_spellcheck(),
+                toggle(spellcheck)
+                    .enabled(cap_spellcheck)
+                    .id(day::id!(ta_spellcheck)),
+            ),
         ),
-        labeled(
-            crate::res::str::textareas_selectable(),
-            toggle(selectable)
-                .enabled(cap_selectable)
-                .id(day::id!(ta_selectable)),
-        ),
-        labeled(
-            crate::res::str::textareas_spellcheck(),
-            toggle(spellcheck)
-                .enabled(cap_spellcheck)
-                .id(day::id!(ta_spellcheck)),
-        ),
-    ))
-    .title(crate::res::str::textareas_attrs_section());
+    );
 
     (editor, seed, attrs)
 }
@@ -175,7 +194,7 @@ fn plain_sections() -> (impl Piece, impl Piece, impl Piece) {
 // The styled editor (docs/texteditor.md).
 // ---------------------------------------------------------------------------
 
-fn styled_sections() -> impl Piece {
+fn styled_sections() -> (AnyPiece, AnyPiece, AnyPiece) {
     let doc = Signal::new(StyledText::markdown(NOTE, Font::Body));
     let sel = Signal::new(0..0);
     let typing = Signal::new(RunStyle::plain(Font::Body));
@@ -198,168 +217,171 @@ fn styled_sections() -> impl Piece {
         doc.update(|d| d.runs = runs);
     });
 
-    let toolbar = section((
-        row((
-            style_button("B", day::id!(ed_bold), doc, sel, typing, |s| {
-                s.set_bold(!s.bold());
+    let toolbar = crate::gallery::panel(
+        crate::res::str::textareas_toolbar_section(),
+        (
+            row((
+                style_button("B", day::id!(ed_bold), doc, sel, typing, |s| {
+                    s.set_bold(!s.bold());
+                }),
+                style_button("I", day::id!(ed_italic), doc, sel, typing, |s| {
+                    s.set_italic(!s.italic());
+                }),
+                style_button("U", day::id!(ed_underline), doc, sel, typing, |s| {
+                    s.set_underline(s.underline.is_none());
+                }),
+                style_button("S", day::id!(ed_strike), doc, sel, typing, |s| {
+                    s.set_strikethrough(s.strikethrough.is_none());
+                }),
+                style_button("A+", day::id!(ed_bigger), doc, sel, typing, |s| {
+                    s.font.scale = (s.font.scale * 1.25).min(4.0);
+                }),
+                style_button("A-", day::id!(ed_smaller), doc, sel, typing, |s| {
+                    s.font.scale = (s.font.scale / 1.25).max(0.5);
+                }),
+                style_button("H", day::id!(ed_highlight), doc, sel, typing, |s| {
+                    s.background = match s.background {
+                        Some(_) => None,
+                        None => Some(crate::palette::AMBER),
+                    };
+                }),
+            ))
+            .spacing(6.0)
+            .fit(RowFit::Wrap { run_spacing: 6.0 }),
+            // The color picker piece, driving the selection's text color. Composed, so the page shows
+            // the same panel on every target rather than depending on which of the nine has a native
+            // chooser (docs/colorpicker.md).
+            labeled(crate::res::str::textareas_text_color(), {
+                let pen = Signal::new(crate::palette::VIOLET);
+                Effect::new(move || {
+                    let color = pen.get();
+                    let range = sel.get_untracked();
+                    if range.is_empty() {
+                        typing.update(|s| s.color = Some(color));
+                    } else {
+                        doc.update(|d| {
+                            d.apply(range.clone(), Font::Body, |s| s.color = Some(color))
+                        });
+                    }
+                });
+                color_picker(pen)
+                    .composed()
+                    .title(crate::res::str::textareas_text_color())
+                    .id(day::id!(ed_color))
             }),
-            style_button("I", day::id!(ed_italic), doc, sel, typing, |s| {
-                s.set_italic(!s.italic());
-            }),
-            style_button("U", day::id!(ed_underline), doc, sel, typing, |s| {
-                s.underline = s.underline.toggled();
-            }),
-            style_button("S", day::id!(ed_strike), doc, sel, typing, |s| {
-                s.strikethrough = !s.strikethrough;
-            }),
-            style_button("A+", day::id!(ed_bigger), doc, sel, typing, |s| {
-                s.font.scale = (s.font.scale * 1.25).min(4.0);
-            }),
-            style_button("A-", day::id!(ed_smaller), doc, sel, typing, |s| {
-                s.font.scale = (s.font.scale / 1.25).max(0.5);
-            }),
-            style_button("H", day::id!(ed_highlight), doc, sel, typing, |s| {
-                s.background = match s.background {
-                    Some(_) => None,
-                    None => Some(crate::palette::AMBER),
-                };
-            }),
-        ))
-        .spacing(6.0)
-        .fit(RowFit::Wrap { run_spacing: 6.0 }),
-        // The color picker piece, driving the selection's text color. Composed, so the page shows
-        // the same panel on every target rather than depending on which of the nine has a native
-        // chooser (docs/colorpicker.md).
-        labeled(crate::res::str::textareas_text_color(), {
-            let pen = Signal::new(crate::palette::VIOLET);
-            Effect::new(move || {
-                let color = pen.get();
-                let range = sel.get_untracked();
-                if range.is_empty() {
-                    typing.update(|s| s.color = Some(color));
-                } else {
-                    doc.update(|d| d.apply(range.clone(), Font::Body, |s| s.color = Some(color)));
+            labeled(
+                crate::res::str::textareas_align(),
+                picker(
+                    {
+                        let align = Signal::new(TextAlign::Leading);
+                        Effect::new(move || {
+                            let pick = align.get();
+                            let range = sel.get_untracked();
+                            doc.update(|d| d.apply_paragraph(range.clone(), |p| p.align = pick));
+                        });
+                        align
+                    },
+                    [
+                        (
+                            TextAlign::Leading,
+                            crate::res::str::textareas_align_natural(),
+                        ),
+                        (TextAlign::Center, crate::res::str::textareas_align_center()),
+                        (
+                            TextAlign::Trailing,
+                            crate::res::str::textareas_align_trailing(),
+                        ),
+                    ],
+                )
+                .segmented()
+                .id(day::id!(ed_align)),
+            ),
+        ),
+    );
+
+    let editor = crate::gallery::panel(
+        crate::res::str::textareas_styled_section(),
+        (
+            text_editor(doc)
+                .selection(sel)
+                .typing_style(typing)
+                .placeholder(crate::res::str::textareas_placeholder())
+                // Spell-check stays on, the default: prose wants the squiggles.
+                .min_lines(8)
+                .max_lines(14)
+                .id(day::id!(styled_editor)),
+            // The selection inspector: what the app knows about the caret, with no round trip into
+            // the toolkit; `style_of` is a pure function over the document.
+            label(move || {
+                let range = sel.get();
+                let style = doc.with(|d| d.style_of(range.clone(), Font::Body));
+                // Translated, not hard-coded: this line is the page's own copy, so it goes through
+                // the catalog like every other string (docs/localization.md).
+                let mut marks = Vec::new();
+                if style.bold() {
+                    marks.push(crate::res::str::textareas_mark_bold().format());
                 }
-            });
-            color_picker(pen)
-                .composed()
-                .title(crate::res::str::textareas_text_color())
-                .id(day::id!(ed_color))
-        }),
-        labeled(
-            crate::res::str::textareas_align(),
-            picker(
-                {
-                    let align = Signal::new(ParagraphAlign::Natural);
-                    Effect::new(move || {
-                        let pick = align.get();
-                        let range = sel.get_untracked();
-                        doc.update(|d| d.apply_paragraph(range.clone(), |p| p.align = pick));
-                    });
-                    align
-                },
+                if style.italic() {
+                    marks.push(crate::res::str::textareas_mark_italic().format());
+                }
+                if style.underline.is_some() {
+                    marks.push(crate::res::str::textareas_mark_underline().format());
+                }
+                if style.strikethrough.is_some() {
+                    marks.push(crate::res::str::textareas_mark_strike().format());
+                }
+                let marks = if marks.is_empty() {
+                    crate::res::str::textareas_mark_plain().format()
+                } else {
+                    marks.join(" + ")
+                };
+                crate::res::str::textareas_inspector(crate::res::str::TextareasInspector {
+                    start: range.start as i64,
+                    end: range.end as i64,
+                    marks,
+                    scale: format!("{:.2}", style.font.scale),
+                })
+                .format()
+            })
+            .font(Font::Footnote)
+            .id(day::id!(ed_inspector)),
+            // What the selection actually covers. Together with the button beside it this is the
+            // regression guard for a class of bug the web arm had: a restyle that rebuilds the view
+            // has to put the selection back on the same characters, and this line says which ones.
+            row((
+                button(crate::res::str::textareas_select_word())
+                    .action(move || {
+                        let range = doc.with_untracked(|d| word_past_first_break(&d.text));
+                        sel.set(range);
+                    })
+                    .id(day::id!(ed_select_word)),
+                label(move || {
+                    let range = sel.get();
+                    doc.with(|d| {
+                        d.text
+                            .get(range)
+                            .filter(|s| !s.is_empty())
+                            .map(str::to_string)
+                            .unwrap_or_else(|| crate::res::str::textareas_no_selection().format())
+                    })
+                })
+                .font(Font::Footnote)
+                .id(day::id!(ed_selection_text)),
+            ))
+            .spacing(Space::S)
+            .align(VAlign::Center),
+            row((picker(
+                which,
                 [
-                    (
-                        ParagraphAlign::Natural,
-                        crate::res::str::textareas_align_natural(),
-                    ),
-                    (
-                        ParagraphAlign::Center,
-                        crate::res::str::textareas_align_center(),
-                    ),
-                    (
-                        ParagraphAlign::Trailing,
-                        crate::res::str::textareas_align_trailing(),
-                    ),
+                    (Doc::Note, crate::res::str::textareas_doc_note()),
+                    (Doc::Code, crate::res::str::textareas_doc_code()),
+                    (Doc::Empty, crate::res::str::textareas_doc_empty()),
                 ],
             )
             .segmented()
-            .id(day::id!(ed_align)),
+            .id(day::id!(ed_document)),)),
         ),
-    ))
-    .title(crate::res::str::textareas_toolbar_section());
-
-    let editor = section((
-        text_editor(doc)
-            .selection(sel)
-            .typing_style(typing)
-            .placeholder(crate::res::str::textareas_placeholder())
-            // Spell-check stays on, the default: prose wants the squiggles.
-            .min_lines(8)
-            .max_lines(14)
-            .id(day::id!(styled_editor)),
-        // The selection inspector: what the app knows about the caret, with no round trip into
-        // the toolkit; `style_of` is a pure function over the document.
-        label(move || {
-            let range = sel.get();
-            let style = doc.with(|d| d.style_of(range.clone(), Font::Body));
-            // Translated, not hard-coded: this line is the page's own copy, so it goes through
-            // the catalog like every other string (docs/localization.md).
-            let mut marks = Vec::new();
-            if style.bold() {
-                marks.push(crate::res::str::textareas_mark_bold().format());
-            }
-            if style.italic() {
-                marks.push(crate::res::str::textareas_mark_italic().format());
-            }
-            if style.underline.is_on() {
-                marks.push(crate::res::str::textareas_mark_underline().format());
-            }
-            if style.strikethrough {
-                marks.push(crate::res::str::textareas_mark_strike().format());
-            }
-            let marks = if marks.is_empty() {
-                crate::res::str::textareas_mark_plain().format()
-            } else {
-                marks.join(" + ")
-            };
-            crate::res::str::textareas_inspector(crate::res::str::TextareasInspector {
-                start: range.start as i64,
-                end: range.end as i64,
-                marks,
-                scale: format!("{:.2}", style.font.scale),
-            })
-            .format()
-        })
-        .font(Font::Footnote)
-        .id(day::id!(ed_inspector)),
-        // What the selection actually covers. Together with the button beside it this is the
-        // regression guard for a class of bug the web arm had: a restyle that rebuilds the view
-        // has to put the selection back on the same characters, and this line says which ones.
-        row((
-            button(crate::res::str::textareas_select_word())
-                .action(move || {
-                    let range = doc.with_untracked(|d| word_past_first_break(&d.text));
-                    sel.set(range);
-                })
-                .id(day::id!(ed_select_word)),
-            label(move || {
-                let range = sel.get();
-                doc.with(|d| {
-                    d.text
-                        .get(range)
-                        .filter(|s| !s.is_empty())
-                        .map(str::to_string)
-                        .unwrap_or_else(|| crate::res::str::textareas_no_selection().format())
-                })
-            })
-            .font(Font::Footnote)
-            .id(day::id!(ed_selection_text)),
-        ))
-        .spacing(Space::S)
-        .align(VAlign::Center),
-        row((picker(
-            which,
-            [
-                (Doc::Note, crate::res::str::textareas_doc_note()),
-                (Doc::Code, crate::res::str::textareas_doc_code()),
-                (Doc::Empty, crate::res::str::textareas_doc_empty()),
-            ],
-        )
-        .segmented()
-        .id(day::id!(ed_document)),)),
-    ))
-    .title(crate::res::str::textareas_styled_section());
+    );
 
     // Swapping the document. The code sample arrives unstyled and the highlighter dresses it on
     // the next pass, which is exactly what happens when a file is opened.
@@ -373,48 +395,50 @@ fn styled_sections() -> impl Piece {
         });
     });
 
-    let export = section((
-        row((
-            button(crate::res::str::textareas_export_markdown())
-                .action(move || exported.set(doc.with_untracked(|d| d.to_markdown(Font::Body))))
-                .id(day::id!(ed_export_md)),
-            button(crate::res::str::textareas_export_html())
-                .action(move || exported.set(doc.with_untracked(|d| d.to_html(Font::Body))))
-                .id(day::id!(ed_export_html)),
-            button(crate::res::str::textareas_export_rtf())
-                .action(move || exported.set(doc.with_untracked(|d| d.to_rtf(Font::Body))))
-                .id(day::id!(ed_export_rtf)),
-            // The round trip: read the exported text back in as the document. It is lossy; see
-            // docs/texteditor.md for what each format cannot carry.
-            button(crate::res::str::textareas_import())
-                .action(move || {
-                    let text = exported.get_untracked();
-                    if text.is_empty() {
-                        return;
-                    }
-                    last.set(String::new());
-                    doc.set(if text.starts_with("{\\rtf") {
-                        StyledText::rtf(&text, Font::Body)
-                    } else if text.contains("<p") || text.contains("<span") {
-                        StyledText::html(&text, Font::Body)
-                    } else {
-                        StyledText::markdown(&text, Font::Body)
-                    });
-                })
-                .tint(crate::widgets::primary())
-                .id(day::id!(ed_import)),
-        ))
-        .spacing(Space::S)
-        .fit(RowFit::Wrap { run_spacing: 8.0 }),
-        text_area(exported)
-            .editable(false)
-            .min_lines(4)
-            .max_lines(8)
-            .id(day::id!(ed_export_out)),
-    ))
-    .title(crate::res::str::textareas_export_section());
+    let export = crate::gallery::panel(
+        crate::res::str::textareas_export_section(),
+        (
+            row((
+                button(crate::res::str::textareas_export_markdown())
+                    .action(move || exported.set(doc.with_untracked(|d| d.to_markdown(Font::Body))))
+                    .id(day::id!(ed_export_md)),
+                button(crate::res::str::textareas_export_html())
+                    .action(move || exported.set(doc.with_untracked(|d| d.to_html(Font::Body))))
+                    .id(day::id!(ed_export_html)),
+                button(crate::res::str::textareas_export_rtf())
+                    .action(move || exported.set(doc.with_untracked(|d| d.to_rtf(Font::Body))))
+                    .id(day::id!(ed_export_rtf)),
+                // The round trip: read the exported text back in as the document. It is lossy; see
+                // docs/texteditor.md for what each format cannot carry.
+                button(crate::res::str::textareas_import())
+                    .action(move || {
+                        let text = exported.get_untracked();
+                        if text.is_empty() {
+                            return;
+                        }
+                        last.set(String::new());
+                        doc.set(if text.starts_with("{\\rtf") {
+                            StyledText::rtf(&text, Font::Body)
+                        } else if text.contains("<p") || text.contains("<span") {
+                            StyledText::html(&text, Font::Body)
+                        } else {
+                            StyledText::markdown(&text, Font::Body)
+                        });
+                    })
+                    .tint(crate::widgets::primary())
+                    .id(day::id!(ed_import)),
+            ))
+            .spacing(Space::S)
+            .fit(RowFit::Wrap { run_spacing: 8.0 }),
+            text_area(exported)
+                .editable(false)
+                .min_lines(4)
+                .max_lines(8)
+                .id(day::id!(ed_export_out)),
+        ),
+    );
 
-    column((toolbar, editor, export)).any()
+    (toolbar, editor, export)
 }
 
 /// The byte range of the first word after the document's first line break, which is what the

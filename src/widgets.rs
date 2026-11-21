@@ -39,14 +39,14 @@ pub(crate) fn gauge(value: Signal<f64>) -> impl Piece {
             side,
         )
         .inset(8.0);
-        let track = Color::rgba(0.5, 0.5, 0.55, 0.35);
+        let track = SystemColor::ControlFill;
         let accent = crate::palette::SKY;
         let stroke_w = (side * 0.055).clamp(4.0, 9.0);
         d.stroke(
             Shape::Arc {
                 rect: r,
-                start_deg: 135.0,
-                sweep_deg: 270.0,
+                start: Angle::deg(135.0),
+                sweep: Angle::deg(270.0),
             },
             track,
             stroke_w,
@@ -56,8 +56,8 @@ pub(crate) fn gauge(value: Signal<f64>) -> impl Piece {
             d.stroke(
                 Shape::Arc {
                     rect: r,
-                    start_deg: 135.0,
-                    sweep_deg: 270.0 * frac,
+                    start: Angle::deg(135.0),
+                    sweep: Angle::deg(270.0 * frac),
                 },
                 accent,
                 stroke_w,
@@ -68,7 +68,7 @@ pub(crate) fn gauge(value: Signal<f64>) -> impl Piece {
             Point::new(size.width / 2.0, size.height / 2.0),
             TextStyle {
                 size: (side * 0.2).clamp(14.0, 30.0),
-                color: accent,
+                color: accent.into(),
                 anchor: TextAnchor::CENTERED,
                 ..Default::default()
             },
@@ -86,9 +86,6 @@ pub(crate) fn gauge(value: Signal<f64>) -> impl Piece {
     .id(day::id!(gauge))
 }
 
-/// Standard page scaffold (the showcase design pass): a title heading over a scrollable,
-/// consistently padded content column. Every page uses it, so typography, spacing,
-/// and scrolling behave identically across the app.
 /// A piece that mounts nothing.
 ///
 /// `when` with no `otherwise` and a condition that never holds is Day's way of spelling an absent
@@ -106,11 +103,9 @@ pub(crate) fn nothing() -> impl Piece {
 /// page's own content instead (`assert_route` proves the destination). Elsewhere (the desktops,
 /// where nothing else names the destination) it renders the `Font::Title` title.
 pub(crate) fn heading(title: LocalizedText, title_id: ElementId) -> impl Piece {
-    if capability(Cap::NavHeader) == Support::Native {
-        nothing().any()
-    } else {
-        label(title).font(Font::Title).id(title_id).any()
-    }
+    // The gallery header (the destination's glyph, its title, one line of detail and its group)
+    // when the page is built for a destination, which every page of the sidebar is.
+    crate::gallery::page_header(title, title_id)
 }
 
 /// The widest a page's content column grows before it stops and centers instead.
@@ -127,14 +122,41 @@ pub(crate) fn heading(title: LocalizedText, title_id: ElementId) -> impl Piece {
 /// unchanged; [`page_wide`] opts out for the pages whose content wants the whole canvas.
 pub(crate) const CONTENT_MAX_WIDTH: f64 = 680.0;
 
+/// The standard page: the heading over a scrolling, padded column capped at the reading measure.
 pub(crate) fn page(title: LocalizedText, title_id: ElementId, body: impl Piece) -> impl Piece {
     page_inner(title, title_id, None, body, Some(CONTENT_MAX_WIDTH))
 }
 
-/// [`page`] with a control in the heading's corner slot, pushed to the trailing edge of the
+/// [`page`] without the width cap, for pages whose content is the canvas itself (a benchmark
+/// patchwork, a map, a web view, a wide grid), where narrowing it would throw away the thing the
+/// page exists to show.
+pub(crate) fn page_wide(title: LocalizedText, title_id: ElementId, body: impl Piece) -> impl Piece {
+    page_inner(title, title_id, None, body, None)
+}
+
+/// The widest a page of cards grows: two columns of the gallery's card measure.
+pub(crate) const CARDS_MAX_WIDTH: f64 = 1120.0;
+
+/// [`page`] for a page of cards (`gallery::deck`, `gallery::balanced`): wide enough for two
+/// columns of them, where [`page`]'s reading measure would squeeze each to half a form.
+pub(crate) fn page_cards(
+    title: LocalizedText,
+    title_id: ElementId,
+    body: impl Piece,
+) -> impl Piece {
+    page_inner(
+        title,
+        title_id,
+        None,
+        body.grow(Dimension::Width),
+        Some(CARDS_MAX_WIDTH),
+    )
+}
+
+/// [`page_cards`] with a control in the heading's corner slot, pushed to the trailing edge of the
 /// heading row (upper-right in LTR, mirrored under RTL), for a page-wide switch like the Text
 /// page's Selectable toggle.
-pub(crate) fn page_trailing(
+pub(crate) fn page_cards_trailing(
     title: LocalizedText,
     title_id: ElementId,
     trailing: impl Piece,
@@ -144,16 +166,9 @@ pub(crate) fn page_trailing(
         title,
         title_id,
         Some(trailing.any()),
-        body,
-        Some(CONTENT_MAX_WIDTH),
+        body.grow(Dimension::Width),
+        Some(CARDS_MAX_WIDTH),
     )
-}
-
-/// [`page`] without the width cap, for pages whose content is the canvas itself (a benchmark
-/// patchwork, a map, a web view, a wide grid), where narrowing it would throw away the thing the
-/// page exists to show.
-pub(crate) fn page_wide(title: LocalizedText, title_id: ElementId, body: impl Piece) -> impl Piece {
-    page_inner(title, title_id, None, body, None)
 }
 
 fn page_inner<P1: Piece>(
@@ -219,21 +234,8 @@ pub(crate) fn numeric_readout<M>(
 }
 
 // ---------------------------------------------------------------------------
-// Button styling (§5.2 Decorate + ButtonStyle)
+// Button colors
 // ---------------------------------------------------------------------------
-
-/// A filled, centered button in one of the palette's colors.
-///
-/// `FilledButtonStyle` leaves the label at its natural position, which reads as off-center the
-/// moment `grow_w` stretches a button to share a grid column, so this centers it. Everything
-/// here is plain composition (`padding`/`background`/`corner_radius`), so it needs no per-backend
-/// code and looks the same on all nine.
-/// A button fill in an arbitrary palette color. The label color is the platform's business:
-/// `Button::tint` picks the readable one for the fill, so a pale amber gets dark text and a
-/// saturated rust gets white without the app choosing.
-pub(crate) fn tinted(color: Color) -> Color {
-    color
-}
 
 /// The page's headline action: the one thing a visitor should press first.
 pub(crate) fn primary() -> Color {
@@ -296,7 +298,7 @@ pub(crate) fn support_banner(support: Support) -> Option<AnyPiece> {
         // baseline row falls back to centering it (docs/baseline.md).
         .align(VAlign::Top)
         .padding(10.0)
-        .background(Color::rgba(color.r, color.g, color.b, 0.14))
+        .background(color.with_alpha(0.14))
         .corner_radius(8.0)
         .any(),
     )
@@ -307,7 +309,7 @@ pub(crate) fn support_banner(support: Support) -> Option<AnyPiece> {
 pub(crate) fn support_note(support: Support) -> impl Piece {
     match support_banner(support) {
         Some(banner) => banner,
-        None => column(()).any(),
+        None => nothing().any(),
     }
 }
 

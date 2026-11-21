@@ -62,6 +62,12 @@ flow:
   - tap: { id: btn_bordered }
   - assert_text: { id: btn_presses, text: "2" }
   - assert_text: { id: state_presses, text: "2" }
+  # The composed button styles itself from an InteractionState; a press lights it, and its tap
+  # counts like the native ones.
+  - press: { id: btn_composed }
+  - press: { id: btn_composed, release: true }
+  - tap: { id: btn_composed }
+  - assert_text: { id: btn_presses, text: "3" }
   - assert_visible: { id: btn_prominent }
   - assert_visible: { id: btn_tinted }
   - assert_visible: { id: btn_destructive }
@@ -113,10 +119,13 @@ flow:
   - select: { id: picker_inline, index: 1 }
   - assert_text: { id: picker_value, key: size_medium }
   - assert_text: { id: volume_value, text: "60" }
-  # The master switch dims the editors, stops the activity indicator, and the State row says so.
+  # The master switch disables the value controls as one group (`.enabled(..)` on each
+  # container), stops the activity indicator, and the State row says so. Gestures and keys
+  # addressed into a disabled group are dropped, so a press on the slider does not register.
   - toggle: { id: subscribe_toggle, value: false }
   - assert_text: { id: activity_status, key: activity_off }
   - assert_text: { id: state_toggle, key: ctl_off }
+  - screenshot: { name: controls-disabled, only_on: [macos-appkit] }
   - toggle: { id: subscribe_toggle, value: true }
   - assert_text: { id: activity_status, key: activity_on }
   - assert_text: { id: state_toggle, key: ctl_on }
@@ -185,6 +194,43 @@ flow:
   - toggle: { id: text_selectable_toggle, value: true }
   - assert_visible: { id: text_selectable }
   - assert_visible: { id: text_runs }
+  - assert_text: { id: text_selection_readout, key: text_selection_none }
+  # The Markdown view (docs/markdown-view.md): a reply streams in a few characters at a time and
+  # re-parses only the block being written; the last block appearing means the stream ended.
+  # The code block's header carries the Copy button the app put there.
+  - scroll_to: { id: text_md_stream }
+  - tap: { id: text_md_stream }
+  - wait_for: { id: "text_md_block:7", timeout_secs: 15 }
+  - assert_visible: { id: "text_md_block:0" }
+  - assert_visible: { id: text_md_copy }
+  - tap: { id: text_md_copy }
+  - scroll_to: { id: "text_md_block:7" }
+  - screenshot: { name: text-markdown }
+  # Line limits and truncation are reactive: one line, the ellipsis in the middle, on the
+  # paragraph and the path alike, with no rebuild.
+  - scroll_to: { id: text_lines_sample }
+  - select: { id: text_lines_pick, index: 0 }
+  - select: { id: text_trunc_pick, index: 1 }
+  - assert_visible: { id: text_lines_sample }
+  - assert_visible: { id: text_lines_path }
+  - screenshot: { name: text-lines }
+  - select: { id: text_lines_pick, index: 2 }
+  # Spacing re-measures the paragraph; justified alignment stretches its lines.
+  - scroll_to: { id: text_spacing_sample }
+  - set_value: { id: text_spacing_letters, value: 0.12 }
+  - set_value: { id: text_spacing_lines, value: 1.6 }
+  - select: { id: text_align_pick, index: 3 }
+  - assert_visible: { id: text_align_sample }
+  # A subtree read right to left, whatever the app's own direction.
+  - scroll_to: { id: text_direction_row }
+  - select: { id: text_direction_pick, index: 1 }
+  - assert_visible: { id: "text_direction_step:first" }
+  - screenshot: { name: text-direction }
+  - select: { id: text_direction_pick, index: 0 }
+  - scroll_to: { id: "text_decoration:wavy" }
+  - assert_visible: { id: text_small_caps }
+  - assert_visible: { id: text_figures_oldstyle }
+  - screenshot: { name: text-decorations }
 
   # Text fields (docs/textfield.md): secure entry, a length limit, read-only. The Show Password
   # switch flips `.secure(_)` on a live field. On AppKit and WinUI that rebuilds the widget as
@@ -341,6 +387,66 @@ flow:
       title: { en: "Focus", fr: "Focus", ar: "التركيز", zh-CN: "焦点" }
       source: src/pages/focus.rs
 
+  # Keyboard (docs/menus.md "Keys follow focus", docs/textfield.md "Keys"): every demo has
+  # native buttons that do what its keys do, so the buttons drive it first. A `key` step that
+  # names an id reaches that piece's handler on every toolkit; the macOS steps without one go
+  # through real focus, the way a key press does.
+  - navigate: { route: keyboard }
+  - assert_route: { route: keyboard }
+  # The probe: buttons, then keys. Shift moves three cells and the sky's edge stops it.
+  - assert_text: { id: kb_probe_position, text: "5, 3" }
+  - tap: { id: kb_probe_right }
+  - tap: { id: kb_probe_up }
+  - assert_text: { id: kb_probe_position, text: "6, 2" }
+  - key: { id: kb_probe_sky, key: ArrowLeft }
+  - key: { id: kb_probe_sky, key: ArrowDown, modifiers: [shift] }
+  - assert_text: { id: kb_probe_position, text: "5, 5" }
+  - focus: { id: kb_probe_sky, only_on: [appkit] }
+  - key: { key: ArrowRight, only_on: [appkit] }
+  - assert_text: { id: kb_probe_position, text: "6, 5", only_on: [appkit] }
+  # The full route: a named key, then a Control chord, which names its key and types nothing.
+  - key: { id: kb_keys_stage, key: F5 }
+  - assert_text: { id: kb_keys_key, text: "F5" }
+  - key: { id: kb_keys_stage, key: c, modifiers: [control] }
+  - assert_text: { id: kb_keys_key, text: "c" }
+  - assert_text: { id: kb_keys_modifiers, key: keyboard_mod_control }
+  - assert_text: { id: kb_keys_presses, text: "2" }
+  # Phases: `.on_key` hears the press and its repeats, `.on_key_up` the release. A repeat is not
+  # a new press, so the count holds.
+  - assert_text: { id: kb_keys_phase, key: keyboard_phase_down }
+  - key: { id: kb_keys_stage, key: c, modifiers: [control], phase: repeat }
+  - assert_text: { id: kb_keys_phase, key: keyboard_phase_repeat }
+  - key: { id: kb_keys_stage, key: c, modifiers: [control], phase: up }
+  - assert_text: { id: kb_keys_phase, key: keyboard_phase_up }
+  - assert_text: { id: kb_keys_presses, text: "2" }
+  # The focusable row: the button, an arrow, a digit.
+  - tap: { id: kb_planets_next }
+  - assert_text: { id: kb_planets_name, key: keyboard_planet_mars }
+  - key: { id: kb_planets_row, key: "8" }
+  - assert_text: { id: kb_planets_name, key: keyboard_planet_neptune }
+  - key: { id: kb_planets_row, key: "5" }
+  - assert_text: { id: kb_planets_index, text: "5 / 8" }
+  - focus: { id: kb_planets_row, only_on: [appkit] }
+  - assert_focused: { id: kb_planets_row, only_on: [appkit] }
+  - key: { key: ArrowRight, only_on: [appkit] }
+  - assert_text: { id: kb_planets_name, key: keyboard_planet_saturn, only_on: [appkit] }
+  # The suggestion walk: typing filters, Down shows a name in the field, Escape puts the
+  # typed text back.
+  - input: { id: kb_suggest_field, text: "A" }
+  - wait_idle:
+  - tap: { id: kb_suggest_down }
+  - tap: { id: kb_suggest_down }
+  - assert_text: { id: kb_suggest_field, text: "Aldebaran" }
+  - key: { id: kb_suggest_field, key: ArrowDown }
+  - assert_text: { id: kb_suggest_field, text: "Altair" }
+  - key: { id: kb_suggest_field, key: Escape }
+  - assert_text: { id: kb_suggest_field, text: "A" }
+  - tap: { id: kb_suggest_down }
+  - screenshot:
+      name: keyboard
+      title: { en: "Keyboard", fr: "Clavier", ar: "لوحة المفاتيح", zh-CN: "键盘" }
+      source: src/pages/keyboard.rs
+
   # ---------------------------------------------------------------------------------------------
   # Layout
   # ---------------------------------------------------------------------------------------------
@@ -394,6 +500,19 @@ flow:
   - assert_visible: { id: layout_demo }
   - tap: { id: layout_remove, repeat: 3 }
   - assert_text: { id: layout_count, text: "5" }
+  # Lanes (docs/size-classes.md "Lanes"): tiles dealt into as many lanes as fit. A lit tile
+  # stays lit when the lanes are rebuilt balanced and back, since its state lives outside them.
+  - scroll_to: { id: layout_lanes }
+  - tap: { id: "layout_lane_tile:2" }
+  - toggle: { id: layout_lanes_balanced, value: true }
+  - assert_visible: { id: "layout_lane_tile:7" }
+  - toggle: { id: layout_lanes_balanced, value: false }
+  - tap: { id: "layout_lane_tile:2" }
+  # Weighted grow: each pick rebuilds the three bars with the middle one's weight.
+  - select: { id: layout_weight, index: 3 }
+  - assert_visible: { id: layout_weights }
+  - select: { id: layout_weight, index: 1 }
+  - assert_visible: { id: layout_wrap_grow }
   # Cards & environment (the composition tier): the Card modifier as one reusable surface, and
   # an ambient value flowed through with_environment and read back by a descendant.
   - assert_visible: { id: layout_card }
@@ -412,6 +531,31 @@ flow:
   - tap: { id: layout_scroll_top }
   - wait_idle:
   - assert_visible: { id: "layout_row:1" }
+  # Paging & snapping (docs/scroll.md): every rest mode and both switches rebuild the strip.
+  # A programmatic scroll moves the tracked offset and leaves the phase idle, on the toolkits
+  # that report the offset (Cap::ScrollOffset).
+  - scroll_to: { id: layout_strip }
+  - select: { id: layout_snap_rest, index: 1 }
+  - assert_visible: { id: layout_strip }
+  - select: { id: layout_snap_rest, index: 0 }
+  - toggle: { id: layout_snap_indicators, value: false }
+  - toggle: { id: layout_snap_bounce, value: false }
+  - assert_visible: { id: layout_strip }
+  - toggle: { id: layout_snap_indicators, value: true }
+  - toggle: { id: layout_snap_bounce, value: true }
+  - select: { id: layout_snap_rest, index: 2 }
+  - scroll_to: { id: layout_strip, x: 152, y: 0 }
+  - assert_text: { id: layout_strip_offset, key: layout_scroll_offset, args: { x: 152 }, only_on: [appkit, uikit, material, arkui] }
+  - assert_text: { id: layout_strip_phase, key: layout_phase_idle, only_on: [appkit, uikit, material, arkui] }
+  - screenshot: { name: layout-scroll }
+  - scroll_to: { id: layout_strip, edge: leading }
+  # Zoom (docs/scroll.md "Zoom"): only where the scroll view zooms (Cap::ScrollZoom); the
+  # scale is bound both ways, so the buttons zoom it and put it back.
+  - scroll_to: { id: layout_zoom }
+  - tap: { id: layout_zoom_in, only_on: [appkit, uikit] }
+  - assert_text: { id: layout_zoom_value, key: layout_zoom_scale, args: { scale: 2 }, only_on: [appkit, uikit] }
+  - tap: { id: layout_zoom_reset, only_on: [appkit, uikit] }
+  - assert_text: { id: layout_zoom_value, key: layout_zoom_scale, args: { scale: 1 }, only_on: [appkit, uikit] }
   # Size classes (docs/size-classes.md): tracked reads of the window's class. The values differ
   # per target and window, so presence only.
   - assert_visible: { id: layout_size_width }
@@ -541,6 +685,8 @@ flow:
   # Every backend presents it now, so these steps run everywhere.
   - tap: { id: cover_present }
   - assert_visible: { id: cover_title }
+  # The cover's switch hides the status bar where the toolkit has one (Cap::StatusBarHidden).
+  - assert_visible: { id: cover_status_bar }
   - screenshot:
       name: cover
       title: { en: "Stack · fullscreen cover", fr: "Pile · couverture plein écran", ar: "المكدّس · غطاء ملء الشاشة", zh-CN: "堆栈 · 全屏覆盖层" }
@@ -558,6 +704,32 @@ flow:
       title: { en: "Stack · half sheet", fr: "Pile · demi-feuille", ar: "المكدّس · نصف ورقة", zh-CN: "堆栈 · 半高面板" }
       source: src/pages/stack.rs
   - tap: { id: half_dismiss }
+  - assert_visible: { id: stack_root }
+  # Large sheet (docs/cover.md "Large sheet"): the modal sheet with room for a picture. The
+  # window sheet on macOS, a page sheet on iPadOS, the full-window cover on a compact window.
+  - tap: { id: large_present }
+  - assert_visible: { id: large_title }
+  - screenshot:
+      name: large-sheet
+      title: { en: "Stack · large sheet", fr: "Pile · grande feuille", ar: "المكدّس · ورقة كبيرة", zh-CN: "堆栈 · 大面板" }
+      source: src/pages/stack.rs
+  - tap: { id: large_dismiss }
+  - assert_visible: { id: stack_root }
+  # Locked sheet (docs/cover.md "The shield modifiers"): `interactive_dismiss_disabled` is
+  # mounted while the switch is on. The switch rebuilds the title with and without the shield,
+  # and the sheet's button closes it either way.
+  - tap: { id: locked_present }
+  - assert_visible: { id: locked_title }
+  - toggle: { id: locked_toggle, value: false }
+  - assert_visible: { id: locked_title }
+  - toggle: { id: locked_toggle, value: true }
+  - tap: { id: locked_dismiss }
+  - assert_visible: { id: stack_root }
+  # The three sheets bind a bool; the fullscreen cover keeps its route, so a navigate opens it
+  # and a back closes it (docs/cover.md "Routes, dayscript, deep links").
+  - navigate: { route: cover }
+  - assert_visible: { id: cover_title }
+  - nav_back:
   - assert_visible: { id: stack_root }
 
   # Native tabs (docs/tabs.md): a nav(Tabs) bound to a signal. Tab keys are routes, so
@@ -596,6 +768,29 @@ flow:
   - assert_value: { id: demo_tabs, value: 1 }
   - tap: { id: dyn_tab_add }
   - tap: { id: dyn_tab_remove }
+
+  # Pager (docs/pager.md): five pages in fixed slots. A swipe turns them where the toolkit
+  # pages natively (UIKit, Android, ArkUI); the Previous and Next buttons and the `select` step
+  # turn them everywhere. The pictures come over the network, so the steps assert the names.
+  - navigate: { route: pager }
+  - assert_route: { route: pager }
+  - assert_text: { id: pager_position, key: pager_position, args: { page: 1, count: 5 } }
+  - tap: { id: pager_next }
+  - assert_text: { id: pager_position, key: pager_position, args: { page: 2, count: 5 } }
+  - assert_text: { id: "pager_name:1", key: pager_mars }
+  # The dots follow the pager's progress: the second one is lit and stretched now.
+  - assert_visible: { id: "pager_dot:1" }
+  - pause: { secs: 0.5, animation: true }
+  - screenshot:
+      name: pager
+      title: { en: "Pager", fr: "Défilement par pages", ar: "التنقّل بين الصفحات", zh-CN: "翻页" }
+      source: src/pages/pager.rs
+  # `select` addresses a position in the reading order. Reversed, position 0 is the last slot.
+  - toggle: { id: pager_reverse, value: true }
+  - select: { id: demo_pager, index: 0 }
+  - assert_text: { id: pager_position, key: pager_position, args: { page: 1, count: 5 } }
+  - assert_visible: { id: "pager_name:4" }
+  - toggle: { id: pager_reverse, value: false }
 
   # Menus & dialogs (docs/menus.md, docs/dialogs.md): the transient native surfaces in one
   # page, namely the app-menu action readout, the context-menu target, and the imperative
@@ -894,6 +1089,8 @@ flow:
   # The tier line (docs/pullrefresh.md) says whether the pull is native or emulated here; it
   # differs per backend, so presence only.
   - assert_visible: { id: list_tier }
+  # The list's header sits above the first row while the list is at its top.
+  - assert_visible: { id: list_reorder_hint }
   # Selection (docs/list.md): the synthetic select drives the same rail as a native tap;
   # the app signal echoes it back into the native list, so the screenshot shows the
   # highlighted row. Row index 1 = row number 2. Clear syncs an empty selection natively.
@@ -964,6 +1161,65 @@ flow:
   # Reset restores the deleted rows as well as the order.
   - tap: { id: list_reset }
   - assert_text: { id: list_order, key: list_order, args: { rows: "1,2,3,4,5" } }
+  # The header scrolls with the rows and is no row: indices above never counted it. Keyed
+  # changes: Insert puts a new row just under the first row in view, Remove takes it out again,
+  # each one native row change rather than a reload.
+  - tap: { id: list_scroll_top }
+  - wait_idle:
+  - pause: { secs: 0.7, animation: true }
+  - assert_visible: { id: list_visible }
+  - tap: { id: list_insert }
+  - assert_text: { id: list_order, key: list_order, args: { rows: "1,601,2,3,4" } }
+  - pause: { secs: 0.5, animation: true }
+  - tap: { id: list_remove }
+  - assert_text: { id: list_order, key: list_order, args: { rows: "1,2,3,4,5" } }
+  # An aligned jump: row 100 lands at the top of the viewport.
+  - select: { id: list_align, index: 1 }
+  - tap: { id: list_scroll_item }
+  - wait_idle:
+  - pause: { secs: 0.7, animation: true }
+  - assert_text: { id: list_selection, key: list_selection, args: { count: 1, rows: "100" } }
+  - screenshot: { name: list-aligned }
+  - tap: { id: list_clear }
+  # The empty state takes the rows' place while there are none.
+  - tap: { id: list_remove_all }
+  - assert_text: { id: list_caption, key: list_caption, args: { count: 0 } }
+  - assert_visible: { id: list_empty }
+  - screenshot: { name: list-empty }
+  - tap: { id: list_reset }
+  - assert_text: { id: list_order, key: list_order, args: { rows: "1,2,3,4,5" } }
+
+  # Feeds: two lists that take their rows over time (docs/list.md). The timeline follows its
+  # newest entry while the reader is at its end (`follow_end`); Add entry appends one, as the
+  # Live timer does while it is on. The pictures list loads a page of rows as the reader nears
+  # its end (`on_end_reached`) and downloads a thumbnail per row, so the steps assert the names.
+  - navigate: { route: feeds }
+  - assert_route: { route: feeds }
+  - assert_text: { id: feeds_count, key: feeds_count, args: { count: 5 } }
+  - assert_text: { id: "feeds_entry:0", key: feeds_line_go_descent }
+  - tap: { id: feeds_add }
+  - tap: { id: feeds_add }
+  - assert_text: { id: feeds_count, key: feeds_count, args: { count: 7 } }
+  - wait_idle:
+  - pause: { secs: 0.5, animation: true }
+  - assert_text: { id: "feeds_entry:6", key: feeds_line_pitch }
+  - screenshot:
+      name: feeds
+      title: { en: "Feeds", fr: "Flux", ar: "الخلاصات", zh-CN: "信息流" }
+      source: src/pages/feeds.rs
+  - select: { id: feeds_picker, index: 1 }
+  - assert_text: { id: "feeds_picture:0", key: feeds_sun }
+  - screenshot: { name: feeds-pictures }
+  # Nearing the end asks for the next page: the first page leaves the end in view, so the
+  # second arrives by itself. Only where the list reports its viewport (Cap::ListViewport).
+  - wait_for: { id: "feeds_picture:6", timeout_secs: 10, only_on: [macos-appkit, ios-uikit, web-dom, harmony-arkui] }
+  - select: { id: feeds_picker, index: 0 }
+  - assert_visible: { id: feeds_timeline }
+  # Clear empties the log, and the empty state stands in for the entries until one arrives.
+  - tap: { id: feeds_clear }
+  - assert_visible: { id: feeds_timeline_empty }
+  - tap: { id: feeds_add }
+  - assert_text: { id: "feeds_entry:7", key: feeds_line_boulders }
 
   # The tree piece (docs/tree.md): native on macOS/iOS/GTK, composed from day pieces on the
   # other targets; one script either way, because `expand:`/`tree_move:` drive the same
@@ -1108,41 +1364,62 @@ flow:
   # Graphics & media
   # ---------------------------------------------------------------------------------------------
 
-  # Canvas & shapes: the 3×3 shape-kind grid (one slider rotates every shape live), the
-  # gradient grid, and the slider-driven gauges. Drive the shared rotation so the screenshot
-  # shows the grid mid-spin. (The composition-tier widgets left this page: the rating lives on
-  # Controls now, the card and environment on Layout.)
+  # Canvas & shapes: five drawings in cards (a sprung dial, a clock, SVG paths, compositing, a
+  # sketch pad), then the text, anchor, input and image demos. What a canvas draws is a face,
+  # not a value, so the walkthrough drives each card's control, asserts the readouts that are
+  # text, and leaves the drawings to the screenshot. (The charts that were here are on the
+  # Charts page, built with day-piece-charts; the rating lives on Controls, the card and
+  # environment on Layout.)
   - memory_usage: # Checkpoint after the preceding group of screens.
   - navigate: { route: canvas }
   - assert_route: { route: canvas }
-  - set_value: { id: shapes_angle_slider, value: 45 }
+  - wait_for: { id: canvas_dial }
+  - assert_visible: { id: canvas_clock }
+  # The dial's needle and sweep follow one sprung value, and the zone readout names the band
+  # that value settled in: Cruise (57) is nominal, Peak (91) is past the 85 % limit. The spring
+  # runs on the frame clock, so the assert's own retry is what waits for it to arrive.
+  - assert_text: { id: canvas_dial_zone, key: canvas_dial_zone_nominal }
+  - select: { id: canvas_dial_preset, index: 2 }
+  - assert_text: { id: canvas_dial_zone, key: canvas_dial_zone_redline }
+  # Accessibility (§13): diff the native AX tree against day's expectations. The dial is a
+  # canvas, so day applies role=Meter + a spoken label/value; the audit reads them back natively
+  # (apple targets; gtk/qt report unsupported and skip).
+  - a11y_audit: { id: canvas_dial }
+  # The dial's spoken value reads the sprung signal: after a move, the native tree must carry
+  # the new number, which only a second audit can show.
+  - select: { id: canvas_dial_preset, index: 1 }
+  - assert_text: { id: canvas_dial_zone, key: canvas_dial_zone_nominal }
+  - wait_idle:
+  - a11y_audit: { id: canvas_dial }
+  # The sketch pad turns each drag into a stroke (docs/canvas.md "Interaction"). It opens on
+  # the letters D, A and Y, which are five strokes of twenty points; a scripted drag adds a
+  # stroke, and Clear empties the pad, letters included.
+  - scroll_to: { id: canvas_sketch }
+  - assert_text: { id: canvas_sketch_count, key: canvas_sketch_count, args: { strokes: 5, points: 20 } }
+  - drag: { id: canvas_sketch, from: [40, 40], to: [200, 150], steps: 6 }
+  - wait_idle:
+  - tap: { id: canvas_sketch_clear }
+  - assert_text: { id: canvas_sketch_count, key: canvas_sketch_count, args: { strokes: 0, points: 0 } }
   # Canvas text in a chosen font (docs/fonts.md): the font menu lists the platform's families
   # plus the bundled Pacifico it starts on; the list itself differs per platform, so the
   # walkthrough proves the section mounts and leaves the face to the screenshot.
+  - scroll_to: { id: canvas_text }
   - wait_for: { id: canvas_text }
   - wait_for: { id: canvas_font }
   # Every `TextAnchor` placement on a crosshair (docs/canvas.md "Anchors"). The alignment is the
   # backend's, so this is a per-toolkit check that only a picture can make: the assert proves the
   # canvas mounted, and the screenshot below is what catches a backend hanging the line box off
   # the wrong edge. Twelve cells, three across by four down.
+  - scroll_to: { id: canvas_anchors }
   - wait_for: { id: canvas_anchors }
-  # Three figures built from `PathBuilder::arc_to` (docs/canvas.md "Paths"): a donut wedge, a
-  # round-capped gauge, and a leaf from two arcs curving opposite ways. They show that arcs
-  # compose with lines in one contour, so a fill and a stroke both close correctly, which is
-  # a face, not a value, and rides the screenshot below.
-  - wait_for: { id: canvas_arcs }
-  # `scroll_to` reveals minimally, so the arcs land on the viewport's bottom edge rather than
-  # centered. Aiming at a later canvas to push them up does not work here (on macos-appkit the
-  # frame came back identical), so the arcs are named directly and the capture is read from
-  # the bottom of it.
-  - scroll_to: { id: canvas_arcs }
   - wait_idle:
   - screenshot:
-      name: canvas-arcs
+      name: canvas-anchors
   # Tap, drag and hover on one canvas (docs/canvas.md "Interaction"). Hover cannot be driven from
   # a script (it needs a real pointer, and half the targets here have none), so what is asserted
   # is the pair that can be: a tap leaves its ring, and a drag leaves a trail of the samples it
   # reported. The readout names all three, so the screenshot says which the backend delivered.
+  - scroll_to: { id: canvas_interaction }
   - wait_for: { id: canvas_interaction }
   - tap: { id: canvas_interaction, at: [120, 60] }
   - wait_idle:
@@ -1160,40 +1437,124 @@ flow:
   - assert_visible: { id: canvas_image_readout }
   - screenshot:
       name: canvas-image
-  # Accessibility (§13): diff the native AX tree against day's expectations. The gauge is a
-  # canvas, so day applies role=Meter + a spoken label/value; the audit reads them back natively
-  # (apple targets; gtk/qt report unsupported and skip). A full-tree audit follows.
-  - assert_visible: { id: gauge }
-  - a11y_audit: { id: gauge }
-  # The gauge's spoken value reads the slider's signal: after a move, the native tree must
-  # carry the new number, which only a second audit can show.
-  - set_value: { id: gauge_slider, value: 72 }
+  # Back to the first card for the gallery capture: `scroll_to` reveals minimally, so naming
+  # the top card brings the page back up to it. A full-tree audit follows.
+  - scroll_to: { id: canvas_card_dial }
   - wait_idle:
-  - a11y_audit: { id: gauge }
   - a11y_audit: {}
   - screenshot:
       name: canvas
       title: { en: "Canvas & shapes", fr: "Canevas et formes", ar: "اللوحة والأشكال", zh-CN: "画布与形状" }
       source: src/pages/canvas.rs
 
-  # Charts (day-piece-charts): the piece's own example pages, from its gallery crate, the same
-  # code its Charts Demo app runs. The picker opens a chart; its title comes from the gallery's
-  # private catalog, so the assertion names the gallery's qualified key and holds in every
-  # locale this app ships. The chart itself is drawn on a canvas and rides the screenshot.
+  # Styles: a surface composed from native controls, then corners, outlines, gradients,
+  # shadows, layers and transforms on real views. Each is a look, so the steps drive the
+  # controls that change one and the screenshot records the result.
+  - navigate: { route: styles }
+  - assert_route: { route: styles }
+  - wait_for: { id: styles_surface }
+  # The Surface card patches its one view for every recipe: a solid fill, the top corners and
+  # no shadow, the radial and conic fills, then the recipe it opened with for the capture.
+  - select: { id: styles_surface_fill, index: 0 }
+  - select: { id: styles_surface_corners, index: 1 }
+  - toggle: { id: styles_surface_shadow, value: false }
+  - assert_visible: { id: styles_surface_box }
+  - select: { id: styles_surface_fill, index: 2 }
+  - assert_visible: { id: styles_surface_box }
+  - select: { id: styles_surface_fill, index: 3 }
+  - assert_visible: { id: styles_surface_box }
+  - select: { id: styles_surface_fill, index: 1 }
+  - select: { id: styles_surface_corners, index: 0 }
+  - toggle: { id: styles_surface_shadow, value: true }
+  - assert_visible: { id: styles_corners }
+  - assert_visible: { id: styles_radius_tokens }
+  - assert_visible: { id: styles_capsule }
+  - assert_visible: { id: styles_borders }
+  # Lift raises the modifier specimen: its corners, border and shadow are closures of the
+  # switch, patched in place. It is lowered again for the capture.
+  - scroll_to: { id: styles_shadows }
+  - toggle: { id: styles_shadows_lift, value: true }
+  - assert_visible: { id: styles_shadows_piece }
+  - toggle: { id: styles_shadows_lift, value: false }
+  # Clipping is a switch on the layers card: off lets the disc draw past its parent's rounded
+  # corner, on cuts it there. The card opens clipped, and ends clipped for the capture.
+  - scroll_to: { id: styles_layers }
+  - assert_value: { id: styles_clip_toggle, value: true }
+  - toggle: { id: styles_clip_toggle, value: false }
+  - assert_value: { id: styles_clip_toggle, value: false }
+  - assert_visible: { id: styles_clip_stage }
+  - toggle: { id: styles_clip_toggle, value: true }
+  # The picker brings a card to the front by rebuilding the zstack with that card last, and
+  # the slider fades whichever card is in front. A faint view is still laid out, which is what
+  # the assert covers.
+  - select: { id: styles_front_picker, index: 0 }
+  - wait_idle:
+  - assert_visible: { id: styles_stack_stage }
+  - set_value: { id: styles_opacity_slider, value: 0.4 }
+  - assert_visible: { id: styles_opacity_box }
+  - set_value: { id: styles_opacity_slider, value: 1 }
+  - select: { id: styles_front_picker, index: 2 }
+  # The transform follows two sliders and an anchor. Reset springs the box back to rest.
+  - scroll_to: { id: styles_transforms }
+  - set_value: { id: styles_rotate_slider, value: 90 }
+  - select: { id: styles_anchor_picker, index: 1 }
+  - assert_visible: { id: styles_origin_box }
+  - tap: { id: styles_transforms_reset }
+  - pause: { secs: 1.0, animation: true }
+  - select: { id: styles_anchor_picker, index: 0 }
+  - assert_visible: { id: styles_numerals }
+  - assert_visible: { id: styles_rtl }
+  - scroll_to: { id: styles_surface }
+  - wait_idle:
+  - a11y_audit: {}
+  - screenshot:
+      name: styles
+      title: { en: "Styles", fr: "Styles", ar: "الأنماط", zh-CN: "样式" }
+      source: src/pages/styles.rs
+
+  # Charts (day-piece-charts): four charts of composed marks (an area with a hatched band and a
+  # labelled rule, a ridgeline, a calendar heat map, a dumbbell chart), then the piece's own
+  # example pages. The four keep the ids they had on the Canvas page. Each button replays its
+  # chart's entrance (New also draws a fresh series first); pressing them covers that a replay
+  # started while the first entrance is still running, or after it ended, leaves the chart
+  # drawing. A tap inspects: it names the night under it in the chart's label box, which
+  # rides the screenshot.
   - navigate: { route: charts }
   - assert_route: { route: charts }
+  - wait_for: { id: canvas_area }
+  - tap: { id: canvas_area_new }
+  - wait_idle:
+  - assert_visible: { id: canvas_area }
+  - scroll_to: { id: canvas_ridge_replay }
+  - tap: { id: canvas_ridge_replay }
+  - wait_idle:
+  - assert_visible: { id: canvas_ridge }
+  - scroll_to: { id: canvas_matrix }
+  - tap: { id: canvas_matrix, at: [300, 60] }
+  - assert_visible: { id: canvas_matrix }
+  - scroll_to: { id: canvas_dumbbell_replay }
+  - tap: { id: canvas_dumbbell_replay }
+  - wait_idle:
+  - assert_visible: { id: canvas_dumbbell }
+  # The example gallery, from the piece's gallery crate, the same code its Charts Demo app
+  # runs. The picker opens a chart; its title comes from the gallery's private catalog, so the
+  # assertion names the gallery's qualified key and holds in every locale this app ships.
+  - scroll_to: { id: charts_gallery_picker }
   - wait_for: { id: charts_gallery_picker }
   - select: { id: charts_gallery_picker, index: 10 }
   - wait_for: { id: scatter }
   - assert_text: { id: charts_example_title, key: day_piece_charts_gallery::ex_scatter }
-  # Show Stacked areas in the store capture; keep the scatter plot for the export checks.
+  # Open Stacked areas, then go back to the first card for the store capture; the scatter plot
+  # returns for the export checks.
   - select: { id: charts_gallery_picker, index: 4 }
   - wait_for: { id: area_stacked }
+  - scroll_to: { id: canvas_card_area }
   - pause: { secs: 1.0, animation: true }
   - screenshot:
       name: charts
       title: { en: "Charts", fr: "Graphiques", ar: "المخططات", zh-CN: "图表" }
       source: src/pages/charts.rs
+  - scroll_to: { id: charts_gallery_export_png }
   - select: { id: charts_gallery_picker, index: 10 }
   - wait_for: { id: scatter }
   # Export (docs/canvas.md "Exporting"): the gallery's buttons render the open page's chart with
@@ -1209,19 +1570,115 @@ flow:
   - respond: { path: "scatter.pdf", skip_on: [harmony-arkui, web-dom, windows-winui] }
   - assert_text: { id: charts_export_status, key: day_piece_charts_gallery::export_saved, args: { name: scatter.pdf }, skip_on: [harmony-arkui, web-dom, windows-winui] }
 
-  # Physics: marbles under adjustable gravity, filling the page. A tap throws every marble toward
-  # the tapped point; once they have come back down and settled, the capture is repeatable.
+  # Animation (§8.4, docs/tween.md): eight cards. Three hand their changes to the platform's
+  # animator (the playground, the reflowing tiles, the button over the scrolling log), and the
+  # rest move `day::motion` values (the easing curves, the planet, the interpolated tile, the
+  # spring, the choreography). Finite runs take up to about a second and a half, so each is
+  # given a pause or a timeout; the readouts that are text are asserted, the motion is not.
+  - navigate: { route: animation }
+  - assert_route: { route: animation }
+  - wait_for: { id: animation_easing_card }
+  # Easing curves: Run sends one progress value across all nine plots.
+  - tap: { id: animation_easing_play }
+  - pause: { secs: 1.6, animation: true }
+  - assert_visible: { id: 'animation_easing_plot:8' }
+  # Tweened values: the picker retargets one tuple, and the canvas and both figures follow it.
+  - scroll_to: { id: animation_tween_card }
+  - select: { id: animation_tween_target, index: 2 }
+  - pause: { secs: 1.0, animation: true }
+  - assert_visible: { id: animation_tween_stage }
+  # Interpolation: Flip springs the value to 1, and a drag released toward the leading end
+  # carries its velocity into the spring that takes the value back to 0.
+  - scroll_to: { id: animation_interp_card }
+  - assert_text: { id: animation_interp_value, text: "0.00" }
+  - tap: { id: animation_interp_flip }
+  - assert_text: { id: animation_interp_value, text: "1.00", timeout_secs: 5 }
+  - drag: { id: animation_interp_stage, from: [220, 56], to: [70, 56], velocity: [-900, 0] }
+  - assert_text: { id: animation_interp_value, text: "0.00", timeout_secs: 5 }
+  # Spring: Launch sends the knob across on the spring the three sliders describe.
+  - scroll_to: { id: animation_springs_card }
+  - assert_visible: { id: animation_springs_ratio }
+  - tap: { id: animation_springs_release }
+  - pause: { secs: 1.5, animation: true }
+  - assert_visible: { id: animation_springs_plot }
+  # Choreography: the button reads Start at rest and Stop while a composition plays. The
+  # stagger ends by itself, so after the pause the button is back to Start.
+  - scroll_to: { id: animation_compose_card }
+  - assert_text: { id: animation_compose_play, key: animation_compose_play }
+  - select: { id: animation_compose_kind, index: 2 }
+  - tap: { id: animation_compose_play }
+  - pause: { secs: 2.0, animation: true }
+  - assert_text: { id: animation_compose_play, key: animation_compose_play, timeout_secs: 5 }
+  # Reset puts the bars back where the last run found them.
+  - tap: { id: animation_compose_reset }
+  - assert_visible: { id: 'animation_compose_bar:0' }
+  # Implicit animation: the log opens at its top, under its heading. The badge reads the
+  # tracked scroll offset where the toolkit reports one.
+  - scroll_to: { id: animation_header_card }
+  - assert_visible: { id: animation_header_heading }
+  - assert_visible: { id: animation_header_offset }
+  # Reflow: the slider sets the number of keyed tiles inside with_animation, and the readout
+  # counts the tiles themselves, so it proves the keyed list changed.
+  - scroll_to: { id: animation_layout_card }
+  - assert_text: { id: animation_layout_count, text: "6" }
+  - set_value: { id: animation_layout_tiles, value: 9 }
+  - assert_text: { id: animation_layout_count, text: "9" }
+  - pause: { secs: 0.7, animation: true }
+  - select: { id: animation_layout_size, index: 0 }
+  - tap: { id: animation_layout_shuffle }
+  - pause: { secs: 0.7, animation: true }
+  # The playground: queue deterministic targets (fixed values, not Randomize!, since
+  # screenshots must reproduce), commit them inside one with_animation via Animate!, and let
+  # the backend interpolation settle before capturing.
+  - scroll_to: { id: animation_play_card }
+  # The reduced-motion readout (docs/accessibility.md) reads the live gate: a `--fast` run
+  # says On, an ordinary run says whatever the system setting says, so only its presence is
+  # asserted here.
+  - assert_visible: { id: anim_reduced_motion }
+  - set_value: { id: anim_scale, value: 1.25 }
+  - set_value: { id: anim_rotation, value: 30 }
+  - set_value: { id: anim_hue, value: 200 }
+  - scroll_to: { id: anim_go }
+  - tap: { id: anim_go }
+  - pause: { secs: 1.0, animation: true }
+  - wait_idle:
+  - screenshot:
+      name: animation
+      title: { en: "Animation", fr: "Animation", ar: "الرسوم المتحركة", zh-CN: "动画" }
+      source: src/pages/animation.rs
+
+  # Physics: the marbles and a disc on a spring, one pane each. A drag is a real gesture, so
+  # in the spring pane the script drives the controls around it: the release picker, the
+  # spring's sliders, Flick (a release at a set speed) and Center.
   # SHOWCASE_SKIP_PHYSICS=1 (`--env` or the environment) skips the section: the Android tablet
   # emulator stops answering once 40 marbles are on the page (day CI run 40183843993, job
   # 121144770019), while the phone emulator runs it.
   - navigate: { route: physics, skip_on: [env:SHOWCASE_SKIP_PHYSICS] }
   - assert_route: { route: physics, skip_on: [env:SHOWCASE_SKIP_PHYSICS] }
+  # The page opens on the marbles; the spring is the picker's second pane.
+  - wait_for: { id: frame_ball, skip_on: [env:SHOWCASE_SKIP_PHYSICS] }
+  - select: { id: physics_tabs, index: 1, skip_on: [env:SHOWCASE_SKIP_PHYSICS] }
+  - wait_for: { id: physics_spring_stage, skip_on: [env:SHOWCASE_SKIP_PHYSICS] }
+  - set_value: { id: physics_spring_stiffness, value: 400, skip_on: [env:SHOWCASE_SKIP_PHYSICS] }
+  - set_value: { id: physics_spring_damping, value: 40, skip_on: [env:SHOWCASE_SKIP_PHYSICS] }
+  - assert_visible: { id: physics_spring_ratio, skip_on: [env:SHOWCASE_SKIP_PHYSICS] }
+  - select: { id: physics_spring_mode, index: 1, skip_on: [env:SHOWCASE_SKIP_PHYSICS] }
+  - select: { id: physics_spring_mode, index: 2, skip_on: [env:SHOWCASE_SKIP_PHYSICS] }
+  - select: { id: physics_spring_mode, index: 0, skip_on: [env:SHOWCASE_SKIP_PHYSICS] }
+  - tap: { id: physics_spring_flick, skip_on: [env:SHOWCASE_SKIP_PHYSICS] }
+  - tap: { id: physics_spring_reset, skip_on: [env:SHOWCASE_SKIP_PHYSICS] }
+  - wait_idle: { skip_on: [env:SHOWCASE_SKIP_PHYSICS] }
+  - assert_visible: { id: physics_spring_puck, skip_on: [env:SHOWCASE_SKIP_PHYSICS] }
+  # The marbles, back in the first pane, under adjustable gravity. A tap throws every marble
+  # toward the tapped point; once they have come back down and settled, the capture is repeatable.
+  - select: { id: physics_tabs, index: 0, skip_on: [env:SHOWCASE_SKIP_PHYSICS] }
+  - wait_for: { id: frame_ball_slider, skip_on: [env:SHOWCASE_SKIP_PHYSICS] }
   - set_value: { id: frame_ball_slider, value: 40, skip_on: [env:SHOWCASE_SKIP_PHYSICS] }
   # The page opens at zero-G, where the marbles would still be drifting at capture time.
   - set_value: { id: physics_gravity_slider, value: 9.81, skip_on: [env:SHOWCASE_SKIP_PHYSICS] }
   - tap: { id: frame_ball, at: [160, 80], skip_on: [env:SHOWCASE_SKIP_PHYSICS] }
   - pause: { secs: 5.0, skip_on: [env:SHOWCASE_SKIP_PHYSICS] }
-  - assert_visible: { id: physics_gravity_slider, skip_on: [env:SHOWCASE_SKIP_PHYSICS] }
+  - assert_visible: { id: frame_ball, skip_on: [env:SHOWCASE_SKIP_PHYSICS] }
   - screenshot:
       name: physics
       skip_on: [env:SHOWCASE_SKIP_PHYSICS]
@@ -1242,24 +1699,116 @@ flow:
   - tap: { id: frame_reset, only_on: [windows-winui] }
   - assert_text: { id: frame_status, key: frame_resting, only_on: [windows-winui] }
 
-  # Declarative animation (§8.4, docs/animation.md): queue deterministic targets (fixed values,
-  # not Randomize!, since screenshots must reproduce), commit them inside one with_animation via
-  # Animate!, and let the backend interpolation settle before capturing.
-  - navigate: { route: animation }
-  - assert_route: { route: animation }
-  # The reduced-motion readout (docs/accessibility.md) reads the live gate: a `--fast` run
-  # says On, an ordinary run says whatever the system setting says, so only its presence is
-  # asserted here.
-  - assert_visible: { id: anim_reduced_motion }
-  - set_value: { id: anim_scale, value: 1.25 }
-  - set_value: { id: anim_rotation, value: 30 }
-  - set_value: { id: anim_hue, value: 200 }
-  - tap: { id: anim_go }
-  - pause: { secs: 1.0, animation: true }
+  # Gestures: what Day reports for a drag, a pinch, a rotation, raw touches, a hover and a tap,
+  # and its press gestures. A script injects each gesture event (`touches`, `drag` with a
+  # `velocity`, `double_tap`, `long_press`, `press`), which checks the page's handling, not the
+  # platform's recognizers. The first card shows a picture from the network: nothing here
+  # waits on it.
+  - navigate: { route: gestures }
+  - assert_route: { route: gestures }
+  - wait_for: { id: gestures_transform_stage }
+  # Reset springs the picture home.
+  - tap: { id: gestures_reset }
+  - wait_idle:
+  - assert_text: { id: gestures_transform_scale, text: "1.00×" }
+  # Pointer: a scripted tap arrives through on_tap_at, and the phase readout names it. Two
+  # contacts come down and lift through on_touches; a drag released at 900 pt/s reports that
+  # velocity at its end.
+  - scroll_to: { id: gestures_pointer }
+  - assert_text: { id: gestures_pointer_phase, key: gestures_pointer_waiting }
+  - tap: { id: gestures_pointer_stage }
+  - assert_text: { id: gestures_pointer_phase, key: gestures_pointer_tap }
+  - touches: { id: gestures_pointer_stage, points: [[60, 60], [140, 90]] }
+  - assert_text: { id: gestures_pointer_contacts, text: "2" }
+  - touches: { id: gestures_pointer_stage, points: [[60, 60], [140, 90]], phase: ended }
+  - assert_text: { id: gestures_pointer_contacts, text: "0" }
+  - drag: { id: gestures_pointer_stage, from: [40, 90], to: [220, 90], velocity: [900, 0] }
+  - assert_text: { id: gestures_pointer_phase, key: gestures_pointer_ended }
+  - assert_text: { id: gestures_pointer_speed, key: gestures_pointer_speed_value, args: { speed: 900 } }
+  # Tap, double tap and hold: each counts once, and a single tap waits out the double-tap
+  # interval, so the two never both count.
+  - scroll_to: { id: gestures_press }
+  - assert_text: { id: gestures_press_count, text: "0" }
+  - tap: { id: gestures_press_pad }
+  - assert_text: { id: gestures_press_count, text: "1" }
+  - double_tap: { id: gestures_press_pad }
+  - assert_text: { id: gestures_press_doubles, text: "1" }
+  - assert_text: { id: gestures_press_count, text: "1" }
+  - long_press: { id: gestures_press_pad }
+  - assert_text: { id: gestures_press_holds, text: "1" }
+  # Swipe: a sideways drag on the row inside the vertical page scroll; fast enough counts, and
+  # the row springs back from that speed.
+  - scroll_to: { id: gestures_swipe }
+  - drag: { id: gestures_swipe_row, from: [40, 24], to: [120, 24], velocity: [1200, 0] }
+  - assert_text: { id: gestures_swipe_count, text: "1" }
+  - assert_text: { id: gestures_swipe_release, key: gestures_pointer_speed_value, args: { speed: 1200 } }
+  # Hit testing: a 14 pt dot whose `.hit_slop` takes taps across a 64 pt area where the
+  # toolkit applies it (Cap::HitSlop). The scripted tap lands on the dot, and the badge counts
+  # it. The button under the canvas is pressed by id, which says nothing about hit testing; the
+  # count shows its action is wired.
+  - scroll_to: { id: gestures_hit }
+  - assert_text: { id: gestures_slop_count, key: gestures_slop_count, args: { count: 0 } }
+  - tap: { id: gestures_slop_target }
+  - assert_text: { id: gestures_slop_count, key: gestures_slop_count, args: { count: 1 } }
+  - tap: { id: gestures_through_button }
+  - assert_text: { id: gestures_through_count, text: "1" }
+  - scroll_to: { id: gestures_transform }
+  - wait_idle:
+  - a11y_audit: {}
+  - wait_idle:
   - screenshot:
-      name: animation
-      title: { en: "Animation", fr: "Animation", ar: "الرسوم المتحركة", zh-CN: "动画" }
-      source: src/pages/animation.rs
+      name: gestures
+      title: { en: "Gestures", fr: "Gestes", ar: "الإيماءات", zh-CN: "手势" }
+      source: src/pages/gestures.rs
+
+  # Images (docs/images.md): remote and bundled pictures in each content mode and crop, a
+  # tinted PNG, a sprite sheet played by cell, a placeholder that fades to its picture, a
+  # picture rendered down off screen, and one download with its progress on a native bar. The
+  # pictures come over the network, which a CI machine may not have, so no step waits for one
+  # to arrive: the asserts are on what the page mounts either way, and the controls are driven
+  # for what they start. With SHOWCASE_FIXTURES set they come from the bundle instead, so the
+  # download is asserted to arrive and decode.
+  - navigate: { route: images }
+  - assert_route: { route: images }
+  - wait_for: { id: images_modes }
+  - assert_visible: { id: images_corners }
+  - assert_visible: { id: images_assets }
+  # The sprite sheet stops on a cell and plays again.
+  - scroll_to: { id: images_frames }
+  - toggle: { id: images_frames_play, value: false }
+  - assert_visible: { id: images_frames_player }
+  - toggle: { id: images_frames_play, value: true }
+  # The button downloads the faded pictures again, at the fade the picker chose.
+  - scroll_to: { id: images_fade }
+  - select: { id: images_fade_picker, index: 2 }
+  - tap: { id: images_fade_reload }
+  - wait_idle:
+  - assert_visible: { id: images_fade }
+  # The slider is the long side, in pixels, the picture is rendered down to.
+  - scroll_to: { id: images_blur }
+  - set_value: { id: images_blur_slider, value: 8 }
+  - assert_visible: { id: images_blur }
+  # The broken link fails without a network too, so its request runs here: Load starts it and
+  # Clear drops it, which leaves the card as it opened.
+  - scroll_to: { id: images_fetch }
+  - select: { id: images_fetch_source, index: 1 }
+  - tap: { id: images_fetch_toggle }
+  - wait_idle:
+  - assert_visible: { id: images_fetch_progress }
+  - tap: { id: images_fetch_toggle }
+  - select: { id: images_fetch_source, index: 0 }
+  - tap: { id: images_fetch_toggle, only_on: [env:SHOWCASE_FIXTURES] }
+  - assert_text: { id: images_fetch_status, key: images_fetch_ready, timeout_secs: 20, only_on: [env:SHOWCASE_FIXTURES] }
+  - tap: { id: images_fetch_toggle, only_on: [env:SHOWCASE_FIXTURES] }
+  - assert_visible: { id: images_fetch_status }
+  - scroll_to: { id: images_modes }
+  - wait_idle:
+  - a11y_audit: {}
+  - wait_idle:
+  - screenshot:
+      name: images
+      title: { en: "Images", fr: "Images", ar: "الصور", zh-CN: "图片" }
+      source: src/pages/images.rs
 
   # Bundled resources (§18.3): an image loaded by name via the native image pipeline +
   # random-access reads of embedded data through the native data API.
@@ -1320,18 +1869,43 @@ flow:
   # (AVPlayerView / AVPlayerViewController / QMediaPlayer / VideoView / GtkVideo / <video>). The
   # pause lets first frames of the network sample arrive; then pause playback so the captured frame
   # is stable. The page is video only; the bundled Lottie animation has a page of its own below.
+  # The scrubber, the buffered bar and the readouts follow the network sample, so they are only
+  # asserted present. The page opens muted at 60% volume, which keeps the run silent. The volume
+  # slider writes a signal of the page, which the readout beside it shows without a source;
+  # HarmonyOS video has mute only, so its slider is inert. Mute (`.muted_while`) leaves the volume
+  # where it is, so the readout keeps its value across the switch. Now playing publishes the
+  # sample to the system's now-playing surface (`.now_playing`) and clears it again at the end; a
+  # script cannot press a media key, so Last command is asserted at rest. With SHOWCASE_FIXTURES
+  # set, the player opens a bundled six-second clip instead of the stream, so its duration and its
+  # paused state are asserted too (GTK needs a GStreamer backend to play it).
   - memory_usage: # Checkpoint after the preceding group of screens.
   - navigate: { route: media }
   - assert_route: { route: media }
   - assert_visible: { id: media }
   - assert_visible: { id: media_play }
   - assert_visible: { id: media_load }
+  - assert_visible: { id: media_scrubber }
+  - assert_visible: { id: media_rate }
+  - assert_visible: { id: media_state }
+  - assert_text: { id: media_volume_value, text: "60%" }
+  - set_value: { id: media_volume, value: 0.4, skip_on: [harmony-arkui] }
+  - assert_text: { id: media_volume_value, text: "40%", skip_on: [harmony-arkui] }
+  - toggle: { id: media_mute, value: false }
+  - assert_text: { id: media_volume_value, text: "40%", skip_on: [harmony-arkui] }
+  - toggle: { id: media_mute, value: true }
+  - set_value: { id: media_volume, value: 0.6, skip_on: [harmony-arkui] }
+  - assert_text: { id: media_volume_value, text: "60%" }
+  - assert_text: { id: media_remote, key: media_remote, args: { command: none } }
+  - toggle: { id: media_now_playing, value: true }
+  - assert_text: { id: media_duration, text: "0:06", timeout_secs: 30, only_on: [env:SHOWCASE_FIXTURES], skip_on: [gtk, harmony-arkui] }
   - pause: { secs: 5 }
   - tap: { id: media_pause }
+  - assert_text: { id: media_state, key: media_state, args: { state: paused }, timeout_secs: 10, only_on: [env:SHOWCASE_FIXTURES], skip_on: [gtk, harmony-arkui] }
   - screenshot:
       name: media
       title: { en: "Media", fr: "Médias", ar: "الوسائط", zh-CN: "媒体" }
       source: src/pages/media.rs
+  - toggle: { id: media_now_playing, value: false }
 
   # Lottie (day-piece-lottie): the piece's own example pages, from its gallery crate, the same
   # code its Lottie Demo app runs; the section opens on the gallery's playground. lottie-ios /
@@ -1389,6 +1963,9 @@ flow:
         id: webview_embedded_status,
         key: webview_embedded_status_none,
       }
+  - assert_visible: { id: webview_embedded_back }
+  - assert_visible: { id: webview_embedded_progress }
+  - assert_visible: { id: webview_message }
   # Verify HTML, stylesheet and image readiness rather than sleeping for a guessed duration.
   - web_eval:
       id: webview_embedded
@@ -1397,6 +1974,32 @@ flow:
       timeout_secs: 15
       skip_on: [web-dom]
   - pause: { secs: 2, only_on: [web-dom] }
+  # Live page state (docs/webview.md): the title and the finished load are the engine's own
+  # reports. A page message: the site's Send button posts to the app, the native line shows what
+  # arrived, and the page shows the reply its promise resolved with. Asserted where the engine
+  # is WKWebView, the arm these steps were run on.
+  - assert_text: { id: webview_embedded_title, text: "Day mini site", timeout_secs: 15, only_on: [macos-appkit, ios-uikit] }
+  - assert_value: { id: webview_embedded_progress, value: 1, only_on: [macos-appkit, ios-uikit] }
+  - web_eval:
+      id: webview_embedded
+      script: "document.getElementById('send').click(); true"
+      text: "true"
+      timeout_secs: 15
+      only_on: [macos-appkit, ios-uikit]
+  - assert_text:
+      {
+        id: webview_message,
+        key: webview_message_received,
+        args: { count: 1, text: "Hello from the page, 1" },
+        timeout_secs: 15,
+        only_on: [macos-appkit, ios-uikit],
+      }
+  - web_eval:
+      id: webview_embedded
+      script: "document.getElementById('reply').textContent.length > 0 && document.getElementById('reply').textContent !== \"The app's reply appears here.\""
+      text: "true"
+      timeout_secs: 15
+      only_on: [macos-appkit, ios-uikit]
   # JS evaluation (docs/webview-eval.md), on the combos whose arm is written and has an engine;
   # the other backends report Unsupported. These three
   # assertions are engine-independent: JSON.stringify's output and a TypeError's name/message are
@@ -1489,6 +2092,12 @@ flow:
   - memory_usage: # Checkpoint after the preceding group of screens.
   - navigate: { route: system }
   - assert_route: { route: system }
+  # The environment card reads the appearance, the size class and the reduce-motion setting
+  # live. Each differs per theme, target and launch flag, so presence only.
+  - assert_visible: { id: env_appearance }
+  - assert_visible: { id: env_width }
+  - assert_visible: { id: env_height }
+  - assert_visible: { id: env_motion }
   - assert_visible: { id: battery }
   - a11y_audit: { id: battery }
   - set_value: { id: battery_level, value: 65 }
@@ -1663,7 +2272,7 @@ flow:
   - tap: { id: signin_sign_out, skip_on: [web-dom, harmony-arkui] }
   - assert_text: { id: signin_status, key: signin_signed_out, skip_on: [web-dom, harmony-arkui] }
 
-  # Files & storage: the clipboard round-trip, persisted prefs, the native file pickers, and the
+  # Files & storage: the clipboard round-trip, typed preferences, the native file pickers, and the
   # app-local file store, all in one form and one screenshot. The strict OS clipboard assertion
   # lives in dayscript/clipboard-roundtrip.yaml (macOS + Android only; headless Linux has no
   # system clipboard). The save/open pickers answer with a temp path (relative → app temp dir).
@@ -1671,6 +2280,12 @@ flow:
   - navigate: { route: files }
   - assert_route: { route: files }
   - assert_visible: { id: clipboard_field }
+  # The preferences card persists its switch, its note and its launch count, so Reset comes
+  # first: it returns the switch and the note to their defaults and restarts the count at this
+  # launch, whatever an earlier run left in the store.
+  - tap: { id: prefs_reset }
+  - assert_text: { id: prefs_launches, text: "1" }
+  - assert_text: { id: prefs_value, key: prefs_empty }
   # Screenshot the pristine form before the clipboard copy: Android 13+ pops a system
   # clipboard-preview overlay on copy that lingers several seconds and would photobomb the shot.
   - screenshot:
@@ -1680,24 +2295,18 @@ flow:
   - input: { id: clipboard_field, text: "day walkthrough clip" }
   - tap: { id: clipboard_copy }
   - tap: { id: clipboard_paste }
+  # The note is a `Pref<String>`: typing writes the store, and the readout is the store's answer.
   - input: { id: prefs_field, text: "day-remembers" }
-  - tap: { id: prefs_save }
-  # Confirm each storage operation before proceeding, so a failed save or load is
-  # reported at its source instead of only as a later value mismatch.
-  - assert_text: { id: prefs_status, key: prefs_saved }
-  - input: { id: prefs_field, text: "overwritten" }
-  - tap: { id: prefs_load }
-  - assert_text: { id: prefs_status, key: prefs_loaded }
   - assert_text: { id: prefs_value, text: "day-remembers" }
-  # Clear removes the key, so the run hands the prefs store back the way it found it, and
-  # `prefs::remove` gets covered alongside the set and get above, which nothing else exercised.
-  # Loading afterwards is what proves the removal reached storage: "cleared" is only what the
-  # button wrote to the label, while "nothing stored yet" is the store itself answering.
-  - tap: { id: prefs_clear }
-  - assert_text: { id: prefs_status, key: prefs_cleared }
-  - tap: { id: prefs_load }
-  - assert_text: { id: prefs_status, key: prefs_missing }
+  # The switch is bound to its key with `prefs::bind`.
+  - toggle: { id: prefs_toggle, value: true }
+  - assert_value: { id: prefs_toggle, value: true }
+  # Reset hands the store back: the note's key is removed, which the readout proves, and the
+  # count stays at this launch.
+  - tap: { id: prefs_reset }
   - assert_text: { id: prefs_value, key: prefs_empty }
+  - assert_value: { id: prefs_toggle, value: false }
+  - assert_text: { id: prefs_launches, text: "1" }
   # skip_on web-dom: a browser sandbox has no native file pickers or filesystem (docs/web.md).
   - tap: { id: btn_save_file, skip_on: [web-dom] }
   - assert_presented: { skip_on: [web-dom] }
@@ -1909,11 +2518,17 @@ flow:
       only_on: [web-dom]
       allow: []
 
-  # Data-transfer policy/OS gestures are covered separately; this verifies the page mounts.
+  # The OS drag session is checked by hand; `drop` calls the tile's DropTarget directly. A file
+  # dropped on the second tile lands there as a URI list, and a drag held over the fifth lights
+  # it (on_enter) for the shot and goes dark again on leave.
   - navigate: { route: drag-drop }
   - wait_for: { id: dnd_slot:0 }
   - assert_text: { id: dnd_value:0, text: image/png }
+  - drop: { id: dnd_value:1, files: ["${project}/resource/images/day_logo.png"] }
+  - assert_text: { id: dnd_value:1, text: text/uri-list }
+  - drop: { id: dnd_value:4, files: ["${project}/resource/images/day_logo.png"], phase: enter }
   - screenshot: drag-drop
+  - drop: { id: dnd_value:4, phase: leave }
 
   # Final current-process budget; 1G is 1,000,000,000 bytes.
   - wait_idle:

@@ -4,85 +4,30 @@ use day_part_auth::google::GoogleSignIn;
 use day_part_auth::{AuthError, Client, Provider, TokenSet};
 use serde_json::json;
 
-use crate::widgets::page_trailing;
-
 /// Sign-in (day-part-auth): the system's auth browser and an OpenID Connect client with PKCE and
 /// verified ID tokens; the token lifecycle; passkeys; Sign in with Apple; Google.
 ///
-/// The page shows controls and outcomes only. The explanation of each section lives behind the
-/// info button in the heading's corner, which opens a sheet, so a phone sees a provider picker,
-/// two buttons and a status line and nothing else until something happens. The first section
+/// The page shows controls and outcomes only. The first section
 /// signs in to a provider: by default the demo provider the app starts on loopback, which signs
 /// in two demo accounts with no account anywhere; Google, Apple's web flow, or any OpenID Connect
 /// issuer by discovery take a client id. The silent sign-in runs the whole flow with an HTTP
 /// client standing in for the browser, which is what the walkthrough drives on every target; the
 /// browser sign-in and the system sheets need a person.
 pub(crate) fn signin_page() -> AnyPiece {
-    let info_open: Signal<Option<InfoKey>> = Signal::new(None);
-    page_trailing(
+    crate::widgets::page_cards(
         crate::res::str::nav_signin(),
         day::id!(signin_title),
-        button(crate::res::str::signin_info())
-            .image(crate::res::vectors::info)
-            .icon_only()
-            .bordered()
-            .action(move || info_open.set(Some(InfoKey)))
-            .id(day::id!(signin_info)),
-        column((
-            form((
-                oidc_section(),
-                passkeys_section(),
-                apple_section(),
-                google_section(),
-            )),
-            info_sheet(info_open),
-        ))
-        .any(),
+        crate::gallery::balanced(
+            2,
+            vec![
+                oidc_section().any(),
+                passkeys_section().any(),
+                apple_section().any(),
+                google_section().any(),
+            ],
+        ),
     )
     .any()
-}
-
-// The info sheet's route key: a unit route matching only "info", so a String key never claims
-// every segment routed while this page is current (docs/cover.md).
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-struct InfoKey;
-impl Route for InfoKey {
-    fn key(&self) -> String {
-        "info".into()
-    }
-    fn from_key(key: &str) -> Option<Self> {
-        (key == "info").then_some(InfoKey)
-    }
-}
-
-/// The prose, one paragraph per section, as a sheet the info button opens.
-fn info_sheet(open: Signal<Option<InfoKey>>) -> impl Piece {
-    cover(open, move |_| {
-        scroll(
-            column((
-                label(crate::res::str::nav_signin())
-                    .font(Font::Title)
-                    .id(day::id!(signin_info_title)),
-                label(crate::res::str::signin_info_intro()),
-                label(crate::res::str::signin_oidc_title()).font(Font::Headline),
-                label(crate::res::str::signin_caption()),
-                label(crate::res::str::passkeys_title()).font(Font::Headline),
-                label(crate::res::str::passkeys_caption()),
-                label(crate::res::str::apple_title()).font(Font::Headline),
-                label(crate::res::str::apple_caption()),
-                label(crate::res::str::google_title()).font(Font::Headline),
-                label(crate::res::str::google_caption()),
-                button(crate::res::str::cover_dismiss())
-                    .prominent()
-                    .action(move || open.set(None))
-                    .id(day::id!(signin_info_dismiss)),
-            ))
-            .spacing(Space::M)
-            .padding(Space::XL),
-        )
-        .any()
-    })
-    .sheet()
 }
 
 /// Which provider the first section talks to.
@@ -325,92 +270,94 @@ fn oidc_section() -> impl Piece {
         status.set(crate::res::str::signin_signed_out().format());
     };
 
-    section((
-        crate::widgets::support_note(caps.support),
-        picker(
-            which,
-            [
-                (Which::Demo, crate::res::str::signin_provider_demo()),
-                (Which::Google, crate::res::str::signin_provider_google()),
-                (Which::Apple, crate::res::str::signin_provider_apple()),
-                (Which::Custom, crate::res::str::signin_provider_custom()),
-            ],
-        )
-        .menu()
-        .id(day::id!(signin_provider)),
-        // The fields a provider needs, and none for the demo one. Full-width on purpose: a
-        // labeled row leaves a phone a field too narrow to read a URL in.
-        when(
-            move || which.get() == Which::Custom,
-            move || {
-                text_field(issuer)
-                    .placeholder(crate::res::str::signin_issuer_placeholder())
-                    .id(day::id!(signin_issuer_field))
-            },
-        ),
-        when(
-            move || which.get() != Which::Demo,
-            move || {
-                text_field(client_id)
-                    .placeholder(crate::res::str::signin_client_id_placeholder())
-                    .id(day::id!(signin_client_id))
-            },
-        ),
-        row((
-            button(crate::res::str::signin_sign_in())
-                .action(sign_in)
-                .tint(crate::widgets::primary())
-                .id(day::id!(signin_sign_in)),
-            button(crate::res::str::signin_sign_in_silent())
-                .bordered()
-                .action(sign_in_silent)
-                .id(day::id!(signin_sign_in_silent)),
-        ))
-        .spacing(Space::S),
-        label(move || status.get())
-            .font(Font::Footnote)
-            .id(day::id!(signin_status)),
-        when(
-            move || !detail.with(|d| d.is_empty()),
-            move || {
-                label(move || detail.get())
-                    .font(Font::Footnote)
-                    .id(day::id!(signin_detail))
-            },
-        ),
-        // The lifecycle actions exist once there is a session to act on. Four buttons outgrow a
-        // phone-portrait row, so they wrap in two pairs on a Compact window.
-        when(
-            move || tokens.with(|t| t.is_some()),
-            move || {
-                adaptive((
-                    row((
-                        button(crate::res::str::signin_refresh())
-                            .bordered()
-                            .action(refresh)
-                            .id(day::id!(signin_refresh)),
-                        button(crate::res::str::signin_userinfo())
-                            .bordered()
-                            .action(userinfo)
-                            .id(day::id!(signin_userinfo)),
+    crate::gallery::panel(
+        crate::res::str::signin_oidc_title(),
+        (
+            crate::widgets::support_banner(caps.support),
+            picker(
+                which,
+                [
+                    (Which::Demo, crate::res::str::signin_provider_demo()),
+                    (Which::Google, crate::res::str::signin_provider_google()),
+                    (Which::Apple, crate::res::str::signin_provider_apple()),
+                    (Which::Custom, crate::res::str::signin_provider_custom()),
+                ],
+            )
+            .menu()
+            .id(day::id!(signin_provider)),
+            // The fields a provider needs, and none for the demo one. Full-width on purpose: a
+            // labeled row leaves a phone a field too narrow to read a URL in.
+            when(
+                move || which.get() == Which::Custom,
+                move || {
+                    text_field(issuer)
+                        .placeholder(crate::res::str::signin_issuer_placeholder())
+                        .id(day::id!(signin_issuer_field))
+                },
+            ),
+            when(
+                move || which.get() != Which::Demo,
+                move || {
+                    text_field(client_id)
+                        .placeholder(crate::res::str::signin_client_id_placeholder())
+                        .id(day::id!(signin_client_id))
+                },
+            ),
+            row((
+                button(crate::res::str::signin_sign_in())
+                    .action(sign_in)
+                    .tint(crate::widgets::primary())
+                    .id(day::id!(signin_sign_in)),
+                button(crate::res::str::signin_sign_in_silent())
+                    .bordered()
+                    .action(sign_in_silent)
+                    .id(day::id!(signin_sign_in_silent)),
+            ))
+            .spacing(Space::S),
+            label(move || status.get())
+                .font(Font::Footnote)
+                .id(day::id!(signin_status)),
+            when(
+                move || !detail.with(|d| d.is_empty()),
+                move || {
+                    label(move || detail.get())
+                        .font(Font::Footnote)
+                        .id(day::id!(signin_detail))
+                },
+            ),
+            // The lifecycle actions exist once there is a session to act on. Four buttons outgrow a
+            // phone-portrait row, so they wrap in two pairs on a Compact window.
+            when(
+                move || tokens.with(|t| t.is_some()),
+                move || {
+                    adaptive((
+                        row((
+                            button(crate::res::str::signin_refresh())
+                                .bordered()
+                                .action(refresh)
+                                .id(day::id!(signin_refresh)),
+                            button(crate::res::str::signin_userinfo())
+                                .bordered()
+                                .action(userinfo)
+                                .id(day::id!(signin_userinfo)),
+                        ))
+                        .spacing(Space::S),
+                        row((
+                            button(crate::res::str::signin_revoke())
+                                .bordered()
+                                .action(revoke)
+                                .id(day::id!(signin_revoke)),
+                            button(crate::res::str::signin_sign_out())
+                                .bordered()
+                                .action(sign_out)
+                                .id(day::id!(signin_sign_out)),
+                        ))
+                        .spacing(Space::S),
                     ))
-                    .spacing(Space::S),
-                    row((
-                        button(crate::res::str::signin_revoke())
-                            .bordered()
-                            .action(revoke)
-                            .id(day::id!(signin_revoke)),
-                        button(crate::res::str::signin_sign_out())
-                            .bordered()
-                            .action(sign_out)
-                            .id(day::id!(signin_sign_out)),
-                    ))
-                    .spacing(Space::S),
-                ))
-            },
+                },
+            ),
         ),
-    ))
-    .title(crate::res::str::signin_oidc_title())
+    )
 }
 
 /// Passkeys: the authenticator probe as one footnote, a relying party, and the two ceremonies.
@@ -502,31 +449,33 @@ fn passkeys_section() -> impl Piece {
         });
     };
 
-    section((
-        crate::widgets::support_note(support),
-        label(move || available.get())
-            .font(Font::Footnote)
-            .id(day::id!(passkeys_available)),
-        text_field(rp)
-            .placeholder(crate::res::str::passkeys_rp_placeholder())
-            .id(day::id!(passkeys_rp)),
-        // Two long labels outgrow a phone-portrait row: side by side where they fit, stacked on
-        // a Compact window (docs/size-classes.md).
-        adaptive((
-            button(crate::res::str::passkeys_create())
-                .action(create)
-                .tint(crate::widgets::primary())
-                .id(day::id!(passkeys_create)),
-            button(crate::res::str::passkeys_get())
-                .bordered()
-                .action(get)
-                .id(day::id!(passkeys_get)),
-        )),
-        label(move || result.get())
-            .font(Font::Footnote)
-            .id(day::id!(passkeys_result)),
-    ))
-    .title(crate::res::str::passkeys_title())
+    crate::gallery::panel(
+        crate::res::str::passkeys_title(),
+        (
+            crate::widgets::support_banner(support),
+            label(move || available.get())
+                .font(Font::Footnote)
+                .id(day::id!(passkeys_available)),
+            text_field(rp)
+                .placeholder(crate::res::str::passkeys_rp_placeholder())
+                .id(day::id!(passkeys_rp)),
+            // Two long labels outgrow a phone-portrait row: side by side where they fit, stacked on
+            // a Compact window (docs/size-classes.md).
+            adaptive((
+                button(crate::res::str::passkeys_create())
+                    .action(create)
+                    .tint(crate::widgets::primary())
+                    .id(day::id!(passkeys_create)),
+                button(crate::res::str::passkeys_get())
+                    .bordered()
+                    .action(get)
+                    .id(day::id!(passkeys_get)),
+            )),
+            label(move || result.get())
+                .font(Font::Footnote)
+                .id(day::id!(passkeys_result)),
+        ),
+    )
 }
 
 /// The relying party the passkey ceremonies name when the field is empty. On the web it must be
@@ -541,29 +490,31 @@ const DEFAULT_RP: &str = "daybrite.dev";
 fn apple_section() -> impl Piece {
     let result = Signal::new(crate::res::str::signin_idle().format());
     let support = crate::support::apple_sign_in();
-    section((
-        crate::widgets::support_note(support),
-        button(crate::res::str::apple_sign_in())
-            .tint(crate::widgets::primary())
-            .action(move || {
-                result.set(crate::res::str::signin_working().format());
-                day::task(async move {
-                    result.set(
-                        match day_part_auth::apple::sign_in(SignInWithApple::new()).await {
-                            Ok(credential) => {
-                                crate::res::str::apple_signed_in(credential.user).format()
-                            }
-                            Err(e) => e.to_string(),
-                        },
-                    );
-                });
-            })
-            .id(day::id!(apple_sign_in)),
-        label(move || result.get())
-            .font(Font::Footnote)
-            .id(day::id!(apple_result)),
-    ))
-    .title(crate::res::str::apple_title())
+    crate::gallery::panel(
+        crate::res::str::apple_title(),
+        (
+            crate::widgets::support_banner(support),
+            button(crate::res::str::apple_sign_in())
+                .tint(crate::widgets::primary())
+                .action(move || {
+                    result.set(crate::res::str::signin_working().format());
+                    day::task(async move {
+                        result.set(
+                            match day_part_auth::apple::sign_in(SignInWithApple::new()).await {
+                                Ok(credential) => {
+                                    crate::res::str::apple_signed_in(credential.user).format()
+                                }
+                                Err(e) => e.to_string(),
+                            },
+                        );
+                    });
+                })
+                .id(day::id!(apple_sign_in)),
+            label(move || result.get())
+                .font(Font::Footnote)
+                .id(day::id!(apple_result)),
+        ),
+    )
 }
 
 /// Google through Credential Manager on Android, with the server client id pasted in.
@@ -571,31 +522,33 @@ fn google_section() -> impl Piece {
     let server_client_id = Signal::new(String::new());
     let result = Signal::new(crate::res::str::signin_idle().format());
     let support = crate::support::google_sign_in();
-    section((
-        crate::widgets::support_note(support),
-        text_field(server_client_id)
-            .placeholder(crate::res::str::google_client_placeholder())
-            .id(day::id!(google_client)),
-        button(crate::res::str::google_sign_in())
-            .tint(crate::widgets::primary())
-            .action(move || {
-                let id = server_client_id.with(|s| s.trim().to_string());
-                result.set(crate::res::str::signin_working().format());
-                day::task(async move {
-                    result.set(
-                        match day_part_auth::google::sign_in(GoogleSignIn::new(id)).await {
-                            Ok(credential) => {
-                                crate::res::str::google_signed_in(credential.id).format()
-                            }
-                            Err(e) => e.to_string(),
-                        },
-                    );
-                });
-            })
-            .id(day::id!(google_sign_in)),
-        label(move || result.get())
-            .font(Font::Footnote)
-            .id(day::id!(google_result)),
-    ))
-    .title(crate::res::str::google_title())
+    crate::gallery::panel(
+        crate::res::str::google_title(),
+        (
+            crate::widgets::support_banner(support),
+            text_field(server_client_id)
+                .placeholder(crate::res::str::google_client_placeholder())
+                .id(day::id!(google_client)),
+            button(crate::res::str::google_sign_in())
+                .tint(crate::widgets::primary())
+                .action(move || {
+                    let id = server_client_id.with(|s| s.trim().to_string());
+                    result.set(crate::res::str::signin_working().format());
+                    day::task(async move {
+                        result.set(
+                            match day_part_auth::google::sign_in(GoogleSignIn::new(id)).await {
+                                Ok(credential) => {
+                                    crate::res::str::google_signed_in(credential.id).format()
+                                }
+                                Err(e) => e.to_string(),
+                            },
+                        );
+                    });
+                })
+                .id(day::id!(google_sign_in)),
+            label(move || result.get())
+                .font(Font::Footnote)
+                .id(day::id!(google_result)),
+        ),
+    )
 }

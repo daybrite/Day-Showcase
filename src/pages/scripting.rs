@@ -1,7 +1,5 @@
 use day::prelude::*;
 
-use crate::widgets::page;
-
 const DELAY_KEY: &str = "scripting.delay";
 const DEFAULT_DELAY: &str = "0.25";
 
@@ -128,151 +126,179 @@ pub(crate) fn scripting_page() -> AnyPiece {
         );
     }
 
-    page(
+    crate::widgets::page_cards(
         crate::res::str::nav_scripting(),
         day::id!(scripting_title),
-        form((
-            // The editable script: streamed into while recording, hand-editable any time.
-            section((text_area(buf)
-                .min_lines(12)
-                .max_lines(24)
-                .id(day::id!(scripting_buffer)),)),
-            // Load a saved script from the app container.
-            section((row((
-                label(crate::res::str::scripting_saved_label()).font(Font::Footnote),
-                picker(sel, options.into_iter().enumerate().collect::<Vec<_>>())
-                    .menu()
-                    .id(day::id!(scripting_menu)),
-            ))
-            .spacing(Space::S),)),
-            // The controls. Every id starts with `scripting_` so the recorder skips them.
-            section((
-                row((
-                    // Record ↔ Stop: label and fill both track the recording flag reactively.
-                    button(move || {
-                        if recording.get() {
-                            crate::res::str::scripting_stop().format()
-                        } else {
-                            crate::res::str::scripting_record().format()
-                        }
-                    })
-                    // Through the shared helper, so this button and the toolbar's transport
-                    // start the same recording into the same buffer (commands.rs).
-                    .action(move || {
-                        if day::record::is_recording() {
-                            day::record::stop();
-                        } else {
-                            record_into_buffer();
-                        }
-                    })
-                    // A reactive tint: the native button recolors in place while recording,
-                    // keeping its ripple/press rendering and its role (docs/buttons.md).
-                    .tint(move || {
-                        if recording.get() {
-                            crate::palette::RUST
-                        } else {
-                            crate::palette::SLATE
-                        }
-                    })
-                    .id(day::id!(scripting_record)),
-                    // Play ↔ Pause ↔ Resume, the same transport the toolbar carries: the title
-                    // follows the run so one button covers all three, and it is disabled while
-                    // recording and when the script is empty or does not parse.
-                    crate::commands::play_pause_with_delay(delay_secs)
-                        .button()
-                        .bordered()
-                        .id(day::id!(scripting_play)),
-                    // Save to the app's scripts folder. Enabled only when the buffer differs from
-                    // the last saved/loaded content (dirty). A script already mapped to a file
-                    // updates that file in place; an unsaved one prompts for a name.
-                    button(crate::res::str::scripting_save())
-                        .bordered()
-                        .enabled(move || buf.get() != baseline.get())
-                        .action(move || {
-                            let content = buf.get_untracked();
-                            match current_file.get_untracked() {
-                                Some(name) => {
-                                    let _ = day_part_filesystem::write(
-                                        &script_path(&name),
-                                        content.as_bytes(),
-                                    );
-                                    baseline.set(content); // now clean
-                                    status.set(crate::res::str::scripting_saved().format());
-                                }
-                                None => {
-                                    let status = status;
-                                    day::task(async move {
-                                        let name = prompt(crate::res::str::scripting_save())
-                                            .placeholder(crate::res::str::scripting_name_hint())
-                                            .present()
-                                            .await;
-                                        let Some(name) = name else { return };
-                                        let name = name.trim().to_string();
-                                        if name.is_empty() {
-                                            return;
+        crate::gallery::deck(
+            2,
+            vec![
+                // The editable script: streamed into while recording, hand-editable any time.
+                crate::gallery::panel(
+                    crate::res::str::scripting_script_title(),
+                    (text_area(buf)
+                        .min_lines(12)
+                        .max_lines(24)
+                        .id(day::id!(scripting_buffer)),),
+                ),
+                column((
+                    // Load a saved script from the app container.
+                    crate::gallery::panel(
+                        crate::res::str::scripting_library_title(),
+                        (row((
+                            label(crate::res::str::scripting_saved_label()).font(Font::Footnote),
+                            picker(sel, options.into_iter().enumerate().collect::<Vec<_>>())
+                                .menu()
+                                .id(day::id!(scripting_menu)),
+                        ))
+                        .spacing(Space::S),),
+                    ),
+                    // The controls. Every id starts with `scripting_` so the recorder skips them.
+                    crate::gallery::panel(
+                        crate::res::str::scripting_transport_title(),
+                        (
+                            row((
+                                // Record ↔ Stop: label and fill both track the recording flag reactively.
+                                button(move || {
+                                    if recording.get() {
+                                        crate::res::str::scripting_stop().format()
+                                    } else {
+                                        crate::res::str::scripting_record().format()
+                                    }
+                                })
+                                // Through the shared helper, so this button and the toolbar's transport
+                                // start the same recording into the same buffer (commands.rs).
+                                .action(move || {
+                                    if day::record::is_recording() {
+                                        day::record::stop();
+                                    } else {
+                                        record_into_buffer();
+                                    }
+                                })
+                                // A reactive tint: the native button recolors in place while recording,
+                                // keeping its ripple/press rendering and its role (docs/buttons.md).
+                                .tint(move || {
+                                    if recording.get() {
+                                        crate::palette::RUST
+                                    } else {
+                                        crate::palette::SLATE
+                                    }
+                                })
+                                .id(day::id!(scripting_record)),
+                                // Play ↔ Pause ↔ Resume, the same transport the toolbar carries: the title
+                                // follows the run so one button covers all three, and it is disabled while
+                                // recording and when the script is empty or does not parse.
+                                crate::commands::play_pause_with_delay(delay_secs)
+                                    .button()
+                                    .bordered()
+                                    .id(day::id!(scripting_play)),
+                                // Save to the app's scripts folder. Enabled only when the buffer differs from
+                                // the last saved/loaded content (dirty). A script already mapped to a file
+                                // updates that file in place; an unsaved one prompts for a name.
+                                button(crate::res::str::scripting_save())
+                                    .bordered()
+                                    .enabled(move || buf.get() != baseline.get())
+                                    .action(move || {
+                                        let content = buf.get_untracked();
+                                        match current_file.get_untracked() {
+                                            Some(name) => {
+                                                let _ = day_part_filesystem::write(
+                                                    &script_path(&name),
+                                                    content.as_bytes(),
+                                                );
+                                                baseline.set(content); // now clean
+                                                status.set(
+                                                    crate::res::str::scripting_saved().format(),
+                                                );
+                                            }
+                                            None => {
+                                                let status = status;
+                                                day::task(async move {
+                                                    let name = prompt(
+                                                        crate::res::str::scripting_save(),
+                                                    )
+                                                    .placeholder(
+                                                        crate::res::str::scripting_name_hint(),
+                                                    )
+                                                    .present()
+                                                    .await;
+                                                    let Some(name) = name else { return };
+                                                    let name = name.trim().to_string();
+                                                    if name.is_empty() {
+                                                        return;
+                                                    }
+                                                    let _ = day_part_filesystem::write(
+                                                        &script_path(&name),
+                                                        content.as_bytes(),
+                                                    );
+                                                    current_file.set(Some(name));
+                                                    baseline.set(content); // now clean
+                                                    status.set(
+                                                        crate::res::str::scripting_saved().format(),
+                                                    );
+                                                });
+                                            }
                                         }
-                                        let _ = day_part_filesystem::write(
-                                            &script_path(&name),
-                                            content.as_bytes(),
-                                        );
-                                        current_file.set(Some(name));
-                                        baseline.set(content); // now clean
-                                        status.set(crate::res::str::scripting_saved().format());
-                                    });
-                                }
-                            }
-                        })
-                        .id(day::id!(scripting_save)),
-                    // Copy the script to the clipboard (docs/clipboard.md), with a transient note.
-                    button(crate::res::str::scripting_copy())
-                        .bordered()
-                        .action(move || {
-                            let ok = buf.with(|t| day_part_clipboard::set_text(t));
-                            if ok {
-                                status.set(crate::res::str::scripting_copied().format());
-                            }
-                        })
-                        .id(day::id!(scripting_copy)),
-                    // Export to a .yaml via the native save-file picker (docs/files.md).
-                    button(crate::res::str::scripting_export())
-                        .bordered()
-                        .action(move || {
-                            day::task(async move {
-                                let data = buf.get_untracked().into_bytes();
-                                let _ = save_file(data)
-                                    .title(crate::res::str::scripting_export())
-                                    .suggested_name("recording.yaml")
-                                    .filter("YAML", &["yaml", "yml"])
-                                    .await;
-                            });
-                        })
-                        .id(day::id!(scripting_export)),
+                                    })
+                                    .id(day::id!(scripting_save)),
+                                // Copy the script to the clipboard (docs/clipboard.md), with a transient note.
+                                button(crate::res::str::scripting_copy())
+                                    .bordered()
+                                    .action(move || {
+                                        let ok = buf.with(|t| day_part_clipboard::set_text(t));
+                                        if ok {
+                                            status
+                                                .set(crate::res::str::scripting_copied().format());
+                                        }
+                                    })
+                                    .id(day::id!(scripting_copy)),
+                                // Export to a .yaml via the native save-file picker (docs/files.md).
+                                button(crate::res::str::scripting_export())
+                                    .bordered()
+                                    .action(move || {
+                                        day::task(async move {
+                                            let data = buf.get_untracked().into_bytes();
+                                            let _ = save_file(data)
+                                                .title(crate::res::str::scripting_export())
+                                                .suggested_name("recording.yaml")
+                                                .filter("YAML", &["yaml", "yml"])
+                                                .await;
+                                        });
+                                    })
+                                    .id(day::id!(scripting_export)),
+                            ))
+                            .spacing(Space::S)
+                            .fit(RowFit::Wrap { run_spacing: 8.0 }),
+                            // "Delay between steps": an editable field with - / + buttons, feeding the
+                            // per-step Playback pause above.
+                            row((
+                                label(crate::res::str::scripting_delay_label())
+                                    .font(Font::Footnote),
+                                button("\u{2212}")
+                                    .bordered()
+                                    .action(move || bump(-0.25))
+                                    .id(day::id!(scripting_delay_dec)),
+                                text_field(delay_text)
+                                    .placeholder(DEFAULT_DELAY)
+                                    .id(day::id!(scripting_delay)),
+                                button("+")
+                                    .bordered()
+                                    .action(move || bump(0.25))
+                                    .id(day::id!(scripting_delay_inc)),
+                                label(crate::res::str::scripting_delay_unit()).font(Font::Footnote),
+                            ))
+                            .spacing(Space::S),
+                            label(move || status.get())
+                                .font(Font::Footnote)
+                                .id(day::id!(scripting_status)),
+                        ),
+                    ),
                 ))
-                .spacing(Space::S),
-                // "Delay between steps": an editable field with - / + buttons, feeding the
-                // per-step Playback pause above.
-                row((
-                    label(crate::res::str::scripting_delay_label()).font(Font::Footnote),
-                    button("\u{2212}")
-                        .bordered()
-                        .action(move || bump(-0.25))
-                        .id(day::id!(scripting_delay_dec)),
-                    text_field(delay_text)
-                        .placeholder(DEFAULT_DELAY)
-                        .id(day::id!(scripting_delay)),
-                    button("+")
-                        .bordered()
-                        .action(move || bump(0.25))
-                        .id(day::id!(scripting_delay_inc)),
-                    label(crate::res::str::scripting_delay_unit()).font(Font::Footnote),
-                ))
-                .spacing(Space::S),
-                label(move || status.get())
-                    .font(Font::Footnote)
-                    .id(day::id!(scripting_status)),
-            )),
-        ))
-        .any(),
+                .spacing(Space::L)
+                .align(HAlign::Leading)
+                .grow(Dimension::Width)
+                .any(),
+            ],
+        ),
     )
     .any()
 }

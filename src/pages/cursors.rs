@@ -1,67 +1,72 @@
 use day::prelude::*;
 
-use crate::widgets::{page, support_note};
-
 /// The `.cursor()` decorator (day/docs/cursor.md): every shared shape as a swatch to hover, one
 /// box whose shape follows a picker, a nested pair that proves the nearest ancestor wins, and
 /// the shapes only this toolkit names. `Cap::Cursor` says up front whether this host draws the
 /// requested shapes, a nearest neighbor, or nothing at all; a touch screen never shows one.
 pub(crate) fn cursors_page() -> AnyPiece {
-    page(
+    crate::widgets::page_cards(
         crate::res::str::nav_cursors(),
         day::id!(cursors_title),
-        form((
-            support_section(),
-            swatches_section(
-                crate::res::str::cursors_shapes_title(),
-                "shapes",
-                &[
-                    Cursor::Default,
-                    Cursor::Pointer,
-                    Cursor::Text,
-                    Cursor::VerticalText,
-                    Cursor::Crosshair,
-                    Cursor::Cell,
-                    Cursor::ContextMenu,
-                    Cursor::Help,
-                    Cursor::None,
-                ],
-            ),
-            swatches_section(
-                crate::res::str::cursors_drag_title(),
-                "drag",
-                &[
-                    Cursor::Move,
-                    Cursor::Grab,
-                    Cursor::Grabbing,
-                    Cursor::Copy,
-                    Cursor::Alias,
-                    Cursor::NotAllowed,
-                ],
-            ),
-            swatches_section(
-                crate::res::str::cursors_resize_title(),
-                "resize",
-                &[
-                    Cursor::NsResize,
-                    Cursor::EwResize,
-                    Cursor::NeswResize,
-                    Cursor::NwseResize,
-                    Cursor::ColResize,
-                    Cursor::RowResize,
-                    Cursor::ZoomIn,
-                    Cursor::ZoomOut,
-                ],
-            ),
-            swatches_section(
-                crate::res::str::cursors_busy_title(),
-                "busy",
-                &[Cursor::Wait, Cursor::Progress],
-            ),
-            reactive_section(),
-            nested_section(),
-            native_section(),
-        ))
+        crate::gallery::balanced(
+            2,
+            vec![
+                support_section().any(),
+                swatches_section(
+                    crate::res::str::cursors_shapes_title(),
+                    "shapes",
+                    &[
+                        Cursor::Default,
+                        Cursor::Pointer,
+                        Cursor::Text,
+                        Cursor::VerticalText,
+                        Cursor::Crosshair,
+                        Cursor::Cell,
+                        Cursor::ContextMenu,
+                        Cursor::Help,
+                        Cursor::None,
+                    ],
+                )
+                .any(),
+                swatches_section(
+                    crate::res::str::cursors_drag_title(),
+                    "drag",
+                    &[
+                        Cursor::Move,
+                        Cursor::Grab,
+                        Cursor::Grabbing,
+                        Cursor::Copy,
+                        Cursor::Alias,
+                        Cursor::NotAllowed,
+                    ],
+                )
+                .any(),
+                swatches_section(
+                    crate::res::str::cursors_resize_title(),
+                    "resize",
+                    &[
+                        Cursor::NsResize,
+                        Cursor::EwResize,
+                        Cursor::NeswResize,
+                        Cursor::NwseResize,
+                        Cursor::ColResize,
+                        Cursor::RowResize,
+                        Cursor::ZoomIn,
+                        Cursor::ZoomOut,
+                    ],
+                )
+                .any(),
+                swatches_section(
+                    crate::res::str::cursors_busy_title(),
+                    "busy",
+                    &[Cursor::Wait, Cursor::Progress],
+                )
+                .any(),
+                reactive_section().any(),
+                nested_section().any(),
+                native_section().any(),
+            ],
+        )
         .any(),
     )
     .any()
@@ -75,15 +80,17 @@ fn support_section() -> impl Piece {
         Support::Emulated => crate::res::str::cursors_emulated(),
         Support::Unsupported => crate::res::str::cursors_unsupported(),
     };
-    section((
-        support_note(support),
-        label(crate::res::str::cursors_hint()).font(Font::Footnote),
-        labeled(
-            crate::res::str::cursors_support_label(),
-            label(text).id(day::id!(cursors_support)),
+    crate::gallery::panel(
+        crate::res::str::cursors_support_title(),
+        (
+            crate::widgets::support_banner(support),
+            label(crate::res::str::cursors_hint()).font(Font::Footnote),
+            labeled(
+                crate::res::str::cursors_support_label(),
+                label(text).id(day::id!(cursors_support)),
+            ),
         ),
-    ))
-    .title(crate::res::str::cursors_support_title())
+    )
 }
 
 /// A tile per shape: its API name, with that shape over it. The name is the `Cursor` variant's
@@ -116,43 +123,44 @@ fn swatches_section(
         .iter()
         .map(|c| swatch(c.clone(), id_prefix).any())
         .collect();
-    section((tile_rows(tiles),)).title(title)
+    crate::gallery::panel(title, (tile_rows(tiles),))
 }
 
 /// One box whose shape follows the picker: the reactive form, `cursor(closure)`.
 fn reactive_section() -> impl Piece {
     let selected = Signal::new(Cursor::NAMED[1].clone());
     let shape = move || selected.get();
-    section((
-        label(crate::res::str::cursors_reactive_caption()).font(Font::Footnote),
-        labeled(
-            crate::res::str::cursors_reactive_pick(),
-            picker(
-                selected,
-                Cursor::NAMED
-                    .iter()
-                    .map(|c| (c.clone(), c.css_name().to_string()))
-                    .collect::<Vec<_>>(),
-            )
-            .id(day::id!(cursors_pick)),
+    crate::gallery::panel(
+        crate::res::str::cursors_reactive_title(),
+        (
+            labeled(
+                crate::res::str::cursors_reactive_pick(),
+                picker(
+                    selected,
+                    Cursor::NAMED
+                        .iter()
+                        .map(|c| (c.clone(), c.css_name().to_string()))
+                        .collect::<Vec<_>>(),
+                )
+                .id(day::id!(cursors_pick)),
+            ),
+            label(move || shape().css_name().to_string())
+                .id(day::id!(cursors_reactive_box))
+                .font(Font::Title2)
+                .frame(320.0, 120.0)
+                .background(Color::rgba(0.2, 0.5, 0.9, 0.15))
+                .corner_radius(12.0)
+                .cursor(shape),
         ),
-        label(move || shape().css_name().to_string())
-            .id(day::id!(cursors_reactive_box))
-            .font(Font::Title2)
-            .frame(320.0, 120.0)
-            .background(Color::rgba(0.2, 0.5, 0.9, 0.15))
-            .corner_radius(12.0)
-            .cursor(shape),
-    ))
-    .title(crate::res::str::cursors_reactive_title())
+    )
 }
 
 /// Two shapes, nested: the pointer is a crosshair over the outer box and a hand over the inner
 /// label, then a crosshair again on the way out.
 fn nested_section() -> impl Piece {
-    section((
-        label(crate::res::str::cursors_nested_caption()).font(Font::Footnote),
-        column((
+    crate::gallery::panel(
+        crate::res::str::cursors_nested_title(),
+        (column((
             label(crate::res::str::cursors_nested_outer()).font(Font::Footnote),
             label(crate::res::str::cursors_nested_inner())
                 .id(day::id!(cursors_nested_inner))
@@ -166,9 +174,8 @@ fn nested_section() -> impl Piece {
         .padding(Space::XL)
         .background(Color::rgba(0.5, 0.5, 0.5, 0.1))
         .corner_radius(12.0)
-        .cursor(Cursor::Crosshair),
-    ))
-    .title(crate::res::str::cursors_nested_title())
+        .cursor(Cursor::Crosshair),),
+    )
 }
 
 /// The shapes only this toolkit names, from `day::cursor::<toolkit>`: each constant is gated
@@ -197,7 +204,7 @@ fn native_section() -> impl Piece {
     } else {
         tile_rows(tiles).any()
     };
-    section((body,)).title(crate::res::str::cursors_native_title())
+    crate::gallery::panel(crate::res::str::cursors_native_title(), (body,))
 }
 
 #[cfg(feature = "appkit")]

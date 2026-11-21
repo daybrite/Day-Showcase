@@ -1,7 +1,5 @@
 use day::prelude::*;
 
-use crate::widgets::page;
-
 /// Crash Reporting demonstrates day-piece-crash-reporter (docs/break.md). The buttons crash (or
 /// trip day-core's panic containment); on the next launch the saved report shows in the scrollable
 /// viewer, and "Send report" opens a prefilled email to the developer. Nothing leaves the device
@@ -37,98 +35,102 @@ pub(crate) fn crash_page() -> AnyPiece {
         report.set(day_piece_crash_reporter::latest_report_text().unwrap_or_default());
     });
 
-    let crash_controls = section((
-        crate::widgets::support_note(crate::support::crash_reporting()),
-        // Each crash is scheduled ~150 ms out so the dayscript tap gets its reply before we die.
-        crash_action(
-            crate::res::str::crash_abort_label().format(),
-            button(crate::res::str::crash_abort())
-                .action(|| schedule(|| std::process::abort()))
-                .tint(crate::widgets::danger())
-                .id(day::id!(crash_abort)),
+    let crash_controls = crate::gallery::panel(
+        crate::res::str::crash_trigger_section(),
+        (
+            crate::widgets::support_banner(crate::support::crash_reporting()),
+            // Each crash is scheduled ~150 ms out so the dayscript tap gets its reply before we die.
+            crash_action(
+                crate::res::str::crash_abort_label().format(),
+                button(crate::res::str::crash_abort())
+                    .action(|| schedule(|| std::process::abort()))
+                    .tint(crate::widgets::danger())
+                    .id(day::id!(crash_abort)),
+            ),
+            crash_action(
+                crate::res::str::crash_segv_label().format(),
+                button(crate::res::str::crash_segv())
+                    .action(|| schedule(segfault))
+                    .tint(crate::palette::VIOLET)
+                    .id(day::id!(crash_segv)),
+            ),
+            crash_action(
+                crate::res::str::crash_contained_label().format(),
+                // Panics in a button handler run inside day-core's event pump, which contains the
+                // panic (the app survives); it becomes a non-fatal report on the next launch.
+                // Pale amber, the mildest of the three: it is the one the app walks away from.
+                button(crate::res::str::crash_contained())
+                    .action(|| panic!("intentional contained panic from the showcase crash page"))
+                    .tint(crate::palette::AMBER)
+                    .id(day::id!(crash_contained)),
+            ),
         ),
-        crash_action(
-            crate::res::str::crash_segv_label().format(),
-            button(crate::res::str::crash_segv())
-                .action(|| schedule(segfault))
-                .tint(crate::widgets::tinted(crate::palette::VIOLET))
-                .id(day::id!(crash_segv)),
-        ),
-        crash_action(
-            crate::res::str::crash_contained_label().format(),
-            // Panics in a button handler run inside day-core's event pump, which contains the
-            // panic (the app survives); it becomes a non-fatal report on the next launch.
-            // Pale amber, the mildest of the three: it is the one the app walks away from.
-            button(crate::res::str::crash_contained())
-                .action(|| panic!("intentional contained panic from the showcase crash page"))
-                .tint(crate::widgets::tinted(crate::palette::AMBER))
-                .id(day::id!(crash_contained)),
-        ),
-    ))
-    .title(crate::res::str::crash_trigger_section());
+    );
 
     // What "Send report" will do, disclosed to the user (from the configured reporter).
     let disclosure = day_piece_crash_reporter::reporter_description().unwrap_or_default();
     let has_disclosure = !disclosure.is_empty();
 
-    let report_view = section((
-        // The report shown once, in a scrollable text view; an empty-state line when there is none.
-        when(
-            move || !report.get().is_empty(),
-            move || {
-                // Read-only, no spell-correction squiggles; still selectable so the report is
-                // copyable.
-                text_area(report)
-                    .editable(false)
-                    .spellcheck(false)
-                    .min_lines(8)
-                    .max_lines(20)
-                    .id(day::id!(crash_report))
+    let report_view = crate::gallery::panel(
+        crate::res::str::crash_report_section(),
+        (
+            // The report shown once, in a scrollable text view; an empty-state line when there is none.
+            when(
+                move || !report.get().is_empty(),
+                move || {
+                    // Read-only, no spell-correction squiggles; still selectable so the report is
+                    // copyable.
+                    text_area(report)
+                        .editable(false)
+                        .spellcheck(false)
+                        .min_lines(8)
+                        .max_lines(20)
+                        .id(day::id!(crash_report))
+                        .any()
+                },
+            ),
+            when(
+                move || report.get().is_empty(),
+                move || {
+                    label(crate::res::str::crash_empty())
+                        .id(day::id!(crash_empty))
+                        .any()
+                },
+            ),
+            // Actions appear only when there is a report to act on: send it (opens an email), or clear.
+            when(
+                move || !report.get().is_empty(),
+                move || {
+                    row((
+                        button(crate::res::str::crash_send())
+                            .action(send_newest)
+                            .tint(crate::widgets::primary())
+                            .id(day::id!(crash_send)),
+                        button(crate::res::str::crash_clear())
+                            .action(clear_reports)
+                            .tint(crate::widgets::secondary())
+                            .id(day::id!(crash_clear)),
+                    ))
+                    .spacing(8.0)
                     .any()
-            },
+                },
+            ),
+            when(
+                move || has_disclosure && !report.get().is_empty(),
+                move || {
+                    label(disclosure.clone())
+                        .font(Font::Caption2)
+                        .id(day::id!(crash_disclosure))
+                        .any()
+                },
+            ),
         ),
-        when(
-            move || report.get().is_empty(),
-            move || {
-                label(crate::res::str::crash_empty())
-                    .id(day::id!(crash_empty))
-                    .any()
-            },
-        ),
-        // Actions appear only when there is a report to act on: send it (opens an email), or clear.
-        when(
-            move || !report.get().is_empty(),
-            move || {
-                row((
-                    button(crate::res::str::crash_send())
-                        .action(send_newest)
-                        .tint(crate::widgets::primary())
-                        .id(day::id!(crash_send)),
-                    button(crate::res::str::crash_clear())
-                        .action(clear_reports)
-                        .tint(crate::widgets::secondary())
-                        .id(day::id!(crash_clear)),
-                ))
-                .spacing(8.0)
-                .any()
-            },
-        ),
-        when(
-            move || has_disclosure && !report.get().is_empty(),
-            move || {
-                label(disclosure.clone())
-                    .font(Font::Caption2)
-                    .id(day::id!(crash_disclosure))
-                    .any()
-            },
-        ),
-    ))
-    .title(crate::res::str::crash_report_section());
+    );
 
-    page(
+    crate::widgets::page_cards(
         crate::res::str::nav_crash(),
         day::id!(crash_title),
-        form((crash_controls, report_view)).any(),
+        crate::gallery::deck(2, vec![crash_controls, report_view]),
     )
     .any()
 }

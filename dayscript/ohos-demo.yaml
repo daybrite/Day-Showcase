@@ -9,7 +9,8 @@ flow:
   - screenshot: controls
   - navigate: { route: canvas }
   - pause: 1
-  - screenshot: gauge
+  - assert_visible: { id: canvas_dial }
+  - screenshot: canvas_dial
   - navigate: { route: canvas }
   - pause: 1
   - screenshot: shapes

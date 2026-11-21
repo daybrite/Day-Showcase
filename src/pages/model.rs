@@ -173,72 +173,87 @@ pub(crate) fn model_page() -> AnyPiece {
     };
 
     column((
-        row((
-            heading(crate::res::str::nav_model(), day::id!(model_title)),
-            spacer(),
-            labeled(
-                crate::res::str::model_hide_done(),
-                toggle(hide_done).id(day::id!(model_filter)),
-            ),
-        ))
-        .spacing(Space::S),
-        // How many rows the projection currently shows.
-        label(move || crate::res::str::model_caption(rows().len() as i64).format())
-            .tabular()
-            .id(day::id!(model_caption)),
-        // The observation tables, live: triggers and interner slots currently held. A coarse
-        // read of the store re-renders this on every change; the number is there to show that
-        // scrolling a 300-row list does not move it.
-        label(move || {
-            store.with(|_| {});
-            crate::res::str::model_cost(crate::res::str::ModelCost {
-                paths: day::model::observed_paths() as i64,
-                nodes: day::model::interned_nodes() as i64,
-            })
-            .format()
-        })
-        .font(Font::Footnote)
-        .id(day::id!(model_cost)),
-        // Where the rows actually are. The file name is the part of a persistence demo that can
-        // be checked: it is openable with any SQLite tool, and it is still there next launch.
-        label(move || match with_backing(|b| b.file.clone()) {
-            Some(file) => crate::res::str::model_storage_file(file).format(),
-            None => crate::res::str::model_storage_memory().format(),
-        })
-        .font(Font::Footnote)
-        .id(day::id!(model_storage)),
-        // The selected row's editor: two controls bound straight to the store through the
-        // element's field accessors, the mirror of what the row labels read, with no plumbing.
-        //
-        // `keyed` on the row, because the editor is tied to its row: an `Elem`'s field
-        // accessors name one key for the life of the subtree, so the selection moving from one
-        // row to the next has to build a new one. A `when` on "something is selected" would
-        // not: the condition is still true, so the arm it built for the first selection stays
-        // mounted, and every later edit writes to whatever row that was.
-        keyed(
-            move || selected.get(),
-            move |&id| {
-                let it = tasks().elem(id);
-                row((
-                    text_field(it.title()).id(day::id!(model_name)),
-                    toggle(it.done()).id(day::id!(model_done)),
+        heading(crate::res::str::nav_model(), day::id!(model_title)),
+        crate::gallery::deck(
+            2,
+            vec![
+                column((
+                    // How many rows the projection currently shows.
+                    label(move || crate::res::str::model_caption(rows().len() as i64).format())
+                        .font(Font::Headline)
+                        .tabular()
+                        .id(day::id!(model_caption)),
+                    // The observation tables, live: triggers and interner slots currently held. A coarse
+                    // read of the store re-renders this on every change; the number is there to show that
+                    // scrolling a 300-row list does not move it.
+                    label(move || {
+                        store.with(|_| {});
+                        crate::res::str::model_cost(crate::res::str::ModelCost {
+                            paths: day::model::observed_paths() as i64,
+                            nodes: day::model::interned_nodes() as i64,
+                        })
+                        .format()
+                    })
+                    .font(Font::Footnote)
+                    .secondary()
+                    .id(day::id!(model_cost)),
+                    // Where the rows actually are. The file name is the part of a persistence demo that can
+                    // be checked: it is openable with any SQLite tool, and it is still there next launch.
+                    label(move || match with_backing(|b| b.file.clone()) {
+                        Some(file) => crate::res::str::model_storage_file(file).format(),
+                        None => crate::res::str::model_storage_memory().format(),
+                    })
+                    .font(Font::Footnote)
+                    .secondary()
+                    .id(day::id!(model_storage)),
+                ))
+                .spacing(Space::XS)
+                .align(HAlign::Leading)
+                .grow(Dimension::Width)
+                .card()
+                .any(),
+                column((
+                    // The selected row's editor: two controls bound straight to the store through the
+                    // element's field accessors, the mirror of what the row labels read, with no plumbing.
+                    //
+                    // `keyed` on the row, because the editor is tied to its row: an `Elem`'s field
+                    // accessors name one key for the life of the subtree, so the selection moving from one
+                    // row to the next has to build a new one. A `when` on "something is selected" would
+                    // not: the condition is still true, so the arm it built for the first selection stays
+                    // mounted, and every later edit writes to whatever row that was.
+                    keyed(
+                        move || selected.get(),
+                        move |&id| {
+                            let it = tasks().elem(id);
+                            row((
+                                text_field(it.title()).id(day::id!(model_name)),
+                                toggle(it.done()).id(day::id!(model_done)),
+                            ))
+                            .spacing(Space::S)
+                        },
+                    ),
+                    // What is selected, read back out of the store; asserting this after typing into the
+                    // field above proves the round trip without reaching into a recycled row.
+                    label(move || match selected.get() {
+                        Some(id) => tasks()
+                            .elem(id)
+                            .title()
+                            .with(|t| t.cloned())
+                            .map(|t| crate::res::str::model_selected(t).format())
+                            .unwrap_or_else(|| crate::res::str::model_selected_none().format()),
+                        None => crate::res::str::model_selected_none().format(),
+                    })
+                    .font(Font::Footnote)
+                    .secondary()
+                    .id(day::id!(model_selected)),
                 ))
                 .spacing(Space::S)
-            },
+                .align(HAlign::Leading)
+                .grow(Dimension::Width)
+                .card()
+                .any(),
+            ],
         ),
-        // What is selected, read back out of the store; asserting this after typing into the
-        // field above proves the round trip without reaching into a recycled row.
-        label(move || match selected.get() {
-            Some(id) => tasks()
-                .elem(id)
-                .title()
-                .with(|t| t.cloned())
-                .map(|t| crate::res::str::model_selected(t).format())
-                .unwrap_or_else(|| crate::res::str::model_selected_none().format()),
-            None => crate::res::str::model_selected_none().format(),
-        })
-        .font(Font::Footnote)
-        .id(day::id!(model_selected)),
         list(store.rows(rows), |slot: ModelSlot<Task>| {
             // A custom row: the list gives it the platform's side margins (docs/list.md).
             row((
@@ -261,6 +276,10 @@ pub(crate) fn model_page() -> AnyPiece {
         })
         .id(day::id!(model_list)),
         row((
+            labeled(
+                crate::res::str::model_hide_done(),
+                toggle(hide_done).id(day::id!(model_filter)),
+            ),
             button(crate::res::str::model_add())
                 .prominent()
                 .tint(crate::widgets::primary())
@@ -312,10 +331,11 @@ pub(crate) fn model_page() -> AnyPiece {
         // its item; both read this signal, so they can never disagree.
         label(move || history().undo_label().get())
             .font(Font::Footnote)
+            .secondary()
             .id(day::id!(model_undo_label)),
     ))
-    .spacing(10.0)
+    .spacing(Space::M)
     .align(HAlign::Leading)
-    .padding(Space::L)
+    .padding(20.0)
     .any()
 }

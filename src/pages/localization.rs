@@ -1,7 +1,5 @@
 use day::prelude::*;
 
-use crate::widgets::page;
-
 /// Localization playground (docs/localization.md): the locale is a live Signal, and one set of
 /// Fluent translations renders ICU-correctly per locale, covering number formatting (grouping,
 /// digit systems), date/time formatting (CLDR patterns via `DATETIME()`), CLDR plural categories,
@@ -9,16 +7,19 @@ use crate::widgets::page;
 /// asserts resolve through the same bundles as the labels, so they are locale-correct by
 /// construction.
 pub(crate) fn localization_page() -> AnyPiece {
-    page(
+    crate::widgets::page_cards(
         crate::res::str::nav_localization(),
         day::id!(localization_title),
-        form((
-            locale_section(),
-            numbers_section(),
-            datetimes_section(),
-            plurals_section(),
-            sorting_section(),
-        ))
+        crate::gallery::balanced(
+            2,
+            vec![
+                locale_section().any(),
+                numbers_section().any(),
+                datetimes_section().any(),
+                plurals_section().any(),
+                sorting_section().any(),
+            ],
+        )
         .any(),
     )
     .any()
@@ -30,123 +31,133 @@ pub(crate) fn localization_page() -> AnyPiece {
 /// launch locale after the demo.
 fn locale_section() -> impl Piece {
     let initial = day::locale().get_untracked();
-    section((
-        label(crate::res::str::loc_live_note()).font(Font::Footnote),
-        // Wrapped: Android's filled chips are wide enough that the fourth one clipped at
-        // phone-portrait width (docs/size-classes.md "Row fit policies").
-        row((
-            button("English")
-                .action(|| set_locale("en"))
-                .id(day::id!(locale_en)),
-            button("Français")
-                .action(|| set_locale("fr"))
-                .id(day::id!(locale_fr)),
-            button("العربية")
-                .action(|| set_locale("ar"))
-                .id(day::id!(locale_ar)),
-            button("中文")
-                .action(|| set_locale("zh-CN"))
-                .id(day::id!(locale_zh)),
-        ))
-        .spacing(8.0)
-        .fit(RowFit::Wrap { run_spacing: 8.0 }),
-        labeled(
-            crate::res::str::loc_current_label(),
-            // The raw locale tag, a locale-independent value the walkthrough asserts literally.
-            label(move || day::locale().get()).id(day::id!(loc_current)),
+    crate::gallery::panel(
+        crate::res::str::loc_locale_section(),
+        (
+            label(crate::res::str::loc_live_note()).font(Font::Footnote),
+            // Wrapped: Android's filled chips are wide enough that the fourth one clipped at
+            // phone-portrait width (docs/size-classes.md "Row fit policies").
+            row((
+                button("English")
+                    .action(|| set_locale("en"))
+                    .id(day::id!(locale_en)),
+                button("Français")
+                    .action(|| set_locale("fr"))
+                    .id(day::id!(locale_fr)),
+                button("العربية")
+                    .action(|| set_locale("ar"))
+                    .id(day::id!(locale_ar)),
+                button("中文")
+                    .action(|| set_locale("zh-CN"))
+                    .id(day::id!(locale_zh)),
+            ))
+            .spacing(8.0)
+            .fit(RowFit::Wrap { run_spacing: 8.0 }),
+            labeled(
+                crate::res::str::loc_current_label(),
+                // The raw locale tag, a locale-independent value the walkthrough asserts literally.
+                label(move || day::locale().get()).id(day::id!(loc_current)),
+            ),
+            row((
+                button(crate::res::str::loc_reset())
+                    .action(move || set_locale(&initial))
+                    .tint(crate::widgets::primary())
+                    .id(day::id!(locale_reset)),
+                // `en-XA`, the layout stress-test pseudolocale, accents + expands every string.
+                button("Ⓔⓝ-ⓍⒶ")
+                    .action(|| set_locale("en-XA"))
+                    .id(day::id!(locale_xa)),
+            ))
+            .spacing(8.0),
         ),
-        row((
-            button(crate::res::str::loc_reset())
-                .action(move || set_locale(&initial))
-                .tint(crate::widgets::primary())
-                .id(day::id!(locale_reset)),
-            // `en-XA`, the layout stress-test pseudolocale, accents + expands every string.
-            button("Ⓔⓝ-ⓍⒶ")
-                .action(|| set_locale("en-XA"))
-                .id(day::id!(locale_xa)),
-        ))
-        .spacing(8.0),
-    ))
-    .title(crate::res::str::loc_locale_section())
+    )
 }
 
 /// `NUMBER()` and the bundle-wide formatter: the same translation renders `1,234,567.891` in en,
 /// `1.234.567,891` in de-style locales, narrow-NBSP groups in fr, Arabic-Indic digits where CLDR
 /// says so.
 fn numbers_section() -> impl Piece {
-    section((
-        labeled(
-            crate::res::str::fmt_number_label(),
-            label(crate::res::str::fmt_number(1234567.891)).id(day::id!(fmt_number)),
+    crate::gallery::panel(
+        crate::res::str::loc_numbers_section(),
+        (
+            labeled(
+                crate::res::str::fmt_number_label(),
+                label(crate::res::str::fmt_number(1234567.891)).id(day::id!(fmt_number)),
+            ),
+            labeled(
+                crate::res::str::fmt_fraction_label(),
+                label(crate::res::str::fmt_fraction(1234.5)).id(day::id!(fmt_fraction)),
+            ),
+            labeled(
+                crate::res::str::fmt_percent_label(),
+                label(crate::res::str::fmt_percent(0.72)).id(day::id!(fmt_percent)),
+            ),
         ),
-        labeled(
-            crate::res::str::fmt_fraction_label(),
-            label(crate::res::str::fmt_fraction(1234.5)).id(day::id!(fmt_fraction)),
-        ),
-        labeled(
-            crate::res::str::fmt_percent_label(),
-            label(crate::res::str::fmt_percent(0.72)).id(day::id!(fmt_percent)),
-        ),
-    ))
-    .title(crate::res::str::loc_numbers_section())
+    )
 }
 
 /// `DATETIME()` with civil ISO inputs: CLDR date/time patterns per locale (month names, order,
 /// 12/24-hour convention) from one translation.
 fn datetimes_section() -> impl Piece {
-    section((
-        labeled(
-            crate::res::str::fmt_date_label(),
-            label(crate::res::str::fmt_date("2026-07-18")).id(day::id!(fmt_date)),
+    crate::gallery::panel(
+        crate::res::str::loc_dates_section(),
+        (
+            labeled(
+                crate::res::str::fmt_date_label(),
+                label(crate::res::str::fmt_date("2026-07-18")).id(day::id!(fmt_date)),
+            ),
+            labeled(
+                crate::res::str::fmt_time_label(),
+                label(crate::res::str::fmt_time("14:45")).id(day::id!(fmt_time)),
+            ),
+            labeled(
+                crate::res::str::fmt_datetime_label(),
+                label(crate::res::str::fmt_datetime("2026-07-18T14:45")).id(day::id!(fmt_datetime)),
+            ),
         ),
-        labeled(
-            crate::res::str::fmt_time_label(),
-            label(crate::res::str::fmt_time("14:45")).id(day::id!(fmt_time)),
-        ),
-        labeled(
-            crate::res::str::fmt_datetime_label(),
-            label(crate::res::str::fmt_datetime("2026-07-18T14:45")).id(day::id!(fmt_datetime)),
-        ),
-    ))
-    .title(crate::res::str::loc_dates_section())
+    )
 }
 
 /// CLDR plural categories, live: Arabic exercises zero/one/two/few/many; French counts 0 as
 /// "one"; Chinese has no plural at all. The same key produces the right grammar everywhere.
 fn plurals_section() -> impl Piece {
     let count = Signal::new(0i64);
-    section((row((
-        button(crate::res::str::decrement())
-            .bordered()
-            .action(move || count.update(|c| *c = (*c - 1).max(0)))
-            .id(day::id!(plural_remove)),
-        label(crate::res::str::plural_items(count)).id(day::id!(plural_label)),
-        button(crate::res::str::increment())
-            .prominent()
-            .action(move || count.update(|c| *c += 1))
-            .id(day::id!(plural_add)),
-    ))
-    .spacing(8.0),))
-    .title(crate::res::str::loc_plurals_section())
+    crate::gallery::panel(
+        crate::res::str::loc_plurals_section(),
+        (row((
+            button(crate::res::str::decrement())
+                .bordered()
+                .action(move || count.update(|c| *c = (*c - 1).max(0)))
+                .id(day::id!(plural_remove)),
+            label(crate::res::str::plural_items(count)).id(day::id!(plural_label)),
+            button(crate::res::str::increment())
+                .prominent()
+                .action(move || count.update(|c| *c += 1))
+                .id(day::id!(plural_add)),
+        ))
+        .spacing(8.0),),
+    )
 }
 
 /// Collation-aware sorting: the localized fruit names re-sort by the locale's rules (zh by
 /// pinyin, not code points) whenever the locale switches.
 fn sorting_section() -> impl Piece {
-    section((labeled(
-        crate::res::str::fmt_sorted_label(),
-        label(move || {
-            let mut fruits = vec![
-                crate::res::str::fruit_banana().format(),
-                crate::res::str::fruit_cherry().format(),
-                crate::res::str::fruit_apple().format(),
-                crate::res::str::fruit_elderberry().format(),
-                crate::res::str::fruit_date().format(),
-            ];
-            sort_localized(&mut fruits);
-            fruits.join(" · ")
-        })
-        .id(day::id!(fmt_sorted)),
-    ),))
-    .title(crate::res::str::loc_sorting_section())
+    crate::gallery::panel(
+        crate::res::str::loc_sorting_section(),
+        (labeled(
+            crate::res::str::fmt_sorted_label(),
+            label(move || {
+                let mut fruits = vec![
+                    crate::res::str::fruit_banana().format(),
+                    crate::res::str::fruit_cherry().format(),
+                    crate::res::str::fruit_apple().format(),
+                    crate::res::str::fruit_elderberry().format(),
+                    crate::res::str::fruit_date().format(),
+                ];
+                sort_localized(&mut fruits);
+                fruits.join(" · ")
+            })
+            .id(day::id!(fmt_sorted)),
+        ),),
+    )
 }

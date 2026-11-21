@@ -5,20 +5,6 @@ use super::model::{Item, ItemFields, Scene};
 use crate::res;
 use day::prelude::*;
 
-/// Read the selected name reactively so the navigation title follows edits.
-pub(crate) fn detail_title(scene: Scene) -> String {
-    let name = scene
-        .selected
-        .get()
-        .map(|id| scene.items.elem(id).name().read())
-        .unwrap_or_default();
-    if name.is_empty() {
-        res::str::nav_items().format()
-    } else {
-        name
-    }
-}
-
 /// Build the detail destination and attach the selected-item Delete command to its toolbar.
 pub(crate) fn items_page() -> impl Piece {
     let scene = Scene::ambient();

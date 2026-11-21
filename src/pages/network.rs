@@ -246,23 +246,29 @@ pub(crate) fn network_page() -> AnyPiece {
     }
     let operation = Signal::new(Operation::Request);
     let ws_base = base.clone();
-    crate::widgets::page_wide(
+    crate::widgets::page_cards(
         tr::nav_network_http(),
         day::id!(network_title),
-        // The two forms sit side by side on a wide window and stack on a Medium or narrower
-        // one (docs/size-classes.md), the same nodes re-laid.
+        // The two columns of cards sit side by side on a wide window and stack on a Medium or
+        // narrower one (docs/size-classes.md), the same nodes re-laid. What the session is and
+        // has done reads down the leading column; the operation being run has the trailing one.
         adaptive((
-            form((
-                section((
-                    provider_picker(st),
-                    label(tr::net_provider_note()).font(Font::Footnote),
-                ))
-                .title(tr::net_transport()),
+            column((
+                crate::gallery::panel(
+                    tr::net_transport(),
+                    (
+                        provider_picker(st),
+                        crate::gallery::note(tr::net_provider_note()),
+                    ),
+                ),
                 simulation_section(st),
                 super::services::network_section(),
+                statistics_section(st),
             ))
+            .spacing(Space::L)
+            .align(HAlign::Leading)
             .grow(Dimension::Width),
-            form((
+            column((
                 picker(
                     operation,
                     [
@@ -279,8 +285,9 @@ pub(crate) fn network_page() -> AnyPiece {
                         Operation::WebSocket => websocket_section(st, ws_base.clone()).any(),
                     },
                 ),
-                statistics_section(st),
             ))
+            .spacing(Space::L)
+            .align(HAlign::Leading)
             .grow(Dimension::Width),
         ))
         .spacing(Space::L)
@@ -310,52 +317,55 @@ fn provider_picker(st: Model) -> AnyPiece {
     }
 }
 fn simulation_section(st: Model) -> impl Piece {
-    section((
-        labeled(
-            tr::net_intercept(),
-            toggle(st.enabled).id(day::id!(network_intercept)),
-        ),
-        label(tr::net_sim_note()).font(Font::Footnote),
-        when(
-            move || st.enabled.get(),
-            move || {
-                column((
-                    labeled(
-                        tr::net_speed(),
-                        slider(st.speed)
-                            .range(16.0..=4096.0)
-                            .id(day::id!(network_speed)),
-                    ),
-                    label(move || tr::net_speed_value(format!("{:.0}", st.speed.get())).format())
+    crate::gallery::panel(
+        tr::net_simulation(),
+        (
+            labeled(
+                tr::net_intercept(),
+                toggle(st.enabled).id(day::id!(network_intercept)),
+            ),
+            when(
+                move || st.enabled.get(),
+                move || {
+                    column((
+                        labeled(
+                            tr::net_speed(),
+                            slider(st.speed)
+                                .range(16.0..=4096.0)
+                                .id(day::id!(network_speed)),
+                        ),
+                        label(move || {
+                            tr::net_speed_value(format!("{:.0}", st.speed.get())).format()
+                        })
                         .id(day::id!(network_speed_value)),
-                    labeled(
-                        tr::net_failures(),
-                        slider(st.failure)
-                            .range(0.0..=100.0)
-                            .id(day::id!(network_failure)),
-                    ),
-                    label(move || {
-                        tr::net_failure_value(format!("{:.0}", st.failure.get())).format()
-                    })
-                    .id(day::id!(network_failure_value)),
-                    row((
                         labeled(
-                            tr::net_pause(),
-                            toggle(st.paused).id(day::id!(network_pause)),
+                            tr::net_failures(),
+                            slider(st.failure)
+                                .range(0.0..=100.0)
+                                .id(day::id!(network_failure)),
                         ),
-                        labeled(
-                            tr::net_offline(),
-                            toggle(st.offline).id(day::id!(network_offline)),
-                        ),
+                        label(move || {
+                            tr::net_failure_value(format!("{:.0}", st.failure.get())).format()
+                        })
+                        .id(day::id!(network_failure_value)),
+                        row((
+                            labeled(
+                                tr::net_pause(),
+                                toggle(st.paused).id(day::id!(network_pause)),
+                            ),
+                            labeled(
+                                tr::net_offline(),
+                                toggle(st.offline).id(day::id!(network_offline)),
+                            ),
+                        ))
+                        .spacing(Space::L)
+                        .fit(RowFit::Wrap { run_spacing: 8.0 }),
                     ))
-                    .spacing(Space::L)
-                    .fit(RowFit::Wrap { run_spacing: 8.0 }),
-                ))
-                .spacing(6.0)
-            },
+                    .spacing(6.0)
+                },
+            ),
         ),
-    ))
-    .title(tr::net_simulation())
+    )
 }
 fn request_section(st: Model, base: String) -> impl Piece {
     let options = Signal::new(false);
@@ -432,104 +442,106 @@ fn request_section(st: Model, base: String) -> impl Piece {
     };
     let stream_base = base.clone();
     let upload_base = base;
-    section((
-        labeled(
-            tr::net_method(),
-            picker(
-                st.method,
-                [
-                    (0, "GET"),
-                    (1, "POST"),
-                    (2, "PATCH"),
-                    (3, "HEAD"),
-                    (4, "PUT"),
-                    (5, "DELETE"),
-                ],
-            )
-            .segmented()
-            .id(day::id!(http_method)),
-        ),
-        labeled(tr::net_url(), text_field(st.url).id(day::id!(http_url))),
-        labeled(tr::net_body(), text_field(st.body).id(day::id!(http_body))),
-        labeled(
-            tr::net_options(),
-            toggle(options).id(day::id!(http_options)),
-        ),
-        when(
-            move || options.get(),
-            move || {
-                column((
-                    labeled(
-                        tr::net_headers(),
-                        text_field(st.headers).id(day::id!(http_headers)),
-                    ),
-                    labeled(
-                        tr::net_timeout(),
-                        slider(st.timeout)
-                            .range(1.0..=30.0)
-                            .id(day::id!(http_timeout)),
-                    ),
-                    label(move || {
-                        tr::net_timeout_value(format!("{:.0}", st.timeout.get())).format()
-                    }),
-                    label(move || st.response_headers.get())
-                        .max_lines(5)
-                        .id(day::id!(http_response_headers)),
+    crate::gallery::panel(
+        tr::net_request(),
+        (
+            labeled(
+                tr::net_method(),
+                picker(
+                    st.method,
+                    [
+                        (0, "GET"),
+                        (1, "POST"),
+                        (2, "PATCH"),
+                        (3, "HEAD"),
+                        (4, "PUT"),
+                        (5, "DELETE"),
+                    ],
+                )
+                .segmented()
+                .id(day::id!(http_method)),
+            ),
+            labeled(tr::net_url(), text_field(st.url).id(day::id!(http_url))),
+            labeled(tr::net_body(), text_field(st.body).id(day::id!(http_body))),
+            labeled(
+                tr::net_options(),
+                toggle(options).id(day::id!(http_options)),
+            ),
+            when(
+                move || options.get(),
+                move || {
+                    column((
+                        labeled(
+                            tr::net_headers(),
+                            text_field(st.headers).id(day::id!(http_headers)),
+                        ),
+                        labeled(
+                            tr::net_timeout(),
+                            slider(st.timeout)
+                                .range(1.0..=30.0)
+                                .id(day::id!(http_timeout)),
+                        ),
+                        label(move || {
+                            tr::net_timeout_value(format!("{:.0}", st.timeout.get())).format()
+                        }),
+                        label(move || st.response_headers.get())
+                            .max_lines(5)
+                            .id(day::id!(http_response_headers)),
+                    ))
+                    .spacing(6.0)
+                },
+            ),
+            crate::widgets::action_result(
+                row((
+                    button(tr::net_send_request())
+                        .prominent()
+                        .action(run)
+                        .id(day::id!(http_fetch)),
+                    button(tr::net_cancel())
+                        .bordered()
+                        .action(move || {
+                            if let Some(old) = task.borrow_mut().take() {
+                                old.abort();
+                            }
+                            st.status.set(tr::net_cancelled().format());
+                        })
+                        .id(day::id!(http_cancel)),
                 ))
-                .spacing(6.0)
-            },
-        ),
-        crate::widgets::action_result(
+                .spacing(Space::S),
+                label(move || st.status.get())
+                    .max_lines(4)
+                    .id(day::id!(http_status)),
+            ),
             row((
-                button(tr::net_send_request())
-                    .prominent()
-                    .action(run)
-                    .id(day::id!(http_fetch)),
-                button(tr::net_cancel())
+                button(tr::net_download_preset())
                     .bordered()
                     .action(move || {
-                        if let Some(old) = task.borrow_mut().take() {
-                            old.abort();
-                        }
-                        st.status.set(tr::net_cancelled().format());
+                        st.method.set(0);
+                        st.url.set(if stream_base.is_empty() {
+                            "day-http-ok".into()
+                        } else {
+                            format!("{stream_base}/bytes/524288")
+                        });
                     })
-                    .id(day::id!(http_cancel)),
+                    .id(day::id!(http_download_preset)),
+                button(tr::net_upload_preset())
+                    .bordered()
+                    .action(move || {
+                        st.method.set(1);
+                        st.url.set(if upload_base.is_empty() {
+                            "day-http-ok".into()
+                        } else {
+                            format!("{upload_base}/echo")
+                        });
+                        st.body.set("x".repeat(64 * 1024));
+                    })
+                    .id(day::id!(http_upload_preset)),
             ))
             .spacing(Space::S),
-            label(move || st.status.get())
-                .max_lines(4)
-                .id(day::id!(http_status)),
+            label(move || tr::net_received(st.received.get().to_string()).format())
+                .id(day::id!(http_received)),
         ),
-        row((
-            button(tr::net_download_preset())
-                .bordered()
-                .action(move || {
-                    st.method.set(0);
-                    st.url.set(if stream_base.is_empty() {
-                        "day-http-ok".into()
-                    } else {
-                        format!("{stream_base}/bytes/524288")
-                    });
-                })
-                .id(day::id!(http_download_preset)),
-            button(tr::net_upload_preset())
-                .bordered()
-                .action(move || {
-                    st.method.set(1);
-                    st.url.set(if upload_base.is_empty() {
-                        "day-http-ok".into()
-                    } else {
-                        format!("{upload_base}/echo")
-                    });
-                    st.body.set("x".repeat(64 * 1024));
-                })
-                .id(day::id!(http_upload_preset)),
-        ))
-        .spacing(Space::S),
-        label(move || tr::net_received(st.received.get().to_string()).format())
-            .id(day::id!(http_received)),
-    ))
-    .title(tr::net_request())
+    )
 }
 fn websocket_section(st: Model, base: String) -> impl Piece {
     let url = Signal::new(if base.is_empty() {
@@ -604,29 +616,35 @@ fn websocket_section(st: Model, base: String) -> impl Piece {
             s.close(1000, "");
         }
     };
-    section((
-        label(tr::net_ws_note()).font(Font::Footnote),
-        labeled(tr::net_url(), text_field(url).id(day::id!(ws_url))),
-        row((
-            button(tr::ws_connect())
+    crate::gallery::panel(
+        tr::ws_title(),
+        (
+            // A browser has no local echo server to default to.
+            when(
+                || cfg!(target_arch = "wasm32"),
+                || crate::gallery::note(tr::net_ws_note()),
+            ),
+            labeled(tr::net_url(), text_field(url).id(day::id!(ws_url))),
+            row((
+                button(tr::ws_connect())
+                    .bordered()
+                    .action(connect)
+                    .id(day::id!(ws_connect)),
+                button(tr::ws_close())
+                    .bordered()
+                    .action(close)
+                    .id(day::id!(ws_close)),
+            ))
+            .spacing(Space::S),
+            labeled(tr::net_message(), text_field(text).id(day::id!(ws_text))),
+            button(tr::ws_send())
                 .bordered()
-                .action(connect)
-                .id(day::id!(ws_connect)),
-            button(tr::ws_close())
-                .bordered()
-                .action(close)
-                .id(day::id!(ws_close)),
-        ))
-        .spacing(Space::S),
-        labeled(tr::net_message(), text_field(text).id(day::id!(ws_text))),
-        button(tr::ws_send())
-            .bordered()
-            .action(send)
-            .id(day::id!(ws_send)),
-        label(move || state.get()).id(day::id!(ws_state)),
-        label(move || last.get()).id(day::id!(ws_last)),
-    ))
-    .title(tr::ws_title())
+                .action(send)
+                .id(day::id!(ws_send)),
+            label(move || state.get()).id(day::id!(ws_state)),
+            label(move || last.get()).id(day::id!(ws_last)),
+        ),
+    )
 }
 fn statistics_section(st: Model) -> impl Piece {
     let plot = chart(move || {
@@ -663,28 +681,29 @@ fn statistics_section(st: Model) -> impl Piece {
     .y_label(tr::net_rate().format())
     .height(190.0)
     .id(day::id!(network_chart));
-    section((
-        plot,
-        label(move || {
-            let s = st.statistics.get();
-            tr::net_totals(tr::NetTotals {
-                sent: s.uploaded_bytes.to_string(),
-                received: s.downloaded_bytes.to_string(),
-                active: s.active.to_string(),
-                failed: s.failed.to_string(),
+    crate::gallery::panel(
+        tr::net_statistics(),
+        (
+            plot,
+            label(move || {
+                let s = st.statistics.get();
+                tr::net_totals(tr::NetTotals {
+                    sent: s.uploaded_bytes.to_string(),
+                    received: s.downloaded_bytes.to_string(),
+                    active: s.active.to_string(),
+                    failed: s.failed.to_string(),
+                })
+                .format()
             })
-            .format()
-        })
-        .id(day::id!(network_totals)),
-        label(move || {
-            let s = st.statistics.get();
-            tr::net_average(tr::NetAverage {
-                upload: format!("{:.1}", s.upload_bytes_per_second() / 1024.0),
-                download: format!("{:.1}", s.download_bytes_per_second() / 1024.0),
-            })
-            .format()
-        }),
-        label(tr::net_stats_note()).font(Font::Footnote),
-    ))
-    .title(tr::net_statistics())
+            .id(day::id!(network_totals)),
+            label(move || {
+                let s = st.statistics.get();
+                tr::net_average(tr::NetAverage {
+                    upload: format!("{:.1}", s.upload_bytes_per_second() / 1024.0),
+                    download: format!("{:.1}", s.download_bytes_per_second() / 1024.0),
+                })
+                .format()
+            }),
+        ),
+    )
 }

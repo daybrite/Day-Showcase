@@ -2,7 +2,6 @@
 //!
 //! Reactive fields and keyed identity: https://daybrite.dev/docs/explanation/model
 
-use super::Section;
 use day::model::Op;
 use day::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -27,8 +26,6 @@ const STORE_KEY: &str = "app.items";
 pub(crate) struct Scene {
     /// Items in display order; structural edits go through `restructure`.
     pub items: Store<Keyed<Item>>,
-    /// Two-way selection for the navigation host.
-    pub section: Signal<Section>,
     /// Selected item ID, so reordering does not change which item is edited.
     pub selected: Signal<Option<u64>>,
     /// Row to reveal after adding an item.
@@ -50,7 +47,6 @@ impl Ambient for Scene {
             .unwrap_or_default();
         Self {
             items: Store::new(Keyed::new(items)),
-            section: Signal::new(Section::Welcome),
             selected: Signal::new(None),
             scroll_to: Signal::new(None),
             detail_open: Signal::new(false),
@@ -112,7 +108,6 @@ impl Scene {
             });
         });
         info!("Created item {id}");
-        self.section.set(Section::Items);
         self.open(id);
         self.scroll_to.set(Some(
             self.items.with_untracked(|items| items.items().len() - 1),
@@ -163,7 +158,6 @@ mod tests {
     fn scene() -> Scene {
         Scene {
             items: Store::new(Keyed::new(Vec::new())),
-            section: Signal::new(Section::Welcome),
             selected: Signal::new(None),
             scroll_to: Signal::new(None),
             detail_open: Signal::new(false),

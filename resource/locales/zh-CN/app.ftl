@@ -15,6 +15,7 @@ ctl_tinted = 着色
 ctl_destructive = 危险操作
 ctl_disabled = 已禁用
 ctl_link = 链接
+ctl_composed = 组合式
 ctl_link_text = daybrite.dev
 ctl_presses = 按下次数
 ctl_switches = 开关与滑块
@@ -50,7 +51,6 @@ ctl_divider = 分隔线
 ctl_state = 状态
 ctl_on = 开
 ctl_off = 关
-ctl_crates_note = 这些控件由 Day 核心提供；徽章在 Showcase 中本地组合。
 nav_menus = 菜单与对话框
 nav_text = 文字
 nav_battery = 电池
@@ -93,11 +93,6 @@ group_graphics = 图形与媒体
 group_platform = 平台
 group_app = 应用与工具
 
-shapes_kinds = 种类
-gradients_title = 渐变
-gradient_angle = 角度
-shapes_angle = 角度
-
 picker_selected = 已选
 picker_segmented = 分段
 picker_menu = 菜单
@@ -116,12 +111,11 @@ date_bounded = 2026 年内
 date_picked = 所选日期
 time_picked = 所选时间
 
-compose_caption = 纯组合部件——无原生代码、无 cargo 特性，每个后端都直接可用。
 compose_card_title = 可复用的表面
-compose_card_body = 内边距 + 背景 + 圆角，以 Modifier 的方式应用。
+compose_card_body = 内边距、背景和圆角。
 compose_env_value = 使用提供的强调色着色
 list_add = 添加 100 行
-list_caption = { $count } 行——只构建可见的单元格
+list_caption = { $count } 行
 list_selection_none = 未选择任何行
 list_selection = { $count ->
    *[other] 已选行：{ $rows }
@@ -154,16 +148,29 @@ list_opt_editing = 编辑模式
 list_opt_reorder = 拖动排序
 list_opt_swipe = 滑动操作
 list_opt_delete = 滑动删除
-list_opt_gestures_footer = 启用分区标题后，行只能在所在分区内拖动，滑动删除不可用，因为删除分区的最后一行会移除其标题。
+list_opt_gestures_footer = 显示分组标题时，行只能在所属分组内拖动，轻扫删除关闭。
 list_section = 第 { $first }–{ $last } 行
 list_row_note = 此行的第二行详细信息
 list_row_note_long = 按内容调整高度的行会随更长的文字增高，比如这第三行在窄窗口中会自动换行。
 list_swipe_select = 选择
 list_swipe_deselect = 取消选择
+list_align = 跳转位置
+list_align_nearest = 最近
+list_align_start = 顶部
+list_align_center = 中间
+list_align_end = 底部
+list_insert = 插入
+list_remove = 移除
+list_remove_all = 全部移除
+list_footer = 列表结束：共 { $count } 行
+list_empty = 没有行。点“重置”即可恢复。
+list_visible = 可见：{ $first }–{ $last }
+list_visible_first = 从 { $first } 起可见
+list_visible_none = 没有可见的行
 
 nav_model = 模型
-model_caption = 显示 { $count } 行 — 列表由存储直接驱动
-model_cost = 正在观察 { $paths } 条路径 · { $nodes } 个驻留节点 — 滚动时保持不变
+model_caption = 显示 { $count } 行
+model_cost = 观察 { $paths } 条路径 · { $nodes } 个驻留节点
 model_hide_done = 隐藏已完成
 model_selected = 已选：{ $title }
 model_selected_none = 未选择
@@ -171,8 +178,8 @@ model_add = 添加任务
 model_delete = 删除所选
 model_undo = 撤销
 model_redo = 重做
-model_storage_file = 行数据存于 { $file } — 每次编辑在回合结束时折叠为 SQL
-model_storage_memory = 此目标上行数据仅存于内存
+model_storage_file = 存储于 { $file }
+model_storage_memory = 在此平台上存储于内存
 nav_query = 查询
 query_caption = { $total } 条曲目中有 { $count } 条匹配
 query_resident = 数据库工作线程已缓存 { $resident } / { $total } 行
@@ -193,29 +200,23 @@ webview_reload = 重新加载
 webview_js_hint = 要在页面中运行的 JavaScript
 webview_js_run = 运行 »
 webview_js_result_hint = JSON 结果显示在此
-webview_note_iframe = 此平台通过 iframe 嵌入页面。浏览器禁止跨源访问历史记录和读取网址，因此“后退”“前进”和“停止”不可用，上方的地址栏也不会跟随页面内打开的链接。
+webview_note_iframe = 此平台通过 iframe 嵌入页面，因此“后退”“前进”和“停止”不可用，地址栏也不会跟随链接。
 webview_tab_remote = 远程
 webview_tab_embedded = 内嵌
-webview_embedded_caption = 一个完整的站点——页面、样式表、脚本、图片——打包在应用内的 resource/assets/web/minisite/ 下，无需网络即可加载。相对链接保持在站点内；外部链接在应用外打开；day-showcase:// 链接会被拦截并在本应用内导航。
 webview_embedded_unsupported = 此工具包构建中没有可用的网页引擎。
 webview_embedded_status_none = 尚未跟随任何外部链接。
 webview_embedded_opened = 已在应用外打开：{ $url }
 webview_embedded_intercepted = 已拦截——已在应用内导航到“{ $route }”。
 
-stack_root_body = 真正的推入/弹出堆栈。其路径是应用持有的信号。
 stack_push = 推入一个详情页
 stack_detail_title = 第 { $depth } 层
-stack_detail_body = 已推入路径。原生返回按钮会把弹出写回。
 stack_item_title = 条目 { $id }
-stack_link_42 = 带提示打开 item-42（绝对路由）
+stack_link_42 = 按路由打开第 42 项
 stack_param_hint = 携带提示打开：{$hint}
 tab_one = 概览
 tab_two = 详情
 tab_three = 设置
-tab_one_body = 概览标签页。每个标签页保留自己的状态。
-tab_two_body = 详情标签页，由其路由键选中。
-tab_three_body = 设置标签页。深层链接和 dayscript 按键选择标签页。
-tab_state_note = 切换到其他标签页再回来——本页状态依然保留。
+tab_state_note = 切换标签页再回来，计数仍在。
 tab_detail_route = 路由键
 tab_detail_link = 深层链接
 tab_set_badges = 显示角标
@@ -240,7 +241,6 @@ vanilla = 香草
 pistachio = 开心果
 
 # Files playground (docs/files.md)
-files_caption = 原生打开/保存文件选择器。打开会把文本文件读入编辑器；保存会把它写回。
 files_placeholder = 输入要保存的内容…
 files_open = 打开文件…
 files_save = 保存文件…
@@ -263,7 +263,6 @@ sensor_waiting = 等待第一个样本…
 sensor_unavailable = 此设备上不可用
 
 # Clipboard playground (docs/clipboard.md)
-clipboard_caption = day-part-clipboard 部件以原生方式读写系统剪贴板。
 clipboard_placeholder = 输入要复制的内容
 clipboard_copy = 复制
 clipboard_paste = 粘贴
@@ -271,13 +270,13 @@ clipboard_idle = 剪贴板未使用
 clipboard_copied = 已复制到系统剪贴板
 clipboard_copy_failed = 复制失败（此处没有剪贴板 API）
 clipboard_pasted = 已从系统剪贴板粘贴
-clipboard_empty = 剪贴板为空（或在后台不可读取）
+clipboard_empty = 剪贴板为空或无法读取
 
 # Network playground (docs/network.md)
 network_refresh = 读取网络
 network_reading_online = 在线 · { $kind } · 计费：{ $expensive }
 network_reading_offline = 离线
-network_reading_none = 无法获取网络连接状态（平台无此 API，或读取失败）
+network_reading_none = 无法获取网络状态
 
 # Media playground (docs/media.md)
 media_play = 播放
@@ -287,7 +286,7 @@ media_load = 加载
 # --- Localization page (docs/localization.md) ---
 nav_localization = 本地化
 loc_locale_section = 实时语言
-loc_live_note = 语言是一个信号——切换后所有文本立即重新渲染。布局方向在启动时固定（以 ar 启动可见镜像界面）。
+loc_live_note = 布局方向在启动时确定。
 loc_current_label = 当前
 loc_reset = 重置
 loc_numbers_section = 数字
@@ -316,23 +315,19 @@ plural_items = { $count ->
 text_selectable_toggle = 可选中
 text_styles_header = 样式
 text_weights_header = 字重
-text_styling_header = 粗体与斜体
-text_colors_header = 颜色
+text_styling_header = 粗体、斜体与颜色
 text_custom_header = 自定义字号
-text_custom_note = Font.System(pt)——仍按无障碍文字大小缩放（动态字体 / 字体比例）。
 text_fonts_header = 打包字体
-text_fonts_note = Font.Custom("Family", pt)——来自应用 resource/fonts/ 目录的文件，由 day build 打包并在每个平台按字体族名解析。
 
 # Menus playground
 menus_last = 最近操作
 menus_lifecycle = 生命周期
-menus_target = 在此右键（移动端长按）打开上下文菜单
-menus_shortcut_hint = 键盘快捷键（⌘/Ctrl + 键）显示在菜单栏中，应用聚焦时生效——例如 新建 (N)、保存 (S)、重新加载 (R)、另存为 (⇧/Shift + S)。
+menus_target = 在此右键或长按
 
 # --- day-part-haptics ---
 nav_haptics = 触感反馈
-haptics_supported_yes = 此平台有触感引擎
-haptics_supported_no = 此平台没有触感引擎（按钮无反馈）
+haptics_supported_yes = 触感引擎可用
+haptics_supported_no = 此平台没有触感引擎
 haptics_light = 轻
 haptics_medium = 中
 haptics_heavy = 重
@@ -352,7 +347,7 @@ sound_error = 错误
 sound_glass = 玻璃
 sound_card = 纸牌
 sound_jingle = 旋律
-sound_pan_caption = 同一段声音分别放在左侧、中间和右侧。
+sound_pan_caption = 立体声声像
 sound_left = 左
 sound_center = 中
 sound_right = 右
@@ -360,7 +355,6 @@ sound_volume = 音量
 sound_last = 最近播放
 sound_none = 尚未播放
 sound_last_played = 已播放：{ $clip }
-sound_loop_caption = 一段不断重复直到被停止的声音。
 sound_loop = 循环播放嗡鸣
 sound_loop_volume = 循环音量
 sound_looping = 正在循环
@@ -369,27 +363,15 @@ sound_looping_clip = 正在循环：{ $clip }
 
 # --- day-part-preferences ---
 nav_prefs = 偏好设置
-prefs_caption = 使用 day-part-preferences 在多次启动间持久化一个字符串。
-prefs_placeholder = 要记住的值
-prefs_save = 保存
-prefs_load = 读取
-prefs_clear = 清除
-prefs_idle = 输入一个值，然后保存。
+prefs_placeholder = 要记住的备注
 prefs_empty = （未存储任何内容）
-prefs_saved = 已保存。
-prefs_save_failed = 保存失败。
-prefs_loaded = 已从存储读取。
-prefs_missing = 尚未存储任何内容。
-prefs_cleared = 已清除。
-prefs_value_label = 已存储的值：
+prefs_value_label = 已存储的值
 
 # --- bundled resources (§18.3) ---
 nav_resources = 资源
 vectors_title = 矢量图
-vectors_note = 侧边栏图标均来自 resource/vectors/ —— 每个图标一个 SVG，在所有后端都与分辨率无关。
 vectors_tints = 着色
 vectors_zoom = 缩放
-vectors_scene_note = 一个包含 240 条路径的 SVG，每一级缩放都从矢量重新绘制而非放大位图——因此在任何尺寸下边缘都保持清晰。在 Android 上它以 VectorDrawable 形式发布，而不是位图。
 vectors_weights = 字重
 vectors_sizes = 尺寸
 resources_numbers = numbers.bin：{ $len } 字节，byte[100] = { $byte }
@@ -417,27 +399,26 @@ nav_tweaks = 微调
 tweaks_stock = 原样
 tweaks_tweaked = 已微调
 tweaks_bezel_title = 按钮边框样式
-tweaks_bezel_caption = day-tweak-button-bezel——仅 AppKit：在真正的 NSButton 上使用 NSBezelStyle 常量。
+tweaks_bezel_caption = 仅 AppKit
 tweaks_selectable_title = 可选中标签
-tweaks_selectable_caption = 核心修饰符 .selectable()——在标签上启用平台自带的文本选择，可选启用，取决于工具包是否支持。
-tweaks_selectable_text = 这个标签的文字可以被选中并复制——试试看。
+tweaks_selectable_text = 选中这段文字并复制。
 tweaks_tooltip_title = 工具提示
-tweaks_tooltip_caption = day-tweak-tooltip——AppKit、GTK、Android：原生帮助提示，一个修饰符跨越三种访问层级。
+tweaks_tooltip_caption = AppKit、GTK 和 Android。将指针悬停在按钮上或长按按钮。
 tweaks_tooltip_label = 自动保存
-tweaks_tooltip_hint = 你的工作会自动保存。悬停（Android 上长按）查看详情。
+tweaks_tooltip_hint = 你的工作会自动保存。
 tweaks_ticks_title = 滑块刻度
-tweaks_ticks_caption = day-tweak-slider-tick-marks——AppKit、GTK、Android、Qt、XAML、ArkUI：原生刻度，平台支持时可吸附。微调后的滑块会吸附；原样的滑块平滑滑动。
+tweaks_ticks_caption = AppKit、GTK、Android、Qt、XAML 和 ArkUI。微调后的滑块会吸附到刻度。
 tweaks_ref_title = NativeRef 存活性
-tweaks_ref_caption = NativeRef 在挂载后能访问微调过的滑块；卸载它后引用会被清空而不是悬空。
+tweaks_ref_caption = 挂载滑块
 tweaks_ref_live = 引用：存活
 tweaks_ref_cleared = 引用：已清空
 tweaks_label_title = 微调文本标签
-tweaks_label_caption = 内联微调（AppKit、UIKit）通过原生视图调暗此标签，并报告它看到的类。在 iOS 上，“可选中”会把标签重建为只读 UITextView——微调在 .selectable() 之后运行，因此作用于最终上屏的控件。
+tweaks_label_caption = AppKit 和 UIKit。在 iOS 上，“可选中”会更换原生类。
 tweaks_label_sample = 此标签由原生微调调暗。
 tweaks_label_class = 原生类：{ $class }
 
 # --- merged section pages (design overhaul) ---
-nav_canvas = 画布与形状
+nav_canvas = 画布
 nav_charts = 图表
 nav_system = 设备与传感器
 nav_network_http = 网络与 HTTP
@@ -446,8 +427,6 @@ nav_notify_badge = 通知与角标
 nav_push = 推送通知
 nav_speech_haptics = 语音、音效与触觉
 nav_files_storage = 文件与存储
-paths_title = 路径、描边与裁剪
-canvas_gauge = 画布仪表
 gauge_value_label = 数值
 canvas_text_title = 文本与字体
 canvas_anchors_title = 文本锚点
@@ -517,7 +496,6 @@ media_player_section = 视频
 
 # 资源页面分区
 resources_image_section = 内置图片
-resources_modes_note = 同一张图片的三种模式 — 适应保持比例，填充裁剪，拉伸变形。
 image_mode_fit = 适应
 image_mode_fill = 填充
 image_mode_stretch = 拉伸
@@ -541,7 +519,6 @@ about_locale = 语言
 # 焦点页（docs/focus.md）
 nav_focus = 焦点
 focus_group_section = 一个信号，一个表单
-focus_group_caption = 三个输入框绑定同一个可选枚举信号。点击或按 Tab 切换，读数随之变化；回车跳到下一个输入框。
 focus_name_label = 姓名
 focus_email_label = 邮箱
 focus_city_label = 城市
@@ -549,7 +526,6 @@ focus_current_label = 当前焦点
 focus_next = 焦点后移
 focus_clear = 清除焦点
 focus_bool_section = 一个控件，一个布尔值
-focus_bool_caption = 同一个输入框绑定布尔信号——按钮写入它；进入和离开输入框也会写回。
 focus_bool_placeholder = 焦点落在这里
 focus_focus_btn = 获取焦点
 focus_blur_btn = 移除焦点
@@ -557,7 +533,7 @@ focus_state_label = 状态
 focus_state_on = 有焦点
 focus_state_off = 无焦点
 focus_probe_section = 不只文本框
-focus_probe_caption = 桌面工具包也能聚焦按钮、开关和滑块；触屏平台通常只为文本输入保留焦点。
+focus_probe_caption = 触屏平台只为文本输入保留焦点。
 focus_probe_toggle = 开关
 focus_probe_slider = 滑块
 focus_probe_button = 按钮
@@ -661,18 +637,15 @@ text_font_pacifico_lg = 36 磅 Pacifico
 text_links_section = 链接
 text_runs_section = 富文本片段
 text_markdown_section = 实时解析的 Markdown
-text_markdown_caption = 在下方输入。分隔线下的标签会随每次按键重新解析，与翻译字符串或网络返回值走的是同一条路径。
 text_markdown_sample = Day 在运行时解析 **粗体**、*斜体*、`代码`、~~删除线~~ 和[链接](https://daybrite.dev)。像 ** 这样未闭合的标记保持原样。
 text_markdown_opened = 已打开：{$url}
 text_baseline_section = 基线对齐
-text_baseline_caption = 各行让文字落在同一条基线上，而不是把高度不同的方框居中。关掉它就能看出差别：输入框里的文字、旁边的标签和后面的单位会各自错开。
 text_baseline_toggle = 对齐基线
 text_baseline_quantity = 数量
 text_baseline_unit = 件
 text_baseline_total = 合计
 text_baseline_currency = 美元
 text_baseline_due = 到期
-text_links_caption = 点按链接即可在系统浏览器中打开。
 text_link_icons_label = Google Fonts 上的 Material Symbols
 text_link_mail_label = 给团队发邮件
 
@@ -693,7 +666,7 @@ crash_contained = 崩溃（已捕获）
 crash_contained_label = 被 day 捕获，应用继续运行
 crash_send = 发送报告
 crash_clear = 清除报告
-crash_empty = 暂无崩溃报告。触发一次崩溃，然后重新启动即可在此查看。
+crash_empty = 暂无崩溃报告。触发一次崩溃，然后重新启动。
 
 # 文本框页面 (docs/textfield.md)
 nav_textfields = 文本框
@@ -773,15 +746,13 @@ location_unknown = —
 chart_axes = x 红 · y 青 · z 紫
 
 # 全屏覆盖层（docs/cover.md）。
-stack_cover_button = 呈现覆盖层
+stack_cover_button = 覆盖层
 cover_title = 全屏覆盖层
-cover_body = 由 cover(signal) 呈现在整个窗口之上。iOS 和 Android 上为原生实现，其他平台为置顶子视图。
 cover_dismiss = 关闭
 
 # 半高面板（docs/cover.md）：窗口下半部分，页面仍在其下可见。
-stack_half_button = 呈现半高面板
+stack_half_button = 半高面板
 half_title = 半高面板
-half_body = 由 cover(signal).half_sheet() 呈现在窗口下半部分，页面仍然可见。iOS 上为中等高度面板，Android 上为底部面板。
 half_level = 级别
 half_readout = 面板级别：{ $level }
 
@@ -796,7 +767,6 @@ tab_dynamic_remove = 移除标签页
 
 # 本地文件存储（服务页，docs/fs.md）。
 storage_title = 本地文件
-storage_caption = day-part-filesystem 在每个平台上存储应用私有文件——原生端为真实文件，浏览器中为 OPFS。
 storage_placeholder = 要存储的文本
 storage_save = 保存文件
 storage_load = 加载
@@ -808,14 +778,13 @@ prefs_window_title = 偏好设置
 
 # --- Tree page (docs/tree.md) ---
 nav_tree = 树
-tree_caption = 基于应用自有数据行的层级大纲：展开、选择、定位显示、拖动移动，以及每行的上下文菜单。
 tree_expand_all = 全部展开
 tree_collapse_all = 全部折叠
 tree_reveal = 定位到 tree.rs
 tree_add_file = 添加文件
 tree_multi = 多选
 tree_lock = 锁定 docs
-tree_hint = 将行拖到文件夹上即可移动，或使用该行的上下文菜单——锁定期间 docs 拒绝放置。
+tree_hint = 将行拖到文件夹上即可移动。锁定时，docs 拒绝放入。
 tree_count = { $count ->
    *[other] { $count } 个节点
 }
@@ -835,10 +804,9 @@ tree_ctx_delete = 删除
 
 # --- Toolbars page (docs/toolbars.md) ---
 nav_toolbars = 工具栏
-toolbar_unsupported = 此工具包没有窗口工具栏，因此没有安装任何内容。手机会把这些命令放进页面内容里。
+toolbar_unsupported = 此工具包没有窗口工具栏。
 toolbar_readout_title = 工具栏正在做什么
 toolbar_controls_title = 从这里驱动它
-toolbar_vocabulary_title = 工具栏项的种类
 # Item labels: these appear in the toolbar, so they stay short.
 toolbar_new = 新建窗口
 toolbar_menu_open_scripting = 打开脚本页面
@@ -874,23 +842,12 @@ toolbar_enabled_label = 已启用“显示源代码”
 toolbar_clear_search = 清除搜索
 toolbar_seed_search = 填充搜索
 toolbar_seed_text = 工具栏
-# One line per item kind.
-toolbar_kind_button = 按钮
-toolbar_kind_button_note = 执行一个命令，并可与菜单项共用同一个动作。
-toolbar_kind_toggle = 开关
-toolbar_kind_toggle_note = 与信号双向绑定，因此上面的开关和这个按钮状态一致。
-toolbar_kind_menu = 菜单
-toolbar_kind_menu_note = 下拉菜单，由菜单栏所用的同一批条目构建。
-toolbar_kind_search = 搜索
-toolbar_kind_search_note = 平台自带的搜索控件，与信号双向绑定。
-toolbar_kind_space = 间隔
-toolbar_kind_space_note = 弹性间隔把靠前的项与靠后的项分开。
 # --- day-part-local-notify (docs/notify.md) ---
 nav_notify = 通知
-notify_caps_post = 此平台支持发送通知
-notify_caps_unsupported = 此版本无法使用本地通知（macOS 需要已签名的应用包——请使用 day pack）
+notify_caps_post = 支持发布通知
+notify_caps_unsupported = 此版本不可用。在 macOS 上，通知需要已签名的应用包（day pack）。
 notify_caps_schedule_os = 定时通知在应用关闭后仍会送达
-notify_caps_schedule_process = 定时通知依赖进程内计时器，应用退出后会丢失
+notify_caps_schedule_process = 应用退出后，已计划的通知会丢失
 notify_title_label = 标题
 notify_title_placeholder = 通知标题
 notify_title_default = 来自 Day 的问候
@@ -918,9 +875,9 @@ notify_status_cancelled = 已取消所有通知
 notify_status_failed = 无法发送
 notify_last = 最近结果
 notify_perm_granted = 已授予通知权限
-notify_perm_missing = 未授予通知权限——发送将被忽略
+notify_perm_missing = 未授予权限：通知会被丢弃
 notify_perm_request = 请求权限
-haptics_songs_caption = 更长的序列——间隔与振动同样承载节奏。
+haptics_songs_caption = 序列
 haptics_song_celebration = 庆祝
 haptics_song_levelup = 升级
 haptics_song_heartbeat = 心跳
@@ -943,10 +900,10 @@ scripting_saved = 已保存
 
 # --- app badge (docs/badge.md) ---
 nav_badge = 应用角标
-badge_caps_native = 此平台会在应用图标上显示角标
-badge_caps_emulated = 角标已发送，但是否显示取决于桌面环境或应用是否已安装
-badge_caps_none = 此平台没有应用角标接口
-badge_android_note = Android 没有设置角标的接口：启动器根据已发布的通知推导小圆点，请改用通知的角标数字。
+badge_caps_native = 应用图标会显示角标
+badge_caps_emulated = 已发送；是否显示由桌面环境决定
+badge_caps_none = 此平台没有应用角标 API
+badge_android_note = Android 根据已发布的通知显示角标：请改用通知的角标计数。
 badge_count_label = 数量
 badge_minus = −
 badge_plus = +
@@ -966,13 +923,11 @@ voice_search_placeholder = 筛选口味…
 # Context-menu demos (menus page): the message-list rows and the media card.
 menu_reply = 回复
 menu_forward = 转发
-menu_archive = 归档
 menu_share = 分享…
 menu_copy_image = 拷贝图像
 menu_save_image = 存储到照片
 menu_get_info = 显示简介
 menus_messages_section = 消息列表
-menus_messages_hint = 每一行都有自己的菜单——操作会注明来自哪条消息。
 menus_photo_section = 媒体卡片
 msg_subject_one = 季度数据，初稿
 msg_subject_two = 周末计划，最终答复
@@ -999,7 +954,6 @@ cmd_toggle_pseudo_locale = 切换伪语言环境
 
 # 语音（day-part-speech）：daybridge 的参考部件——一套 API，每个平台一种语言。
 speech_title = 文本转语音
-speech_caption = 一套 Rust API；底层是平台自己的语音引擎——Apple 用 Swift，Android 用 Java，HarmonyOS 用 ArkTS，Web 用 JavaScript，Windows 用 C++。
 speech_phrase = 天气晴朗，稍后可能有雨。
 speech_speak = 朗读
 speech_stop = 停止
@@ -1018,7 +972,7 @@ vectors_live_tint = 实时着色
 vectors_cycle_tint = 切换
 
 # Layout page (docs/size-classes.md "Row fit policies")
-layout_note = 选择一种策略，然后增加组件直到这一行放不下。裁剪让末尾超出屏幕（调试版本会记录），换行按各按钮自身宽度折到新行，等宽列把这些行对齐成网格，竖排在紧凑宽度下改为纵向堆叠，滚动保持可滑动的单行。在桌面上把窗口拖窄即可看到竖排生效。
+layout_note = 选择一种策略，然后添加组件，直到一行放不下。
 layout_row_section = 行适配
 layout_fit_label = 适配策略
 layout_fit_clip = 裁剪
@@ -1030,9 +984,8 @@ layout_count_label = 组件数
 layout_item = 项目 { $n }
 layout_item_wide = 项目 { $n }（较宽）
 
-vectors_alias_note = 一个普通 SVG 被要求使用粗体：它没有字重轴，因此别名会回退到基础图形，而不是什么都不画。
+vectors_alias_note = 没有粗体版本：绘制基础图形
 vectors_pick_tint = 选择着色
-vectors_tint_idioms = 两个取色控件，一个绑定颜色：前者打开平台自带的取色器，后者打开 Day 自己绘制的面板——在每个目标上都是同一个取色器。
 
 # 内容列表页面（src/pages/content_list）：`day new` 脚手架自带的条目列表与编辑器，
 # 因此下面的键就是脚手架的键，原样保留——复制的代码按名称读取它们。
@@ -1054,7 +1007,7 @@ split_support_title = 在此工具包上
 split_support_label = 分隔线由谁绘制
 split_native = 工具包自带的分割器
 split_composed = Day（此工具包没有自带分割器）
-split_hint = 拖动分隔线：占比滑块随之变化，滑块也能移动分隔线。一侧的表单与另一侧的绘图读取同一状态。
+split_hint = 拖动分隔条，或移动占比滑块。
 split_arrangement_title = 排列
 split_stacked = 上下堆叠
 split_share = 表单占比
@@ -1077,16 +1030,14 @@ cursors_support_label = 此处支持
 cursors_native = 原生
 cursors_emulated = 模拟（取最接近的形状）
 cursors_unsupported = 此目标不支持
-cursors_hint = 把指针移到任一方块上，它就会变成该形状。触摸屏不显示指针，这是正常的。
+cursors_hint = 把指针移到任一方块上。
 cursors_shapes_title = 指针形状
 cursors_drag_title = 拖放
 cursors_resize_title = 调整大小与缩放
 cursors_busy_title = 忙碌
 cursors_reactive_title = 一个方块，多种形状
-cursors_reactive_caption = 方块使用 `cursor(闭包)`：选择一个形状，其上的指针随之改变，无需重建任何东西。
 cursors_reactive_pick = 形状
 cursors_nested_title = 最近的祖先优先
-cursors_nested_caption = 外层方块要求十字线，内层方块要求手形；离开内层方块后十字线恢复。
 cursors_nested_outer = 这里是十字线
 cursors_nested_inner = 这里是手形
 cursors_native_title = 本工具包独有
@@ -1118,7 +1069,7 @@ ctl_icon_only = 仅图标
 ctl_image = 内置图像
 
 nav_drag_drop = 拖放
-dnd_hint = 将图像、所选文件或自定义数据拖到另一个方框或窗口。标有 X 的圆圈拒绝放置。同一页面内移动，窗口之间复制。
+dnd_hint = 将图块拖到另一个图块或另一个 Showcase 窗口。带 X 的圆圈拒绝放入。
 dnd_ready = 等待拖入内容。
 dnd_empty = 放置于此
 dnd_new_window = 新建窗口
@@ -1133,29 +1084,26 @@ files_bookmark_failed = 无法恢复对已保存文件的访问权限。请使�
 dnd_disallowed = 添加禁止放置区域
 
 # Native display frame demo
-frame_hint = 轻点任意位置，把所有小球抛向该点。拖动一个小球可以带着它移动并甩出去；轻点一个小球可以弹它一下。增加数量以测试性能。
+frame_hint = 轻点抛出弹珠，拖动一颗可将它甩出。
 frame_bounce = 弹跳
 frame_shuffle = 随机
-frame_pause = 暂停 / 继续
+frame_pause = 暂停
 frame_waiting = 等待下一帧
 frame_running = 运动中
 frame_paused = 已暂停
 frame_resting = 静止
-frame_explanation = FPS 统计最近 2 秒的显示回调，不包含暂停时间。每次弹跳都会开始新的测量。
-frame_native_title = 原生控件动画
-frame_balls_label = 弹珠数量
+frame_balls_label = 弹珠
 frame_fps = FPS · 最低 { $min } · 最高 { $max } · 平均 { $avg }
 
 commands_title = 可复用命令
 commands_add = 加一
-commands_hint = 按钮、工具栏和上下文菜单共享相同的操作。最多加到三，然后重置；可用状态保持同步。
 
 # The Physics page (src/pages/physics.rs): the ball mass and planetary gravity sliders, and the
 # bodies the gravity readout names.
-physics_gravity_label = 行星重力
+physics_gravity_label = 重力
 physics_gravity = { $value } m/s²
 physics_gravity_named = { $value } m/s²（{ $body }）
-physics_mass_label = 小球质量
+physics_mass_label = 质量
 physics_mass = { $value } 百万吨
 physics_elasticity_label = 弹性
 physics_elasticity = { $value }%
@@ -1173,10 +1121,9 @@ net_provider = HTTP 提供程序
 net_native = 原生
 net_reqwest = reqwest
 net_native_only = 此目标使用原生提供程序。
-net_provider_note = 更改提供程序仅影响新请求和连接；现有传输保持不变。
+net_provider_note = 对新的请求和套接字生效。
 net_simulation = 网络模拟
 net_intercept = 拦截请求
-net_sim_note = 启用拦截后，相同控件使用本地处理程序。种子：42。速度和故障设置应用于模拟流量。
 net_speed = 传输速度
 net_speed_value = 每次传输 { $speed } KiB/s
 net_failures = 故障率
@@ -1193,7 +1140,7 @@ net_upload_preset = 上传预设
 net_received = 已接收 { $bytes } 字节
 net_error = 请求失败：{ $error }
 net_request = HTTP 请求
-net_ws_note = 原生目标默认使用本地回显服务器。在浏览器中输入实际 WebSocket URL，或启用拦截使用模拟回显。
+net_ws_note = 输入实际 WebSocket URL，或启用拦截使用模拟回显。
 net_message = 消息
 net_connected = 已连接
 net_closed = 已关闭
@@ -1206,7 +1153,6 @@ net_rate = KiB/s
 net_series = 流量
 net_totals = 发送 { $sent } 字节 · 接收 { $received } 字节 · 活动 { $active } · 失败 { $failed }
 net_average = 会话平均：上传 { $upload } KiB/s · 下载 { $download } KiB/s
-net_stats_note = 仅统计此页面 day-part-http 会话的有效载荷字节，不含其他框架或协议开销。平均值包含空闲时间；图表显示最近 30 秒。
 net_statistics = 实时流量
 net_send_request = 发送请求
 net_options = 请求选项
@@ -1221,7 +1167,7 @@ sensor_unit_magnetic = µT
 
 sensor_live = 实时读数
 sensor_compass = 磁罗盘
-sensor_compass_hint = 请将手机以竖屏方向平放。红色指向磁北；附近的金属可能影响读数。若读数尚未出现，请轻轻转动手机进行校准。
+sensor_compass_hint = 将手机平放。红色指向磁北。
 sensor_north = 北
 sensor_east = 东
 sensor_south = 南
@@ -1230,10 +1176,10 @@ sensor_heading = 磁航向：{ $degrees }°
 
 sensor_calibrated = 已校准
 sensor_tilt = X/Y 加速度水平仪
-sensor_tilt_hint = 气泡随 X/Y 加速度移动：边缘为一个重力加速度。保持静止可观察倾斜；移动也会影响气泡。
+sensor_tilt_hint = 气泡跟随 X/Y 加速度，边缘为 1 g。
 sensor_rotation = 转速表
-sensor_rotation_hint = X、Y 和 Z 轴角速度；各刻度两端为 ±π rad/s。显示的是旋转速度，而非朝向。
-sensor_uncalibrated_hint = 未校准读数包含设备偏差。指针显示测得的磁场，可能不指向北方。
+sensor_rotation_hint = 各轴的旋转速度，两端为 ±π rad/s。
+sensor_uncalibrated_hint = 未校准：指针可能不指向北方。
 sensor_axis_x = X
 sensor_axis_y = Y
 sensor_axis_z = Z
@@ -1241,7 +1187,6 @@ sensor_axis_z = Z
 # --- 安全：钥匙串与生物识别提示（docs/keychain.md、docs/biometrics.md）---
 nav_security = 安全
 keychain_title = 钥匙串
-keychain_caption = 一套 Rust API，底层是各平台自己的安全存储：iOS 与 macOS 的钥匙串、Android Keystore、Windows 的 DPAPI、Linux 的 Secret Service、HarmonyOS 的通用密钥库。
 keychain_support_label = 此处的存储
 keychain_backend_label = 后端
 keychain_key_label = 键
@@ -1264,7 +1209,6 @@ keychain_entries_label = 已保存的键
 keychain_entries_none = 无
 keychain_presence_reason = 读取“安全”页面保存的密文。
 biometrics_title = 生物识别
-biometrics_caption = 平台自己的提示：Touch ID 或 Face ID、Android 生物识别提示、Windows Hello、HarmonyOS 用户认证。手指湿了时，设备密码仍是入口。
 biometrics_support_label = 此处的支持
 biometrics_availability_label = 可用性
 biometrics_biometry_label = 传感器
@@ -1279,10 +1223,7 @@ permission_biometrics = 在“安全”页面确认是您本人。
 
 # --- 登录：day-part-auth（认证浏览器、OpenID Connect、通行密钥、Apple、Google）---
 nav_signin = 登录
-signin_info = 关于登录
-signin_info_intro = 通过平台自身的入口登录。每个请求都带有 PKCE、state 和 nonce，ID 令牌在页面显示前已用提供方密钥验证。不保存任何内容：令牌只在本页面上存在，直到退出登录。
 signin_oidc_title = OpenID Connect
-signin_caption = 系统自带的登录浏览器，带 PKCE、state 和 nonce 的授权请求，以及在你看到之前已用提供方密钥验证过的 ID 令牌。演示提供方在本应用内的回环地址上运行，可登录两个演示账户；Google、Apple 以及任何通过发现获得的发行方使用你注册的客户端 ID。
 signin_provider_demo = 演示提供方（内置）
 signin_provider_google = Google
 signin_provider_apple = Apple（网页流程）
@@ -1311,7 +1252,6 @@ signin_userinfo_ok = Userinfo 已回答 { $sub }
 signin_revoked = 访问令牌已撤销
 signin_signed_out = 已退出登录
 passkeys_title = 通行密钥
-passkeys_caption = 通过平台认证器使用 WebAuthn：服务器发送的选项 JSON，以及它收回的凭据 JSON。依赖方必须是与本应用关联的域名；否则系统面板会用自己的话说明。
 passkeys_available_yes = 平台认证器可用
 passkeys_available_no = 此设备没有平台认证器
 passkeys_create = 创建通行密钥
@@ -1321,11 +1261,9 @@ passkeys_prompting = 等待认证器…
 passkeys_created = 已创建凭据 { $id }
 passkeys_asserted = 已用凭据 { $id } 登录
 apple_title = 通过 Apple 登录
-apple_caption = iOS 和 macOS 上的系统面板，使用面容 ID、触控 ID 或密码。应用的标识符需要启用“通过 Apple 登录”功能；缺少时面板会报告错误，并显示在此处。
 apple_sign_in = 通过 Apple 登录
 apple_signed_in = Apple 用户 { $user }
 google_title = Google
-google_caption = Android 上的 Credential Manager 列出设备上的 Google 账户，并为所选账户返回 ID 令牌，无需浏览器。请粘贴你的服务器拥有的网页应用类型 OAuth 客户端 ID。在其他平台，Google 是上一节中的一个提供方。
 google_client_placeholder = 服务器客户端 ID
 google_sign_in = 通过 Google 登录
 google_signed_in = Google 账户 { $id }
@@ -1386,7 +1324,6 @@ map_locate_failed = { $why ->
 
 # Interactive layout sizing and translation.
 layout_reactive_title = 响应式尺寸
-layout_reactive_note = 调整形状大小或在预览中移动它。拖动滑块会更新同一个形状的尺寸和位移，不会重建形状。
 layout_reactive_width = 宽度
 layout_reactive_height = 高度
 layout_reactive_horizontal = 水平偏移
@@ -1395,11 +1332,11 @@ layout_reactive_reset = 重置
 layout_reactive_points = { NUMBER($value, maximumFractionDigits: 0) } 点
 layout_reactive_shape = 形状：宽 { NUMBER($width, maximumFractionDigits: 0) } 点，高 { NUMBER($height, maximumFractionDigits: 0) } 点
 
-push_caption = 通过 Day 中继服务向此设备发送推送通知。使用延时发送，然后离开应用或锁定设备，看看通知如何送达。
+push_caption = 通过 Day 中继服务向此设备发送一条测试推送。
 push_unavailable = 此版本不支持推送通知。
 push_send_now = 立即发送
 push_send_later = { $seconds } 秒后发送
-push_hint = 首次发送会请求权限，并将此设备注册到中继服务。
+push_hint = 首次发送时会请求权限。
 push_sending = 正在发送…
 push_requested = 正在等待推送服务提供设备令牌…
 push_no_token = 推送服务未提供设备令牌。请稍后重试。
@@ -1427,20 +1364,19 @@ push_error = 推送失败：{ $error }
 list_opt_inset_grouped = 内缩分组
 list_opt_inset_hint = macOS 上显示内缩行，iOS 上显示圆角分组。其他平台保持普通列表样式。
 share_demo_title = 分享
-share_demo_native = 在分享菜单中选择自定义操作，更新上方的最近操作。
-share_demo_fallback = 此平台不显示自定义分享操作。可在下方尝试相同操作。
+share_demo_fallback = 此平台不显示自定义分享操作。请使用下方按钮。
 share_demo_open = 分享 Day 网站…
 share_demo_remember = 记住链接
 share_demo_clear = 清除结果
 share_demo_remembered = 已选择“记住链接”操作
 share_demo_cleared = 已清除分享结果
 share_demo_failed = 无法打开分享菜单。
-share_demo_receive_hint = 在 Android 上，从其他应用向 Day Showcase 分享文本或链接。收到的内容将显示在这里。
+share_demo_receive_hint = 从其他应用向 Day Showcase 分享文本或链接。
 share_demo_none = 尚未收到内容。
 system_back_status = 应用返回：剩余 { $remaining } 次，已处理 { $handled } 次
 system_back_press = 返回
 system_back_stop = 停用
-system_back_hint = 启用三次应用级返回。堆栈页面和弹出页面优先处理返回；导航结束后，应用计数才会变化。测试栏在离开此页面后仍然可见。
+system_back_hint = 已推入的页面和覆盖层先于应用处理返回。
 system_back_arm = 启用 3 次返回
 
 # Map provider selection and setup.
@@ -1450,3 +1386,58 @@ map_provider_google = Google Maps
 map_missing_api_key = 请为此 Android 应用配置 Google 地图 API 密钥。
 map_play_services_unavailable = Google 地图需要 Google Play 服务。
 map_load_failed = 无法加载地图。请检查网络连接和提供商配置。
+
+resources_missing = 打包的资源不可用：{ $name }
+
+# The gallery pages added with the card layout, and the line under every page's title.
+nav_styles = 样式
+nav_images = 图片
+nav_gestures = 手势
+detail_controls = 按钮、开关、滑块、步进器、选择器与进度
+detail_dates = 日期与时间选择器，使用平台的日历
+detail_focus = 把键盘焦点作为应用状态
+detail_text = 字体、带样式的文本片段、Markdown、选择与截断
+detail_text_areas = 多行编辑、代码模式与实时 Markdown
+detail_text_fields = 单行输入、键盘类型、安全输入与搜索
+detail_toolbars = 窗口与页面命令，显示在平台的工具栏中
+detail_localization = 四种语言、复数形式与从右到左布局
+detail_canvas = 路径、渐变、文字与图像，每帧绘制
+detail_styles = 圆角、边框、阴影、裁剪与变换
+detail_images = 适配模式、圆角、远程图片、占位图与淡入
+detail_gestures = 在任意视图上拖动、捏合、旋转、按压与悬停
+detail_charts = 一套图形标记语法：折线、柱形、面积与选区
+detail_animation = 平台动画、补间、缓动与弹簧
+detail_physics = 帧时钟驱动的弹珠与弹簧
+detail_benchmark = 由实时视图拼成的画面，与 SwiftUI 对比计时
+detail_grid = 固定列、跨列、对齐与尺寸
+detail_layout = 行、列、层叠、换行与尺寸类别
+detail_split = 可调整大小的窗格，使用平台自带的分割器
+detail_list = 行复用、分区、滑动、重新排序与选择
+detail_tree = 可展开、选择、重新排序并按需加载的大纲
+detail_drag_drop = 在视图与应用之间拖放文字、文件和图片
+detail_model = 类型化存储、派生值与撤销
+detail_query = 实时查询的数据库，支持搜索与排序
+detail_tabs = 标签栏与分段页面，各自保留状态
+detail_stack = 推入的页面、由你掌控的路径，以及返回手势
+detail_content_list = 列表、条目与详情，分三栏显示
+detail_media = 原生视频播放器，带自己的播放控件
+detail_lottie = 矢量动画，可播放、暂停和拖动进度
+detail_map = 画布上的矢量瓦片，与平台地图并列
+detail_web_view = 打包的站点与实时网页，JavaScript 双向调用
+detail_menus = 菜单、上下文菜单、警告框、面板与输入提示
+detail_system = 电池、传感器、定位、设备信息与外观
+detail_network = 请求、上传、下载、代理与连接状态
+detail_notify = 本地通知与应用角标
+detail_push = 通过可试用的中继服务发送远程通知
+detail_speech = 语音、音效与触感反馈
+detail_camera = 实时预览、拍摄与返回的照片
+detail_cursors = 平台提供的所有指针形状
+detail_files = 剪贴板、偏好设置、文件选择器与应用存储
+detail_security = 钥匙串与生物识别
+detail_sign_in = 通过 Apple、Google、通行密钥或任意 OpenID 提供方登录
+detail_scripting = 驱动本应用并为其截图的脚本
+detail_resources = 打包的图片、矢量图标、字体与数据文件
+detail_tweaks = 针对各工具包的原生视图微调
+detail_crash_reporting = 捕获崩溃，并在下次启动时报告
+detail_about = Day 是什么，以及这个应用展示了什么
+detail_settings = 外观、语言与应用自身的偏好设置
