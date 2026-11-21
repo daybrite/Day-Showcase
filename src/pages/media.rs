@@ -25,14 +25,16 @@ use crate::widgets::page_cards;
 
 /// The sample: Hurricane Milton over the Gulf of Mexico on 9 October 2024, filmed by the
 /// external cameras of the International Space Station, with the station's solar array and
-/// robotic arm in front. It is five and a half minutes of 640×360 H.264 with a near-silent AAC
+/// robotic arm in front. It is five and a half minutes of 480×270 H.264 with a near-silent AAC
 /// track, from NASA's Image and Video Library (images.nasa.gov), whose media is in the public
 /// domain; resource/assets/nasa/README.md records it.
 const CLIP: &str = "jsc2024m000174_Cameras_On_The_International_Space_Station_Capture_New_Views_Of_Hurricane_Milton-241009";
 
-/// The address of the sample in the library's 640-pixel size.
+/// The address of the sample in the library's 480-pixel `~preview` size: a 26 MB stream that
+/// decodes in a fraction of the memory the 640-pixel `~small` one takes, which a phone-sized
+/// player cannot tell apart.
 fn clip_url() -> String {
-    format!("https://images-assets.nasa.gov/video/{CLIP}/{CLIP}~small.mp4")
+    format!("https://images-assets.nasa.gov/video/{CLIP}/{CLIP}~preview.mp4")
 }
 
 /// The library's still of the sample, for a now-playing surface that fetches its artwork from

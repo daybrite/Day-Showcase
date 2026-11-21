@@ -279,6 +279,7 @@ pub(crate) fn scripting_page() -> AnyPiece {
                                     .id(day::id!(scripting_delay_dec)),
                                 text_field(delay_text)
                                     .placeholder(DEFAULT_DELAY)
+                                    .min_width(72.0)
                                     .id(day::id!(scripting_delay)),
                                 button("+")
                                     .bordered()
@@ -286,7 +287,11 @@ pub(crate) fn scripting_page() -> AnyPiece {
                                     .id(day::id!(scripting_delay_inc)),
                                 label(crate::res::str::scripting_delay_unit()).font(Font::Footnote),
                             ))
-                            .spacing(Space::S),
+                            .spacing(Space::S)
+                            .align(VAlign::Center)
+                            // On a phone the card is too narrow for the label and the stepper
+                            // together, and a squeezed row gave the field no width at all.
+                            .fit(RowFit::Wrap { run_spacing: 8.0 }),
                             label(move || status.get())
                                 .font(Font::Footnote)
                                 .id(day::id!(scripting_status)),

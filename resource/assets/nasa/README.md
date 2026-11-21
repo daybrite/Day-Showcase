@@ -33,8 +33,8 @@ for with the one copy.
 | `milton.mp4` | [Cameras On The International Space Station Capture New Views Of Hurricane Milton, Oct. 9, 2024](https://images.nasa.gov/details/jsc2024m000174_Cameras_On_The_International_Space_Station_Capture_New_Views_Of_Hurricane_Milton-241009) | NASA (JSC) |
 | `artwork.jpg` | The same video, one frame cropped to a square | NASA (JSC) |
 
-The Media page streams that video's `~small.mp4` (640×360 H.264, AAC, 5 minutes 30 seconds,
-63 MB). `milton.mp4` is six seconds of it from 1:00, scaled to 480×270 and re-encoded as H.264
+The Media page streams that video's `~preview.mp4` (480×270 H.264, AAC, 5 minutes 30 seconds,
+26 MB). `milton.mp4` is six seconds of it from 1:00, scaled to 480×270 and re-encoded as H.264
 Baseline with a mono AAC track (80 KB). The video carries no narration or music.
 
 ## Pictures

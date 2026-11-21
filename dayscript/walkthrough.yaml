@@ -1197,6 +1197,11 @@ flow:
   - assert_route: { route: feeds }
   - assert_text: { id: feeds_count, key: feeds_count, args: { count: 5 } }
   - assert_text: { id: "feeds_entry:0", key: feeds_line_go_descent }
+  # Whether the seed entries already reach the end depends on the window's height (a landscape
+  # tablet opens at the top with the last entry below), so Latest puts the reader at the end
+  # first; from there each new entry scrolls into view.
+  - tap: { id: feeds_latest }
+  - wait_idle:
   - tap: { id: feeds_add }
   - tap: { id: feeds_add }
   - assert_text: { id: feeds_count, key: feeds_count, args: { count: 7 } }
@@ -1800,7 +1805,9 @@ flow:
   - tap: { id: images_fetch_toggle, only_on: [env:SHOWCASE_FIXTURES] }
   - assert_text: { id: images_fetch_status, key: images_fetch_ready, timeout_secs: 20, only_on: [env:SHOWCASE_FIXTURES] }
   - tap: { id: images_fetch_toggle, only_on: [env:SHOWCASE_FIXTURES] }
-  - assert_visible: { id: images_fetch_status }
+  # Cleared, the status line says nothing. An empty label measures zero on some toolkits (GTK,
+  # UIKit, Android, WinUI), so the text is what is asserted, not a frame.
+  - assert_text: { id: images_fetch_status, text: "" }
   - scroll_to: { id: images_modes }
   - wait_idle:
   - a11y_audit: {}
@@ -2530,6 +2537,12 @@ flow:
   - screenshot: drag-drop
   - drop: { id: dnd_value:4, phase: leave }
 
-  # Final current-process budget; 1G is 1,000,000,000 bytes.
+  # Final current-process budget; 1G is 1,000,000,000 bytes. HarmonyOS reads higher: its resident
+  # set counts about 150 MB of shared system libraries, and the first web view brings ArkWeb's own
+  # ~315 MB. Measured on CI's phone image (2026-11-21, Showcase ecfbe63), the walkthrough ends near
+  # 1.04 GB there, the new pages' content: Media +63 MB while its clip played (since moved to the
+  # 480-pixel stream), Images +49, Pager +40, Feeds +26, Text +20, Styles +18; nothing is retained
+  # between page visits.
   - wait_idle:
-  - memory_usage: { fail_if_above: 1G }
+  - memory_usage: { fail_if_above: 1G, skip_on: [harmony-arkui] }
+  - memory_usage: { fail_if_above: 1.2G, only_on: [harmony-arkui] }
