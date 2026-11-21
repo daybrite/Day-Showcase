@@ -426,9 +426,12 @@ flow:
   - assert_text: { id: kb_planets_name, key: keyboard_planet_neptune }
   - key: { id: kb_planets_row, key: "5" }
   - assert_text: { id: kb_planets_index, text: "5 / 8" }
+  # The row mirrors under a right-to-left locale, and so do its arrows: the one that points at
+  # the row's end steps to the next planet, Right in English and Left in Arabic.
   - focus: { id: kb_planets_row, only_on: [appkit] }
   - assert_focused: { id: kb_planets_row, only_on: [appkit] }
-  - key: { key: ArrowRight, only_on: [appkit] }
+  - key: { key: ArrowRight, only_on: [appkit], skip_on: [rtl] }
+  - key: { key: ArrowLeft, only_on: [appkit], skip_on: [ltr] }
   - assert_text: { id: kb_planets_name, key: keyboard_planet_saturn, only_on: [appkit] }
   # The suggestion walk: typing filters, Down shows a name in the field, Escape puts the
   # typed text back.
