@@ -1467,3 +1467,16 @@ detail_tweaks = Per-toolkit adjustments to the native views
 detail_crash_reporting = Crashes caught and reported on the next launch
 detail_about = What Day is, and what this app shows
 detail_settings = Appearance, language and the app's own preferences
+
+async_data_title = Async data
+async_data_note = Edit the field, then refresh or fail a request. The content and your edit stay visible. Changing the source starts fresh.
+async_data_refresh = Refresh
+async_data_cancel = Cancel
+async_data_source = Change source
+async_data_fail = Fail the next request
+async_data_value = Source { $source }, request { $request }
+async_data_edit = This edit survives refresh
+async_data_loading = Loading…
+async_data_failed = The request failed.
+async_data_refreshing = Refreshing…
+async_data_retained = Refresh failed; previous data is still shown.

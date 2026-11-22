@@ -1441,3 +1441,16 @@ detail_tweaks = 针对各工具包的原生视图微调
 detail_crash_reporting = 捕获崩溃，并在下次启动时报告
 detail_about = Day 是什么，以及这个应用展示了什么
 detail_settings = 外观、语言与应用自身的偏好设置
+
+async_data_title = 异步数据
+async_data_note = 编辑输入框，然后刷新或让请求失败。内容和编辑会保留。更改数据源将重新开始。
+async_data_refresh = 刷新
+async_data_cancel = 取消
+async_data_source = 更改数据源
+async_data_fail = 让下次请求失败
+async_data_value = 数据源 { $source }，请求 { $request }
+async_data_edit = 刷新后保留此编辑
+async_data_loading = 正在加载…
+async_data_failed = 请求失败。
+async_data_refreshing = 正在刷新…
+async_data_retained = 刷新失败，仍显示之前的数据。

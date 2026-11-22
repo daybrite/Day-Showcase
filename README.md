@@ -257,3 +257,5 @@ message until configured. Keep developer credentials out of source control.
 and back. Google map imagery requires credentials; its missing-key fallback can still be
 exercised without them. See the [map crate documentation](https://github.com/daybrite/day-piece-map) for
 the common API and provider-specific options.
+
+The Network page also demonstrates `AsyncData`: retained content during refresh and failure, cancellation, and clearing content when the source changes. An editable field makes subtree preservation visible. Run `dayscript/async-data.yaml` to verify refresh success, refresh failure, and source changes.

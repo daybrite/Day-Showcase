@@ -2,6 +2,7 @@
 
 pub(crate) mod about;
 pub(crate) mod animation;
+pub(crate) mod async_data;
 pub(crate) mod benchmark;
 pub(crate) mod camera;
 pub(crate) mod canvas;

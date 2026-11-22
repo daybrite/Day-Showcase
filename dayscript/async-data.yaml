@@ -1,0 +1,22 @@
+# Copyright © The Daybrite Project
+# SPDX-License-Identifier: MPL-2.0
+name: async-data
+flow:
+  - wait_for: { id: nav }
+  - navigate: { route: network }
+  - assert_visible: { id: async_data_value }
+  - input: { id: async_data_edit, text: "retained edit fixture" }
+  - tap: { id: async_data_refresh }
+  - assert_text: { id: async_data_value, key: async_data_value, args: { source: 1, request: 2 } }
+  - assert_text: { id: async_data_edit, text: "retained edit fixture" }
+  - toggle: { id: async_data_fail, value: true }
+  - tap: { id: async_data_refresh }
+  - assert_visible: { id: async_data_retained }
+  - assert_text: { id: async_data_edit, text: "retained edit fixture" }
+  - assert_text: { id: async_data_value, key: async_data_value, args: { source: 1, request: 2 } }
+  - toggle: { id: async_data_fail, value: false }
+  - tap: { id: async_data_source }
+  - assert_text: { id: async_data_value, key: async_data_value, args: { source: 2, request: 4 } }
+  - assert_text: { id: async_data_edit, text: "" }
+  - scroll_to: { id: async_data_edit }
+  - screenshot: async-data

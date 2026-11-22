@@ -264,6 +264,7 @@ pub(crate) fn network_page() -> AnyPiece {
                 simulation_section(st),
                 super::services::network_section(),
                 statistics_section(st),
+                super::async_data::section(),
             ))
             .spacing(Space::L)
             .align(HAlign::Leading)

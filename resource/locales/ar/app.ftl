@@ -1478,3 +1478,16 @@ detail_tweaks = تعديلات على العروض الأصلية خاصة بك�
 detail_crash_reporting = أعطال تُلتقط ويُبلَّغ عنها عند التشغيل التالي
 detail_about = ما هو Day، وما يعرضه هذا التطبيق
 detail_settings = المظهر واللغة وتفضيلات التطبيق
+
+async_data_title = بيانات غير متزامنة
+async_data_note = عدّل الحقل ثم حدّث البيانات أو اجعل الطلب يفشل. يبقى المحتوى وتعديلك ظاهرين. تغيير المصدر يبدأ من جديد.
+async_data_refresh = تحديث
+async_data_cancel = إلغاء
+async_data_source = تغيير المصدر
+async_data_fail = إفشال الطلب التالي
+async_data_value = المصدر { $source }، الطلب { $request }
+async_data_edit = يبقى هذا التعديل بعد التحديث
+async_data_loading = جارٍ التحميل…
+async_data_failed = فشل الطلب.
+async_data_refreshing = جارٍ التحديث…
+async_data_retained = فشل التحديث؛ لا تزال البيانات السابقة معروضة.

@@ -1457,3 +1457,16 @@ detail_tweaks = Ajustements des vues natives, propres à chaque boîte à outils
 detail_crash_reporting = Plantages capturés et signalés au lancement suivant
 detail_about = Ce qu’est Day, et ce que montre cette application
 detail_settings = Apparence, langue et préférences de l’application
+
+async_data_title = Données asynchrones
+async_data_note = Modifiez le champ, puis actualisez ou faites échouer une requête. Le contenu et votre saisie restent visibles. Changer la source recommence le chargement.
+async_data_refresh = Actualiser
+async_data_cancel = Annuler
+async_data_source = Changer de source
+async_data_fail = Faire échouer la prochaine requête
+async_data_value = Source { $source }, requête { $request }
+async_data_edit = Cette saisie reste après actualisation
+async_data_loading = Chargement…
+async_data_failed = La requête a échoué.
+async_data_refreshing = Actualisation…
+async_data_retained = Échec de l’actualisation ; les données précédentes restent affichées.
