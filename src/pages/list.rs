@@ -58,6 +58,14 @@ struct ListState {
 /// Rows per section when the list shows section headers.
 const SECTION_ROWS: i64 = 25;
 
+/// The least height the demo list is given, in points. The list fills what the controls leave,
+/// but on a phone, and more so in French or Arabic, the controls card alone is nearly a screen
+/// tall, and the list used to be left a sliver or nothing, the footer and no rows. 240 points
+/// holds about five 36-point rows under the reorder hint at the top of the list, and as many
+/// over the footer at its end. When the window is too short for the controls and this much
+/// list, the page scrolls instead, and the list keeps this height inside it.
+const LIST_MIN_HEIGHT: f64 = 240.0;
+
 pub(crate) fn list_page() -> AnyPiece {
     // A real Vec of row numbers (not a derived range): drag-to-reorder rotates it, shuffle
     // permutes it, and the refresh paths append to it; the order is app-owned state.
@@ -102,6 +110,16 @@ pub(crate) fn list_page() -> AnyPiece {
     );
     // Where a jump lands: the least movement, or the row at the top, middle or bottom.
     let align = Signal::new(RowAlign::Center);
+    // The page scrolls where the window is too short for the controls and the list's minimum
+    // height. The buttons that move the list also bring it into view in the page, so a jump
+    // lands where it can be seen; where the whole list is already in view the reveal moves
+    // nothing (docs/scroll.md "Programmatic scrolling").
+    let page_target: Signal<Option<ScrollTarget>> = Signal::new(None);
+    let reveal_list = move || {
+        page_target.set(Some(ScrollTarget::Id(
+            day::id!(demo_list).as_str().to_owned(),
+        )))
+    };
     // The one reload path for every begin (pull, toggle, programmatic): a timed task on the
     // main-loop executor (`day::sleep`, docs/async.md) stands in for the network: the same
     // code on every platform, including the single-threaded web backend.
@@ -146,7 +164,7 @@ pub(crate) fn list_page() -> AnyPiece {
         swipe: swipe.get(),
         delete: delete.get(),
     };
-    column((
+    let page = column((
         row((
             heading(crate::res::str::nav_list(), day::id!(list_title)),
             spacer(),
@@ -191,7 +209,10 @@ pub(crate) fn list_page() -> AnyPiece {
             row((
                 button(crate::res::str::scroll_to_top())
                     .bordered()
-                    .action(move || jump_row.set(Some(RowTarget::new(0).align(RowAlign::Start))))
+                    .action(move || {
+                        jump_row.set(Some(RowTarget::new(0).align(RowAlign::Start)));
+                        reveal_list();
+                    })
                     .id(day::id!(list_scroll_top)),
                 button(crate::res::str::scroll_to_item())
                     .bordered()
@@ -205,12 +226,16 @@ pub(crate) fn list_page() -> AnyPiece {
                         {
                             jump_row.set(Some(RowTarget::new(at).align(align.get_untracked())));
                             selected.set(BTreeSet::from([TARGET_ROW]));
+                            reveal_list();
                         }
                     })
                     .id(day::id!(list_scroll_item)),
                 button(crate::res::str::scroll_to_bottom())
                     .bordered()
-                    .action(move || jump_end.notify())
+                    .action(move || {
+                        jump_end.notify();
+                        reveal_list();
+                    })
                     .id(day::id!(list_scroll_bottom)),
                 button(crate::res::str::list_shuffle())
                     .action(move || rows.update(|v| shuffle(v)))
@@ -318,7 +343,9 @@ pub(crate) fn list_page() -> AnyPiece {
         keyed(
             move || Some(options()),
             move |o: &ListOptions| demo_list(*o, st),
-        ),
+        )
+        .min_height(LIST_MIN_HEIGHT)
+        .grow(Dimension::Both),
         options_sheet(
             options_open,
             OptionSignals {
@@ -338,8 +365,12 @@ pub(crate) fn list_page() -> AnyPiece {
     ))
     .spacing(Space::M)
     .align(HAlign::Leading)
-    .padding(20.0)
-    .any()
+    .padding(20.0);
+    // The page scrolls only where it has to: on a tall window the scroll's content is given the
+    // whole viewport and the list grows into what the controls leave, so nothing moves; on a
+    // short one the list keeps its minimum height and the page scrolls past the controls to it.
+    // The list scrolls its own rows when dragged inside it, the page when dragged anywhere else.
+    scroll(page).scroll_target(page_target).any()
 }
 
 /// The demo list as `o` configures it.

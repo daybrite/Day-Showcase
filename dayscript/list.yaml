@@ -3,7 +3,12 @@ description: Recycled rows, jumps, source changes, selection, and declared row a
 flow:
   - navigate: { route: list }
   - assert_text: { id: list_row:1, key: list_row, args: { n: 1 } }
+  # The end of the content is the footer below the last row, plus the bottom content padding.
+  # The list is never shorter than its minimum height (LIST_MIN_HEIGHT in src/pages/list.rs),
+  # so the last row is in view above the footer even on a phone in French or Arabic, where the
+  # controls fill most of the screen and the page scrolls to the list.
   - tap: { id: list_scroll_bottom }
+  - assert_text: { id: list_footer, key: list_footer, args: { count: 500 } }
   - assert_text: { id: list_row:500, key: list_row, args: { n: 500 } }
   - tap: { id: list_scroll_item }
   - assert_text: { id: list_row:100, key: list_row, args: { n: 100 } }
@@ -17,6 +22,9 @@ flow:
   - assert_text: { id: list_order, key: list_order, args: { rows: "1,4,5,2,6" } }
   - tap: { id: list_add }
   - tap: { id: list_scroll_bottom }
+  # 500 rows, less the one deleted, plus 100 (row 600 is the last).
+  - assert_visible: { id: list_footer }
+  - assert_text: { id: list_footer, key: list_footer, args: { count: 599 } }
   - assert_visible: { id: list_row:600 }
   - tap: { id: list_reset }
   - tap: { id: list_scroll_top }

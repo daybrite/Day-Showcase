@@ -1105,6 +1105,9 @@ flow:
   - activate: { id: demo_list, index: 3 }
   - assert_text: { id: list_activated, key: list_activated, args: { row: 4 } }
   - assert_text: { id: list_selection, key: list_selection, args: { count: 1, rows: "2" } }
+  # On a phone the controls fill most of the screen and the page scrolls to the list below them;
+  # bring the list into view for the shot. Where the whole page fits, nothing moves.
+  - scroll_to: { id: demo_list }
   - screenshot:
       name: list
       title: { en: "List", fr: "Liste", ar: "القائمة", zh-CN: "列表" }
