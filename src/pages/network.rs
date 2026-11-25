@@ -66,6 +66,11 @@ fn base_url() -> String {
 }
 fn demo_simulation(base: String) -> Simulation {
     let sim = Simulation::new();
+    sim.set_conditions(Conditions {
+        seed: 42,
+        latency: Duration::from_millis(50),
+        ..Conditions::default()
+    });
     let ws_base = base.replacen("http:", "ws:", 1);
     sim.handle(
         move |_, url| url.starts_with(&base) || url == "day-http-ok",
@@ -174,8 +179,7 @@ pub(crate) fn network_page() -> AnyPiece {
             failure_rate: st.failure.get() / 100.0,
             paused: st.paused.get(),
             offline: st.offline.get(),
-            seed: 42,
-            latency: Duration::from_millis(50),
+            ..sim.conditions()
         });
         st.session
             .get()
