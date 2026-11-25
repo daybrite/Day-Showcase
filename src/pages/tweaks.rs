@@ -1,7 +1,6 @@
 use day::prelude::*;
 use day_tweak_button_bezel::{Bezel, ButtonBezelTweak};
 use day_tweak_slider_tick_marks::{SliderTickmarksTweak, TickPosition, Tickmarks};
-use day_tweak_tooltip::TooltipTweak;
 
 // Tweaks (docs/tweaks.md): packaged per-toolkit configuration of built-in pieces. Each card shows
 // a stock piece beside its Tweaked Piece; the note names the toolkits the tweak affects; on
@@ -29,20 +28,6 @@ pub(crate) fn tweaks_page() -> AnyPiece {
             .spacing(Space::S)
             .align(VAlign::Center)
             .fit(RowFit::Wrap { run_spacing: 8.0 }),
-        ))
-        .spacing(Space::M)
-        .align(HAlign::Leading),
-    );
-
-    // day-tweak-tooltip: one modifier across three access tiers (objc2 / gtk4-rs / JNI). Hover the
-    // button (macOS/GTK) or long-press it (Android) to see the native tooltip.
-    let tooltip_card = crate::gallery::group(
-        crate::res::str::tweaks_tooltip_title(),
-        column((
-            crate::gallery::note(crate::res::str::tweaks_tooltip_caption()),
-            button(crate::res::str::tweaks_tooltip_label())
-                .tooltip(crate::res::str::tweaks_tooltip_hint().format())
-                .id(day::id!(tweak_tooltip_button)),
         ))
         .spacing(Space::M)
         .align(HAlign::Leading),
@@ -162,10 +147,7 @@ pub(crate) fn tweaks_page() -> AnyPiece {
     crate::widgets::page_cards(
         crate::res::str::nav_tweaks(),
         day::id!(tweaks_title),
-        crate::gallery::balanced(
-            2,
-            vec![bezel_card, tooltip_card, ticks_card, ref_card, label_card],
-        ),
+        crate::gallery::balanced(2, vec![bezel_card, ticks_card, ref_card, label_card]),
     )
     .any()
 }

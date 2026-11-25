@@ -17,11 +17,11 @@ build = "build.rs"
 # through `day build`, which passes `--no-default-features --features <backend>` (see day-cli), so the
 # mock default is stripped and never unifies with the selected backend.
 default = ["mock"]
-appkit = ["day/appkit", "dep:day-toolkit-appkit", "day-tweak-button-bezel/appkit", "day-tweak-tooltip/appkit", "day-tweak-slider-tick-marks/appkit", "day-tweak-tree-style/appkit"]
-gtk = ["day/gtk", "day-tweak-tooltip/gtk", "day-tweak-slider-tick-marks/gtk", "day-tweak-tree-style/gtk"]
+appkit = ["day/appkit", "dep:day-toolkit-appkit", "day-tweak-button-bezel/appkit", "day-tweak-slider-tick-marks/appkit", "day-tweak-tree-style/appkit"]
+gtk = ["day/gtk", "day-tweak-slider-tick-marks/gtk", "day-tweak-tree-style/gtk"]
 qt = ["day/qt", "day-tweak-slider-tick-marks/qt"]
 uikit = ["day/uikit", "dep:day-toolkit-uikit"]
-material = ["day/material", "day-tweak-tooltip/material", "day-tweak-slider-tick-marks/material"]
+material = ["day/material", "day-tweak-slider-tick-marks/material"]
 xaml = ["day/xaml", "day-tweak-slider-tick-marks/xaml"]
 # WinUI 3 (windows-winui): the xaml backend built against the Windows App SDK. The tweak crates
 # with a WinUI half are enabled as on xaml.
@@ -82,7 +82,6 @@ day-tweak-button-bezel = "0.*"
 # label card (docs/tweaks.md "Per-toolkit access"); each rides only its backend's feature.
 day-toolkit-appkit = { version = "0.*", optional = true }
 day-toolkit-uikit = { version = "0.*", optional = true }
-day-tweak-tooltip = "0.*"
 day-tweak-slider-tick-marks = "0.*"
 # The Tree page's sidebar styling (docs/tweaks.md): native no-ops outside appkit/gtk.
 day-tweak-tree-style = "0.*"

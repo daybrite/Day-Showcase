@@ -795,6 +795,22 @@ flow:
   - assert_visible: { id: "pager_name:4" }
   - toggle: { id: pager_reverse, value: false }
 
+  - navigate: { route: feedback }
+  - assert_route: { route: feedback }
+  - assert_visible: { id: tooltip_target }
+  - select: { id: tooltip_length, index: 1 }
+  - tap: { id: popover_open }
+  - assert_text: { id: popover_body, key: feedback_popover_short }
+  - tap: { id: popover_close }
+  - assert_missing: { id: popover_body }
+  - select: { id: popover_length, index: 2 }
+  - toggle: { id: popover_narrow, value: true }
+  - tap: { id: popover_open }
+  - assert_text: { id: popover_body, key: feedback_popover_long }
+  - tap: { id: popover_close }
+  - select: { id: toast_length, index: 1 }
+  - tap: { id: toast_show }
+
   # Menus & dialogs (docs/menus.md, docs/dialogs.md): the transient native surfaces in one
   # page, namely the app-menu action readout, the context-menu target, and the imperative
   # dialogs. Screenshot the pristine form first, then open each dialog, answer it, assert the
@@ -1718,10 +1734,18 @@ flow:
   - navigate: { route: gestures }
   - assert_route: { route: gestures }
   - wait_for: { id: gestures_transform_stage }
-  # Reset springs the picture home.
+  # The first finger starts a drag before the two-finger recognizers join it.
+  - drag: { id: gestures_transform_stage, from: [50, 50], to: [70, 65] }
+  - assert_text: { id: gestures_transform_offset, text: "20, 15" }
+  - pinch: { id: gestures_transform_stage, scale: 1.5 }
+  - assert_text: { id: gestures_transform_scale, text: "1.50×" }
+  - rotate: { id: gestures_transform_stage, rotation: 0.5235987756 }
+  - assert_text: { id: gestures_transform_angle, text: "30°" }
   - tap: { id: gestures_reset }
   - wait_idle:
+  - assert_text: { id: gestures_transform_offset, text: "0, 0" }
   - assert_text: { id: gestures_transform_scale, text: "1.00×" }
+  - assert_text: { id: gestures_transform_angle, text: "0°" }
   # Pointer: a scripted tap arrives through on_tap_at, and the phase readout names it. Two
   # contacts come down and lift through on_touches; a drag released at 900 pt/s reports that
   # velocity at its end.
@@ -2420,7 +2444,6 @@ flow:
   - navigate: { route: tweaks }
   - assert_route: { route: tweaks }
   - assert_visible: { id: tweak_bezel_toolbar }
-  - assert_visible: { id: tweak_tooltip_button }
   - assert_visible: { id: tweak_ticks_slider }
   - assert_text: { id: tweak_ref_status, key: tweaks_ref_live }
   - toggle: { id: tweak_ref_toggle, value: false }

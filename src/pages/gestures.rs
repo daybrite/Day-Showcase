@@ -181,10 +181,10 @@ impl Placement {
 fn transform_card() -> AnyPiece {
     let picture = Placement::new();
     let stage = Rc::new(Cell::new(Size::new(0.0, 0.0)));
-    // The values when each gesture began, and whether a pinch or a rotation is under way.
-    let base = Signal::new((0.0, 0.0, 1.0, 0.0));
-    let pinching = Signal::new(false);
-    let turning = Signal::new(false);
+    // Each handler owns its starting value for the duration of one gesture.
+    let drag_origin = Cell::new(Point::new(0.0, 0.0));
+    let pinch_origin = Cell::new(None);
+    let rotation_origin = Cell::new(None);
 
     let sized = stage.clone();
     let backdrop = canvas(move |draw: &mut Draw, size: Size| {
@@ -223,36 +223,36 @@ fn transform_card() -> AnyPiece {
     let on_drag = move |drag: Drag| {
         if drag.phase == DragPhase::Began {
             picture.hold();
-            base.update(|held| {
-                held.0 = picture.x.get_untracked();
-                held.1 = picture.y.get_untracked();
-            });
+            drag_origin.set(Point::new(
+                picture.x.get_untracked(),
+                picture.y.get_untracked(),
+            ));
         }
         // The picture's center stays on the stage, so it can always be picked up again.
         let size = stage.get();
         let reach_x = (size.width / 2.0).max(PICTURE.0 / 4.0);
         let reach_y = (size.height / 2.0).max(PICTURE.1 / 4.0);
-        let held = base.get_untracked();
+        let origin = drag_origin.get();
         picture
             .x
-            .set((held.0 + drag.translation.x).clamp(-reach_x, reach_x));
+            .set((origin.x + drag.translation.x).clamp(-reach_x, reach_x));
         picture
             .y
-            .set((held.1 + drag.translation.y).clamp(-reach_y, reach_y));
+            .set((origin.y + drag.translation.y).clamp(-reach_y, reach_y));
     };
     let on_pinch = move |pinch: Pinch| {
         let from = match pinch.phase {
             DragPhase::Began => {
                 picture.hold();
-                pinching.set(true);
                 let now = picture.scale.get_untracked();
-                base.update(|held| held.2 = now);
+                pinch_origin.set(Some(now));
                 now
             }
-            DragPhase::Changed if pinching.get_untracked() => base.get_untracked().2,
-            DragPhase::Changed => picture.scale.get_untracked(),
+            DragPhase::Changed => pinch_origin
+                .get()
+                .unwrap_or_else(|| picture.scale.get_untracked()),
             DragPhase::Ended => {
-                pinching.set(false);
+                pinch_origin.set(None);
                 return;
             }
         };
@@ -264,15 +264,15 @@ fn transform_card() -> AnyPiece {
         let from = match turn.phase {
             DragPhase::Began => {
                 picture.hold();
-                turning.set(true);
                 let now = picture.angle.get_untracked();
-                base.update(|held| held.3 = now);
+                rotation_origin.set(Some(now));
                 now
             }
-            DragPhase::Changed if turning.get_untracked() => base.get_untracked().3,
-            DragPhase::Changed => picture.angle.get_untracked(),
+            DragPhase::Changed => rotation_origin
+                .get()
+                .unwrap_or_else(|| picture.angle.get_untracked()),
             DragPhase::Ended => {
-                turning.set(false);
+                rotation_origin.set(None);
                 return;
             }
         };

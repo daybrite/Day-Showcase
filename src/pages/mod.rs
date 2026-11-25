@@ -13,6 +13,7 @@ pub(crate) mod crash;
 pub(crate) mod cursors;
 pub(crate) mod dates;
 pub(crate) mod drag_drop;
+pub(crate) mod feedback;
 pub(crate) mod feeds;
 pub(crate) mod focus;
 pub(crate) mod gestures;
