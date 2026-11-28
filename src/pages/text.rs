@@ -997,7 +997,7 @@ fn markdown_live(on: bool, md: Signal<String>) -> impl Piece {
 fn baseline() -> impl Piece {
     let aligned = Signal::new(true);
     let qty = Signal::new("12".to_string());
-    let due = Signal::new(DayDate::new(2026, 3, 9).unwrap_or_else(DayDate::today));
+    let due = Signal::new(DayDate::new(2026, 3, 9).unwrap_or_else(DayDate::today_local));
     let support = capability(Cap::BaselineAlignment);
     crate::gallery::panel(
         crate::res::str::text_baseline_section(),

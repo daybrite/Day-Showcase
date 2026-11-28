@@ -32,7 +32,7 @@ pub(crate) fn dates_page() -> AnyPiece {
 /// The seed civil date. Seeded deterministically so the per-locale screenshot grid is
 /// reproducible (the walkthrough drives changes via `input:` with ISO values).
 fn seed_date() -> DayDate {
-    DayDate::new(2026, 7, 18).unwrap_or_else(DayDate::today)
+    DayDate::new(2026, 7, 18).unwrap_or_else(DayDate::today_local)
 }
 
 fn date_section(date: Signal<DayDate>) -> impl Piece {
@@ -90,7 +90,7 @@ fn within_2026(
 fn time_section() -> impl Piece {
     // One time signal behind both time pickers: the seconds variant (honored natively on
     // AppKit/Qt; docs/datepicker.md) mirrors the compact one.
-    let time = Signal::new(DayTime::new(9, 30, 0).unwrap_or_else(DayTime::now));
+    let time = Signal::new(DayTime::new(9, 30, 0).unwrap_or_else(DayTime::now_local));
     crate::gallery::panel(
         crate::res::str::dates_time_section(),
         (
@@ -116,7 +116,7 @@ fn composed_section() -> impl Piece {
     // Combined date+time is composition (a single combined control exists on only 3 of the 7
     // toolkits, so Day doesn't paper over it; docs/datepicker.md).
     let date = Signal::new(seed_date());
-    let time = Signal::new(DayTime::new(18, 0, 0).unwrap_or_else(DayTime::now));
+    let time = Signal::new(DayTime::new(18, 0, 0).unwrap_or_else(DayTime::now_local));
     crate::gallery::panel(
         crate::res::str::dates_composed_section(),
         (labeled(

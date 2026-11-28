@@ -1051,6 +1051,10 @@ flow:
   # re-rendered under it to match.
   - assert_text: { id: toolbar_star_state, key: toolbar_on, skip_on: [ios-uikit, android-material, harmony-arkui, web-dom] }
   - screenshot: { name: toolbars-pseudo-locale, skip_on: [ios-uikit, android-material, harmony-arkui, web-dom] }
+  # Search the new localized title in the same window that indexed the original language.
+  - toolbar: { item: day::search, key: nav_toolbars, skip_on: [ios-uikit, android-material, harmony-arkui, web-dom] }
+  - assert_text: { id: toolbar_query, key: nav_toolbars, skip_on: [ios-uikit, android-material, harmony-arkui, web-dom] }
+  - toolbar: { item: day::search, text: "", skip_on: [ios-uikit, android-material, harmony-arkui, web-dom] }
   - menu: { id: cmd_pseudo_locale, skip_on: [ios-uikit, android-material, harmony-arkui, web-dom] }
   - wait_idle:
   - assert_text: { id: toolbar_star_state, key: toolbar_on, skip_on: [ios-uikit, android-material, harmony-arkui, web-dom] }

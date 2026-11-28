@@ -1130,6 +1130,18 @@ fn window_body(primary: bool) -> impl Piece {
     // "Searching"): a row survives when the query is a case-insensitive prefix of one of its
     // title's words, with the words found by the current locale's own segmentation.
     let query = pages::toolbars::search_query();
+    // Formatting the titles and finding word boundaries depends on the locale and available
+    // destinations. Neither typing nor starring a row changes the index.
+    let search = day::reactive::Memo::new_with_eq(
+        || {
+            let entries = destinations().into_iter().map(|d| {
+                let title = (d.title)().format();
+                ((d, title.clone()), title)
+            });
+            day::SearchIndex::new(&day::locale().get(), entries)
+        },
+        |_, _| false,
+    );
     // The Content List page's list is this host's own content-list pane (docs/navigation.md):
     // a third column on a desktop, the pushed middle layer on a phone, collapsed on every other
     // page. Its commands ride the pane, so they come and go with it (docs/toolbars.md).
@@ -1170,30 +1182,29 @@ fn window_body(primary: bool) -> impl Piece {
                 // them (a QCompleter popup, a <datalist>, an AutoSuggestBox; docs/search.md).
                 // Every section title that starts with what has been typed, localized, so they
                 // follow a language switch like the rows do.
-                .suggestions(|q: &str| {
-                    let q = q.to_lowercase();
-                    if q.is_empty() {
+                .suggestions(move |q: &str| {
+                    if q.trim().is_empty() {
                         return Vec::new();
                     }
-                    destinations()
-                        .into_iter()
-                        .map(|d| (d.title)().format())
-                        .filter(|t| t.to_lowercase().starts_with(&q))
-                        .take(8)
-                        .collect()
+                    search.with(|index| {
+                        index
+                            .matching_label_prefix(q)
+                            .take(8)
+                            .map(|(_, title)| title.clone())
+                            .collect()
+                    })
                 }),
         )
         // Reopen on the last-viewed section (web only; see the install_nav_store note above).
         .restore("nav.section")
         .items(nav_items(
             move || {
-                // Tracked: reads the query and (through `matches_search`) the locale, so the
-                // rows re-filter on a keystroke and re-title on a language switch.
-                let q = query.get();
-                let rows: Vec<Dest> = destinations()
-                    .into_iter()
-                    .filter(|d| matches_search(&(d.title)().format(), &q))
-                    .collect();
+                let rows = search.with(|index| {
+                    index
+                        .matching(&query.get())
+                        .map(|(d, _)| d.clone())
+                        .collect::<Vec<_>>()
+                });
                 // Starred pages leave their groups for a Starred section at the top (the
                 // way a feed reader keeps its smart feeds above the subscriptions) and keep
                 // their table order there. The rest keep table order under their group's

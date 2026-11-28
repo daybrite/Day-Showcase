@@ -89,8 +89,8 @@ impl Catalog {
             notes: Signal::new(String::new()),
             preset: Signal::new(1usize),
             // Fixed seeds, so the walkthrough's screenshots reproduce.
-            date: Signal::new(DayDate::new(2026, 9, 1).unwrap_or_else(DayDate::today)),
-            time: Signal::new(DayTime::new(9, 30, 0).unwrap_or_else(DayTime::now)),
+            date: Signal::new(DayDate::new(2026, 9, 1).unwrap_or_else(DayDate::today_local)),
+            time: Signal::new(DayTime::new(9, 30, 0).unwrap_or_else(DayTime::now_local)),
             color: Signal::new(crate::palette::SKY),
         };
         // preset → level. `watch` rather than a binding: the arrow runs one way, so dragging the

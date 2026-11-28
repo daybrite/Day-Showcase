@@ -354,10 +354,11 @@ pub(crate) fn clear_recording() -> Command {
 }
 
 /// `Day-Showcase-YYYY-MM-DD-HH-MM-SS.png`, a sortable name the user can still change in the
-/// save sheet. UTC, because that is the clock day::datetime offers (see `DayTime::now`).
+/// save sheet. Both fields use the same UTC instant, including across midnight.
 fn default_shot_name() -> String {
-    let d = day::datetime::DayDate::today();
-    let t = day::datetime::DayTime::now();
+    let secs = day::now_epoch_secs();
+    let d = day::datetime::DayDate::from_epoch_days(secs.div_euclid(86_400));
+    let t = day::datetime::DayTime::from_seconds_of_day(secs);
     format!(
         "Day-Showcase-{:04}-{:02}-{:02}-{:02}-{:02}-{:02}.png",
         d.year, d.month, d.day, t.hour, t.minute, t.second
